@@ -1,6 +1,10 @@
 from django.contrib.gis.db.models import Model
-from django.db.models.fields import BigAutoField, CharField, DateTimeField, \
-  PositiveSmallIntegerField
+from django.db.models.fields import (
+  BigAutoField,
+  CharField,
+  DateTimeField,
+  PositiveSmallIntegerField,
+)
 
 from toolbox.constants_vars import standard_validators
 
@@ -10,21 +14,9 @@ class Base(Model):
   default abstract model class
   """
 
-  id = BigAutoField(
-    verbose_name='ID',
-    primary_key=True,
-    editable=False
-  )
-  created = DateTimeField(
-    verbose_name='Erstellung',
-    auto_now_add=True,
-    editable=False
-  )
-  modified = DateTimeField(
-    verbose_name='letzte Änderung',
-    auto_now=True,
-    editable=False
-  )
+  id = BigAutoField(verbose_name='ID', primary_key=True, editable=False)
+  created = DateTimeField(verbose_name='Erstellung', auto_now_add=True, editable=False)
+  modified = DateTimeField(verbose_name='letzte Änderung', auto_now=True, editable=False)
 
   class Meta:
     abstract = True
@@ -40,16 +32,9 @@ class Codelist(Base):
   """
 
   ordinal = PositiveSmallIntegerField(
-    verbose_name='Ordinalzahl',
-    unique=True,
-    blank=True,
-    null=True
+    verbose_name='Ordinalzahl', unique=True, blank=True, null=True
   )
-  name = CharField(
-    verbose_name='Bezeichnung',
-    unique=True,
-    validators=standard_validators
-  )
+  name = CharField(verbose_name='Bezeichnung', unique=True, validators=standard_validators)
 
   class Meta(Base.Meta):
     abstract = True

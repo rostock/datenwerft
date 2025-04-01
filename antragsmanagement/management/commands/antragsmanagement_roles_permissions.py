@@ -1,11 +1,10 @@
 from django.contrib.auth.models import Group, Permission
 from django.core.management.base import BaseCommand
 
-from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
+from antragsmanagement.constants_vars import ADMINS, AUTHORITIES, REQUESTERS
 
 
 class Command(BaseCommand):
-
   def handle(self, *args, **options):
     num_groups_existing, num_groups_created = 0, 0
     num_permissions_already_assigned, num_permissions_assigned = 0, 0
@@ -25,7 +24,7 @@ class Command(BaseCommand):
       'view_cleanupeventevent',
       'add_cleanupeventevent',
       'view_cleanupeventvenue',
-      'add_cleanupeventvenue'
+      'add_cleanupeventvenue',
     ]
     permission_codenames_authority = [
       'view_cleanupeventrequest',
@@ -43,7 +42,7 @@ class Command(BaseCommand):
       'view_cleanupeventevent',
       'change_cleanupeventevent',
       'view_cleanupeventvenue',
-      'change_cleanupeventvenue'
+      'change_cleanupeventvenue',
     ]
     permission_codenames_admin = [
       'view_authority',
@@ -55,7 +54,7 @@ class Command(BaseCommand):
       'view_cleanupeventdetails',
       'view_cleanupeventdump',
       'view_cleanupeventevent',
-      'view_cleanupeventvenue'
+      'view_cleanupeventvenue',
     ]
     # get all relevant group names
     group_names = list(AUTHORITIES)
@@ -75,7 +74,8 @@ class Command(BaseCommand):
         permission_codenames = list(permission_codenames_admin)
       for permission_codename in permission_codenames:
         permission = Permission.objects.get(
-          content_type__app_label=app_label, codename=permission_codename)
+          content_type__app_label=app_label, codename=permission_codename
+        )
         if group.permissions.filter(pk=permission.pk).exists():
           num_permissions_already_assigned += 1
         else:
@@ -84,12 +84,14 @@ class Command(BaseCommand):
     self.stdout.write(
       self.style.SUCCESS(
         '{} group(s) already existing, {} group(s) created'.format(
-          num_groups_existing, num_groups_created)
+          num_groups_existing, num_groups_created
         )
+      )
     )
     self.stdout.write(
       self.style.SUCCESS(
         '{} permission(s) already assigned, {} permission(s) assigned'.format(
-          num_permissions_already_assigned, num_permissions_assigned)
+          num_permissions_already_assigned, num_permissions_assigned
         )
+      )
     )

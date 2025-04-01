@@ -1,12 +1,13 @@
 from django.db.models.fields import CharField
 
-from .base import Codelist
 from toolbox.constants_vars import standard_validators
 
+from .base import Codelist
 
 #
 # general codelists
 #
+
 
 class CodelistRequestStatus(Codelist):
   """
@@ -15,11 +16,7 @@ class CodelistRequestStatus(Codelist):
   """
 
   icon = CharField(
-    verbose_name='Icon',
-    unique=True,
-    blank=True,
-    null=True,
-    validators=standard_validators
+    verbose_name='Icon', unique=True, blank=True, null=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -70,6 +67,7 @@ class CodelistRequestStatus(Codelist):
 # codelists for request type:
 # clean-up events (Müllsammelaktionen)
 #
+
 
 class CleanupEventCodelistWasteQuantity(Codelist):
   """

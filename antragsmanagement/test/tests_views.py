@@ -1,21 +1,45 @@
 from datetime import timedelta
-from django.utils.crypto import get_random_string
 from unittest.mock import patch
 
-from .base import DefaultViewTestCase, DefaultAnonymousViewTestCase, DefaultFormViewTestCase
-from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
-  VALID_LAST_NAME, VALID_POINT_DB, VALID_POINT_VIEW, VALID_POLYGON_DB, VALID_POLYGON_VIEW, \
-  VALID_STRING, VALID_TELEPHONE, VALID_TEXT
-from .functions import create_cleanupevent_request
-from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
-  CleanupEventCodelistWasteType, CleanupEventCodelistEquipment, Authority, Email, Requester, \
-  CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
-  CleanupEventContainer, CleanupEventDump, CleanupEventRequestComment
+from django.utils.crypto import get_random_string
 
+from antragsmanagement.models import (
+  Authority,
+  CleanupEventCodelistEquipment,
+  CleanupEventCodelistWasteQuantity,
+  CleanupEventCodelistWasteType,
+  CleanupEventContainer,
+  CleanupEventDetails,
+  CleanupEventDump,
+  CleanupEventEvent,
+  CleanupEventRequest,
+  CleanupEventRequestComment,
+  CleanupEventVenue,
+  CodelistRequestStatus,
+  Email,
+  Requester,
+)
+
+from .base import DefaultAnonymousViewTestCase, DefaultFormViewTestCase, DefaultViewTestCase
+from .constants_vars import (
+  VALID_DATE,
+  VALID_EMAIL,
+  VALID_FIRST_NAME,
+  VALID_LAST_NAME,
+  VALID_POINT_DB,
+  VALID_POINT_VIEW,
+  VALID_POLYGON_DB,
+  VALID_POLYGON_VIEW,
+  VALID_STRING,
+  VALID_TELEPHONE,
+  VALID_TEXT,
+)
+from .functions import create_cleanupevent_request
 
 #
 # general
 #
+
 
 class IndexViewTest(DefaultViewTestCase):
   """
@@ -27,43 +51,74 @@ class IndexViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='index', view_args=None, status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='index',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='index', view_args=None, status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='index',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='index', view_args=None, status_code=200,
-      content_type='text/html; charset=utf-8', string='Kontaktdaten'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='index',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Kontaktdaten',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='index', view_args=None, status_code=200,
-      content_type='text/html; charset=utf-8', string='mit eigener'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='index',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='mit eigener',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='index', view_args=None, status_code=200,
-      content_type='text/html; charset=utf-8', string='E-Mails'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='index',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='E-Mails',
     )
 
 
 #
 # general objects
 #
+
 
 class AuthorityTableDataViewTest(DefaultViewTestCase):
   """
@@ -76,37 +131,67 @@ class AuthorityTableDataViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='authority_tabledata', view_args=None,
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='authority_tabledata',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='authority_tabledata', view_args=None,
-      status_code=200, content_type='application/json', string='has_necessary_permissions'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='authority_tabledata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='has_necessary_permissions',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='authority_tabledata', view_args=None,
-      status_code=200, content_type='application/json', string='has_necessary_permissions'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='authority_tabledata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='has_necessary_permissions',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='authority_tabledata', view_args=None,
-      status_code=200, content_type='application/json', string='has_necessary_permissions'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='authority_tabledata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='has_necessary_permissions',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='authority_tabledata', view_args=None,
-      status_code=200, content_type='application/json', string='ok'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='authority_tabledata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='ok',
     )
 
 
@@ -121,37 +206,67 @@ class AuthorityTableViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='authority_table', view_args=None,
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='authority_table',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='authority_table', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='authority_table',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='authority_table', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='authority_table',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='authority_table', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='authority_table',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='authority_table', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='authority_table',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
 
@@ -165,76 +280,109 @@ class AuthorityUpdateViewTest(DefaultFormViewTestCase):
   attributes_values_db_create = {
     'group': VALID_STRING,
     'name': get_random_string(length=12),
-    'email': VALID_EMAIL
+    'email': VALID_EMAIL,
   }
-  attributes_values_view_update_valid = {
-    'email': 'golda.meir@gov.il'
-  }
-  attributes_values_view_update_invalid = {
-    'email': get_random_string(length=12)
-  }
+  attributes_values_view_update_valid = {'email': 'golda.meir@gov.il'}
+  attributes_values_view_update_invalid = {'email': get_random_string(length=12)}
 
   def setUp(self):
     self.init()
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='authority_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='authority_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='authority_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='authority_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='authority_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='authority_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='authority_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='authority_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='authority_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='aktualisieren '
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='authority_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='aktualisieren ',
     )
 
   def test_post_update_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='authority_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='authority_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_update_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='authority_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='authority_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -249,37 +397,67 @@ class EmailTableDataViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='email_tabledata', view_args=None,
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='email_tabledata',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='email_tabledata', view_args=None,
-      status_code=200, content_type='application/json', string='has_necessary_permissions'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='email_tabledata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='has_necessary_permissions',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='email_tabledata', view_args=None,
-      status_code=200, content_type='application/json', string='has_necessary_permissions'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='email_tabledata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='has_necessary_permissions',
     )
 
   def test_email_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='email_tabledata', view_args=None,
-      status_code=200, content_type='application/json', string='has_necessary_permissions'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='email_tabledata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='has_necessary_permissions',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='email_tabledata', view_args=None,
-      status_code=200, content_type='application/json', string='ok'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='email_tabledata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='ok',
     )
 
 
@@ -294,37 +472,67 @@ class EmailTableViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='email_table', view_args=None,
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='email_table',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='email_table', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='email_table',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='email_table', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='email_table',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_email_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='email_table', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='email_table',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='email_table', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='email_table',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
 
@@ -338,76 +546,112 @@ class EmailUpdateViewTest(DefaultFormViewTestCase):
   attributes_values_db_create = {
     'key': get_random_string(length=12),
     'subject': get_random_string(length=12),
-    'body': VALID_TEXT
+    'body': VALID_TEXT,
   }
   attributes_values_view_update_valid = {
     'subject': get_random_string(length=12),
-    'body': get_random_string(length=12)
+    'body': get_random_string(length=12),
   }
-  attributes_values_view_update_invalid = {
-  }
+  attributes_values_view_update_invalid = {}
 
   def setUp(self):
     self.init()
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='email_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='email_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='email_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='email_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='email_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='email_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='email_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='email_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='email_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='aktualisieren '
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='email_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='aktualisieren ',
     )
 
   def test_post_update_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='email_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='email_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_update_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='email_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='email_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -422,79 +666,115 @@ class RequesterCreateViewTest(DefaultFormViewTestCase):
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
     'email': VALID_EMAIL,
-    'telephone': VALID_TELEPHONE
+    'telephone': VALID_TELEPHONE,
   }
   attributes_values_view_create_valid = {
     'organization': VALID_STRING,
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
     'email': VALID_EMAIL,
-    'telephone': VALID_TELEPHONE
+    'telephone': VALID_TELEPHONE,
   }
-  attributes_values_view_create_invalid = {
-  }
+  attributes_values_view_create_invalid = {}
 
   def setUp(self):
     self.init()
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='requester_create', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='requester_create',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='requester_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='requester_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='requester_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='neu '
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='requester_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='neu ',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='requester_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='requester_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='requester_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='requester_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='requester_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='requester_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='requester_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='requester_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -509,79 +789,115 @@ class RequesterUpdateViewTest(DefaultFormViewTestCase):
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
     'email': VALID_EMAIL,
-    'telephone': VALID_TELEPHONE
+    'telephone': VALID_TELEPHONE,
   }
   attributes_values_view_update_valid = {
     'organization': VALID_STRING,
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
     'email': VALID_EMAIL,
-    'telephone': VALID_TELEPHONE
+    'telephone': VALID_TELEPHONE,
   }
-  attributes_values_view_update_invalid = {
-  }
+  attributes_values_view_update_invalid = {}
 
   def setUp(self):
     self.init()
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='requester_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='requester_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='requester_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='requester_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='requester_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='aktualisieren '
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='requester_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='aktualisieren ',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='requester_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='requester_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='requester_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='requester_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_post_update_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='requester_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='requester_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_update_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='requester_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='requester_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -589,6 +905,7 @@ class RequesterUpdateViewTest(DefaultFormViewTestCase):
 # objects for request type:
 # clean-up events (Müllsammelaktionen)
 #
+
 
 class CleanupEventRequestTableDataViewTest(DefaultViewTestCase):
   """
@@ -602,37 +919,67 @@ class CleanupEventRequestTableDataViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', view_args=None,
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_tabledata',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', view_args=None,
-      status_code=200, content_type='application/json', string='has_necessary_permissions'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_tabledata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='has_necessary_permissions',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', view_args=None,
-      status_code=200, content_type='application/json', string='ok'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_tabledata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='ok',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', view_args=None,
-      status_code=200, content_type='application/json', string='ok'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_tabledata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='ok',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequest_tabledata', view_args=None,
-      status_code=200, content_type='application/json', string='ok'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequest_tabledata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='ok',
     )
 
 
@@ -648,38 +995,67 @@ class CleanupEventRequestTableDataReadOnlyViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata_readonly',
-      view_args=None, status_code=302, content_type='text/html; charset=utf-8', string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_tabledata_readonly',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata_readonly',
-      view_args=None, status_code=200, content_type='application/json',
-      string='has_necessary_permissions'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_tabledata_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='has_necessary_permissions',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata_readonly',
-      view_args=None, status_code=200, content_type='application/json', string='ok'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_tabledata_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='ok',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata_readonly',
-      view_args=None, status_code=200, content_type='application/json', string='ok'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_tabledata_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='ok',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequest_tabledata_readonly',
-      view_args=None, status_code=200, content_type='application/json', string='ok'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequest_tabledata_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='ok',
     )
 
 
@@ -695,37 +1071,67 @@ class CleanupEventRequestTableViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', view_args=None,
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_table',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_table',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_table',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_table',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequest_table', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequest_table',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
 
@@ -741,42 +1147,67 @@ class CleanupEventRequestTableReadOnlyViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_table_readonly',
-      view_args=None, status_code=302, content_type='text/html; charset=utf-8',
-      string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_table_readonly',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_table_readonly',
-      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
-      string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_table_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_table_readonly',
-      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
-      string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_table_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_table_readonly',
-      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
-      string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_table_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequest_table_readonly',
-      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
-      string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequest_table_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
 
@@ -792,37 +1223,67 @@ class CleanupEventRequestMapDataViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', view_args=None,
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_mapdata',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', view_args=None,
-      status_code=200, content_type='application/json', string='has_necessary_permissions'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_mapdata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='has_necessary_permissions',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', view_args=None,
-      status_code=200, content_type='application/json', string='FeatureCollection'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_mapdata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='FeatureCollection',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', view_args=None,
-      status_code=200, content_type='application/json', string='FeatureCollection'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_mapdata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='FeatureCollection',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequest_mapdata', view_args=None,
-      status_code=200, content_type='application/json', string='FeatureCollection'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequest_mapdata',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='FeatureCollection',
     )
 
 
@@ -838,42 +1299,67 @@ class CleanupEventRequestMapDataReadOnlyViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata_readonly',
-      view_args=None, status_code=302, content_type='text/html; charset=utf-8',
-      string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_mapdata_readonly',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata_readonly',
-      view_args=None, status_code=200, content_type='application/json',
-      string='has_necessary_permissions'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_mapdata_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='has_necessary_permissions',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata_readonly',
-      view_args=None, status_code=200, content_type='application/json',
-      string='FeatureCollection'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_mapdata_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='FeatureCollection',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata_readonly',
-      view_args=None, status_code=200, content_type='application/json',
-      string='FeatureCollection'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_mapdata_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='FeatureCollection',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequest_mapdata_readonly',
-      view_args=None, status_code=200, content_type='application/json',
-      string='FeatureCollection'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequest_mapdata_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string='FeatureCollection',
     )
 
 
@@ -889,37 +1375,67 @@ class CleanupEventRequestMapViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_map', view_args=None,
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_map',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_map', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_map',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_map', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_map',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_map', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_map',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequest_map', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequest_map',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
 
@@ -935,42 +1451,67 @@ class CleanupEventRequestMapReadOnlyViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_map_readonly',
-      view_args=None, status_code=302, content_type='text/html; charset=utf-8',
-      string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_map_readonly',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_map_readonly',
-      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
-      string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_map_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_map_readonly',
-      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
-      string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_map_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_map_readonly',
-      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
-      string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_map_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequest_map_readonly',
-      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
-      string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequest_map_readonly',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
 
@@ -989,20 +1530,14 @@ class CleanupEventRequestCreateViewTest(DefaultFormViewTestCase):
     status1 = CodelistRequestStatus.get_status_processed()
     status2 = CodelistRequestStatus.get_status_new()
     requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
+      first_name=VALID_FIRST_NAME, last_name=VALID_LAST_NAME, email=VALID_EMAIL
     )
-    cls.attributes_values_db_create = {
-      'status': status1,
-      'requester': requester
-    }
+    cls.attributes_values_db_create = {'status': status1, 'requester': requester}
     cls.attributes_values_view_create_valid = {
       'status': str(status2.pk),
-      'requester': str(requester.pk)
+      'requester': str(requester.pk),
     }
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -1010,62 +1545,99 @@ class CleanupEventRequestCreateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventrequest_create', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_create',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventrequest_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventrequest_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='Kontaktdaten erstellen'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Kontaktdaten erstellen',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventrequest_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventrequest_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequest_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -1084,20 +1656,14 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
     status1 = CodelistRequestStatus.get_status_processed()
     status2 = CodelistRequestStatus.get_status_new()
     requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
+      first_name=VALID_FIRST_NAME, last_name=VALID_LAST_NAME, email=VALID_EMAIL
     )
-    cls.attributes_values_db_create = {
-      'status': status1,
-      'requester': requester
-    }
+    cls.attributes_values_db_create = {'status': status1, 'requester': requester}
     cls.attributes_values_view_update_valid = {
       'status': str(status2.pk),
-      'requester': str(requester.pk)
+      'requester': str(requester.pk),
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -1105,62 +1671,99 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventrequest_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventrequest_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventrequest_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='Kontaktdaten erstellen'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Kontaktdaten erstellen',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventrequest_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventrequest_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequest_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -1179,20 +1782,14 @@ class CleanupEventRequestAuthorativeUpdateViewTest(DefaultFormViewTestCase):
     status1 = CodelistRequestStatus.get_status_processed()
     status2 = CodelistRequestStatus.get_status_new()
     requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
+      first_name=VALID_FIRST_NAME, last_name=VALID_LAST_NAME, email=VALID_EMAIL
     )
-    cls.attributes_values_db_create = {
-      'status': status1,
-      'requester': requester
-    }
+    cls.attributes_values_db_create = {'status': status1, 'requester': requester}
     cls.attributes_values_view_update_valid = {
       'status': str(status2.pk),
-      'requester': str(requester.pk)
+      'requester': str(requester.pk),
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -1200,62 +1797,99 @@ class CleanupEventRequestAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventrequest_authorative_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_authorative_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventrequest_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventrequest_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventrequest_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='aktualisieren '
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='aktualisieren ',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventrequest_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequest_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_authorative_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_authorative_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_authorative_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_authorative_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -1275,15 +1909,14 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
-      'area': VALID_POLYGON_DB
+      'area': VALID_POLYGON_DB,
     }
     cls.attributes_values_view_create_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'from_date': VALID_DATE,
-      'area': VALID_POLYGON_VIEW
+      'area': VALID_POLYGON_VIEW,
     }
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -1291,42 +1924,67 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventevent_create', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_create',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventevent_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventevent_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventevent_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventevent_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventevent_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -1334,11 +1992,17 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventevent_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -1346,11 +2010,17 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventevent_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -1370,15 +2040,14 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
-      'area': VALID_POLYGON_DB
+      'area': VALID_POLYGON_DB,
     }
     cls.attributes_values_view_update_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'from_date': VALID_DATE,
-      'area': VALID_POLYGON_VIEW
+      'area': VALID_POLYGON_VIEW,
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -1386,42 +2055,67 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventevent_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventevent_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventevent_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventevent_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventevent_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventevent_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -1429,11 +2123,17 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventevent_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -1441,11 +2141,17 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventevent_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -1465,15 +2171,14 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
-      'area': VALID_POLYGON_DB
+      'area': VALID_POLYGON_DB,
     }
     cls.attributes_values_view_update_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'from_date': VALID_DATE,
-      'area': VALID_POLYGON_VIEW
+      'area': VALID_POLYGON_VIEW,
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -1481,42 +2186,67 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventevent_authorative_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_authorative_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventevent_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventevent_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventevent_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='aktualisieren '
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='aktualisieren ',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventevent_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventevent_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -1524,11 +2254,17 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventevent_authorative_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_authorative_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -1536,11 +2272,17 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventevent_authorative_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_authorative_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -1559,14 +2301,13 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.attributes_values_view_create_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
-      'place': VALID_POINT_VIEW
+      'place': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -1574,42 +2315,67 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventvenue_create', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_create',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventvenue_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventvenue_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventvenue_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventvenue_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventvenue_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -1617,11 +2383,17 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventvenue_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -1629,11 +2401,17 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventvenue_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -1652,14 +2430,13 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.attributes_values_view_update_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
-      'place': VALID_POINT_VIEW
+      'place': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -1667,42 +2444,67 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventvenue_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventvenue_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventvenue_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventvenue_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventvenue_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventvenue_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -1710,11 +2512,17 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventvenue_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -1722,11 +2530,17 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventvenue_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -1745,14 +2559,13 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.attributes_values_view_update_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
-      'place': VALID_POINT_VIEW
+      'place': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -1760,42 +2573,67 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventvenue_authorative_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_authorative_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventvenue_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventvenue_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventvenue_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='aktualisieren '
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='aktualisieren ',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventvenue_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventvenue_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -1803,11 +2641,17 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventvenue_authorative_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_authorative_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -1815,11 +2659,17 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventvenue_authorative_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_authorative_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -1841,15 +2691,14 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
     equipment = CleanupEventCodelistEquipment.objects.first()
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'waste_quantity': waste_quantity
+      'waste_quantity': waste_quantity,
     }
     cls.attributes_values_view_create_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'waste_quantity': str(waste_quantity.pk),
-      'waste_types_annotation': VALID_STRING
+      'waste_types_annotation': VALID_STRING,
     }
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
     cls.test_object.waste_types.add(waste_type)
     cls.test_object.equipments.add(equipment)
@@ -1859,62 +2708,99 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdetails_create', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_create',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdetails_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdetails_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventdetails_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventdetails_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventdetails_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventdetails_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventdetails_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -1936,15 +2822,14 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
     equipment = CleanupEventCodelistEquipment.objects.first()
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'waste_quantity': waste_quantity
+      'waste_quantity': waste_quantity,
     }
     cls.attributes_values_view_update_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'waste_quantity': str(waste_quantity.pk),
-      'waste_types_annotation': VALID_STRING
+      'waste_types_annotation': VALID_STRING,
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
     cls.test_object.waste_types.add(waste_type)
     cls.test_object.equipments.add(equipment)
@@ -1954,62 +2839,99 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdetails_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdetails_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdetails_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventdetails_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventdetails_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventdetails_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventdetails_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventdetails_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -2031,15 +2953,14 @@ class CleanupEventDetailsAuthorativeUpdateViewTest(DefaultFormViewTestCase):
     equipment = CleanupEventCodelistEquipment.objects.first()
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'waste_quantity': waste_quantity
+      'waste_quantity': waste_quantity,
     }
     cls.attributes_values_view_update_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'waste_quantity': str(waste_quantity.pk),
-      'waste_types_annotation': VALID_STRING
+      'waste_types_annotation': VALID_STRING,
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
     cls.test_object.waste_types.add(waste_type)
     cls.test_object.equipments.add(equipment)
@@ -2049,62 +2970,99 @@ class CleanupEventDetailsAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdetails_authorative_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_authorative_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdetails_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdetails_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventdetails_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='aktualisieren '
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='aktualisieren ',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventdetails_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventdetails_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventdetails_authorative_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_authorative_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventdetails_authorative_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_authorative_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -2120,37 +3078,67 @@ class CleanupEventContainerDecisionViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', view_args=None,
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_decision',
+      view_args=None,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_decision',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_decision',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_decision',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventcontainer_decision', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventcontainer_decision',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
 
@@ -2171,16 +3159,15 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
       'pickup_date': VALID_DATE + timedelta(days=1),
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.attributes_values_view_create_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'delivery_date': VALID_DATE,
       'pickup_date': VALID_DATE + timedelta(days=1),
-      'place': VALID_POINT_VIEW
+      'place': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -2188,42 +3175,67 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_create', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_create',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventcontainer_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventcontainer_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
@@ -2231,11 +3243,17 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
@@ -2243,11 +3261,17 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -2268,17 +3292,16 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
       'pickup_date': VALID_DATE + timedelta(days=1),
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.attributes_values_view_create_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'delivery_date': VALID_DATE,
       'pickup_date': VALID_DATE + timedelta(days=1),
-      'place': VALID_POINT_VIEW
+      'place': VALID_POINT_VIEW,
     }
     cls.request_id = cleanupevent_request2.pk
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -2286,42 +3309,67 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_authorative_create', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_authorative_create',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_authorative_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_authorative_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_authorative_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_authorative_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_authorative_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='neu '
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_authorative_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='neu ',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventcontainer_authorative_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventcontainer_authorative_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
@@ -2329,13 +3377,17 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_authorative_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables={
-        'request_id': self.request_id
-      }
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_authorative_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables={'request_id': self.request_id},
     )
 
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
@@ -2343,13 +3395,17 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_authorative_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables={
-        'request_id': self.request_id
-      }
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_authorative_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables={'request_id': self.request_id},
     )
 
 
@@ -2370,16 +3426,15 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
       'pickup_date': VALID_DATE + timedelta(days=1),
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.attributes_values_view_update_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'delivery_date': VALID_DATE,
       'pickup_date': VALID_DATE + timedelta(days=1),
-      'place': VALID_POINT_VIEW
+      'place': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -2387,42 +3442,67 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_authorative_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_authorative_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='aktualisieren '
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='aktualisieren ',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventcontainer_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventcontainer_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
@@ -2430,11 +3510,17 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_authorative_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_authorative_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
@@ -2442,11 +3528,17 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_authorative_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_authorative_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -2467,7 +3559,7 @@ class CleanupEventContainerDeleteViewTest(DefaultFormViewTestCase):
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
       'pickup_date': VALID_DATE + timedelta(days=1),
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
@@ -2476,52 +3568,83 @@ class CleanupEventContainerDeleteViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_delete', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_delete',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_delete', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_delete',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_delete', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_delete',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventcontainer_delete', status_code=200,
-      content_type='text/html; charset=utf-8', string='schen '
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_delete',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='schen ',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventcontainer_delete', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventcontainer_delete',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_post_delete(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_delete',
-      object_filter={}, count=0,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventcontainer_delete',
+      object_filter={},
+      count=0,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
 
@@ -2540,15 +3663,14 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.attributes_values_view_create_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
-      'place': VALID_POINT_VIEW
+      'place': VALID_POINT_VIEW,
     }
     cls.request_id = cleanupevent_request2.pk
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -2556,42 +3678,67 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdump_authorative_create', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_authorative_create',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdump_authorative_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_authorative_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdump_authorative_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_authorative_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventdump_authorative_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='neu '
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_authorative_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='neu ',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventdump_authorative_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventdump_authorative_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_scope', False)
@@ -2599,13 +3746,17 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventdump_authorative_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables={
-        'request_id': self.request_id
-      }
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_authorative_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables={'request_id': self.request_id},
     )
 
   @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_scope', False)
@@ -2613,13 +3764,17 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventdump_authorative_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables={
-        'request_id': self.request_id
-      }
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_authorative_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables={'request_id': self.request_id},
     )
 
 
@@ -2638,14 +3793,13 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.attributes_values_view_update_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
-      'place': VALID_POINT_VIEW
+      'place': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -2653,42 +3807,67 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdump_authorative_update', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_authorative_update',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdump_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdump_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventdump_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='aktualisieren '
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='aktualisieren ',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventdump_authorative_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventdump_authorative_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_scope', False)
@@ -2696,11 +3875,17 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventdump_authorative_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_authorative_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_scope', False)
@@ -2708,11 +3893,17 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventdump_authorative_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_authorative_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -2731,7 +3922,7 @@ class CleanupEventDumpDeleteViewTest(DefaultFormViewTestCase):
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
@@ -2740,58 +3931,90 @@ class CleanupEventDumpDeleteViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdump_delete', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_delete',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdump_delete', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_delete',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventdump_delete', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_delete',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventdump_delete', status_code=200,
-      content_type='text/html; charset=utf-8', string='schen '
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_delete',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='schen ',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventdump_delete', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventdump_delete',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_post_delete(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventdump_delete',
-      object_filter={}, count=0,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdump_delete',
+      object_filter={},
+      count=0,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
 
 #
 # anonymous
 #
+
 
 class IndexAnonymousViewTest(DefaultAnonymousViewTestCase):
   """
@@ -2803,8 +4026,11 @@ class IndexAnonymousViewTest(DefaultAnonymousViewTestCase):
 
   def test(self):
     self.generic_view_test(
-      view_name='anonymous_index', view_args=None,
-      status_code=200, content_type='text/html; charset=utf-8', string='Kontaktdaten'
+      view_name='anonymous_index',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Kontaktdaten',
     )
 
 
@@ -2819,47 +4045,63 @@ class RequesterCreateAnonymousViewTest(DefaultFormViewTestCase):
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
     'email': VALID_EMAIL,
-    'telephone': VALID_TELEPHONE
+    'telephone': VALID_TELEPHONE,
   }
   attributes_values_view_create_valid = {
     'organization': VALID_STRING,
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
     'email': VALID_EMAIL,
-    'telephone': VALID_TELEPHONE
+    'telephone': VALID_TELEPHONE,
   }
-  attributes_values_view_create_invalid = {
-  }
+  attributes_values_view_create_invalid = {}
 
   def setUp(self):
     self.init()
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='anonymous_requester_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='neu '
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_requester_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='neu ',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_requester_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_requester_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_requester_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_requester_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -2874,47 +4116,63 @@ class RequesterUpdateAnonymousViewTest(DefaultFormViewTestCase):
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
     'email': VALID_EMAIL,
-    'telephone': VALID_TELEPHONE
+    'telephone': VALID_TELEPHONE,
   }
   attributes_values_view_update_valid = {
     'organization': VALID_STRING,
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
     'email': VALID_EMAIL,
-    'telephone': VALID_TELEPHONE
+    'telephone': VALID_TELEPHONE,
   }
-  attributes_values_view_update_invalid = {
-  }
+  attributes_values_view_update_invalid = {}
 
   def setUp(self):
     self.init()
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='anonymous_requester_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='aktualisieren '
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_requester_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='aktualisieren ',
     )
 
   def test_post_update_success(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_requester_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_requester_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_update_error(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_requester_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_requester_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -2930,8 +4188,11 @@ class CleanupEventRequestDataAnonymousViewTest(DefaultAnonymousViewTestCase):
 
   def test(self):
     self.generic_view_test(
-      view_name='anonymous_cleanupeventrequest_data', view_args=None,
-      status_code=200, content_type='application/json; charset=utf-8', string='FeatureCollection'
+      view_name='anonymous_cleanupeventrequest_data',
+      view_args=None,
+      status_code=200,
+      content_type='application/json; charset=utf-8',
+      string='FeatureCollection',
     )
 
 
@@ -2947,8 +4208,11 @@ class CleanupEventRequestMapDataAnonymousViewTest(DefaultAnonymousViewTestCase):
 
   def test(self):
     self.generic_view_test(
-      view_name='anonymous_cleanupeventrequest_mapdata', view_args={'request_id': 1},
-      status_code=200, content_type='application/json', string='FeatureCollection'
+      view_name='anonymous_cleanupeventrequest_mapdata',
+      view_args={'request_id': 1},
+      status_code=200,
+      content_type='application/json',
+      string='FeatureCollection',
     )
 
 
@@ -2964,8 +4228,11 @@ class CleanupEventRequestMapAnonymousViewTest(DefaultAnonymousViewTestCase):
 
   def test(self):
     self.generic_view_test(
-      view_name='anonymous_cleanupeventrequest_map', view_args={'request_id': 1},
-      status_code=200, content_type='text/html; charset=utf-8', string='Antrag'
+      view_name='anonymous_cleanupeventrequest_map',
+      view_args={'request_id': 1},
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag',
     )
 
 
@@ -2984,21 +4251,15 @@ class CleanupEventRequestCreateAnonymousViewTest(DefaultFormViewTestCase):
     status1 = CodelistRequestStatus.get_status_processed()
     status2 = CodelistRequestStatus.get_status_new()
     requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
+      first_name=VALID_FIRST_NAME, last_name=VALID_LAST_NAME, email=VALID_EMAIL
     )
     cls.requester_id = requester.pk
-    cls.attributes_values_db_create = {
-      'status': status1,
-      'requester': requester
-    }
+    cls.attributes_values_db_create = {'status': status1, 'requester': requester}
     cls.attributes_values_view_create_valid = {
       'status': str(status2.pk),
-      'requester': str(requester.pk)
+      'requester': str(requester.pk),
     }
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -3006,32 +4267,47 @@ class CleanupEventRequestCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='anonymous_cleanupeventrequest_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='Kontaktdaten erstellen'
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventrequest_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Kontaktdaten erstellen',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventrequest_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables={
-        'corresponding_requester': self.requester_id
-      }
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventrequest_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables={'corresponding_requester': self.requester_id},
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventrequest_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventrequest_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -3050,21 +4326,15 @@ class CleanupEventRequestUpdateAnonymousViewTest(DefaultFormViewTestCase):
     status1 = CodelistRequestStatus.get_status_processed()
     status2 = CodelistRequestStatus.get_status_new()
     requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
+      first_name=VALID_FIRST_NAME, last_name=VALID_LAST_NAME, email=VALID_EMAIL
     )
     cls.requester_id = requester.pk
-    cls.attributes_values_db_create = {
-      'status': status1,
-      'requester': requester
-    }
+    cls.attributes_values_db_create = {'status': status1, 'requester': requester}
     cls.attributes_values_view_update_valid = {
       'status': str(status2.pk),
-      'requester': str(requester.pk)
+      'requester': str(requester.pk),
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -3072,32 +4342,47 @@ class CleanupEventRequestUpdateAnonymousViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='anonymous_cleanupeventrequest_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='Kontaktdaten erstellen'
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventrequest_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Kontaktdaten erstellen',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventrequest_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables={
-        'corresponding_requester': self.requester_id
-      }
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventrequest_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables={'corresponding_requester': self.requester_id},
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventrequest_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventrequest_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -3117,15 +4402,14 @@ class CleanupEventEventCreateAnonymousViewTest(DefaultFormViewTestCase):
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
-      'area': VALID_POLYGON_DB
+      'area': VALID_POLYGON_DB,
     }
     cls.attributes_values_view_create_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'from_date': VALID_DATE,
-      'area': VALID_POLYGON_VIEW
+      'area': VALID_POLYGON_VIEW,
     }
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -3133,10 +4417,15 @@ class CleanupEventEventCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='anonymous_cleanupeventevent_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventevent_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -3144,11 +4433,17 @@ class CleanupEventEventCreateAnonymousViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventevent_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventevent_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -3156,11 +4451,17 @@ class CleanupEventEventCreateAnonymousViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventevent_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventevent_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -3180,15 +4481,14 @@ class CleanupEventEventUpdateAnonymousViewTest(DefaultFormViewTestCase):
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
-      'area': VALID_POLYGON_DB
+      'area': VALID_POLYGON_DB,
     }
     cls.attributes_values_view_update_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'from_date': VALID_DATE,
-      'area': VALID_POLYGON_VIEW
+      'area': VALID_POLYGON_VIEW,
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -3196,10 +4496,15 @@ class CleanupEventEventUpdateAnonymousViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='anonymous_cleanupeventevent_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventevent_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -3207,11 +4512,17 @@ class CleanupEventEventUpdateAnonymousViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventevent_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventevent_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -3219,11 +4530,17 @@ class CleanupEventEventUpdateAnonymousViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventevent_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventevent_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -3242,14 +4559,13 @@ class CleanupEventVenueCreateAnonymousViewTest(DefaultFormViewTestCase):
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.attributes_values_view_create_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
-      'place': VALID_POINT_VIEW
+      'place': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -3257,10 +4573,15 @@ class CleanupEventVenueCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='anonymous_cleanupeventvenue_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventvenue_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -3268,11 +4589,17 @@ class CleanupEventVenueCreateAnonymousViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventvenue_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventvenue_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -3280,11 +4607,17 @@ class CleanupEventVenueCreateAnonymousViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventvenue_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventvenue_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -3303,14 +4636,13 @@ class CleanupEventVenueUpdateAnonymousViewTest(DefaultFormViewTestCase):
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.attributes_values_view_update_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
-      'place': VALID_POINT_VIEW
+      'place': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -3318,10 +4650,15 @@ class CleanupEventVenueUpdateAnonymousViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='anonymous_cleanupeventvenue_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventvenue_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -3329,11 +4666,17 @@ class CleanupEventVenueUpdateAnonymousViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventvenue_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventvenue_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -3341,11 +4684,17 @@ class CleanupEventVenueUpdateAnonymousViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventvenue_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventvenue_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -3367,15 +4716,14 @@ class CleanupEventDetailsCreateAnonymousViewTest(DefaultFormViewTestCase):
     equipment = CleanupEventCodelistEquipment.objects.first()
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'waste_quantity': waste_quantity
+      'waste_quantity': waste_quantity,
     }
     cls.attributes_values_view_create_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'waste_quantity': str(waste_quantity.pk),
-      'waste_types_annotation': VALID_STRING
+      'waste_types_annotation': VALID_STRING,
     }
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
     cls.test_object.waste_types.add(waste_type)
     cls.test_object.equipments.add(equipment)
@@ -3385,30 +4733,47 @@ class CleanupEventDetailsCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='anonymous_cleanupeventdetails_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventdetails_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventdetails_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventdetails_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventdetails_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventdetails_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -3430,15 +4795,14 @@ class CleanupEventDetailsUpdateAnonymousViewTest(DefaultFormViewTestCase):
     equipment = CleanupEventCodelistEquipment.objects.first()
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'waste_quantity': waste_quantity
+      'waste_quantity': waste_quantity,
     }
     cls.attributes_values_view_update_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'waste_quantity': str(waste_quantity.pk),
-      'waste_types_annotation': VALID_STRING
+      'waste_types_annotation': VALID_STRING,
     }
-    cls.attributes_values_view_update_invalid = {
-    }
+    cls.attributes_values_view_update_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
     cls.test_object.waste_types.add(waste_type)
     cls.test_object.equipments.add(equipment)
@@ -3448,30 +4812,47 @@ class CleanupEventDetailsUpdateAnonymousViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=True, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='anonymous_cleanupeventdetails_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventdetails_update',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventdetails_update',
-      object_filter=self.attributes_values_view_update_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventdetails_update',
+      object_filter=self.attributes_values_view_update_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventdetails_update',
-      object_filter=self.attributes_values_view_update_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventdetails_update',
+      object_filter=self.attributes_values_view_update_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -3487,10 +4868,15 @@ class CleanupEventContainerDecisionAnonymousViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventcontainer_decision',
-      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
-      string='Antrag erstellen'
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventcontainer_decision',
+      view_args=None,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
 
@@ -3511,16 +4897,15 @@ class CleanupEventContainerCreateAnonymousViewTest(DefaultFormViewTestCase):
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
       'pickup_date': VALID_DATE + timedelta(days=1),
-      'place': VALID_POINT_DB
+      'place': VALID_POINT_DB,
     }
     cls.attributes_values_view_create_valid = {
       'cleanupevent_request': str(cleanupevent_request2.pk),
       'delivery_date': VALID_DATE,
       'pickup_date': VALID_DATE + timedelta(days=1),
-      'place': VALID_POINT_VIEW
+      'place': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -3528,10 +4913,15 @@ class CleanupEventContainerCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='anonymous_cleanupeventcontainer_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventcontainer_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='Antrag erstellen',
     )
 
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
@@ -3539,11 +4929,17 @@ class CleanupEventContainerCreateAnonymousViewTest(DefaultFormViewTestCase):
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventcontainer_create',
-      object_filter=self.attributes_values_view_create_valid, count=1,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventcontainer_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=1,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables=None,
     )
 
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
@@ -3551,11 +4947,17 @@ class CleanupEventContainerCreateAnonymousViewTest(DefaultFormViewTestCase):
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=False,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='anonymous_cleanupeventcontainer_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables=None
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventcontainer_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables=None,
     )
 
 
@@ -3575,15 +4977,14 @@ class CleanupEventRequestCommentListViewTest(DefaultViewTestCase):
     cls.cleanupevent_request = cleanupevent_request
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request,
-      'content': VALID_TEXT
+      'content': VALID_TEXT,
     }
     cls.attributes_values_view_create_valid = {
       'cleanupevent_request': str(cleanupevent_request.pk),
       'content': VALID_TEXT,
-      'send_to_requester': False
+      'send_to_requester': False,
     }
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -3591,42 +4992,67 @@ class CleanupEventRequestCommentListViewTest(DefaultViewTestCase):
 
   def test_anonymous(self):
     self.generic_view_test(
-      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequestcomment_list',
-      view_args={'request_id': self.cleanupevent_request.pk}, status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_list',
+      view_args={'request_id': self.cleanupevent_request.pk},
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequestcomment_list',
-      view_args={'request_id': self.cleanupevent_request.pk}, status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_list',
+      view_args={'request_id': self.cleanupevent_request.pk},
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequestcomment_list',
-      view_args={'request_id': self.cleanupevent_request.pk}, status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_list',
+      view_args={'request_id': self.cleanupevent_request.pk},
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequestcomment_list',
-      view_args={'request_id': self.cleanupevent_request.pk}, status_code=200,
-      content_type='text/html; charset=utf-8', string='vorhanden'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_list',
+      view_args={'request_id': self.cleanupevent_request.pk},
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='vorhanden',
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
-      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequestcomment_list',
-      view_args={'request_id': self.cleanupevent_request.pk}, status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequestcomment_list',
+      view_args={'request_id': self.cleanupevent_request.pk},
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
 
@@ -3645,16 +5071,15 @@ class CleanupEventRequestCommentCreateViewTest(DefaultFormViewTestCase):
     cleanupevent_request = create_cleanupevent_request(False)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request,
-      'content': VALID_TEXT
+      'content': VALID_TEXT,
     }
     cls.attributes_values_view_create_valid = {
       'cleanupevent_request': str(cleanupevent_request.pk),
       'content': VALID_TEXT,
-      'send_to_requester': False
+      'send_to_requester': False,
     }
     cls.request_id = cleanupevent_request.pk
-    cls.attributes_values_view_create_invalid = {
-    }
+    cls.attributes_values_view_create_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
@@ -3662,64 +5087,97 @@ class CleanupEventRequestCommentCreateViewTest(DefaultFormViewTestCase):
 
   def test_get_anonymous(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=False, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventrequestcomment_create', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      update_mode=False,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_create',
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_no_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventrequestcomment_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=True,
-      antragsmanagement_authority=False, antragsmanagement_admin=False,
-      view_name='cleanupeventrequestcomment_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_get_authority_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=True, antragsmanagement_admin=False,
-      view_name='cleanupeventrequestcomment_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='neu '
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='neu ',
     )
 
   def test_get_admin_permissions(self):
     self.generic_form_view_get_test(
-      update_mode=False, log_in=True, antragsmanagement_requester=False,
-      antragsmanagement_authority=False, antragsmanagement_admin=True,
-      view_name='cleanupeventrequestcomment_create', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      update_mode=False,
+      log_in=True,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=True,
+      view_name='cleanupeventrequestcomment_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
     )
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequestcomment_create',
-      object_filter=self.attributes_values_view_create_valid, count=2,
-      status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables={
-        'request_id': self.request_id
-      }
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_create',
+      object_filter=self.attributes_values_view_create_valid,
+      count=2,
+      status_code=302,
+      content_type='text/html; charset=utf-8',
+      string=None,
+      session_variables={'request_id': self.request_id},
     )
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
       log_in=True,
-      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequestcomment_create',
-      object_filter=self.attributes_values_view_create_invalid, count=1,
-      status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables={
-        'request_id': self.request_id
-      }
+      update_mode=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=True,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_create',
+      object_filter=self.attributes_values_view_create_invalid,
+      count=1,
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='alert',
+      session_variables={'request_id': self.request_id},
     )

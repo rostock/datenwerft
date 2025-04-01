@@ -1,4 +1,5 @@
 from datetime import date, datetime
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -12,31 +13,69 @@ from django.views.generic.base import TemplateView
 from django_ratelimit.decorators import ratelimit
 from jsonview.views import JsonView
 
-from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
-  ObjectUpdateView, ObjectDeleteView
-from .forms import ObjectForm, RequesterForm, RequestForm, RequestFollowUpForm, \
-  CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
-from .functions import add_model_context_elements, add_permissions_context_elements, \
-  add_useragent_context_elements, additional_messages, clean_initial_field_values, \
-  get_cleanupeventrequest_anonymous_api_feature, get_cleanupeventrequest_anonymous_feature, \
-  get_cleanupeventrequest_feature, get_cleanupeventrequest_queryset, \
-  get_corresponding_cleanupeventrequest_geometry, get_referer, get_referer_url, geometry_keeper, \
-  send_cleanupeventrequest_email
-from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
-from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
-  Requester, CleanupEventRequest, CleanupEventResponsibilities, CleanupEventEvent, \
-  CleanupEventVenue, CleanupEventDetails, CleanupEventContainer, CleanupEventDump, \
-  CleanupEventRequestComment
-from antragsmanagement.utils import check_necessary_permissions, \
-  belongs_to_antragsmanagement_authority, get_corresponding_requester, get_icon_from_settings, \
-  get_request
+from antragsmanagement.constants_vars import ADMINS, AUTHORITIES, REQUESTERS
+from antragsmanagement.models import (
+  Authority,
+  CleanupEventContainer,
+  CleanupEventDetails,
+  CleanupEventDump,
+  CleanupEventEvent,
+  CleanupEventRequest,
+  CleanupEventRequestComment,
+  CleanupEventResponsibilities,
+  CleanupEventVenue,
+  CodelistRequestStatus,
+  Email,
+  GeometryObject,
+  Requester,
+)
+from antragsmanagement.utils import (
+  belongs_to_antragsmanagement_authority,
+  check_necessary_permissions,
+  get_corresponding_requester,
+  get_icon_from_settings,
+  get_request,
+)
 from bemas.utils import generate_user_string
 from toolbox.utils import format_date_datetime
 
+from .base import (
+  ObjectCreateView,
+  ObjectDeleteView,
+  ObjectTableDataView,
+  ObjectTableView,
+  ObjectUpdateView,
+)
+from .forms import (
+  CleanupEventContainerForm,
+  CleanupEventDetailsForm,
+  CleanupEventEventForm,
+  ObjectForm,
+  RequesterForm,
+  RequestFollowUpForm,
+  RequestForm,
+)
+from .functions import (
+  add_model_context_elements,
+  add_permissions_context_elements,
+  add_useragent_context_elements,
+  additional_messages,
+  clean_initial_field_values,
+  geometry_keeper,
+  get_cleanupeventrequest_anonymous_api_feature,
+  get_cleanupeventrequest_anonymous_feature,
+  get_cleanupeventrequest_feature,
+  get_cleanupeventrequest_queryset,
+  get_corresponding_cleanupeventrequest_geometry,
+  get_referer,
+  get_referer_url,
+  send_cleanupeventrequest_email,
+)
 
 #
 # general
 #
+
 
 class IndexView(TemplateView):
   """
@@ -69,13 +108,15 @@ class IndexView(TemplateView):
       context['corresponding_requester'] = get_corresponding_requester(self.request.user)
     else:
       context['corresponding_requester'] = get_corresponding_requester(
-        user=None, request=self.request)
+        user=None, request=self.request
+      )
     return context
 
 
 #
 # general objects
 #
+
 
 class AuthorityTableDataView(ObjectTableDataView):
   """
@@ -313,10 +354,12 @@ class RequestMixin:
     # pass requester to form
     if self.request.user.is_authenticated:
       kwargs['requester'] = get_corresponding_requester(
-        user=self.request.user, request=None, only_primary_key=False)
+        user=self.request.user, request=None, only_primary_key=False
+      )
     else:
       kwargs['requester'] = get_corresponding_requester(
-        user=None, request=self.request, only_primary_key=False)
+        user=None, request=self.request, only_primary_key=False
+      )
     return kwargs
 
   def post(self, request, *args, **kwargs):
@@ -362,7 +405,8 @@ class RequestMixin:
       context['corresponding_requester'] = get_corresponding_requester(self.request.user)
     else:
       context['corresponding_requester'] = get_corresponding_requester(
-        user=None, request=self.request)
+        user=None, request=self.request
+      )
     # add to context: information about request workflow
     context['request_workflow'] = self.request_workflow
     # add to context: disabled fields
@@ -383,7 +427,7 @@ class RequestMixin:
       requester = get_corresponding_requester(user=None, request=self.request)
     return {
       'status': CodelistRequestStatus.get_status_new(),
-      'requester': requester if requester else Requester.objects.none()
+      'requester': requester if requester else Requester.objects.none(),
     }
 
 
@@ -414,9 +458,7 @@ class RequestFollowUpMixin:
     # and pass it to form
     if self.request.session.get('request_id', None):
       kwargs['request_object'] = get_request(
-        self.request_model,
-        self.request.session.get('request_id', None),
-        only_primary_key=False
+        self.request_model, self.request.session.get('request_id', None), only_primary_key=False
       )
     return kwargs
 
@@ -427,12 +469,12 @@ class RequestFollowUpMixin:
           request_object = get_request(
             self.request_model,
             self.request.session.get('request_id', None),
-            only_primary_key=False
+            only_primary_key=False,
           )
           request_object.delete()
           messages.warning(request, self.cancel_message)
         except self.request_model.DoesNotExist:
-            raise Http404(self.error_message)
+          raise Http404(self.error_message)
       if request.user.is_authenticated:
         return redirect('antragsmanagement:index')
       else:
@@ -521,8 +563,7 @@ class RequestFollowUpAuthorativeMixin:
     context['disabled_fields'] = []
     # add to context: URLs
     context['cancel_url'] = get_referer_url(
-      referer=get_referer(self.request),
-      fallback='antragsmanagement:index'
+      referer=get_referer(self.request), fallback='antragsmanagement:index'
     )
     # add permissions related context elements:
     # set authority permissions as necessary permissions
@@ -536,9 +577,7 @@ class RequestFollowUpAuthorativeMixin:
     :return: dictionary with initial field values for this view
     """
     return clean_initial_field_values(
-      fields=self.model._meta.get_fields(),
-      model=self.model,
-      curr_obj=self.object
+      fields=self.model._meta.get_fields(), model=self.model, curr_obj=self.object
     )
 
   def get_success_url(self):
@@ -610,8 +649,7 @@ class RequestFollowUpDeleteMixin:
     context = super().get_context_data(**kwargs)
     # add to context: URLs
     context['cancel_url'] = get_referer_url(
-      referer=get_referer(self.request),
-      fallback='antragsmanagement:index'
+      referer=get_referer(self.request), fallback='antragsmanagement:index'
     )
     # add permissions related context elements:
     # set authority permissions as necessary permissions
@@ -637,6 +675,7 @@ class RequestFollowUpDeleteMixin:
 # clean-up events (Müllsammelaktionen)
 #
 
+
 class CleanupEventRequestTableDataView(ObjectTableDataView):
   """
   view for composing table data out of instances of object
@@ -661,7 +700,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     'details_waste_types': 'Abfallart(en)',
     'details_equipments': 'benötigte Ausstattung(en)',
     'container_delivery': 'Container-Stellung',
-    'container_pickup': 'Container-Abholung'
+    'container_pickup': 'Container-Abholung',
   }
 
   def get_initial_queryset(self):
@@ -703,105 +742,144 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
           item_data.append(data)
         # append links for authorative updating
         if (
-            belongs_to_antragsmanagement_authority(self.request.user)
-            and 'readonly' not in self.request.resolver_match.url_name
-            or self.request.user.is_superuser
+          belongs_to_antragsmanagement_authority(self.request.user)
+          and 'readonly' not in self.request.resolver_match.url_name
+          or self.request.user.is_superuser
         ):
-          if (
-              self.request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
-              or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
-          ):
+          if self.request.user.has_perm(
+            'antragsmanagement.view_cleanupeventrequest'
+          ) or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest'):
             links = '<a class="mb-1 btn btn-sm btn-outline-warning" role="button" '
             links += 'title="Antrag ansehen oder bearbeiten" '
-            links += 'href="' + reverse(
-              viewname='antragsmanagement:cleanupeventrequest_authorative_update',
-              kwargs={'pk': item['id']}
-            ) + '">'
+            links += (
+              'href="'
+              + reverse(
+                viewname='antragsmanagement:cleanupeventrequest_authorative_update',
+                kwargs={'pk': item['id']},
+              )
+              + '">'
+            )
             links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
             links += 'Antrag</a>'
             event = CleanupEventEvent.objects.filter(cleanupevent_request=item['id']).first()
             if event:
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Aktionsdaten ansehen oder bearbeiten" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventevent_authorative_update',
-                kwargs={'pk': event.pk}
-              ) + '">'
+              links += (
+                'href="'
+                + reverse(
+                  viewname='antragsmanagement:cleanupeventevent_authorative_update',
+                  kwargs={'pk': event.pk},
+                )
+                + '">'
+              )
               links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Aktionsdaten</a>'
             venue = CleanupEventVenue.objects.filter(cleanupevent_request=item['id']).first()
             if venue:
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Treffpunkt ansehen oder bearbeiten" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventvenue_authorative_update',
-                kwargs={'pk': venue.pk}
-              ) + '">'
+              links += (
+                'href="'
+                + reverse(
+                  viewname='antragsmanagement:cleanupeventvenue_authorative_update',
+                  kwargs={'pk': venue.pk},
+                )
+                + '">'
+              )
               links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Treffpunkt</a>'
             details = CleanupEventDetails.objects.filter(cleanupevent_request=item['id']).first()
             if details:
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Detailangaben ansehen oder bearbeiten" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventdetails_authorative_update',
-                kwargs={'pk': details.pk}
-              ) + '">'
+              links += (
+                'href="'
+                + reverse(
+                  viewname='antragsmanagement:cleanupeventdetails_authorative_update',
+                  kwargs={'pk': details.pk},
+                )
+                + '">'
+              )
               links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Detailangaben</a>'
             container = CleanupEventContainer.objects.filter(
-              cleanupevent_request=item['id']).first()
+              cleanupevent_request=item['id']
+            ).first()
             if container:
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Containerdaten ansehen oder bearbeiten" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventcontainer_authorative_update',
-                kwargs={'pk': container.pk}
-              ) + '">'
+              links += (
+                'href="'
+                + reverse(
+                  viewname='antragsmanagement:cleanupeventcontainer_authorative_update',
+                  kwargs={'pk': container.pk},
+                )
+                + '">'
+              )
               links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Containerdaten</a>'
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-danger" role="button" '
               links += 'title="Containerdaten löschen" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventcontainer_delete',
-                kwargs={'pk': container.pk}
-              ) + '">'
+              links += (
+                'href="'
+                + reverse(
+                  viewname='antragsmanagement:cleanupeventcontainer_delete',
+                  kwargs={'pk': container.pk},
+                )
+                + '">'
+              )
               links += '<i class="fas fa-' + get_icon_from_settings('delete') + '"></i> '
               links += 'Containerdaten</a>'
             else:
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
               links += 'title="neue Containerdaten anlegen" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventcontainer_authorative_create',
-                kwargs={'request_id': item['id']}
-              ) + '">'
+              links += (
+                'href="'
+                + reverse(
+                  viewname='antragsmanagement:cleanupeventcontainer_authorative_create',
+                  kwargs={'request_id': item['id']},
+                )
+                + '">'
+              )
               links += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
               links += 'Containerdaten</a>'
             dump = CleanupEventDump.objects.filter(cleanupevent_request=item['id']).first()
             if dump:
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Müllablageplatz ansehen oder bearbeiten" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventdump_authorative_update',
-                kwargs={'pk': dump.pk}
-              ) + '">'
+              links += (
+                'href="'
+                + reverse(
+                  viewname='antragsmanagement:cleanupeventdump_authorative_update',
+                  kwargs={'pk': dump.pk},
+                )
+                + '">'
+              )
               links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Müllablageplatz</a>'
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-danger" role="button" '
               links += 'title="Müllablageplatz löschen" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventdump_delete',
-                kwargs={'pk': dump.pk}
-              ) + '">'
+              links += (
+                'href="'
+                + reverse(
+                  viewname='antragsmanagement:cleanupeventdump_delete', kwargs={'pk': dump.pk}
+                )
+                + '">'
+              )
               links += '<i class="fas fa-' + get_icon_from_settings('delete') + '"></i> '
               links += 'Müllablageplatz</a>'
             else:
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
               links += 'title="neuen Müllablageplatz anlegen" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventdump_authorative_create',
-                kwargs={'request_id': item['id']}
-              ) + '">'
+              links += (
+                'href="'
+                + reverse(
+                  viewname='antragsmanagement:cleanupeventdump_authorative_create',
+                  kwargs={'request_id': item['id']},
+                )
+                + '">'
+              )
               links += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
               links += 'Müllablageplatz</a>'
             item_data.append(links)
@@ -809,7 +887,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
             if CleanupEventRequestComment.objects.filter(cleanupevent_request=item['id']).exists():
               list_url = reverse(
                 viewname='antragsmanagement:cleanupeventrequestcomment_list',
-                kwargs={'request_id': item['id']}
+                kwargs={'request_id': item['id']},
               )
               comments += '<button class="mb-1 btn btn-sm btn-outline-secondary '
               comments += 'request-comment-list" '
@@ -822,10 +900,14 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
             else:
               comments += '<a class="mb-1 btn btn-sm btn-outline-primary" role="button" '
             comments += 'title="neuen Kommentar anlegen" '
-            comments += 'href="' + reverse(
-              viewname='antragsmanagement:cleanupeventrequestcomment_create',
-              kwargs={'request_id': item['id']}
-            ) + '">'
+            comments += (
+              'href="'
+              + reverse(
+                viewname='antragsmanagement:cleanupeventrequestcomment_create',
+                kwargs={'request_id': item['id']},
+              )
+              + '">'
+            )
             comments += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
             comments += '<i class="fas fa-' + get_icon_from_settings('comment') + '"></i></a>'
             item_data.append(comments)
@@ -839,10 +921,12 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     :param qs: queryset
     :return: filtered queryset
     """
+
     def search(search_base, search_str):
       search_str_lower = search_str.lower()
       return [
-        search_item for search_item in search_base
+        search_item
+        for search_item in search_base
         if any(
           search_str_lower in format_date_datetime(value)
           if isinstance(value, (date, datetime))
@@ -850,6 +934,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
           for value in search_item.values()
         )
       ]
+
     current_search_str = self.request.GET.get('search[value]', None)
     if current_search_str:
       return search(qs, current_search_str)
@@ -862,6 +947,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     :param qs: queryset
     :return: sorted queryset
     """
+
     def sort_key(x):
       """
       returns a tuple where the first element is a boolean
@@ -869,6 +955,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
       and the second element is the value at the passed key in the passed dict itself
       """
       return x[column_name] is None, x[column_name]
+
     # assume initial order since multiple column sorting is prohibited
     if self.request.GET.get('order[0][column]', None):
       order_column = self.request.GET.get('order[0][column]')
@@ -955,59 +1042,47 @@ class CleanupEventRequestMapDataView(JsonView):
         read_only = True
       objects = get_cleanupeventrequest_queryset(self.request.user, False, read_only)
       # declare empty GeoJSON feature collection
-      feature_collection = {
-        'type': 'FeatureCollection',
-        'features': []
-      }
+      feature_collection = {'type': 'FeatureCollection', 'features': []}
       # handle objects
       if objects:
         authorative_rights = False
         if (
-            belongs_to_antragsmanagement_authority(self.request.user)
-            and not read_only
-            or self.request.user.is_superuser
+          belongs_to_antragsmanagement_authority(self.request.user)
+          and not read_only
+          or self.request.user.is_superuser
         ):
-          if (
-              self.request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
-              or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
-          ):
+          if self.request.user.has_perm(
+            'antragsmanagement.view_cleanupeventrequest'
+          ) or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest'):
             authorative_rights = True
         for curr_object in objects:
           # add GeoJSON feature for event to GeoJSON feature collection
           event = get_cleanupeventrequest_feature(
-            curr_object=curr_object,
-            curr_type='event',
-            authorative_rights=authorative_rights
+            curr_object=curr_object, curr_type='event', authorative_rights=authorative_rights
           )
           if event:
             feature_collection['features'].append(event)
           # add GeoJSON feature for venue to GeoJSON feature collection
           venue = get_cleanupeventrequest_feature(
-            curr_object=curr_object,
-            curr_type='venue',
-            authorative_rights=authorative_rights
+            curr_object=curr_object, curr_type='venue', authorative_rights=authorative_rights
           )
           if venue:
             feature_collection['features'].append(venue)
           # add GeoJSON feature for container to GeoJSON feature collection
           container = get_cleanupeventrequest_feature(
-            curr_object=curr_object,
-            curr_type='container',
-            authorative_rights=authorative_rights
+            curr_object=curr_object, curr_type='container', authorative_rights=authorative_rights
           )
           if container:
             feature_collection['features'].append(container)
           # add GeoJSON feature for dump to GeoJSON feature collection
           dump = get_cleanupeventrequest_feature(
-            curr_object=curr_object,
-            curr_type='dump',
-            authorative_rights=authorative_rights
+            curr_object=curr_object, curr_type='dump', authorative_rights=authorative_rights
           )
           if dump:
             feature_collection['features'].append(dump)
       return feature_collection
     return HttpResponse(
-      content='{"has_necessary_permissions": false}', content_type="application/json"
+      content='{"has_necessary_permissions": false}', content_type='application/json'
     )
 
 
@@ -1050,8 +1125,9 @@ class CleanupEventRequestMapView(TemplateView):
     context['mapdata_url'] = reverse(self.map_data_view_name)
     # add filter related information to context
     context['requests_status'] = list(
-      CleanupEventRequest.objects.values_list(
-        'status__name', flat=True).distinct().order_by('status')
+      CleanupEventRequest.objects.values_list('status__name', flat=True)
+      .distinct()
+      .order_by('status')
     )
     # add to context: icon
     context['icon'] = self.icon_name
@@ -1071,10 +1147,7 @@ class CleanupEventRequestCreateView(RequestMixin, ObjectCreateView):
   """
 
   model = CleanupEventRequest
-  request_workflow = {
-    'steps': 5,
-    'current_step': 1
-  }
+  request_workflow = {'steps': 5, 'current_step': 1}
 
   def get_context_data(self, **kwargs):
     """
@@ -1104,10 +1177,7 @@ class CleanupEventRequestUpdateView(RequestMixin, ObjectUpdateView):
   model = CleanupEventRequest
   cancel_message = '<strong>Antrag auf Müllsammelaktion</strong> abgebrochen'
   success_message = 'Antragsdaten erfolgreich aktualisiert!'
-  request_workflow = {
-    'steps': 5,
-    'current_step': 1
-  }
+  request_workflow = {'steps': 5, 'current_step': 1}
 
   def get_context_data(self, **kwargs):
     """
@@ -1130,7 +1200,7 @@ class CleanupEventRequestUpdateView(RequestMixin, ObjectUpdateView):
     if self.request.session.get('cleanupeventevent_id', None):
       return reverse(
         viewname='antragsmanagement:cleanupeventevent_update',
-        kwargs={'pk': self.request.session['cleanupeventevent_id']}
+        kwargs={'pk': self.request.session['cleanupeventevent_id']},
       )
     else:
       return reverse('antragsmanagement:cleanupeventevent_create')
@@ -1187,7 +1257,7 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
         request=self.request,
         email_key='CLEANUPEVENTREQUEST_TO-REQUESTER_STATUS-CHANGED',
         curr_object=instance,
-        recipient_list=[instance.requester.email]
+        recipient_list=[instance.requester.email],
       )
     return super().form_valid(form)
 
@@ -1206,8 +1276,7 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
     context['disabled_fields'] = []
     # add to context: URLs
     context['cancel_url'] = get_referer_url(
-      referer=get_referer(self.request),
-      fallback='antragsmanagement:index'
+      referer=get_referer(self.request), fallback='antragsmanagement:index'
     )
     # add permissions related context elements:
     # set authority permissions as necessary permissions
@@ -1256,10 +1325,7 @@ class CleanupEventEventMixin(RequestFollowUpMixin):
   form = CleanupEventEventForm
   error_message = 'Antrag auf Müllsammelaktion existiert nicht!'
   cancel_message = '<strong>Antrag auf Müllsammelaktion</strong> abgebrochen'
-  request_workflow = {
-    'steps': 5,
-    'current_step': 2
-  }
+  request_workflow = {'steps': 5, 'current_step': 2}
   request_field = 'cleanupevent_request'
   request_model = CleanupEventRequest
 
@@ -1316,7 +1382,8 @@ class CleanupEventEventCreateView(CleanupEventEventMixin, ObjectCreateView):
     if self.request.session.get('request_id', None):
       return {
         'cleanupevent_request': get_request(
-          CleanupEventRequest, self.request.session.get('request_id', None))
+          CleanupEventRequest, self.request.session.get('request_id', None)
+        )
       }
     return {}
 
@@ -1339,9 +1406,7 @@ class CleanupEventEventUpdateView(CleanupEventEventMixin, ObjectUpdateView):
     :return: dictionary with initial field values for this view
     """
     return clean_initial_field_values(
-      fields=self.model._meta.get_fields(),
-      model=self.model,
-      curr_obj=self.object
+      fields=self.model._meta.get_fields(), model=self.model, curr_obj=self.object
     )
 
   def get_success_url(self):
@@ -1353,14 +1418,15 @@ class CleanupEventEventUpdateView(CleanupEventEventMixin, ObjectUpdateView):
     if self.request.session.get('cleanupeventvenue_id', None):
       return reverse(
         viewname='antragsmanagement:cleanupeventvenue_update',
-        kwargs={'pk': self.request.session['cleanupeventvenue_id']}
+        kwargs={'pk': self.request.session['cleanupeventvenue_id']},
       )
     else:
       return reverse('antragsmanagement:cleanupeventvenue_create')
 
 
-class CleanupEventEventAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
-                                             CleanupEventEventMixin, ObjectUpdateView):
+class CleanupEventEventAuthorativeUpdateView(
+  RequestFollowUpAuthorativeMixin, CleanupEventEventMixin, ObjectUpdateView
+):
   """
   view for authorative form page for updating an instance of object
   for request type clean-up events (Müllsammelaktionen):
@@ -1379,15 +1445,18 @@ class CleanupEventEventAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
     other_geometries = []
     request_id = self.object.cleanupevent_request.pk
     cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventVenue, text='zugehöriger<br>Treffpunkt')
+      request_id=request_id, model=CleanupEventVenue, text='zugehöriger<br>Treffpunkt'
+    )
     if cleanupeventvenue_geometry:
       other_geometries.append(cleanupeventvenue_geometry)
     cleanupeventcontainer_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventContainer, text='zugehöriger<br>Containerstandort')
+      request_id=request_id, model=CleanupEventContainer, text='zugehöriger<br>Containerstandort'
+    )
     if cleanupeventcontainer_geometry:
       other_geometries.append(cleanupeventcontainer_geometry)
     cleanupeventdump_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventDump, text='zugehöriger<br>Müllablageplatz')
+      request_id=request_id, model=CleanupEventDump, text='zugehöriger<br>Müllablageplatz'
+    )
     if cleanupeventdump_geometry:
       other_geometries.append(cleanupeventdump_geometry)
     if other_geometries:
@@ -1412,10 +1481,7 @@ class CleanupEventVenueMixin(RequestFollowUpMixin):
   model = CleanupEventVenue
   error_message = 'Antrag auf Müllsammelaktion existiert nicht!'
   cancel_message = '<strong>Antrag auf Müllsammelaktion</strong> abgebrochen'
-  request_workflow = {
-    'steps': 5,
-    'current_step': 3
-  }
+  request_workflow = {'steps': 5, 'current_step': 3}
   request_field = 'cleanupevent_request'
   request_model = CleanupEventRequest
 
@@ -1438,7 +1504,7 @@ class CleanupEventVenueMixin(RequestFollowUpMixin):
     cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
       request_id=self.request.session.get('request_id', None),
       model=CleanupEventEvent,
-      text='Fläche<br>aus Schritt 2'
+      text='Fläche<br>aus Schritt 2',
     )
     if cleanupeventevent_geometry:
       context['other_geometries'] = cleanupeventevent_geometry
@@ -1478,7 +1544,8 @@ class CleanupEventVenueCreateView(CleanupEventVenueMixin, ObjectCreateView):
     if self.request.session.get('request_id', None):
       return {
         'cleanupevent_request': get_request(
-          CleanupEventRequest, self.request.session.get('request_id', None))
+          CleanupEventRequest, self.request.session.get('request_id', None)
+        )
       }
     return {}
 
@@ -1503,14 +1570,15 @@ class CleanupEventVenueUpdateView(CleanupEventVenueMixin, ObjectUpdateView):
     if self.request.session.get('cleanupeventdetails_id', None):
       return reverse(
         viewname='antragsmanagement:cleanupeventdetails_update',
-        kwargs={'pk': self.request.session['cleanupeventdetails_id']}
+        kwargs={'pk': self.request.session['cleanupeventdetails_id']},
       )
     else:
       return reverse('antragsmanagement:cleanupeventdetails_create')
 
 
-class CleanupEventVenueAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
-                                             CleanupEventVenueMixin, ObjectUpdateView):
+class CleanupEventVenueAuthorativeUpdateView(
+  RequestFollowUpAuthorativeMixin, CleanupEventVenueMixin, ObjectUpdateView
+):
   """
   view for authorative form page for updating an instance of object
   for request type clean-up events (Müllsammelaktionen):
@@ -1529,15 +1597,18 @@ class CleanupEventVenueAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
     other_geometries = []
     request_id = self.object.cleanupevent_request.pk
     cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fläche')
+      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fläche'
+    )
     if cleanupeventevent_geometry:
       other_geometries.append(cleanupeventevent_geometry)
     cleanupeventcontainer_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventContainer, text='zugehöriger<br>Containerstandort')
+      request_id=request_id, model=CleanupEventContainer, text='zugehöriger<br>Containerstandort'
+    )
     if cleanupeventcontainer_geometry:
       other_geometries.append(cleanupeventcontainer_geometry)
     cleanupeventdump_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventDump, text='zugehöriger<br>Müllablageplatz')
+      request_id=request_id, model=CleanupEventDump, text='zugehöriger<br>Müllablageplatz'
+    )
     if cleanupeventdump_geometry:
       other_geometries.append(cleanupeventdump_geometry)
     if other_geometries:
@@ -1564,10 +1635,7 @@ class CleanupEventDetailsMixin(RequestFollowUpMixin):
   form = CleanupEventDetailsForm
   error_message = 'Antrag auf Müllsammelaktion existiert nicht!'
   cancel_message = '<strong>Antrag auf Müllsammelaktion</strong> abgebrochen'
-  request_workflow = {
-    'steps': 5,
-    'current_step': 4
-  }
+  request_workflow = {'steps': 5, 'current_step': 4}
   request_field = 'cleanupevent_request'
   request_model = CleanupEventRequest
 
@@ -1622,7 +1690,8 @@ class CleanupEventDetailsCreateView(CleanupEventDetailsMixin, ObjectCreateView):
     if self.request.session.get('request_id', None):
       return {
         'cleanupevent_request': get_request(
-          CleanupEventRequest, self.request.session.get('request_id', None))
+          CleanupEventRequest, self.request.session.get('request_id', None)
+        )
       }
     return {}
 
@@ -1647,8 +1716,9 @@ class CleanupEventDetailsUpdateView(CleanupEventDetailsMixin, ObjectUpdateView):
     return reverse('antragsmanagement:cleanupeventcontainer_decision')
 
 
-class CleanupEventDetailsAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
-                                               CleanupEventDetailsMixin, ObjectUpdateView):
+class CleanupEventDetailsAuthorativeUpdateView(
+  RequestFollowUpAuthorativeMixin, CleanupEventDetailsMixin, ObjectUpdateView
+):
   """
   view for authorative form page for updating an instance of object
   for request type clean-up events (Müllsammelaktionen):
@@ -1674,10 +1744,7 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
   error_message = 'Antrag auf Müllsammelaktion existiert nicht!'
   cancel_message = '<strong>Antrag auf Müllsammelaktion</strong> abgebrochen'
   success_message = '<strong>Antrag auf Müllsammelaktion</strong> erfolgreich gespeichert!'
-  request_workflow = {
-    'steps': 5,
-    'current_step': 5
-  }
+  request_workflow = {'steps': 5, 'current_step': 5}
   decision_text = 'Ist ein Container für die Müllsammelaktion erforderlich? Falls ja, '
   decision_text += 'klicken Sie bitte auf <em>ja,</em> falls nicht, klicken Sie bitte auf '
   decision_text += '<em>nein,</em> um den Antrag auf Müllsammelaktion direkt abzuschließen.'
@@ -1687,14 +1754,12 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
       if request.session.get('request_id', None):
         try:
           request_object = get_request(
-            CleanupEventRequest,
-            request.session.get('request_id', None),
-            only_primary_key=False
+            CleanupEventRequest, request.session.get('request_id', None), only_primary_key=False
           )
           request_object.delete()
           messages.warning(request, self.cancel_message)
         except CleanupEventRequest.DoesNotExist:
-            raise Http404(self.error_message)
+          raise Http404(self.error_message)
     else:
       curr_request = CleanupEventRequest.objects.get(pk=request.session.get('request_id', None))
       # send email to inform requester about new request
@@ -1702,11 +1767,12 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
         request=request,
         email_key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW',
         curr_object=curr_request,
-        recipient_list=[curr_request.requester.email]
+        recipient_list=[curr_request.requester.email],
       )
       if curr_request.responsibilities.exists():
         responsibilities = CleanupEventResponsibilities.objects.filter(
-          cleanupevent_request=curr_request)
+          cleanupevent_request=curr_request
+        )
         # get recipients
         # (i.e. the email addresses of all responsible authorities)
         recipient_list = []
@@ -1717,7 +1783,7 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
               request=request,
               email_key='CLEANUPEVENTREQUEST_TO-MAIN-AUTHORITY_NEW',
               curr_object=curr_request,
-              recipient_list=[responsibility.authority.email]
+              recipient_list=[responsibility.authority.email],
             )
           else:
             recipient_list.append(responsibility.authority.email)
@@ -1726,7 +1792,7 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
           request=request,
           email_key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW',
           curr_object=curr_request,
-          recipient_list=recipient_list
+          recipient_list=recipient_list,
         )
         # additional messages if certain responsibilities exist
         additional_messages(curr_request.responsibilities.all(), self.request)
@@ -1749,14 +1815,14 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
       context['yes_url'] = reverse('antragsmanagement:cleanupeventcontainer_create')
       context['back_url'] = reverse(
         viewname='antragsmanagement:cleanupeventdetails_update',
-        kwargs={'pk': self.request.session.get('cleanupeventdetails_id', None)}
+        kwargs={'pk': self.request.session.get('cleanupeventdetails_id', None)},
       )
       context['cancel_url'] = reverse('antragsmanagement:index')
     else:
       context['yes_url'] = reverse('antragsmanagement:anonymous_cleanupeventcontainer_create')
       context['back_url'] = reverse(
         viewname='antragsmanagement:anonymous_cleanupeventdetails_update',
-        kwargs={'pk': self.request.session.get('cleanupeventdetails_id', None)}
+        kwargs={'pk': self.request.session.get('cleanupeventdetails_id', None)},
       )
       context['cancel_url'] = reverse('antragsmanagement:anonymous_index')
     return context
@@ -1783,10 +1849,7 @@ class CleanupEventContainerMixin(RequestFollowUpMixin):
   error_message = 'Antrag auf Müllsammelaktion existiert nicht!'
   cancel_message = '<strong>Antrag auf Müllsammelaktion</strong> abgebrochen'
   success_message = '<strong>Antrag auf Müllsammelaktion</strong> erfolgreich gespeichert!'
-  request_workflow = {
-    'steps': 5,
-    'current_step': 5
-  }
+  request_workflow = {'steps': 5, 'current_step': 5}
   request_field = 'cleanupevent_request'
   request_model = CleanupEventRequest
 
@@ -1807,11 +1870,13 @@ class CleanupEventContainerMixin(RequestFollowUpMixin):
     other_geometries = []
     request_id = self.request.session.get('request_id', None)
     cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventEvent, text='Fläche<br>aus Schritt 2')
+      request_id=request_id, model=CleanupEventEvent, text='Fläche<br>aus Schritt 2'
+    )
     if cleanupeventevent_geometry:
       other_geometries.append(cleanupeventevent_geometry)
     cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventVenue, text='Treffpunkt<br>aus Schritt 3')
+      request_id=request_id, model=CleanupEventVenue, text='Treffpunkt<br>aus Schritt 3'
+    )
     if cleanupeventvenue_geometry:
       other_geometries.append(cleanupeventvenue_geometry)
     if other_geometries:
@@ -1844,11 +1909,12 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
         request=self.request,
         email_key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW',
         curr_object=request,
-        recipient_list=[request.requester.email]
+        recipient_list=[request.requester.email],
       )
       if request.responsibilities.exists():
         responsibilities = CleanupEventResponsibilities.objects.filter(
-          cleanupevent_request=request)
+          cleanupevent_request=request
+        )
         # get recipients
         # (i.e. the email addresses of all responsible authorities)
         recipient_list = []
@@ -1859,7 +1925,7 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
               request=self.request,
               email_key='CLEANUPEVENTREQUEST_TO-MAIN-AUTHORITY_NEW',
               curr_object=request,
-              recipient_list=[responsibility.authority.email]
+              recipient_list=[responsibility.authority.email],
             )
           else:
             recipient_list.append(responsibility.authority.email)
@@ -1868,7 +1934,7 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
           request=self.request,
           email_key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW',
           curr_object=request,
-          recipient_list=recipient_list
+          recipient_list=recipient_list,
         )
         # additional messages if certain responsibilities exist
         additional_messages(request.responsibilities.all(), self.request)
@@ -1885,13 +1951,15 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
     if self.request.session.get('request_id', None):
       return {
         'cleanupevent_request': get_request(
-          CleanupEventRequest, self.request.session.get('request_id', None))
+          CleanupEventRequest, self.request.session.get('request_id', None)
+        )
       }
     return {}
 
 
-class CleanupEventContainerAuthorativeCreateView(RequestFollowUpAuthorativeMixin,
-                                                 CleanupEventContainerMixin, ObjectCreateView):
+class CleanupEventContainerAuthorativeCreateView(
+  RequestFollowUpAuthorativeMixin, CleanupEventContainerMixin, ObjectCreateView
+):
   """
   view for authorative form page for creating an instance of object
   for request type clean-up events (Müllsammelaktionen):
@@ -1930,15 +1998,18 @@ class CleanupEventContainerAuthorativeCreateView(RequestFollowUpAuthorativeMixin
     other_geometries = []
     request_id = self.kwargs.get('request_id', None)
     cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fläche')
+      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fläche'
+    )
     if cleanupeventevent_geometry:
       other_geometries.append(cleanupeventevent_geometry)
     cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventVenue, text='zugehöriger<br>Treffpunkt')
+      request_id=request_id, model=CleanupEventVenue, text='zugehöriger<br>Treffpunkt'
+    )
     if cleanupeventvenue_geometry:
       other_geometries.append(cleanupeventvenue_geometry)
     cleanupeventdump_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventDump, text='zugehöriger<br>Müllablageplatz')
+      request_id=request_id, model=CleanupEventDump, text='zugehöriger<br>Müllablageplatz'
+    )
     if cleanupeventdump_geometry:
       other_geometries.append(cleanupeventdump_geometry)
     if other_geometries:
@@ -1956,13 +2027,15 @@ class CleanupEventContainerAuthorativeCreateView(RequestFollowUpAuthorativeMixin
     if self.kwargs.get('request_id', None):
       return {
         'cleanupevent_request': get_request(
-          CleanupEventRequest, self.kwargs.get('request_id', None))
+          CleanupEventRequest, self.kwargs.get('request_id', None)
+        )
       }
     return {}
 
 
-class CleanupEventContainerAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
-                                                 CleanupEventContainerMixin, ObjectUpdateView):
+class CleanupEventContainerAuthorativeUpdateView(
+  RequestFollowUpAuthorativeMixin, CleanupEventContainerMixin, ObjectUpdateView
+):
   """
   view for authorative form page for updating an instance of object
   for request type clean-up events (Müllsammelaktionen):
@@ -1981,15 +2054,18 @@ class CleanupEventContainerAuthorativeUpdateView(RequestFollowUpAuthorativeMixin
     other_geometries = []
     request_id = self.object.cleanupevent_request.pk
     cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fläche')
+      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fläche'
+    )
     if cleanupeventevent_geometry:
       other_geometries.append(cleanupeventevent_geometry)
     cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventVenue, text='zugehöriger<br>Treffpunkt')
+      request_id=request_id, model=CleanupEventVenue, text='zugehöriger<br>Treffpunkt'
+    )
     if cleanupeventvenue_geometry:
       other_geometries.append(cleanupeventvenue_geometry)
     cleanupeventdump_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventDump, text='zugehöriger<br>Müllablageplatz')
+      request_id=request_id, model=CleanupEventDump, text='zugehöriger<br>Müllablageplatz'
+    )
     if cleanupeventdump_geometry:
       other_geometries.append(cleanupeventdump_geometry)
     if other_geometries:
@@ -2039,15 +2115,18 @@ class CleanupEventDumpMixin(RequestFollowUpMixin):
     else:
       request_id = self.kwargs.get('request_id', None)
     cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fläche')
+      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fläche'
+    )
     if cleanupeventevent_geometry:
       other_geometries.append(cleanupeventevent_geometry)
     cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventVenue, text='zugehöriger<br>Treffpunkt')
+      request_id=request_id, model=CleanupEventVenue, text='zugehöriger<br>Treffpunkt'
+    )
     if cleanupeventvenue_geometry:
       other_geometries.append(cleanupeventvenue_geometry)
     cleanupeventcontainer_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventContainer, text='zugehöriger<br>Containerstandort')
+      request_id=request_id, model=CleanupEventContainer, text='zugehöriger<br>Containerstandort'
+    )
     if cleanupeventcontainer_geometry:
       other_geometries.append(cleanupeventcontainer_geometry)
     if other_geometries:
@@ -2055,8 +2134,9 @@ class CleanupEventDumpMixin(RequestFollowUpMixin):
     return context
 
 
-class CleanupEventDumpAuthorativeCreateView(RequestFollowUpAuthorativeMixin,
-                                            CleanupEventDumpMixin, ObjectCreateView):
+class CleanupEventDumpAuthorativeCreateView(
+  RequestFollowUpAuthorativeMixin, CleanupEventDumpMixin, ObjectCreateView
+):
   """
   view for authorative form page for creating an instance of object
   for request type clean-up events (Müllsammelaktionen):
@@ -2094,13 +2174,15 @@ class CleanupEventDumpAuthorativeCreateView(RequestFollowUpAuthorativeMixin,
     if self.kwargs.get('request_id', None):
       return {
         'cleanupevent_request': get_request(
-          CleanupEventRequest, self.kwargs.get('request_id', None))
+          CleanupEventRequest, self.kwargs.get('request_id', None)
+        )
       }
     return {}
 
 
-class CleanupEventDumpAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
-                                            CleanupEventDumpMixin, ObjectUpdateView):
+class CleanupEventDumpAuthorativeUpdateView(
+  RequestFollowUpAuthorativeMixin, CleanupEventDumpMixin, ObjectUpdateView
+):
   """
   view for authorative form page for updating an instance of object
   for request type clean-up events (Müllsammelaktionen):
@@ -2132,10 +2214,9 @@ def compose_cleanupeventrequestcomment_list(request, request_id):
   related to the object of model CleanupEventRequest with the passed primary key
   """
   if belongs_to_antragsmanagement_authority(request.user) or request.user.is_superuser:
-    if (
-        request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
-        or request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
-    ):
+    if request.user.has_perm(
+      'antragsmanagement.view_cleanupeventrequest'
+    ) or request.user.has_perm('antragsmanagement.change_cleanupeventrequest'):
       if CleanupEventRequestComment.objects.filter(cleanupevent_request=request_id).exists():
         comments = CleanupEventRequestComment.objects.filter(cleanupevent_request=request_id).all()
         comment_list = ''
@@ -2187,7 +2268,8 @@ class CleanupEventRequestCommentMixin:
     # add to context: custom form header
     request_id = self.kwargs.get('request_id', None)
     context['custom_header'] = 'neu → Kommentar zu Antrag auf Müllsammelaktion #{}'.format(
-      request_id)
+      request_id
+    )
     return context
 
   def get_success_url(self):
@@ -2218,22 +2300,22 @@ class CleanupEventRequestCommentCreateView(CleanupEventRequestCommentMixin, Obje
     request_id = None
     if self.kwargs.get('request_id', None):
       request_id = self.kwargs.get('request_id')
-      instance.cleanupevent_request = get_request(
-        CleanupEventRequest, request_id, False).first()
+      instance.cleanupevent_request = get_request(CleanupEventRequest, request_id, False).first()
     # set value of user_id field
     # if user is authenticated
     if self.request.user.is_authenticated:
       instance.user_id = self.request.user.pk
     instance.save()
-    self.success_message = ('Kommentar zu Antrag auf Müllsammelaktion #{} '
-                            'erfolgreich gespeichert!').format(request_id)
+    self.success_message = (
+      'Kommentar zu Antrag auf Müllsammelaktion #{} erfolgreich gespeichert!'
+    ).format(request_id)
     # if desired: send email to inform original requester
     if instance.send_to_requester:
       send_cleanupeventrequest_email(
         request=self.request,
         email_key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW-COMMENT',
         curr_object=instance.cleanupevent_request,
-        recipient_list=[instance.cleanupevent_request.requester.email]
+        recipient_list=[instance.cleanupevent_request.requester.email],
       )
     return super().form_valid(form)
 
@@ -2241,6 +2323,7 @@ class CleanupEventRequestCommentCreateView(CleanupEventRequestCommentMixin, Obje
 #
 # anonymous
 #
+
 
 @method_decorator(csrf_protect, name='dispatch')
 @method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
@@ -2275,30 +2358,17 @@ class CleanupEventRequestDataAnonymousView(JsonView):
     :return: GeoJSON feature collection
     """
     # get all approved requests
-    queryset = CleanupEventRequest.objects.prefetch_related(
-      'cleanupeventevent'
-    ).filter(
+    queryset = CleanupEventRequest.objects.prefetch_related('cleanupeventevent').filter(
       status__ordinal=2
     )
-    queryset = queryset.values(
-      'id',
-      'cleanupeventevent__from_date',
-      'cleanupeventevent__to_date'
-    )
+    queryset = queryset.values('id', 'cleanupeventevent__from_date', 'cleanupeventevent__to_date')
     # declare empty GeoJSON feature collection
-    feature_collection = {
-      'type': 'FeatureCollection',
-      'features': []
-    }
+    feature_collection = {'type': 'FeatureCollection', 'features': []}
     # handle requests
     for item in queryset:
       # request must be scheduled in future
       from_date, to_date = item['cleanupeventevent__from_date'], item['cleanupeventevent__to_date']
-      if (
-        from_date and from_date >= date.today()
-      ) or (
-        to_date and to_date >= date.today()
-      ):
+      if (from_date and from_date >= date.today()) or (to_date and to_date >= date.today()):
         # add GeoJSON feature to GeoJSON feature collection
         request = get_cleanupeventrequest_anonymous_api_feature(item['id'])
         if request:
@@ -2306,7 +2376,7 @@ class CleanupEventRequestDataAnonymousView(JsonView):
     return JsonResponse(
       feature_collection,
       json_dumps_params={'indent': 2, 'ensure_ascii': False},
-      content_type='application/json; charset=utf-8'
+      content_type='application/json; charset=utf-8',
     )
 
 
@@ -2328,38 +2398,25 @@ class CleanupEventRequestMapDataAnonymousView(JsonView):
     # get request
     request = CleanupEventRequest.objects.filter(pk=request_id).first()
     # declare empty GeoJSON feature collection
-    feature_collection = {
-      'type': 'FeatureCollection',
-      'features': []
-    }
+    feature_collection = {'type': 'FeatureCollection', 'features': []}
     # handle request
     if request:
       # add GeoJSON feature for event to GeoJSON feature collection
-      event = get_cleanupeventrequest_anonymous_feature(
-        curr_request=request,
-        curr_type='event'
-      )
+      event = get_cleanupeventrequest_anonymous_feature(curr_request=request, curr_type='event')
       if event:
         feature_collection['features'].append(event)
       # add GeoJSON feature for venue to GeoJSON feature collection
-      venue = get_cleanupeventrequest_anonymous_feature(
-        curr_request=request,
-        curr_type='venue'
-      )
+      venue = get_cleanupeventrequest_anonymous_feature(curr_request=request, curr_type='venue')
       if venue:
         feature_collection['features'].append(venue)
       # add GeoJSON feature for container to GeoJSON feature collection
       container = get_cleanupeventrequest_anonymous_feature(
-        curr_request=request,
-        curr_type='container'
+        curr_request=request, curr_type='container'
       )
       if container:
         feature_collection['features'].append(container)
       # add GeoJSON feature for dump to GeoJSON feature collection
-      container = get_cleanupeventrequest_anonymous_feature(
-        curr_request=request,
-        curr_type='dump'
-      )
+      container = get_cleanupeventrequest_anonymous_feature(curr_request=request, curr_type='dump')
       if container:
         feature_collection['features'].append(container)
     return feature_collection
@@ -2401,8 +2458,7 @@ class CleanupEventRequestMapAnonymousView(TemplateView):
     # add map related context elements
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
     context['mapdata_url'] = reverse(
-      viewname=self.map_data_view_name,
-      kwargs={'request_id': request_id}
+      viewname=self.map_data_view_name, kwargs={'request_id': request_id}
     )
     # add to context: icon
     context['icon'] = self.icon_name
@@ -2437,7 +2493,7 @@ class CleanupEventRequestUpdateAnonymousView(CleanupEventRequestUpdateView):
     if self.request.session.get('cleanupeventevent_id', None):
       return reverse(
         viewname='antragsmanagement:anonymous_cleanupeventevent_update',
-        kwargs={'pk': self.request.session['cleanupeventevent_id']}
+        kwargs={'pk': self.request.session['cleanupeventevent_id']},
       )
     else:
       return reverse('antragsmanagement:anonymous_cleanupeventevent_create')
@@ -2471,7 +2527,7 @@ class CleanupEventEventUpdateAnonymousView(CleanupEventEventUpdateView):
     if self.request.session.get('cleanupeventvenue_id', None):
       return reverse(
         viewname='antragsmanagement:anonymous_cleanupeventvenue_update',
-        kwargs={'pk': self.request.session['cleanupeventvenue_id']}
+        kwargs={'pk': self.request.session['cleanupeventvenue_id']},
       )
     else:
       return reverse('antragsmanagement:anonymous_cleanupeventvenue_create')
@@ -2505,7 +2561,7 @@ class CleanupEventVenueUpdateAnonymousView(CleanupEventVenueUpdateView):
     if self.request.session.get('cleanupeventdetails_id', None):
       return reverse(
         viewname='antragsmanagement:anonymous_cleanupeventdetails_update',
-        kwargs={'pk': self.request.session['cleanupeventdetails_id']}
+        kwargs={'pk': self.request.session['cleanupeventdetails_id']},
       )
     else:
       return reverse('antragsmanagement:anonymous_cleanupeventdetails_create')

@@ -1,3 +1,5 @@
+from json import loads
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -7,16 +9,30 @@ from django.core.serializers import serialize
 from django.forms import CheckboxSelectMultiple, Textarea
 from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
-from json import loads
 from leaflet.forms.widgets import LeafletWidget
 
 from antragsmanagement.constants_vars import AUTHORITIES_KEYWORD_PUBLIC_GREEN_AREAS
-from antragsmanagement.models import GeometryObject, Email, Requester, CleanupEventRequest, \
-  CleanupEventResponsibilities, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
-  CleanupEventContainer, CleanupEventDump, CleanupEventRequestComment
-from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
-  get_antragsmanagement_authorities, has_necessary_permissions, is_antragsmanagement_admin, \
-  is_antragsmanagement_requester, is_antragsmanagement_user
+from antragsmanagement.models import (
+  CleanupEventContainer,
+  CleanupEventDetails,
+  CleanupEventDump,
+  CleanupEventEvent,
+  CleanupEventRequest,
+  CleanupEventRequestComment,
+  CleanupEventResponsibilities,
+  CleanupEventVenue,
+  Email,
+  GeometryObject,
+  Requester,
+)
+from antragsmanagement.utils import (
+  belongs_to_antragsmanagement_authority,
+  get_antragsmanagement_authorities,
+  has_necessary_permissions,
+  is_antragsmanagement_admin,
+  is_antragsmanagement_requester,
+  is_antragsmanagement_user,
+)
 from bemas.utils import generate_user_string
 from toolbox.utils import format_date_datetime, is_geometry_field, transform_geometry
 
@@ -59,8 +75,9 @@ def add_permissions_context_elements(context, user, necessary_group=None):
     'is_antragsmanagement_requester': is_antragsmanagement_requester(user),
     'belongs_to_antragsmanagement_authority': belongs_to_antragsmanagement_authority(user),
     'is_antragsmanagement_admin': is_antragsmanagement_admin(user),
-    'has_necessary_permissions': has_necessary_permissions(user, necessary_group) if
-    necessary_group else None
+    'has_necessary_permissions': has_necessary_permissions(user, necessary_group)
+    if necessary_group
+    else None,
   }
   if user.is_superuser:
     permissions = {key: True for key in permissions}
@@ -181,9 +198,7 @@ def assign_widget(field):
     form_field.widget.attrs['rows'] = 10
   # handle geometry widgets
   elif is_geometry_field(field.__class__):
-    form_field = field.formfield(
-      widget=LeafletWidget()
-    )
+    form_field = field.formfield(widget=LeafletWidget())
   return form_field
 
 
@@ -237,18 +252,14 @@ def get_cleanupeventrequest_anonymous_api_feature(request_pk):
     # get coordinates and build link
     geometry = getattr(request, CleanupEventVenue.BaseMeta.geometry_field)
     geometry = transform_geometry(geometry=GEOSGeometry(geometry), target_srid=25833)
-    link = settings.ANTRAGSMANAGEMENT_LINKS['geodata_portal'].format(
-      x=geometry.x, y=geometry.y)
+    link = settings.ANTRAGSMANAGEMENT_LINKS['geodata_portal'].format(x=geometry.x, y=geometry.y)
     # define GeoJSON feature:
     # get geometry from GeoJSON-serialized target object,
     # set ID and link as properties
     return {
       'type': 'Feature',
       'geometry': request_geojson_serialized['features'][0]['geometry'],
-      'properties': {
-        'id': request_pk,
-        'link': link
-      }
+      'properties': {'id': request_pk, 'link': link},
     }
   return {}
 
@@ -266,7 +277,7 @@ def get_cleanupeventrequest_anonymous_feature(curr_request, curr_type):
     'event': CleanupEventEvent,
     'venue': CleanupEventVenue,
     'container': CleanupEventContainer,
-    'dump': CleanupEventDump
+    'dump': CleanupEventDump,
   }
   # get model class based on passed type of object
   model_class = model_mapping.get(curr_type)
@@ -281,7 +292,7 @@ def get_cleanupeventrequest_anonymous_feature(curr_request, curr_type):
         'event': 'Fläche',
         'venue': 'Treffpunkt',
         'container': 'Containerstandort',
-        'dump': 'Müllablageplatz'
+        'dump': 'Müllablageplatz',
       }
       # get tooltip prefix based on passed type of object
       prefix = prefix_mapping.get(curr_type)
@@ -292,9 +303,7 @@ def get_cleanupeventrequest_anonymous_feature(curr_request, curr_type):
       return {
         'type': 'Feature',
         'geometry': target_geojson_serialized['features'][0]['geometry'],
-        'properties': {
-          '_tooltip': prefix + ' zu ' + title
-        }
+        'properties': {'_tooltip': prefix + ' zu ' + title},
       }
   return {}
 
@@ -314,7 +323,8 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
   main_responsibility_value, other_responsibilities_value = '/', '/'
   if curr_object.responsibilities.exists():
     responsibilities = CleanupEventResponsibilities.objects.filter(
-      cleanupevent_request=curr_object)
+      cleanupevent_request=curr_object
+    )
     first = True
     for responsibility in responsibilities:
       if responsibility.main:
@@ -341,43 +351,40 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
     # if waste types exist
     if details.waste_types.exists():
       # use list comprehension to join waste types
-      waste_types = ', '.join(
-        [waste_type.name for waste_type in details.waste_types.all()]
-      )
+      waste_types = ', '.join([waste_type.name for waste_type in details.waste_types.all()])
     if details.waste_types_annotation:
       waste_types_annotation = details.waste_types_annotation
     # if equipments exist
     if details.equipments.exists():
       # use list comprehension to join equipments
-      equipments = ', '.join(
-        [equipment.name for equipment in details.equipments.all()]
-      )
+      equipments = ', '.join([equipment.name for equipment in details.equipments.all()])
   # fetch related CleanupEventContainer object
   delivery_date, pickup_date = '/', '/'
   container = CleanupEventContainer.objects.filter(cleanupevent_request=curr_object.pk).first()
   if container:
     delivery_date = container.delivery_date.strftime('%d.%m.%Y')
     pickup_date = container.pickup_date.strftime('%d.%m.%Y')
-  base_url = f"{request.scheme}://{request.get_host()}"
+  base_url = f'{request.scheme}://{request.get_host()}'
   # fetch lastest CleanupEventRequestComment object
   lastest_request_comment_author, lastest_request_comment_content = '/', '/'
   lastest_request_comment = CleanupEventRequestComment.objects.filter(
-    cleanupevent_request=curr_object.pk).last()
+    cleanupevent_request=curr_object.pk
+  ).last()
   if lastest_request_comment:
     user = User.objects.get(pk=lastest_request_comment.user_id)
     author = generate_user_string(user) + ' (' + user.email + ')'
     lastest_request_comment_author = author
     lastest_request_comment_content = lastest_request_comment.content
-  base_url = f"{request.scheme}://{request.get_host()}"
+  base_url = f'{request.scheme}://{request.get_host()}'
   # set map URL
   map_url_path = reverse(
     viewname='antragsmanagement:anonymous_cleanupeventrequest_map',
-    kwargs={'request_id': curr_object.pk}
+    kwargs={'request_id': curr_object.pk},
   )
-  map_url = f"{base_url}{map_url_path}"
+  map_url = f'{base_url}{map_url_path}'
   # set general URL
   general_url_path = reverse('antragsmanagement:index')
-  general_url = f"{base_url}{general_url_path}"
+  general_url = f'{base_url}{general_url_path}'
   return body.format(
     request=curr_object.short(),
     request_comment_author=lastest_request_comment_author,
@@ -400,7 +407,7 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
     pickup_date=pickup_date,
     container=map_url,
     dump=map_url,
-    link=general_url
+    link=general_url,
   )
 
 
@@ -418,7 +425,7 @@ def get_cleanupeventrequest_feature(curr_object, curr_type, authorative_rights):
     'event': CleanupEventEvent,
     'venue': CleanupEventVenue,
     'container': CleanupEventContainer,
-    'dump': CleanupEventDump
+    'dump': CleanupEventDump,
   }
   # get model class based on passed type of object
   model_class = model_mapping.get(curr_type)
@@ -433,7 +440,7 @@ def get_cleanupeventrequest_feature(curr_object, curr_type, authorative_rights):
         'event': 'Fläche',
         'venue': 'Treffpunkt',
         'container': 'Containerstandort',
-        'dump': 'Müllablageplatz'
+        'dump': 'Müllablageplatz',
       }
       # get tooltip prefix based on passed type of object
       prefix = prefix_mapping.get(curr_type)
@@ -465,65 +472,65 @@ def get_cleanupeventrequest_feature(curr_object, curr_type, authorative_rights):
           'Abfallart(en)': curr_object['details_waste_types'],
           'benötigte Ausstattung(en)': curr_object['details_equipments'],
           'Container-Stellung': format_date_datetime(curr_object['container_delivery']),
-          'Container-Abholung': format_date_datetime(curr_object['container_pickup'])
-        }
+          'Container-Abholung': format_date_datetime(curr_object['container_pickup']),
+        },
       }
       # add links if user has authorative rights
       if authorative_rights:
         geojson_feature['properties']['_link_request'] = reverse(
           viewname='antragsmanagement:cleanupeventrequest_authorative_update',
-          kwargs={'pk': curr_object['id']}
+          kwargs={'pk': curr_object['id']},
         )
         event = CleanupEventEvent.objects.filter(cleanupevent_request=curr_object['id']).first()
         if event:
           geojson_feature['properties']['_link_event'] = reverse(
             viewname='antragsmanagement:cleanupeventevent_authorative_update',
-            kwargs={'pk': event.pk}
+            kwargs={'pk': event.pk},
           )
         venue = CleanupEventVenue.objects.filter(cleanupevent_request=curr_object['id']).first()
         if venue:
           geojson_feature['properties']['_link_venue'] = reverse(
             viewname='antragsmanagement:cleanupeventvenue_authorative_update',
-            kwargs={'pk': venue.pk}
+            kwargs={'pk': venue.pk},
           )
         details = CleanupEventDetails.objects.filter(
-          cleanupevent_request=curr_object['id']).first()
+          cleanupevent_request=curr_object['id']
+        ).first()
         if details:
           geojson_feature['properties']['_link_details'] = reverse(
             viewname='antragsmanagement:cleanupeventdetails_authorative_update',
-            kwargs={'pk': details.pk}
+            kwargs={'pk': details.pk},
           )
         container = CleanupEventContainer.objects.filter(
-          cleanupevent_request=curr_object['id']).first()
+          cleanupevent_request=curr_object['id']
+        ).first()
         if container:
           link_container = reverse(
             viewname='antragsmanagement:cleanupeventcontainer_authorative_update',
-            kwargs={'pk': container.pk}
+            kwargs={'pk': container.pk},
           )
           geojson_feature['properties']['_link_container_delete'] = reverse(
-            viewname='antragsmanagement:cleanupeventcontainer_delete',
-            kwargs={'pk': container.pk}
+            viewname='antragsmanagement:cleanupeventcontainer_delete', kwargs={'pk': container.pk}
           )
         else:
           link_container = reverse(
             viewname='antragsmanagement:cleanupeventcontainer_authorative_create',
-            kwargs={'request_id': curr_object['id']}
+            kwargs={'request_id': curr_object['id']},
           )
         geojson_feature['properties']['_link_container'] = link_container
         dump = CleanupEventDump.objects.filter(cleanupevent_request=curr_object['id']).first()
         if dump:
           link_dump = reverse(
             viewname='antragsmanagement:cleanupeventdump_authorative_update',
-            kwargs={'pk': dump.pk}
+            kwargs={'pk': dump.pk},
           )
           geojson_feature['properties']['_link_dump_delete'] = reverse(
-            viewname='antragsmanagement:cleanupeventdump_delete',
-            kwargs={'pk': dump.pk}
+            viewname='antragsmanagement:cleanupeventdump_delete', kwargs={'pk': dump.pk}
           )
         else:
           link_dump = reverse(
             viewname='antragsmanagement:cleanupeventdump_authorative_create',
-            kwargs={'request_id': curr_object['id']}
+            kwargs={'request_id': curr_object['id']},
           )
         geojson_feature['properties']['_link_dump'] = link_dump
       return geojson_feature
@@ -545,32 +552,16 @@ def get_cleanupeventrequest_queryset(user, count=False, read_only=False):
     if read_only:
       # only requests for which user is not responsible
       queryset = CleanupEventRequest.objects.prefetch_related(
-        'status',
-        'requester',
-        'cleanupeventevent',
-        'cleanupeventdetails',
-        'cleanupeventcontainer'
-      ).exclude(
-        responsibilities__in=get_antragsmanagement_authorities(user)
-      )
+        'status', 'requester', 'cleanupeventevent', 'cleanupeventdetails', 'cleanupeventcontainer'
+      ).exclude(responsibilities__in=get_antragsmanagement_authorities(user))
     else:
       # only requests for which user is responsible
       queryset = CleanupEventRequest.objects.prefetch_related(
-        'status',
-        'requester',
-        'cleanupeventevent',
-        'cleanupeventdetails',
-        'cleanupeventcontainer'
-      ).filter(
-        responsibilities__in=get_antragsmanagement_authorities(user)
-      )
+        'status', 'requester', 'cleanupeventevent', 'cleanupeventdetails', 'cleanupeventcontainer'
+      ).filter(responsibilities__in=get_antragsmanagement_authorities(user))
   else:
     queryset = CleanupEventRequest.objects.prefetch_related(
-      'status',
-      'requester',
-      'cleanupeventevent',
-      'cleanupeventdetails',
-      'cleanupeventcontainer'
+      'status', 'requester', 'cleanupeventevent', 'cleanupeventdetails', 'cleanupeventcontainer'
     )
   queryset = queryset.values(
     'id',
@@ -581,7 +572,7 @@ def get_cleanupeventrequest_queryset(user, count=False, read_only=False):
     'cleanupeventevent__to_date',
     'cleanupeventdetails__waste_quantity__name',
     'cleanupeventcontainer__delivery_date',
-    'cleanupeventcontainer__pickup_date'
+    'cleanupeventcontainer__pickup_date',
   )
   for item in queryset:
     #
@@ -596,9 +587,9 @@ def get_cleanupeventrequest_queryset(user, count=False, read_only=False):
     # fetch related Requester object
     requester, requester_value = Requester.objects.only('pk').get(pk=item['requester__pk']), ''
     if (
-        belongs_to_antragsmanagement_authority(user)
-        or is_antragsmanagement_admin(user)
-        or user.is_superuser
+      belongs_to_antragsmanagement_authority(user)
+      or is_antragsmanagement_admin(user)
+      or user.is_superuser
     ):
       requester_value = requester.verbose()
     elif requester.user_id == user.pk:
@@ -620,10 +611,9 @@ def get_cleanupeventrequest_queryset(user, count=False, read_only=False):
       main_responsibility_value, other_responsibilities_value = '', ''
       for responsibility in responsibilities:
         # highlight responsibility if user belongs to corresponding authority
-        highlight_responsibility = (
-          belongs_to_antragsmanagement_authority(user)
-          and responsibility.authority.pk in get_antragsmanagement_authorities(user)
-        )
+        highlight_responsibility = belongs_to_antragsmanagement_authority(
+          user
+        ) and responsibility.authority.pk in get_antragsmanagement_authorities(user)
         authority_text = responsibility.authority.short()
         highlight_tag = ''
         if highlight_responsibility:
@@ -680,9 +670,7 @@ def get_cleanupeventrequest_queryset(user, count=False, read_only=False):
       # if equipments exist
       if details.equipments.exists():
         # use list comprehension to join equipments
-        equipments_value = '<br>'.join(
-          [equipment.name for equipment in details.equipments.all()]
-        )
+        equipments_value = '<br>'.join([equipment.name for equipment in details.equipments.all()])
       # set "details_equipments" to equipments
       item['details_equipments'] = equipments_value
     else:
@@ -713,10 +701,7 @@ def get_corresponding_cleanupeventrequest_geometry(request_id, model, text):
   if geometry_object:
     geometry = getattr(geometry_object, model.BaseMeta.geometry_field)
     if geometry:
-      return {
-        'text': text,
-        'geometry': GEOSGeometry(geometry).geojson
-      }
+      return {'text': text, 'geometry': GEOSGeometry(geometry).geojson}
     return None
   return None
 
@@ -777,12 +762,13 @@ def send_cleanupeventrequest_email(request, email_key, curr_object, recipient_li
     # set subject and body
     subject = email.subject.format(request=curr_object.short())
     message = get_cleanupeventrequest_email_body_information(
-      request=request, curr_object=curr_object, body=email.body)
+      request=request, curr_object=curr_object, body=email.body
+    )
     # send email
     send_mail(
       subject=subject,
       message=message,
       from_email=settings.DEFAULT_FROM_EMAIL,
       recipient_list=recipient_list,
-      fail_silently=True
+      fail_silently=True,
     )

@@ -1,23 +1,33 @@
 from datetime import date
+
 from django.conf import settings
-from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.forms.fields import PointField, PolygonField
+from django.contrib.gis.geos import GEOSGeometry
 from django.forms import ModelForm, ValidationError
 from django.forms.fields import EmailField
 
-from antragsmanagement.constants_vars import MANAGEDAREAS_WFS_SEARCH_ELEMENT, \
-  SCOPE_WFS_SEARCH_ELEMENT, SCOPE_WFS_SEARCH_STRING
-from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Requester
-from antragsmanagement.utils import get_authorities_from_managed_areas_wfs, \
-  get_corresponding_antragsmanagement_authorities
+from antragsmanagement.constants_vars import (
+  MANAGEDAREAS_WFS_SEARCH_ELEMENT,
+  SCOPE_WFS_SEARCH_ELEMENT,
+  SCOPE_WFS_SEARCH_STRING,
+)
+from antragsmanagement.models import CodelistRequestStatus, GeometryObject, Requester
+from antragsmanagement.utils import (
+  get_authorities_from_managed_areas_wfs,
+  get_corresponding_antragsmanagement_authorities,
+)
 from toolbox.constants_vars import email_message
-from toolbox.utils import find_in_wfs_features, get_overlapping_area, \
-  group_dict_by_key_and_sum_values, intersection_with_wfs
-
+from toolbox.utils import (
+  find_in_wfs_features,
+  get_overlapping_area,
+  group_dict_by_key_and_sum_values,
+  intersection_with_wfs,
+)
 
 #
 # general objects
 #
+
 
 class ObjectForm(ModelForm):
   """
@@ -42,10 +52,12 @@ class ObjectForm(ModelForm):
         field.error_messages['required'] = None
         if issubclass(field.__class__, PointField):
           text = 'Marker für <strong><em>{}</em></strong> muss in Karte gesetzt werden!'.format(
-            field.label)
+            field.label
+          )
         else:
           text = '<strong><em>{}</em></strong> muss in Karte gezeichnet werden!'.format(
-            field.label)
+            field.label
+          )
         field.error_messages['invalid_geom'] = text
         field.error_messages['invalid_geom_type'] = text
 
@@ -58,7 +70,8 @@ class ObjectForm(ModelForm):
     if status and status == CodelistRequestStatus.get_status_rejected() and not comment:
       text = 'Bei Status <strong><em>{}</em></strong>'.format(status)
       text += ' muss <strong><em>{}</em></strong> zwingend angegeben werden!'.format(
-        self._meta.model._meta.get_field('comment').verbose_name)
+        self._meta.model._meta.get_field('comment').verbose_name
+      )
       raise ValidationError(text)
     return comment
 
@@ -75,7 +88,8 @@ class ObjectForm(ModelForm):
       # fail if geometry is empty
       if '(0 0)' in str(geometry):
         text = 'Marker für <strong><em>{}</em></strong> muss in Karte gesetzt werden!'.format(
-          self._meta.model._meta.get_field(geometry_field).verbose_name)
+          self._meta.model._meta.get_field(geometry_field).verbose_name
+        )
         raise ValidationError(text)
       elif geometry:
         # intersect geometry with scope
@@ -84,20 +98,20 @@ class ObjectForm(ModelForm):
           scope_intersections = False
           # check if geometry generally intersects with any geometry of the scope resource
           intersections = intersection_with_wfs(
-            geometry=GEOSGeometry(geometry),
-            wfs_config=settings.ANTRAGSMANAGEMENT_SCOPE_WFS
+            geometry=GEOSGeometry(geometry), wfs_config=settings.ANTRAGSMANAGEMENT_SCOPE_WFS
           )
           if intersections:
             # check if geometry intersects with scope
             scope_intersections = find_in_wfs_features(
               string=SCOPE_WFS_SEARCH_STRING,
               search_element=SCOPE_WFS_SEARCH_ELEMENT,
-              wfs_features=intersections
+              wfs_features=intersections,
             )
           # fail if geometry lies out of scope
           if not scope_intersections:
             text = '<strong><em>{}</em></strong> darf nicht außerhalb Rostocks liegen!'.format(
-              self._meta.model._meta.get_field(geometry_field).verbose_name)
+              self._meta.model._meta.get_field(geometry_field).verbose_name
+            )
             raise ValidationError(text)
         # intersect geometry with managed areas
         # (check geometries only which ought to intersect managed areas)
@@ -105,8 +119,7 @@ class ObjectForm(ModelForm):
           geos_geometry = GEOSGeometry(geometry)
           # check if geometry generally intersects with any geometry of the managed areas resource
           intersections = intersection_with_wfs(
-            geometry=geos_geometry,
-            wfs_config=settings.ANTRAGSMANAGEMENT_MANAGEDAREAS_WFS
+            geometry=geos_geometry, wfs_config=settings.ANTRAGSMANAGEMENT_MANAGEDAREAS_WFS
           )
           if intersections:
             # get overlapping areas
@@ -120,7 +133,7 @@ class ObjectForm(ModelForm):
                   overlapping_area = get_overlapping_area(
                     area_a=geos_geometry,
                     area_b=geos_intersection_geometry,
-                    entity_value=entity_value
+                    entity_value=entity_value,
                   )
                   overlapping_areas.append(overlapping_area)
               else:
@@ -128,16 +141,16 @@ class ObjectForm(ModelForm):
                 overlapping_area = get_overlapping_area(
                   area_a=geos_geometry,
                   area_b=geos_intersection_geometry,
-                  entity_value=entity_value
+                  entity_value=entity_value,
                 )
                 overlapping_areas.append(overlapping_area)
             # group overlapping areas by entity key and sum area values for each entity
             sums_overlapping_areas = group_dict_by_key_and_sum_values(
-              curr_dict=overlapping_areas, group_key='entity', sum_value='area')
+              curr_dict=overlapping_areas, group_key='entity', sum_value='area'
+            )
             # check if geometry intersects with managed areas of Antragsmanagement authorities
             authorities = get_authorities_from_managed_areas_wfs(
-              search_element=MANAGEDAREAS_WFS_SEARCH_ELEMENT,
-              wfs_features=intersections
+              search_element=MANAGEDAREAS_WFS_SEARCH_ELEMENT, wfs_features=intersections
             )
             responsibilities = get_corresponding_antragsmanagement_authorities(authorities)
             if responsibilities:
@@ -162,14 +175,16 @@ class ObjectForm(ModelForm):
             # of Antragsmanagement authorities
             else:
               text = '<strong><em>{}</em></strong> muss mindestens eine Fläche'.format(
-                self._meta.model._meta.get_field(geometry_field).verbose_name)
+                self._meta.model._meta.get_field(geometry_field).verbose_name
+              )
               text += ' schneiden, die durch eine am Antragsmanagement beteiligte Behörde'
               text += ' bewirtschaftet wird!'
               raise ValidationError(text)
           # fail if geometry lies outside of managed areas
           else:
             text = '<strong><em>{}</em></strong> muss mindestens eine Fläche'.format(
-              self._meta.model._meta.get_field(geometry_field).verbose_name)
+              self._meta.model._meta.get_field(geometry_field).verbose_name
+            )
             text += ' des städtischen Bewirtschaftungskatasters schneiden'
             text += ' (siehe Flächendarstellungen in Karte)!'
             raise ValidationError(text)
@@ -193,20 +208,25 @@ class RequesterForm(ObjectForm):
     last_name = self.cleaned_data.get('last_name')
     if not organization and not first_name and not last_name:
       text = '<strong><em>{}</em></strong> muss gesetzt sein,'.format(
-        self._meta.model._meta.get_field('organization').verbose_name)
+        self._meta.model._meta.get_field('organization').verbose_name
+      )
       text += ' wenn <em>{}</em> und <em>{}</em> nicht gesetzt sind!'.format(
         self._meta.model._meta.get_field('first_name').verbose_name,
-        self._meta.model._meta.get_field('last_name').verbose_name)
+        self._meta.model._meta.get_field('last_name').verbose_name,
+      )
       text += ' <strong><em>{}</em></strong> und <strong><em>{}</em></strong>'.format(
         self._meta.model._meta.get_field('first_name').verbose_name,
-        self._meta.model._meta.get_field('last_name').verbose_name)
+        self._meta.model._meta.get_field('last_name').verbose_name,
+      )
       text += ' müssen gesetzt sein, wenn <em>{}</em> nicht gesetzt ist!'.format(
-        self._meta.model._meta.get_field('organization').verbose_name)
+        self._meta.model._meta.get_field('organization').verbose_name
+      )
       raise ValidationError(text)
     elif (not first_name and last_name) or (first_name and not last_name):
       text = '<strong><em>{}</em></strong> und <strong><em>{}</em></strong>'.format(
         self._meta.model._meta.get_field('first_name').verbose_name,
-        self._meta.model._meta.get_field('last_name').verbose_name)
+        self._meta.model._meta.get_field('last_name').verbose_name,
+      )
       text += ' müssen immer gemeinsam gesetzt sein!'
       raise ValidationError(text)
     return last_name
@@ -247,6 +267,7 @@ class RequestFollowUpForm(ObjectForm):
 # clean-up events (Müllsammelaktionen)
 #
 
+
 class CleanupEventEventForm(RequestFollowUpForm):
   """
   form for creating or updating an instance of object
@@ -265,14 +286,17 @@ class CleanupEventEventForm(RequestFollowUpForm):
     if from_date and to_date and to_date <= from_date:
       text = '<strong><em>{}</em></strong> muss nach <em>{}</em> liegen!'.format(
         self._meta.model._meta.get_field('to_date').verbose_name,
-        self._meta.model._meta.get_field('from_date').verbose_name)
+        self._meta.model._meta.get_field('from_date').verbose_name,
+      )
       text += ' <em>{}</em> weglassen, falls Aktion an nur einem Tag stattfinden soll.'.format(
-        self._meta.model._meta.get_field('to_date').verbose_name)
+        self._meta.model._meta.get_field('to_date').verbose_name
+      )
       raise ValidationError(text)
     # from_date must not lie in past
     if from_date and from_date < date.today():
       text = '<strong><em>{}</em></strong> darf nicht in der Vergangenheit liegen!'.format(
-        self._meta.model._meta.get_field('from_date').verbose_name)
+        self._meta.model._meta.get_field('from_date').verbose_name
+      )
       raise ValidationError(text)
     return to_date
 
@@ -293,9 +317,11 @@ class CleanupEventDetailsForm(RequestFollowUpForm):
     # waste_types_annotation must not be emtpy if waste_types is empty
     if not waste_types and not waste_types_annotation:
       text = 'Wenn keine <strong><em>{}</em></strong> ausgewählt ist/sind,'.format(
-        self._meta.model._meta.get_field('waste_types').verbose_name)
+        self._meta.model._meta.get_field('waste_types').verbose_name
+      )
       text += ' müssen zwingend <strong><em>{}</em></strong> angegeben werden!'.format(
-        self._meta.model._meta.get_field('waste_types_annotation').verbose_name)
+        self._meta.model._meta.get_field('waste_types_annotation').verbose_name
+      )
       raise ValidationError(text)
     return waste_types_annotation
 
@@ -317,13 +343,16 @@ class CleanupEventContainerForm(RequestFollowUpForm):
     if delivery_date and pickup_date and pickup_date < delivery_date:
       text = '<strong><em>{}</em></strong> muss gleich <em>{}</em> sein'.format(
         self._meta.model._meta.get_field('pickup_date').verbose_name,
-        self._meta.model._meta.get_field('delivery_date').verbose_name)
+        self._meta.model._meta.get_field('delivery_date').verbose_name,
+      )
       text += ' oder nach <em>{}</em> liegen!'.format(
-        self._meta.model._meta.get_field('delivery_date').verbose_name)
+        self._meta.model._meta.get_field('delivery_date').verbose_name
+      )
       raise ValidationError(text)
     # delivery date must not lie in past
     if delivery_date and delivery_date < date.today():
       text = '<strong><em>{}</em></strong> darf nicht in der Vergangenheit liegen!'.format(
-        self._meta.model._meta.get_field('delivery_date').verbose_name)
+        self._meta.model._meta.get_field('delivery_date').verbose_name
+      )
       raise ValidationError(text)
     return pickup_date
