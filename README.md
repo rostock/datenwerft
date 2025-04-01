@@ -33,15 +33,11 @@ python3 -m venv .venv
 uv venv
 ```
 
-3. virtuelle _Python_-Umgebung aktivieren (mit _uv_ nicht notwendig):
-```bash
-source .venv/bin/activate
-```
-
-4. benötigte _Python_-Module (unter anderem _Django_) installieren via _pip_:
+3. benötigte _Python_-Module (unter anderem _Django_) installieren via _pip_:
 
 ```bash
 # ohne uv
+source .venv/bin/activate
 pip install -r datenwerft/requirements.txt
 
 # mit uv
@@ -78,22 +74,17 @@ cp rq-worker.service /etc/systemd/system/rq-worker.service
 
 ## Initialisierung
 
-1. virtuelle _Python_-Umgebung aktivieren (mit _uv_ nicht notwendig):
-
-```bash
-source .venv/bin/activate
-```
-
-2. JavaScript-Module via _npm_ installieren:
+1. JavaScript-Module via _npm_ installieren:
 
 ```bash
 npm install
 ```
 
-3. Anwendung initialisieren:
+2. Anwendung initialisieren:
 
 ```bash
 # ohne Projektmanagement durch uv
+source .venv/bin/activate
 python manage.py migrate --database=antragsmanagement antragsmanagement
 python manage.py migrate --database=bemas bemas
 python manage.py migrate
@@ -108,7 +99,7 @@ uv run manage.py antragsmanagement_roles_permissions
 uv run manage.py bemas_roles_permissions
 ```
 
-4. Administrator initialisieren:
+3. Administrator initialisieren:
 
 ```bash
 # ohne uv
@@ -118,7 +109,7 @@ python manage.py createsuperuser
 uv run manage.py createsuperuser
 ```
 
-5. Webseiten für Hilfe bauen:
+4. Webseiten für Hilfe bauen:
 
 ```bash
 cd hilfe
@@ -126,7 +117,7 @@ make html
 cd ..
 ```
 
-6. statische Dateien initialisieren:
+5. statische Dateien initialisieren:
 
 ```bash
 # ohne uv
