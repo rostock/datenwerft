@@ -1,11 +1,12 @@
 from bemas.models import Sector, Status, TypeOfEvent, TypeOfImmission
+
 from .base import DefaultCodelistTestCase, DefaultViewTestCase
 from .constants_vars import INVALID_STRING, TABLEDATA_VIEW_PARAMS
-
 
 #
 # codelists
 #
+
 
 class StatusModelTest(DefaultCodelistTestCase):
   """
@@ -14,31 +15,11 @@ class StatusModelTest(DefaultCodelistTestCase):
 
   model = Status
   count = 3
-  attributes_values_db_initial = {
-    'ordinal': 4,
-    'title': 'I0JBAMtz',
-    'icon': '3jw5UCfJ'
-  }
-  attributes_values_db_updated = {
-    'ordinal': 5,
-    'title': '4Ke2ZalC',
-    'icon': '3ZtNGShd'
-  }
-  attributes_values_view_initial = {
-    'ordinal': 6,
-    'title': 'C1wePTPw',
-    'icon': 'wacsjIgS'
-  }
-  attributes_values_view_updated = {
-    'ordinal': 7,
-    'title': 'Ye5nXUid',
-    'icon': 'ABys0FRo'
-  }
-  attributes_values_view_invalid = {
-    'ordinal': 7,
-    'title': INVALID_STRING,
-    'icon': INVALID_STRING
-  }
+  attributes_values_db_initial = {'ordinal': 4, 'title': 'I0JBAMtz', 'icon': '3jw5UCfJ'}
+  attributes_values_db_updated = {'ordinal': 5, 'title': '4Ke2ZalC', 'icon': '3ZtNGShd'}
+  attributes_values_view_initial = {'ordinal': 6, 'title': 'C1wePTPw', 'icon': 'wacsjIgS'}
+  attributes_values_view_updated = {'ordinal': 7, 'title': 'Ye5nXUid', 'icon': 'ABys0FRo'}
+  attributes_values_view_invalid = {'ordinal': 7, 'title': INVALID_STRING, 'icon': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -57,32 +38,67 @@ class StatusModelTest(DefaultCodelistTestCase):
 
   def test_view_create_success(self):
     self.generic_crud_view_test(
-      False, True, True, 'codelists_status_create', self.attributes_values_view_initial,
-      302, 'text/html; charset=utf-8', '', 1
+      False,
+      True,
+      True,
+      'codelists_status_create',
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      '',
+      1,
     )
 
   def test_view_create_error(self):
     self.generic_crud_view_test(
-      False, True, True, 'codelists_status_create', self.attributes_values_view_invalid,
-      200, 'text/html; charset=utf-8', 'neuen', 0
+      False,
+      True,
+      True,
+      'codelists_status_create',
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      'neuen',
+      0,
     )
 
   def test_view_update_success(self):
     self.generic_crud_view_test(
-      True, True, True, 'codelists_status_update', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 1
+      True,
+      True,
+      True,
+      'codelists_status_update',
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      '',
+      1,
     )
 
   def test_view_update_error(self):
     self.generic_crud_view_test(
-      True, True, True, 'codelists_status_update', self.attributes_values_view_invalid,
-      200, 'text/html; charset=utf-8', 'nderungen', 1
+      True,
+      True,
+      True,
+      'codelists_status_update',
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      'nderungen',
+      1,
     )
 
   def test_view_delete(self):
     self.generic_crud_view_test(
-      True, True, True, 'codelists_status_delete', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 0
+      True,
+      True,
+      True,
+      'codelists_status_delete',
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      '',
+      0,
     )
 
 
@@ -96,86 +112,90 @@ class StatusViewsTest(DefaultViewTestCase):
 
   def test_tabledata_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_status_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'in Bearbeitung'
+      True,
+      False,
+      'codelists_status_tabledata',
+      TABLEDATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      'in Bearbeitung',
     )
 
   def test_tabledata_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_status_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'ansehen oder bearbeiten'
+      True,
+      True,
+      'codelists_status_tabledata',
+      TABLEDATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      'ansehen oder bearbeiten',
     )
 
   def test_table_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_status_table', None,
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False, False, 'codelists_status_table', None, 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_table_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_status_table', None,
-      200, 'text/html; charset=utf-8', 'Titel'
+      True, False, 'codelists_status_table', None, 200, 'text/html; charset=utf-8', 'Titel'
     )
 
   def test_table_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_status_table', None,
-      200, 'text/html; charset=utf-8', 'Redaktion'
+      True, True, 'codelists_status_table', None, 200, 'text/html; charset=utf-8', 'Redaktion'
     )
 
   def test_create_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_status_create', None,
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False,
+      False,
+      'codelists_status_create',
+      None,
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_create_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_status_create', None,
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      True, False, 'codelists_status_create', None, 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_create_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_status_create', None,
-      200, 'text/html; charset=utf-8', 'neuen'
+      True, True, 'codelists_status_create', None, 200, 'text/html; charset=utf-8', 'neuen'
     )
 
   def test_update_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_status_update', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False, False, 'codelists_status_update', [1], 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_update_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_status_update', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      True, False, 'codelists_status_update', [1], 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_update_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_status_update', [1],
-      200, 'text/html; charset=utf-8', 'nderungen'
+      True, True, 'codelists_status_update', [1], 200, 'text/html; charset=utf-8', 'nderungen'
     )
 
   def test_delete_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_status_delete', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False, False, 'codelists_status_delete', [1], 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_delete_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_status_delete', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      True, False, 'codelists_status_delete', [1], 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_delete_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_status_delete', [1],
-      200, 'text/html; charset=utf-8', 'schen'
+      True, True, 'codelists_status_delete', [1], 200, 'text/html; charset=utf-8', 'schen'
     )
 
 
@@ -186,21 +206,11 @@ class SectorModelTest(DefaultCodelistTestCase):
 
   model = Sector
   count = 26
-  attributes_values_db_initial = {
-    'title': 'hFxVbEb2'
-  }
-  attributes_values_db_updated = {
-    'title': 'HFGXNmxC'
-  }
-  attributes_values_view_initial = {
-    'title': 'kr3wiVK5'
-  }
-  attributes_values_view_updated = {
-    'title': 'YvNVTYmQ'
-  }
-  attributes_values_view_invalid = {
-    'title': INVALID_STRING
-  }
+  attributes_values_db_initial = {'title': 'hFxVbEb2'}
+  attributes_values_db_updated = {'title': 'HFGXNmxC'}
+  attributes_values_view_initial = {'title': 'kr3wiVK5'}
+  attributes_values_view_updated = {'title': 'YvNVTYmQ'}
+  attributes_values_view_invalid = {'title': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -219,32 +229,67 @@ class SectorModelTest(DefaultCodelistTestCase):
 
   def test_view_create_success(self):
     self.generic_crud_view_test(
-      False, True, True, 'codelists_sector_create', self.attributes_values_view_initial,
-      302, 'text/html; charset=utf-8', '', 1
+      False,
+      True,
+      True,
+      'codelists_sector_create',
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      '',
+      1,
     )
 
   def test_view_create_error(self):
     self.generic_crud_view_test(
-      False, True, True, 'codelists_sector_create', self.attributes_values_view_invalid,
-      200, 'text/html; charset=utf-8', 'neuen', 0
+      False,
+      True,
+      True,
+      'codelists_sector_create',
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      'neuen',
+      0,
     )
 
   def test_view_update_success(self):
     self.generic_crud_view_test(
-      True, True, True, 'codelists_sector_update', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 1
+      True,
+      True,
+      True,
+      'codelists_sector_update',
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      '',
+      1,
     )
 
   def test_view_update_error(self):
     self.generic_crud_view_test(
-      True, True, True, 'codelists_sector_update', self.attributes_values_view_invalid,
-      200, 'text/html; charset=utf-8', 'nderungen', 1
+      True,
+      True,
+      True,
+      'codelists_sector_update',
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      'nderungen',
+      1,
     )
 
   def test_view_delete(self):
     self.generic_crud_view_test(
-      True, True, True, 'codelists_sector_delete', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 0
+      True,
+      True,
+      True,
+      'codelists_sector_delete',
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      '',
+      0,
     )
 
 
@@ -258,86 +303,90 @@ class SectorViewsTest(DefaultViewTestCase):
 
   def test_tabledata_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_sector_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'Freizeitanlage'
+      True,
+      False,
+      'codelists_sector_tabledata',
+      TABLEDATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      'Freizeitanlage',
     )
 
   def test_tabledata_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_sector_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'ansehen oder bearbeiten'
+      True,
+      True,
+      'codelists_sector_tabledata',
+      TABLEDATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      'ansehen oder bearbeiten',
     )
 
   def test_table_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_sector_table', None,
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False, False, 'codelists_sector_table', None, 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_table_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_sector_table', None,
-      200, 'text/html; charset=utf-8', 'Titel'
+      True, False, 'codelists_sector_table', None, 200, 'text/html; charset=utf-8', 'Titel'
     )
 
   def test_table_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_sector_table', None,
-      200, 'text/html; charset=utf-8', 'Redaktion'
+      True, True, 'codelists_sector_table', None, 200, 'text/html; charset=utf-8', 'Redaktion'
     )
 
   def test_create_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_sector_create', None,
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False,
+      False,
+      'codelists_sector_create',
+      None,
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_create_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_sector_create', None,
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      True, False, 'codelists_sector_create', None, 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_create_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_sector_create', None,
-      200, 'text/html; charset=utf-8', 'neuen'
+      True, True, 'codelists_sector_create', None, 200, 'text/html; charset=utf-8', 'neuen'
     )
 
   def test_update_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_sector_update', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False, False, 'codelists_sector_update', [1], 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_update_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_sector_update', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      True, False, 'codelists_sector_update', [1], 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_update_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_sector_update', [1],
-      200, 'text/html; charset=utf-8', 'nderungen'
+      True, True, 'codelists_sector_update', [1], 200, 'text/html; charset=utf-8', 'nderungen'
     )
 
   def test_delete_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_sector_delete', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False, False, 'codelists_sector_delete', [1], 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_delete_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_sector_delete', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      True, False, 'codelists_sector_delete', [1], 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_delete_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_sector_delete', [1],
-      200, 'text/html; charset=utf-8', 'schen'
+      True, True, 'codelists_sector_delete', [1], 200, 'text/html; charset=utf-8', 'schen'
     )
 
 
@@ -348,26 +397,11 @@ class TypeOfEventModelTest(DefaultCodelistTestCase):
 
   model = TypeOfEvent
   count = 5
-  attributes_values_db_initial = {
-    'title': 'UIO0F3n8',
-    'icon': 'qgzUK9gf'
-  }
-  attributes_values_db_updated = {
-    'title': 'o3XwyDzw',
-    'icon': 'svNUGQAd'
-  }
-  attributes_values_view_initial = {
-    'title': 'l68MH5Nz',
-    'icon': 'DvXUWHev'
-  }
-  attributes_values_view_updated = {
-    'title': 'yPDDJ55N',
-    'icon': 'zomEtOOV'
-  }
-  attributes_values_view_invalid = {
-    'title': INVALID_STRING,
-    'icon': INVALID_STRING
-  }
+  attributes_values_db_initial = {'title': 'UIO0F3n8', 'icon': 'qgzUK9gf'}
+  attributes_values_db_updated = {'title': 'o3XwyDzw', 'icon': 'svNUGQAd'}
+  attributes_values_view_initial = {'title': 'l68MH5Nz', 'icon': 'DvXUWHev'}
+  attributes_values_view_updated = {'title': 'yPDDJ55N', 'icon': 'zomEtOOV'}
+  attributes_values_view_invalid = {'title': INVALID_STRING, 'icon': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -386,32 +420,67 @@ class TypeOfEventModelTest(DefaultCodelistTestCase):
 
   def test_view_create_success(self):
     self.generic_crud_view_test(
-      False, True, True, 'codelists_typeofevent_create', self.attributes_values_view_initial,
-      302, 'text/html; charset=utf-8', '', 1
+      False,
+      True,
+      True,
+      'codelists_typeofevent_create',
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      '',
+      1,
     )
 
   def test_view_create_error(self):
     self.generic_crud_view_test(
-      False, True, True, 'codelists_typeofevent_create', self.attributes_values_view_invalid,
-      200, 'text/html; charset=utf-8', 'neuen', 0
+      False,
+      True,
+      True,
+      'codelists_typeofevent_create',
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      'neuen',
+      0,
     )
 
   def test_view_update_success(self):
     self.generic_crud_view_test(
-      True, True, True, 'codelists_typeofevent_update', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 1
+      True,
+      True,
+      True,
+      'codelists_typeofevent_update',
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      '',
+      1,
     )
 
   def test_view_update_error(self):
     self.generic_crud_view_test(
-      True, True, True, 'codelists_typeofevent_update', self.attributes_values_view_invalid,
-      200, 'text/html; charset=utf-8', 'nderungen', 1
+      True,
+      True,
+      True,
+      'codelists_typeofevent_update',
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      'nderungen',
+      1,
     )
 
   def test_view_delete(self):
     self.generic_crud_view_test(
-      True, True, True, 'codelists_typeofevent_delete', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 0
+      True,
+      True,
+      True,
+      'codelists_typeofevent_delete',
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      '',
+      0,
     )
 
 
@@ -425,86 +494,126 @@ class TypeOfEventViewsTest(DefaultViewTestCase):
 
   def test_tabledata_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_typeofevent_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'Telefonat'
+      True,
+      False,
+      'codelists_typeofevent_tabledata',
+      TABLEDATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      'Telefonat',
     )
 
   def test_tabledata_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_typeofevent_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'ansehen oder bearbeiten'
+      True,
+      True,
+      'codelists_typeofevent_tabledata',
+      TABLEDATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      'ansehen oder bearbeiten',
     )
 
   def test_table_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_typeofevent_table', None,
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False,
+      False,
+      'codelists_typeofevent_table',
+      None,
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_table_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_typeofevent_table', None,
-      200, 'text/html; charset=utf-8', 'Titel'
+      True, False, 'codelists_typeofevent_table', None, 200, 'text/html; charset=utf-8', 'Titel'
     )
 
   def test_table_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_typeofevent_table', None,
-      200, 'text/html; charset=utf-8', 'Redaktion'
+      True, True, 'codelists_typeofevent_table', None, 200, 'text/html; charset=utf-8', 'Redaktion'
     )
 
   def test_create_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_typeofevent_create', None,
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False,
+      False,
+      'codelists_typeofevent_create',
+      None,
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_create_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_typeofevent_create', None,
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      True,
+      False,
+      'codelists_typeofevent_create',
+      None,
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_create_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_typeofevent_create', None,
-      200, 'text/html; charset=utf-8', 'neuen'
+      True, True, 'codelists_typeofevent_create', None, 200, 'text/html; charset=utf-8', 'neuen'
     )
 
   def test_update_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_typeofevent_update', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False,
+      False,
+      'codelists_typeofevent_update',
+      [1],
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_update_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_typeofevent_update', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      True,
+      False,
+      'codelists_typeofevent_update',
+      [1],
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_update_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_typeofevent_update', [1],
-      200, 'text/html; charset=utf-8', 'nderungen'
+      True, True, 'codelists_typeofevent_update', [1], 200, 'text/html; charset=utf-8', 'nderungen'
     )
 
   def test_delete_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_typeofevent_delete', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False,
+      False,
+      'codelists_typeofevent_delete',
+      [1],
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_delete_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_typeofevent_delete', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      True,
+      False,
+      'codelists_typeofevent_delete',
+      [1],
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_delete_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_typeofevent_delete', [1],
-      200, 'text/html; charset=utf-8', 'schen'
+      True, True, 'codelists_typeofevent_delete', [1], 200, 'text/html; charset=utf-8', 'schen'
     )
 
 
@@ -515,26 +624,11 @@ class TypeOfImmissionModelTest(DefaultCodelistTestCase):
 
   model = TypeOfImmission
   count = 7
-  attributes_values_db_initial = {
-    'title': 'eaDUeltd',
-    'icon': 'wLIe5cDw'
-  }
-  attributes_values_db_updated = {
-    'title': 'mNyvaDBE',
-    'icon': 'WMEmWR5M'
-  }
-  attributes_values_view_initial = {
-    'title': 'eXbkQgzK',
-    'icon': 'ZKPgKvlQ'
-  }
-  attributes_values_view_updated = {
-    'title': 'iRSX9DF8',
-    'icon': '8FxlFjWU'
-  }
-  attributes_values_view_invalid = {
-    'title': INVALID_STRING,
-    'icon': INVALID_STRING
-  }
+  attributes_values_db_initial = {'title': 'eaDUeltd', 'icon': 'wLIe5cDw'}
+  attributes_values_db_updated = {'title': 'mNyvaDBE', 'icon': 'WMEmWR5M'}
+  attributes_values_view_initial = {'title': 'eXbkQgzK', 'icon': 'ZKPgKvlQ'}
+  attributes_values_view_updated = {'title': 'iRSX9DF8', 'icon': '8FxlFjWU'}
+  attributes_values_view_invalid = {'title': INVALID_STRING, 'icon': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -553,32 +647,67 @@ class TypeOfImmissionModelTest(DefaultCodelistTestCase):
 
   def test_view_create_success(self):
     self.generic_crud_view_test(
-      False, True, True, 'codelists_typeofimmission_create', self.attributes_values_view_initial,
-      302, 'text/html; charset=utf-8', '', 1
+      False,
+      True,
+      True,
+      'codelists_typeofimmission_create',
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      '',
+      1,
     )
 
   def test_view_create_error(self):
     self.generic_crud_view_test(
-      False, True, True, 'codelists_typeofimmission_create', self.attributes_values_view_invalid,
-      200, 'text/html; charset=utf-8', 'neuen', 0
+      False,
+      True,
+      True,
+      'codelists_typeofimmission_create',
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      'neuen',
+      0,
     )
 
   def test_view_update_success(self):
     self.generic_crud_view_test(
-      True, True, True, 'codelists_typeofimmission_update', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 1
+      True,
+      True,
+      True,
+      'codelists_typeofimmission_update',
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      '',
+      1,
     )
 
   def test_view_update_error(self):
     self.generic_crud_view_test(
-      True, True, True, 'codelists_typeofimmission_update', self.attributes_values_view_invalid,
-      200, 'text/html; charset=utf-8', 'nderungen', 1
+      True,
+      True,
+      True,
+      'codelists_typeofimmission_update',
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      'nderungen',
+      1,
     )
 
   def test_view_delete(self):
     self.generic_crud_view_test(
-      True, True, True, 'codelists_typeofimmission_delete', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 0
+      True,
+      True,
+      True,
+      'codelists_typeofimmission_delete',
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      '',
+      0,
     )
 
 
@@ -592,92 +721,157 @@ class TypeOfImmissionViewsTest(DefaultViewTestCase):
 
   def test_tabledata_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_typeofimmission_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'Geruch'
+      True,
+      False,
+      'codelists_typeofimmission_tabledata',
+      TABLEDATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      'Geruch',
     )
 
   def test_tabledata_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_typeofimmission_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'ansehen oder bearbeiten'
+      True,
+      True,
+      'codelists_typeofimmission_tabledata',
+      TABLEDATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      'ansehen oder bearbeiten',
     )
 
   def test_table_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_typeofimmission_table', None,
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False,
+      False,
+      'codelists_typeofimmission_table',
+      None,
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_table_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_typeofimmission_table', None,
-      200, 'text/html; charset=utf-8', 'Titel'
+      True,
+      False,
+      'codelists_typeofimmission_table',
+      None,
+      200,
+      'text/html; charset=utf-8',
+      'Titel',
     )
 
   def test_table_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_typeofimmission_table', None,
-      200, 'text/html; charset=utf-8', 'Redaktion'
+      True,
+      True,
+      'codelists_typeofimmission_table',
+      None,
+      200,
+      'text/html; charset=utf-8',
+      'Redaktion',
     )
 
   def test_create_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_typeofimmission_create', None,
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False,
+      False,
+      'codelists_typeofimmission_create',
+      None,
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_create_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_typeofimmission_create', None,
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      True,
+      False,
+      'codelists_typeofimmission_create',
+      None,
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_create_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_typeofimmission_create', None,
-      200, 'text/html; charset=utf-8', 'neuen'
+      True,
+      True,
+      'codelists_typeofimmission_create',
+      None,
+      200,
+      'text/html; charset=utf-8',
+      'neuen',
     )
 
   def test_update_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_typeofimmission_update', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False,
+      False,
+      'codelists_typeofimmission_update',
+      [1],
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_update_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_typeofimmission_update', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      True,
+      False,
+      'codelists_typeofimmission_update',
+      [1],
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_update_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_typeofimmission_update', [1],
-      200, 'text/html; charset=utf-8', 'nderungen'
+      True,
+      True,
+      'codelists_typeofimmission_update',
+      [1],
+      200,
+      'text/html; charset=utf-8',
+      'nderungen',
     )
 
   def test_delete_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists_typeofimmission_delete', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      False,
+      False,
+      'codelists_typeofimmission_delete',
+      [1],
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_delete_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists_typeofimmission_delete', [1],
-      200, 'text/html; charset=utf-8', 'keine Rechte'
+      True,
+      False,
+      'codelists_typeofimmission_delete',
+      [1],
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_delete_view_admin_rights(self):
     self.generic_view_test(
-      True, True, 'codelists_typeofimmission_delete', [1],
-      200, 'text/html; charset=utf-8', 'schen'
+      True, True, 'codelists_typeofimmission_delete', [1], 200, 'text/html; charset=utf-8', 'schen'
     )
 
 
 #
 # general views
 #
+
 
 class CodelistsIndexViewTest(DefaultViewTestCase):
   """
@@ -689,12 +883,10 @@ class CodelistsIndexViewTest(DefaultViewTestCase):
 
   def test_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists', None, 200,
-      'text/html; charset=utf-8', 'keine Rechte'
+      False, False, 'codelists', None, 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists', None, 200,
-      'text/html; charset=utf-8', 'Codelisten'
+      True, False, 'codelists', None, 200, 'text/html; charset=utf-8', 'Codelisten'
     )

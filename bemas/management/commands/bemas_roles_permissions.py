@@ -4,7 +4,6 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-
   def handle(self, *args, **options):
     num_groups_existing, num_groups_created = 0, 0
     num_permissions_already_assigned, num_permissions_assigned = 0, 0
@@ -40,23 +39,25 @@ class Command(BaseCommand):
       'add_contact',
       'change_contact',
       'delete_contact',
-      'view_contact'
+      'view_contact',
     ]
     permission_codenames_admin = list(permission_codenames_user)
-    permission_codenames_admin.extend([
-      'add_sector',
-      'change_sector',
-      'delete_sector',
-      'add_status',
-      'change_status',
-      'delete_status',
-      'add_typeofevent',
-      'change_typeofevent',
-      'delete_typeofevent',
-      'add_typeofimmission',
-      'change_typeofimmission',
-      'delete_typeofimmission'
-    ])
+    permission_codenames_admin.extend(
+      [
+        'add_sector',
+        'change_sector',
+        'delete_sector',
+        'add_status',
+        'change_status',
+        'delete_status',
+        'add_typeofevent',
+        'change_typeofevent',
+        'delete_typeofevent',
+        'add_typeofimmission',
+        'change_typeofimmission',
+        'delete_typeofimmission',
+      ]
+    )
     # get all relevant group names
     group_names = list([settings.BEMAS_ADMIN_GROUP_NAME, settings.BEMAS_USERS_GROUP_NAME])
     for group_name in group_names:
@@ -73,7 +74,8 @@ class Command(BaseCommand):
         permission_codenames = list(permission_codenames_admin)
       for permission_codename in permission_codenames:
         permission = Permission.objects.get(
-          content_type__app_label=app_label, codename=permission_codename)
+          content_type__app_label=app_label, codename=permission_codename
+        )
         if group.permissions.filter(id=permission.id).exists():
           num_permissions_already_assigned += 1
         else:
@@ -82,12 +84,14 @@ class Command(BaseCommand):
     self.stdout.write(
       self.style.SUCCESS(
         '{} group(s) already existing, {} group(s) created'.format(
-          num_groups_existing, num_groups_created)
+          num_groups_existing, num_groups_created
         )
+      )
     )
     self.stdout.write(
       self.style.SUCCESS(
         '{} permission(s) already assigned, {} permission(s) assigned'.format(
-          num_permissions_already_assigned, num_permissions_assigned)
+          num_permissions_already_assigned, num_permissions_assigned
         )
+      )
     )

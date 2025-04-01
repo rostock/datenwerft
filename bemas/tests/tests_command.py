@@ -1,11 +1,21 @@
 from datetime import timedelta
+from io import StringIO
+
 from django.conf import settings
 from django.core.management import call_command
 from django.utils import timezone
-from io import StringIO
 
-from bemas.models import Complaint, Contact, Organization, Originator, Person, Sector, Status, \
-  TypeOfImmission
+from bemas.models import (
+  Complaint,
+  Contact,
+  Organization,
+  Originator,
+  Person,
+  Sector,
+  Status,
+  TypeOfImmission,
+)
+
 from .base import DefaultTestCase
 from .constants_vars import VALID_POINT_DB
 
@@ -22,7 +32,8 @@ class DeletePersonsWithoutDataTest(DefaultTestCase):
     out = StringIO()
     call_command('deletepersons', stdout=out)
     self.assertIn(
-      '0 person(s) not connected to contacts and active complaints deleted', out.getvalue())
+      '0 person(s) not connected to contacts and active complaints deleted', out.getvalue()
+    )
 
 
 class DeletePersonsWithDataTest(DefaultTestCase):
@@ -32,28 +43,17 @@ class DeletePersonsWithDataTest(DefaultTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    organization = Organization.objects.create(
-      name='hTWrDWAO'
-    )
-    person1 = Person.objects.create(
-      last_name='xRdIIqQV'
-    )
-    person2 = Person.objects.create(
-      last_name='xgKpANFg'
-    )
-    person3 = Person.objects.create(
-      last_name='yW9NXgth'
-    )
-    Contact.objects.create(
-      organization=organization,
-      person=person1
-    )
+    organization = Organization.objects.create(name='hTWrDWAO')
+    person1 = Person.objects.create(last_name='xRdIIqQV')
+    person2 = Person.objects.create(last_name='xgKpANFg')
+    person3 = Person.objects.create(last_name='yW9NXgth')
+    Contact.objects.create(organization=organization, person=person1)
     sector = Sector.objects.first()
     originator = Originator.objects.create(
       sector=sector,
       operator_organization=organization,
       description='AV3hpjCt',
-      emission_point=VALID_POINT_DB
+      emission_point=VALID_POINT_DB,
     )
     status1 = Status.get_default_status()
     status2 = Status.get_closed_status()
@@ -63,7 +63,7 @@ class DeletePersonsWithDataTest(DefaultTestCase):
       type_of_immission=type_of_immission,
       immission_point=VALID_POINT_DB,
       originator=originator,
-      description='ax1mLsDb'
+      description='ax1mLsDb',
     )
     complaint1.complainers_persons.add(person2)
     complaint2 = Complaint.objects.create(
@@ -71,7 +71,7 @@ class DeletePersonsWithDataTest(DefaultTestCase):
       type_of_immission=type_of_immission,
       immission_point=VALID_POINT_DB,
       originator=originator,
-      description='NadJq8ko'
+      description='NadJq8ko',
     )
     complaint2.complainers_persons.add(person3)
     expired_date = timezone.now() - timedelta(days=settings.BEMAS_STATUS_CHANGE_DEADLINE_DAYS + 1)
@@ -85,4 +85,5 @@ class DeletePersonsWithDataTest(DefaultTestCase):
     out = StringIO()
     call_command('deletepersons', stdout=out)
     self.assertIn(
-      '1 person(s) not connected to contacts and active complaints deleted', out.getvalue())
+      '1 person(s) not connected to contacts and active complaints deleted', out.getvalue()
+    )

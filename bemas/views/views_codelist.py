@@ -6,9 +6,14 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from .forms import GenericForm
-from .functions import add_codelist_context_elements, add_default_context_elements, \
-  add_table_context_elements, add_user_agent_context_elements, assign_widget, \
-  generate_foreign_key_objects_list
+from .functions import (
+  add_codelist_context_elements,
+  add_default_context_elements,
+  add_table_context_elements,
+  add_user_agent_context_elements,
+  assign_widget,
+  generate_foreign_key_objects_list,
+)
 
 
 class CodelistTableView(TemplateView):
@@ -48,10 +53,7 @@ class CodelistCreateView(CreateView):
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
     self.form_class = modelform_factory(
-      self.model,
-      form=GenericForm,
-      fields='__all__',
-      formfield_callback=assign_widget
+      self.model, form=GenericForm, fields='__all__', formfield_callback=assign_widget
     )
     super().__init__(*args, **kwargs)
 
@@ -82,7 +84,7 @@ class CodelistCreateView(CreateView):
       self.request,
       'Der neue Codelisteneintrag <strong><em>{}</em></strong> wurde erfolgreich angelegt!'.format(
         str(form.instance)
-      )
+      ),
     )
     return super().form_valid(form)
 
@@ -97,10 +99,7 @@ class CodelistUpdateView(UpdateView):
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
     self.form_class = modelform_factory(
-      self.model,
-      form=GenericForm,
-      fields='__all__',
-      formfield_callback=assign_widget
+      self.model, form=GenericForm, fields='__all__', formfield_callback=assign_widget
     )
     super().__init__(*args, **kwargs)
 
@@ -131,7 +130,7 @@ class CodelistUpdateView(UpdateView):
       self.request,
       'Der Codelisteneintrag <strong><em>{}</em></strong> wurde erfolgreich geändert!'.format(
         str(form.instance)
-      )
+      ),
     )
     return super().form_valid(form)
 
@@ -173,16 +172,17 @@ class CodelistDeleteView(DeleteView):
         self.request,
         'Der Codelisteneintrag <strong><em>{}</em></strong> wurde erfolgreich gelöscht!'.format(
           str(self.object)
-        )
+        ),
       )
       return HttpResponseRedirect(success_url)
     except ProtectedError as exception:
       error(
         self.request,
-        'Der Codelisteneintrag ' + self.model._meta.verbose_name +
-        ' <strong><em>' + str(self.object) +
-        '</em></strong> kann nicht gelöscht werden! Folgende(s) Objekt(e) verweist/verweisen '
-        'noch auf ihn:<br><br>' +
-        generate_foreign_key_objects_list(exception.protected_objects)
+        'Der Codelisteneintrag '
+        + self.model._meta.verbose_name
+        + ' <strong><em>'
+        + str(self.object)
+        + '</em></strong> kann nicht gelöscht werden! Folgende(s) Objekt(e) verweist/verweisen '
+        'noch auf ihn:<br><br>' + generate_foreign_key_objects_list(exception.protected_objects),
       )
       return self.render_to_response(self.get_context_data(form=form))

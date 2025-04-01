@@ -1,10 +1,10 @@
 from datetime import date, datetime, timedelta
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils import timezone as tz
 
 from toolbox.utils import format_date_datetime
-
 
 LOG_ACTIONS = {
   'created': 'neu angelegt',
@@ -16,7 +16,7 @@ LOG_ACTIONS = {
   'updated_operator_organization': 'Organisation als Betreiberin geändert',
   'updated_operator_person': 'Person als Betreiber:in geändert',
   'updated_originator': 'Verursacher geändert',
-  'updated_status': 'Bearbeitungsstatus geändert'
+  'updated_status': 'Bearbeitungsstatus geändert',
 }
 
 
@@ -33,7 +33,7 @@ def generate_user_string(user):
     user = {
       'first_name': user.first_name if user.first_name else '',
       'last_name': user.last_name if user.first_name else '',
-      'username': user.username
+      'username': user.username,
     }
   if user['first_name'] and user['last_name']:
     return user['first_name'] + ' ' + user['last_name']
@@ -116,8 +116,9 @@ def get_orphaned_organizations(originator, complaint, organization):
   and organization object classes
   """
   # get all organizations connected to originators
-  oris_orgs_ids = originator.objects.filter(
-    operator_organization__isnull=False).values('operator_organization')
+  oris_orgs_ids = originator.objects.filter(operator_organization__isnull=False).values(
+    'operator_organization'
+  )
   # get all organizations connected to complaints
   cpls_orgs_ids = organization.objects.none().values('id')
   for cpl in complaint.objects.all():
@@ -151,20 +152,22 @@ def get_orphaned_persons(complaint, contact, originator, person):
   # or with status "less" than closed)
   act_cpls = complaint.objects.filter(
     status_updated_at__gt=get_complaint_status_change_deadline_date()
-    ) | complaint.objects.filter(status__ordinal__lt=2)
+  ) | complaint.objects.filter(status__ordinal__lt=2)
   # get all persons connected to contacts
   con_ps_ids = contact.objects.all().values('person')
   # get all persons connected to originators
-  oris_ps_ids = originator.objects.filter(
-    operator_person__isnull=False).values('operator_person')
+  oris_ps_ids = originator.objects.filter(operator_person__isnull=False).values('operator_person')
   # get all persons connected to active complaints
   act_cpls_ps_ids = person.objects.none().values('id')
   for act_cpl in act_cpls:
     act_cpls_ps_ids = act_cpls_ps_ids | act_cpl.complainers_persons.all().values('id')
   # get orphaned persons
   # (i.e. persons not connected to any contacts and any originators and any active complaints)
-  return person.objects.exclude(id__in=con_ps_ids).exclude(
-    id__in=oris_ps_ids).exclude(id__in=act_cpls_ps_ids)
+  return (
+    person.objects.exclude(id__in=con_ps_ids)
+    .exclude(id__in=oris_ps_ids)
+    .exclude(id__in=act_cpls_ps_ids)
+  )
 
 
 def is_bemas_admin(user):

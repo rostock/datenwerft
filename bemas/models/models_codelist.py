@@ -1,6 +1,7 @@
 from django.db.models.fields import CharField, SmallIntegerField
 
 from toolbox.constants_vars import standard_validators
+
 from .base import Codelist
 
 
@@ -9,21 +10,12 @@ class Status(Codelist):
   model class for codelist status (Bearbeitungsstatus)
   """
 
-  ordinal = SmallIntegerField(
-    verbose_name='Ordinalzahl',
-    unique=True
-  )
+  ordinal = SmallIntegerField(verbose_name='Ordinalzahl', unique=True)
   title = CharField(
-    verbose_name='Titel',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Titel', max_length=255, unique=True, validators=standard_validators
   )
   icon = CharField(
-    verbose_name='Icon',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Icon', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -36,9 +28,7 @@ class Status(Codelist):
     description = 'Bearbeitungsstatus von Beschwerden'
 
   class CustomMeta:
-    min_numbers = {
-      'ordinal': 1
-    }
+    min_numbers = {'ordinal': 1}
 
   def __str__(self):
     return self.title
@@ -58,17 +48,10 @@ class Sector(Codelist):
   """
 
   title = CharField(
-    verbose_name='Titel',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Titel', max_length=255, unique=True, validators=standard_validators
   )
   examples = CharField(
-    verbose_name='Beispiele',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators
+    verbose_name='Beispiele', max_length=255, blank=True, null=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -90,16 +73,10 @@ class TypeOfEvent(Codelist):
   """
 
   title = CharField(
-    verbose_name='Titel',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Titel', max_length=255, unique=True, validators=standard_validators
   )
   icon = CharField(
-    verbose_name='Icon',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Icon', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -121,16 +98,10 @@ class TypeOfImmission(Codelist):
   """
 
   title = CharField(
-    verbose_name='Titel',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Titel', max_length=255, unique=True, validators=standard_validators
   )
   icon = CharField(
-    verbose_name='Icon',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Icon', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):

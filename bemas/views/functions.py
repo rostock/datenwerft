@@ -1,4 +1,7 @@
 from datetime import date
+from json import dumps, loads
+from operator import itemgetter
+
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -6,15 +9,28 @@ from django.core.serializers import serialize
 from django.forms import Select, Textarea
 from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
-from json import dumps, loads
 from leaflet.forms.widgets import LeafletWidget
-from operator import itemgetter
 
-from bemas.models import Codelist, GeometryObjectclass, Complaint, Contact, Event, LogEntry, \
-  Originator, Status
-from bemas.utils import LOG_ACTIONS, generate_user_string, \
-  get_foreign_key_target_model, get_foreign_key_target_object, get_icon_from_settings, \
-  get_json_data, is_bemas_admin, is_bemas_user
+from bemas.models import (
+  Codelist,
+  Complaint,
+  Contact,
+  Event,
+  GeometryObjectclass,
+  LogEntry,
+  Originator,
+  Status,
+)
+from bemas.utils import (
+  LOG_ACTIONS,
+  generate_user_string,
+  get_foreign_key_target_model,
+  get_foreign_key_target_object,
+  get_icon_from_settings,
+  get_json_data,
+  is_bemas_admin,
+  is_bemas_user,
+)
 from toolbox.utils import format_date_datetime, is_geometry_field
 
 
@@ -149,40 +165,34 @@ def add_table_context_elements(context, model, kwargs=None):
     context['tabledata_url'] = reverse('bemas:codelists_' + model.__name__.lower() + '_tabledata')
   else:
     if (
-        issubclass(model, LogEntry)
-        and 'model' in kwargs
-        and kwargs['model']
-        and 'object_pk' in kwargs
-        and kwargs['object_pk']
+      issubclass(model, LogEntry)
+      and 'model' in kwargs
+      and kwargs['model']
+      and 'object_pk' in kwargs
+      and kwargs['object_pk']
     ):
       context['tabledata_url'] = reverse(
-        'bemas:logentry_tabledata_model_object',
-        args=[kwargs['model'], kwargs['object_pk']]
+        'bemas:logentry_tabledata_model_object', args=[kwargs['model'], kwargs['object_pk']]
       )
       context['reference_table_url'] = reverse('bemas:' + kwargs['model'].lower() + '_table')
       context['reference_object_url'] = reverse(
-        'bemas:' + kwargs['model'].lower() + '_update', args=[kwargs['object_pk']])
-    elif issubclass(model, LogEntry) and 'model' in kwargs and kwargs['model']:
-      context['tabledata_url'] = reverse(
-        'bemas:logentry_tabledata_model',
-        args=[kwargs['model']]
+        'bemas:' + kwargs['model'].lower() + '_update', args=[kwargs['object_pk']]
       )
+    elif issubclass(model, LogEntry) and 'model' in kwargs and kwargs['model']:
+      context['tabledata_url'] = reverse('bemas:logentry_tabledata_model', args=[kwargs['model']])
       context['reference_table_url'] = reverse('bemas:' + kwargs['model'].lower() + '_table')
     elif issubclass(model, Event) and 'complaint_pk' in kwargs and kwargs['complaint_pk']:
       context['tabledata_url'] = reverse(
-        'bemas:event_tabledata_complaint',
-        args=[kwargs['complaint_pk']]
+        'bemas:event_tabledata_complaint', args=[kwargs['complaint_pk']]
       )
-      context['complaint_url'] = reverse(
-        'bemas:complaint_update', args=[kwargs['complaint_pk']])
+      context['complaint_url'] = reverse('bemas:complaint_update', args=[kwargs['complaint_pk']])
     elif (
-        (issubclass(model, Complaint) or issubclass(model, Originator))
-        and 'subset_pk' in kwargs
-        and kwargs['subset_pk']
+      (issubclass(model, Complaint) or issubclass(model, Originator))
+      and 'subset_pk' in kwargs
+      and kwargs['subset_pk']
     ):
       context['tabledata_url'] = reverse(
-        'bemas:' + model.__name__.lower() + '_tabledata_subset',
-        args=[kwargs['subset_pk']]
+        'bemas:' + model.__name__.lower() + '_tabledata_subset', args=[kwargs['subset_pk']]
       )
     else:
       context['tabledata_url'] = reverse('bemas:' + model.__name__.lower() + '_tabledata')
@@ -246,9 +256,7 @@ def assign_widget(field):
     choices = [(user, user) for user in user_list]
     # prepend choices with empty value
     choices.insert(0, ('', '---------'))
-    form_field.widget = Select(
-      choices=choices
-    )
+    form_field.widget = Select(choices=choices)
   # handle inputs
   if hasattr(form_field.widget, 'input_type'):
     if form_field.widget.input_type == 'checkbox':
@@ -273,9 +281,7 @@ def assign_widget(field):
     form_field.widget.attrs['rows'] = 5
   # handle geometry widgets
   elif is_geometry_field(field.__class__):
-    form_field = field.formfield(
-      widget=LeafletWidget()
-    )
+    form_field = field.formfield(widget=LeafletWidget())
   # field is array field?
   if is_array_field:
     # highlight corresponding form field as array field via custom HTML attribute
@@ -308,37 +314,54 @@ def create_geojson_feature(curr_object):
       '_link_update': reverse('bemas:' + model + '_update', args=[pk]),
       '_link_delete': reverse('bemas:' + model + '_delete', args=[pk]),
       '_link_logentries': reverse(
-        'bemas:logentry_table_model_object', args=[curr_object.__class__.__name__, pk])
-    }
+        'bemas:logentry_table_model_object', args=[curr_object.__class__.__name__, pk]
+      ),
+    },
   }
   # add properties for map pop-up to GeoJSON feature
   for field in curr_object.__class__._meta.concrete_fields:
-    if (
-        getattr(curr_object, field.name)
-        and (
-          (
-              issubclass(curr_object.__class__, Complaint)
-              and field.name in (
-                  'id', 'created_at', 'updated_at', 'date_of_receipt', 'status',
-                  'status_updated_at', 'type_of_immission', 'address', 'originator',
-                  'description', 'dms_link', 'storage_location'
-              )
-          )
-          or (
-              issubclass(curr_object.__class__, Originator)
-              and field.name in (
-                  'id', 'created_at', 'updated_at', 'sector', 'operator_organization',
-                  'operator_person', 'description', 'address', 'dms_link'
-              )
-          )
+    if getattr(curr_object, field.name) and (
+      (
+        issubclass(curr_object.__class__, Complaint)
+        and field.name
+        in (
+          'id',
+          'created_at',
+          'updated_at',
+          'date_of_receipt',
+          'status',
+          'status_updated_at',
+          'type_of_immission',
+          'address',
+          'originator',
+          'description',
+          'dms_link',
+          'storage_location',
         )
+      )
+      or (
+        issubclass(curr_object.__class__, Originator)
+        and field.name
+        in (
+          'id',
+          'created_at',
+          'updated_at',
+          'sector',
+          'operator_organization',
+          'operator_person',
+          'description',
+          'address',
+          'dms_link',
+        )
+      )
     ):
       geojson_feature['properties'][field.verbose_name] = get_json_data(curr_object, field.name)
   # object class complaint:
   if issubclass(curr_object.__class__, Complaint):
     # add events link as property to GeoJSON feature
     geojson_feature['properties']['_link_events'] = reverse(
-      'bemas:event_table_complaint', args=[pk])
+      'bemas:event_table_complaint', args=[pk]
+    )
     # add complainers as property to GeoJSON feature
     complainers = ''
     complainers_organizations = Complaint.objects.get(pk=pk).complainers_organizations.all()
@@ -358,25 +381,20 @@ def create_geojson_feature(curr_object):
   # add properties for filters to GeoJSON feature
   for field in curr_object.__class__._meta.concrete_fields:
     if (
-        (
-            issubclass(curr_object.__class__, Complaint)
-            and field.name in (
-                'id', 'date_of_receipt', 'status',
-                'type_of_immission', 'originator', 'description'
-            )
-        )
-        or (
-            issubclass(curr_object.__class__, Originator)
-            and field.name in (
-                'sector', 'operator_organization', 'operator_person', 'description'
-            )
-        )
+      issubclass(curr_object.__class__, Complaint)
+      and field.name
+      in ('id', 'date_of_receipt', 'status', 'type_of_immission', 'originator', 'description')
+    ) or (
+      issubclass(curr_object.__class__, Originator)
+      and field.name in ('sector', 'operator_organization', 'operator_person', 'description')
     ):
       geojson_feature['properties']['_' + field.name + '_'] = get_json_data(
-        curr_object, field.name, True)
+        curr_object, field.name, True
+      )
   if issubclass(curr_object.__class__, Complaint):
     geojson_feature['properties']['_originator__id_'] = get_json_data(
-      curr_object.originator, 'id', True)
+      curr_object.originator, 'id', True
+    )
   return geojson_feature
 
 
@@ -395,7 +413,7 @@ def create_log_entry(model, object_pk, action, content, user):
     object_pk=object_pk,
     action=action,
     content=content,
-    user=generate_user_string(user)
+    user=generate_user_string(user),
   )
 
 
@@ -410,7 +428,7 @@ def generate_foreign_key_objects_list(foreign_key_objects, formation_hint=None):
   object_list = ''
   for foreign_key_object in foreign_key_objects:
     link_text, suffix = '', ''
-    object_list += ('<li>' if len(foreign_key_objects) > 1 else '')
+    object_list += '<li>' if len(foreign_key_objects) > 1 else ''
     if issubclass(foreign_key_object.__class__, Contact) and formation_hint == 'person':
       if foreign_key_object.function:
         suffix = ' mit der Funktion ' + foreign_key_object.function
@@ -422,9 +440,10 @@ def generate_foreign_key_objects_list(foreign_key_objects, formation_hint=None):
     if issubclass(foreign_key_object.__class__, Event):
       link_text = foreign_key_object.type_of_event_and_created_at()
     object_list += generate_foreign_key_link_simplified(
-      foreign_key_object.__class__, foreign_key_object, link_text)
+      foreign_key_object.__class__, foreign_key_object, link_text
+    )
     object_list += suffix
-    object_list += ('</li>' if len(foreign_key_objects) > 1 else '')
+    object_list += '</li>' if len(foreign_key_objects) > 1 else ''
   if len(foreign_key_objects) > 1:
     return '<ul class="object-list">' + object_list + '</ul>'
   else:
@@ -463,10 +482,17 @@ def generate_foreign_key_link_simplified(target_model, target_object, link_text=
     link_text = str(target_object)
   target_model_name = target_model.__name__.lower()
   icon = '<i class="fas fa-' + get_icon_from_settings(target_model_name) + '"></i>'
-  return '<a href="' + \
-    reverse('bemas:' + target_model_name + '_update', args=[target_object.pk]) + \
-    '" title="' + target_model._meta.verbose_name + ' ansehen oder bearbeiten">' + \
-    icon + ' ' + link_text + '</a>'
+  return (
+    '<a href="'
+    + reverse('bemas:' + target_model_name + '_update', args=[target_object.pk])
+    + '" title="'
+    + target_model._meta.verbose_name
+    + ' ansehen oder bearbeiten">'
+    + icon
+    + ' '
+    + link_text
+    + '</a>'
+  )
 
 
 def get_lastest_activity_objects(count=5, template=True):
@@ -494,28 +520,17 @@ def get_model_objects(model, count=False, kwargs=None):
   :return: either all objects of passed model or objects count of passed model
   """
   if (
-      issubclass(model, LogEntry)
-      and kwargs
-      and 'model' in kwargs
-      and kwargs['model']
-      and 'object_pk' in kwargs
-      and kwargs['object_pk']
+    issubclass(model, LogEntry)
+    and kwargs
+    and 'model' in kwargs
+    and kwargs['model']
+    and 'object_pk' in kwargs
+    and kwargs['object_pk']
   ):
-    objects = LogEntry.objects.filter(
-      model=kwargs['model'], object_pk=kwargs['object_pk'])
-  elif (
-      issubclass(model, LogEntry)
-      and kwargs
-      and 'model' in kwargs
-      and kwargs['model']
-  ):
+    objects = LogEntry.objects.filter(model=kwargs['model'], object_pk=kwargs['object_pk'])
+  elif issubclass(model, LogEntry) and kwargs and 'model' in kwargs and kwargs['model']:
     objects = LogEntry.objects.filter(model=kwargs['model'])
-  elif (
-      issubclass(model, Event)
-      and kwargs
-      and 'complaint_pk' in kwargs
-      and kwargs['complaint_pk']
-  ):
+  elif issubclass(model, Event) and kwargs and 'complaint_pk' in kwargs and kwargs['complaint_pk']:
     objects = Event.objects.filter(complaint=kwargs['complaint_pk'])
   else:
     objects = model.objects.all()
@@ -544,18 +559,19 @@ def get_referer_url(referer, fallback, lazy=False):
   and/or used in case of successfully submitted forms
   """
   if (
-      referer
-      and '/contact' not in referer
-      and '/event' not in referer
-      and '/logentry' not in referer
-      and '/delete' not in referer
+    referer
+    and '/contact' not in referer
+    and '/event' not in referer
+    and '/logentry' not in referer
+    and '/delete' not in referer
   ):
     return referer
   return reverse_lazy(fallback) if lazy else reverse(fallback)
 
 
-def set_generic_objectclass_create_update_delete_context(context, request, model, cancel_url,
-                                                         curr_object=None):
+def set_generic_objectclass_create_update_delete_context(
+  context, request, model, cancel_url, curr_object=None
+):
   """
   sets generic object class context for create, update and/or delete views and returns it
 
@@ -679,7 +695,7 @@ def transform_activity_objects(activity_objects):
       'action': action,
       'created_at': created_at,
       'link': link,
-      'tooltip': model_title + ' ansehen oder bearbeiten' if link else ''
+      'tooltip': model_title + ' ansehen oder bearbeiten' if link else '',
     }
     activity_objects_list.append(activity_object_dict)
   return activity_objects_list

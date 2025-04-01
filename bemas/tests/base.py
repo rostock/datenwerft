@@ -1,11 +1,13 @@
+from json import loads
+
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from json import loads
 
 from bemas.models import Codelist, LogEntry
-from .constants_vars import DATABASES, USERNAME, PASSWORD, TABLEDATA_VIEW_PARAMS
+
+from .constants_vars import DATABASES, PASSWORD, TABLEDATA_VIEW_PARAMS, USERNAME
 from .functions import clean_object_filter, get_object, login
 
 
@@ -99,9 +101,19 @@ class DefaultModelTestCase(DefaultTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
-  def generic_crud_view_test(self, update_mode, bemas_user, bemas_admin, view_name,
-                             object_filter, status_code, content_type, string, count,
-                             log_entry_action=None):
+  def generic_crud_view_test(
+    self,
+    update_mode,
+    bemas_user,
+    bemas_admin,
+    view_name,
+    object_filter,
+    status_code,
+    content_type,
+    string,
+    count,
+    log_entry_action=None,
+  ):
     """
     tests a view for creating or updating an object via POST
 
@@ -146,10 +158,7 @@ class DefaultModelTestCase(DefaultTestCase):
     # log entry created as expected?
     if log_entry_action:
       self.assertEqual(
-        LogEntry.objects.filter(
-          model=self.model.__name__,
-          action=log_entry_action
-        ).count(), 1
+        LogEntry.objects.filter(model=self.model.__name__, action=log_entry_action).count(), 1
       )
 
 
@@ -241,8 +250,9 @@ class DefaultViewTestCase(DefaultTestCase):
     super().init()
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  def generic_view_test(self, bemas_user, bemas_admin, view_name,
-                        view_args, status_code, content_type, string):
+  def generic_view_test(
+    self, bemas_user, bemas_admin, view_name, view_args, status_code, content_type, string
+  ):
     """
     tests a view via GET
 
