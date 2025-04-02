@@ -68,7 +68,7 @@ class Adressen(Metamodel):
     }
 
   def __str__(self):
-    return self.adresse
+    return str(self.adresse)
 
 
 class Strassen(Metamodel):
@@ -99,7 +99,7 @@ class Strassen(Metamodel):
     list_fields = {'gemeinde': 'Gemeinde', 'gemeindeteil': 'Gemeindeteil', 'strasse': 'Straße'}
 
   def __str__(self):
-    return self.strasse
+    return str(self.strasse)
 
 
 class Inoffizielle_Strassen(Metamodel):
@@ -120,7 +120,7 @@ class Inoffizielle_Strassen(Metamodel):
     list_fields = {'strasse': 'Straße'}
 
   def __str__(self):
-    return self.strasse
+    return str(self.strasse)
 
 
 class Gemeindeteile(Metamodel):
@@ -143,7 +143,7 @@ class Gemeindeteile(Metamodel):
     list_fields = {'gemeindeteil': 'Gemeindeteil'}
 
   def __str__(self):
-    return self.gemeindeteil
+    return str(self.gemeindeteil)
 
 
 class Gruenpflegeobjekte(Metamodel):
@@ -178,7 +178,7 @@ class Gruenpflegeobjekte(Metamodel):
     }
 
   def __str__(self):
-    return self.gruenpflegeobjekt
+    return str(self.gruenpflegeobjekt)
 
 
 #
@@ -209,7 +209,7 @@ class Altersklassen_Kadaverfunde(Codelist):
     list_fields = {'ordinalzahl': 'Ordinalzahl', 'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Anbieter_Carsharing(Codelist):
@@ -232,7 +232,7 @@ class Anbieter_Carsharing(Codelist):
     list_fields = {'anbieter': 'Anbieter'}
 
   def __str__(self):
-    return self.anbieter
+    return str(self.anbieter)
 
 
 class Angebote_Mobilpunkte(Codelist):
@@ -255,7 +255,7 @@ class Angebote_Mobilpunkte(Codelist):
     list_fields = {'angebot': 'Angebot'}
 
   def __str__(self):
-    return self.angebot
+    return str(self.angebot)
 
 
 class Angelberechtigungen(Codelist):
@@ -278,7 +278,7 @@ class Angelberechtigungen(Codelist):
     list_fields = {'angelberechtigung': 'Angelberechtigung'}
 
   def __str__(self):
-    return self.angelberechtigung
+    return str(self.angelberechtigung)
 
 
 class Ansprechpartner_Baustellen(Codelist):
@@ -319,9 +319,9 @@ class Ansprechpartner_Baustellen(Codelist):
 
   def __str__(self):
     if not self.nachname:
-      return self.email
+      return str(self.email)
     else:
-      return self.vorname + ' ' + self.nachname + ' (' + self.email + ')'
+      return f'{self.vorname} {self.nachname} ({self.email})'
 
 
 class Antragsteller_Jagdkataster_Skizzenebenen(Codelist):
@@ -344,7 +344,7 @@ class Antragsteller_Jagdkataster_Skizzenebenen(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Arten_Adressunsicherheiten(Art):
@@ -647,7 +647,7 @@ class Auftraggeber_Baugrunduntersuchungen(Codelist):
     list_fields = {'auftraggeber': 'Auftraggeber'}
 
   def __str__(self):
-    return self.auftraggeber
+    return str(self.auftraggeber)
 
 
 class Auftraggeber_Baustellen(Codelist):
@@ -670,7 +670,7 @@ class Auftraggeber_Baustellen(Codelist):
     list_fields = {'auftraggeber': 'Auftraggeber'}
 
   def __str__(self):
-    return self.auftraggeber
+    return str(self.auftraggeber)
 
 
 class Ausfuehrungen_Fahrradabstellanlagen(Ausfuehrung):
@@ -821,7 +821,7 @@ class Beleuchtungsarten(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Besonderheiten_Freizeitsport(Codelist):
@@ -844,7 +844,7 @@ class Besonderheiten_Freizeitsport(Codelist):
     list_fields = {'besonderheit': 'Besonderheit'}
 
   def __str__(self):
-    return self.besonderheit
+    return str(self.besonderheit)
 
 
 class Besonderheiten_Spielplaetze(Codelist):
@@ -867,7 +867,7 @@ class Besonderheiten_Spielplaetze(Codelist):
     list_fields = {'besonderheit': 'Besonderheit'}
 
   def __str__(self):
-    return self.besonderheit
+    return str(self.besonderheit)
 
 
 class Betriebsarten(Codelist):
@@ -890,7 +890,7 @@ class Betriebsarten(Codelist):
     list_fields = {'betriebsart': 'Betriebsart'}
 
   def __str__(self):
-    return self.betriebsart
+    return str(self.betriebsart)
 
 
 class Betriebszeiten(Codelist):
@@ -913,7 +913,7 @@ class Betriebszeiten(Codelist):
     list_fields = {'betriebszeit': 'Betriebszeit'}
 
   def __str__(self):
-    return self.betriebszeit
+    return str(self.betriebszeit)
 
 
 class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
@@ -1006,8 +1006,8 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
     list_fields_with_date = ['bestellungszeitraum_beginn', 'bestellungszeitraum_ende']
 
   def __str__(self):
-    bezirk = ' (Bezirk ' + self.bezirk + ')' if self.bezirk else ''
-    return self.vorname + ' ' + self.nachname + bezirk
+    bezirk = f' (Bezirk {self.bezirk})' if self.bezirk else ''
+    return f'{self.vorname} {self.nachname}{bezirk}'
 
   def address(self):
     return concat_address(
@@ -1039,7 +1039,7 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung', 'art': 'Art'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Bodenarten_Freizeitsport(Codelist):
@@ -1062,7 +1062,7 @@ class Bodenarten_Freizeitsport(Codelist):
     list_fields = {'bodenart': 'Bodenart'}
 
   def __str__(self):
-    return self.bodenart
+    return str(self.bodenart)
 
 
 class Bodenarten_Spielplaetze(Codelist):
@@ -1085,7 +1085,7 @@ class Bodenarten_Spielplaetze(Codelist):
     list_fields = {'bodenart': 'Bodenart'}
 
   def __str__(self):
-    return self.bodenart
+    return str(self.bodenart)
 
 
 class DFI_Typen_Haltestellenkataster(Codelist):
@@ -1114,7 +1114,7 @@ class DFI_Typen_Haltestellenkataster(Codelist):
     list_fields = {'dfi_typ': 'DFI-Typ'}
 
   def __str__(self):
-    return self.dfi_typ
+    return str(self.dfi_typ)
 
 
 class E_Anschluesse_Parkscheinautomaten(Codelist):
@@ -1137,7 +1137,7 @@ class E_Anschluesse_Parkscheinautomaten(Codelist):
     list_fields = {'e_anschluss': 'E-Anschluss'}
 
   def __str__(self):
-    return self.e_anschluss
+    return str(self.e_anschluss)
 
 
 class Ergebnisse_UVP_Vorpruefungen(Codelist):
@@ -1160,7 +1160,7 @@ class Ergebnisse_UVP_Vorpruefungen(Codelist):
     list_fields = {'ergebnis': 'Ergebnis'}
 
   def __str__(self):
-    return self.ergebnis
+    return str(self.ergebnis)
 
 
 class Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO(Codelist):
@@ -1199,7 +1199,7 @@ class Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO(Codelist):
     list_fields = {'code': 'Code'}
 
   def __str__(self):
-    return self.code
+    return str(self.code)
 
 
 class Fahrgastunterstandstypen_Haltestellenkataster(Codelist):
@@ -1225,7 +1225,7 @@ class Fahrgastunterstandstypen_Haltestellenkataster(Codelist):
     list_fields = {'fahrgastunterstandstyp': 'Fahrgastunterstandstyp'}
 
   def __str__(self):
-    return self.fahrgastunterstandstyp
+    return str(self.fahrgastunterstandstyp)
 
 
 class Fahrplanvitrinentypen_Haltestellenkataster(Codelist):
@@ -1248,7 +1248,7 @@ class Fahrplanvitrinentypen_Haltestellenkataster(Codelist):
     list_fields = {'fahrplanvitrinentyp': 'Fahrplanvitrinentyp'}
 
   def __str__(self):
-    return self.fahrplanvitrinentyp
+    return str(self.fahrplanvitrinentyp)
 
 
 class Fotomotive_Haltestellenkataster(Codelist):
@@ -1271,7 +1271,7 @@ class Fotomotive_Haltestellenkataster(Codelist):
     list_fields = {'fotomotiv': 'Fotomotiv'}
 
   def __str__(self):
-    return self.fotomotiv
+    return str(self.fotomotiv)
 
 
 class Freizeitsportarten(Codelist):
@@ -1294,7 +1294,7 @@ class Freizeitsportarten(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Fundamenttypen_RSAG(Codelist):
@@ -1327,7 +1327,7 @@ class Fundamenttypen_RSAG(Codelist):
     list_fields = {'typ': 'Typ', 'erlaeuterung': 'Erläuterung'}
 
   def __str__(self):
-    return self.typ
+    return str(self.typ)
 
 
 class Gebaeudearten_Meldedienst_punkthaft(Codelist):
@@ -1350,7 +1350,7 @@ class Gebaeudearten_Meldedienst_punkthaft(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Gebaeudebauweisen(Codelist):
@@ -1376,7 +1376,7 @@ class Gebaeudebauweisen(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung', 'code': 'Code'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Gebaeudefunktionen(Codelist):
@@ -1402,7 +1402,7 @@ class Gebaeudefunktionen(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung', 'code': 'Code'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Genehmigungsbehoerden_UVP_Vorhaben(Codelist):
@@ -1425,7 +1425,7 @@ class Genehmigungsbehoerden_UVP_Vorhaben(Codelist):
     list_fields = {'genehmigungsbehoerde': 'Genehmigungsbehörde'}
 
   def __str__(self):
-    return self.genehmigungsbehoerde
+    return str(self.genehmigungsbehoerde)
 
 
 class Geschlechter_Kadaverfunde(Codelist):
@@ -1450,7 +1450,7 @@ class Geschlechter_Kadaverfunde(Codelist):
     list_fields = {'ordinalzahl': 'Ordinalzahl', 'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Haefen(Codelist):
@@ -1482,7 +1482,7 @@ class Haefen(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung', 'abkuerzung': 'Abkürzung', 'code': 'Code'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Hersteller_Fahrradabstellanlagen(Hersteller):
@@ -1533,7 +1533,7 @@ class Kabeltypen_Lichtwellenleiterinfrastruktur(Codelist):
     list_fields = {'kabeltyp': 'Kabeltyp'}
 
   def __str__(self):
-    return self.kabeltyp
+    return str(self.kabeltyp)
 
 
 class Kategorien_Strassen(Codelist):
@@ -1561,7 +1561,7 @@ class Kategorien_Strassen(Codelist):
     list_fields = {'code': 'Code', 'bezeichnung': 'Bezeichnung', 'erlaeuterung': 'Erläuterung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Labore_Baugrunduntersuchungen(Codelist):
@@ -1607,7 +1607,7 @@ class Labore_Baugrunduntersuchungen(Codelist):
     }
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Ladekarten_Ladestationen_Elektrofahrzeuge(Codelist):
@@ -1630,7 +1630,7 @@ class Ladekarten_Ladestationen_Elektrofahrzeuge(Codelist):
     list_fields = {'ladekarte': 'Ladekarte'}
 
   def __str__(self):
-    return self.ladekarte
+    return str(self.ladekarte)
 
 
 class Leerungszeiten(Codelist):
@@ -1659,7 +1659,7 @@ class Leerungszeiten(Codelist):
     }
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Linien(Codelist):
@@ -1685,7 +1685,7 @@ class Linien(Codelist):
     list_fields = {'linie': 'Linie'}
 
   def __str__(self):
-    return self.linie
+    return str(self.linie)
 
 
 class Mastkennzeichen_RSAG(Codelist):
@@ -1717,7 +1717,7 @@ class Mastkennzeichen_RSAG(Codelist):
     list_fields = {'kennzeichen': 'Kennzeichen', 'erlaeuterung': 'Erläuterung'}
 
   def __str__(self):
-    return self.erlaeuterung + ' (' + self.kennzeichen + ')'
+    return f'{self.erlaeuterung} ({self.kennzeichen})'
 
 
 class Masttypen_Haltestellenkataster(Codelist):
@@ -1740,7 +1740,7 @@ class Masttypen_Haltestellenkataster(Codelist):
     list_fields = {'masttyp': 'Masttyp'}
 
   def __str__(self):
-    return self.masttyp
+    return str(self.masttyp)
 
 
 class Masttypen_RSAG(Codelist):
@@ -1766,7 +1766,7 @@ class Masttypen_RSAG(Codelist):
     list_fields = {'typ': 'Typ', 'erlaeuterung': 'Erläuterung'}
 
   def __str__(self):
-    return self.typ
+    return str(self.typ)
 
 
 class Materialien_Denksteine(Material):
@@ -1817,7 +1817,7 @@ class Objektarten_Lichtwellenleiterinfrastruktur(Codelist):
     list_fields = {'objektart': 'Objektart'}
 
   def __str__(self):
-    return self.objektart
+    return str(self.objektart)
 
 
 class Ordnungen_Fliessgewaesser(Codelist):
@@ -1861,7 +1861,7 @@ class Personentitel(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Quartiere(Codelist):
@@ -1953,7 +1953,7 @@ class Rechtsgrundlagen_UVP_Vorhaben(Codelist):
     list_fields = {'rechtsgrundlage': 'Rechtsgrundlage'}
 
   def __str__(self):
-    return self.rechtsgrundlage
+    return str(self.rechtsgrundlage)
 
 
 class Reinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
@@ -2049,7 +2049,7 @@ class Schaeden_Haltestellenkataster(Codelist):
     list_fields = {'schaden': 'Schaden'}
 
   def __str__(self):
-    return self.schaden
+    return str(self.schaden)
 
 
 class Schlagwoerter_Bildungstraeger(Schlagwort):
@@ -2100,7 +2100,7 @@ class Schliessungen_Poller(Codelist):
     list_fields = {'schliessung': 'Schließung'}
 
   def __str__(self):
-    return self.schliessung
+    return str(self.schliessung)
 
 
 class Sitzbanktypen_Haltestellenkataster(Codelist):
@@ -2123,7 +2123,7 @@ class Sitzbanktypen_Haltestellenkataster(Codelist):
     list_fields = {'sitzbanktyp': 'Sitzbanktyp'}
 
   def __str__(self):
-    return self.sitzbanktyp
+    return str(self.sitzbanktyp)
 
 
 class Sparten_Baustellen(Codelist):
@@ -2146,7 +2146,7 @@ class Sparten_Baustellen(Codelist):
     list_fields = {'sparte': 'Sparte'}
 
   def __str__(self):
-    return self.sparte
+    return str(self.sparte)
 
 
 class Spielgeraete(Codelist):
@@ -2169,7 +2169,7 @@ class Spielgeraete(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Sportarten(Codelist):
@@ -2192,7 +2192,7 @@ class Sportarten(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Status_Baudenkmale_Denkmalbereiche(Status):
@@ -2285,7 +2285,7 @@ class Themen_Jagdkataster_Skizzenebenen(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Tierseuchen(Codelist):
@@ -2308,7 +2308,7 @@ class Tierseuchen(Codelist):
     list_fields = {'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Typen_Abfallbehaelter(Typ):
@@ -2429,7 +2429,7 @@ class Verbuende_Ladestationen_Elektrofahrzeuge(Codelist):
     list_fields = {'verbund': 'Verbund'}
 
   def __str__(self):
-    return self.verbund
+    return str(self.verbund)
 
 
 class Verkehrliche_Lagen_Baustellen(Codelist):
@@ -2452,7 +2452,7 @@ class Verkehrliche_Lagen_Baustellen(Codelist):
     list_fields = {'verkehrliche_lage': 'verkehrliche Lage'}
 
   def __str__(self):
-    return self.verkehrliche_lage
+    return str(self.verkehrliche_lage)
 
 
 class Verkehrsmittelklassen(Codelist):
@@ -2478,7 +2478,7 @@ class Verkehrsmittelklassen(Codelist):
     list_fields = {'verkehrsmittelklasse': 'Verkehrsmittelklasse'}
 
   def __str__(self):
-    return self.verkehrsmittelklasse
+    return str(self.verkehrsmittelklasse)
 
 
 class Vorgangsarten_UVP_Vorhaben(Codelist):
@@ -2501,7 +2501,7 @@ class Vorgangsarten_UVP_Vorhaben(Codelist):
     list_fields = {'vorgangsart': 'Vorgangsart'}
 
   def __str__(self):
-    return self.vorgangsart
+    return str(self.vorgangsart)
 
 
 class Wegebreiten_Strassenreinigungssatzung_HRO(Codelist):
@@ -2678,7 +2678,7 @@ class Zeiteinheiten(Codelist):
     list_fields = {'zeiteinheit': 'Zeiteinheit', 'erlaeuterung': 'Erläuterung'}
 
   def __str__(self):
-    return self.erlaeuterung
+    return str(self.erlaeuterung)
 
 
 class ZH_Typen_Haltestellenkataster(Codelist):
@@ -2701,7 +2701,7 @@ class ZH_Typen_Haltestellenkataster(Codelist):
     list_fields = {'zh_typ': 'ZH-Typ'}
 
   def __str__(self):
-    return self.zh_typ
+    return str(self.zh_typ)
 
 
 class Zonen_Parkscheinautomaten(Codelist):
@@ -2731,7 +2731,7 @@ class Zonen_Parkscheinautomaten(Codelist):
     list_fields = {'zone': 'Zone'}
 
   def __str__(self):
-    return self.zone
+    return str(self.zone)
 
 
 class Zustaende_Kadaverfunde(Codelist):
