@@ -109,7 +109,7 @@ def path_and_rename(path, foreign_key_subdir_attr: str = ''):
   :return: cleaned version of passed path
   """
 
-  def wrapper(instance, filename):
+  def wrapper(instance, filename) -> Path:
     """
     sets path based on passed object and passed file name and returns it
 
