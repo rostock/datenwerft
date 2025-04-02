@@ -1,5 +1,6 @@
 from bemas.models import GeometryObjectclass
-from .constants_vars import USERNAME, PASSWORD
+
+from .constants_vars import PASSWORD, USERNAME
 
 
 def clean_object_filter(object_filter, model=None):
@@ -41,7 +42,4 @@ def login(test, bemas_user=False, bemas_admin=False):
     test.test_bemas_user_group.user_set.add(test.test_user)
   if bemas_admin:
     test.test_bemas_admin_group.user_set.add(test.test_user)
-  test.client.login(
-    username=USERNAME,
-    password=PASSWORD
-  )
+  test.client.login(username=USERNAME, password=PASSWORD)

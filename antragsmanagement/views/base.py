@@ -1,17 +1,24 @@
 from datetime import date, datetime
+
 from django.contrib.messages import success
 from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.utils.html import escape
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
-from .forms import ObjectForm
-from .functions import add_model_context_elements, \
-  add_table_context_elements, add_useragent_context_elements, assign_widget, get_model_objects
 from antragsmanagement.utils import check_necessary_permissions, get_icon_from_settings
 from toolbox.utils import format_date_datetime, optimize_datatable_filter
+
+from .forms import ObjectForm
+from .functions import (
+  add_model_context_elements,
+  add_table_context_elements,
+  add_useragent_context_elements,
+  assign_widget,
+  get_model_objects,
+)
 
 
 class ObjectTableDataView(BaseDatatableView):
@@ -78,10 +85,9 @@ class ObjectTableDataView(BaseDatatableView):
             item_data.append(data)
         # append link for updating
         permission_suffix = self.model.__name__.lower()
-        if (
-            self.request.user.has_perm('antragsmanagement.view_' + permission_suffix)
-            or self.request.user.has_perm('antragsmanagement.change_' + permission_suffix)
-        ):
+        if self.request.user.has_perm(
+          'antragsmanagement.view_' + permission_suffix
+        ) or self.request.user.has_perm('antragsmanagement.change_' + permission_suffix):
           link = '<a class="btn btn-sm btn-outline-warning" role="button" href="'
           link += reverse(self.update_view_name, kwargs={'pk': item_pk})
           link += '"><i class="fas fa-' + get_icon_from_settings('update')
@@ -106,7 +112,8 @@ class ObjectTableDataView(BaseDatatableView):
         for column in self.model._meta.fields:
           search_column = column.name
           qs_params_inner = optimize_datatable_filter(
-            search_element, search_column, qs_params_inner)
+            search_element, search_column, qs_params_inner
+          )
         qs_params = qs_params & qs_params_inner if qs_params else qs_params_inner
       qs = qs.filter(qs_params)
     return qs
@@ -200,10 +207,7 @@ class ObjectMixin:
       raise ValueError('The model attribute must be set before calling get_form_class.')
     # dynamically create the form class
     form_class = modelform_factory(
-      self.model,
-      form=self.form,
-      fields='__all__',
-      formfield_callback=assign_widget
+      self.model, form=self.form, fields='__all__', formfield_callback=assign_widget
     )
     return form_class
 
@@ -215,8 +219,7 @@ class ObjectMixin:
     :return: HTTP response if passed form is valid
     """
     success(
-      self.request,
-      self.success_message.format(self.model._meta.verbose_name, str(form.instance))
+      self.request, self.success_message.format(self.model._meta.verbose_name, str(form.instance))
     )
     return super().form_valid(form)
 
@@ -284,8 +287,7 @@ class ObjectDeleteView(DeleteView):
     :return: HTTP response if passed form is valid
     """
     success(
-      self.request,
-      self.success_message.format(self.model._meta.verbose_name, str(self.object))
+      self.request, self.success_message.format(self.model._meta.verbose_name, str(self.object))
     )
     return super().form_valid(form)
 

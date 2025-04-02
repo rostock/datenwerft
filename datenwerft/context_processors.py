@@ -9,6 +9,7 @@ def include_login_form(request):
   :return: login form based on passed request
   """
   from django.contrib.auth.forms import AuthenticationForm
+
   form = AuthenticationForm()
   loginredirect = request.get_full_path()
   try:
@@ -16,7 +17,4 @@ def include_login_form(request):
       loginredirect = reverse('events:list')
   except NoReverseMatch:
     loginredirect = request.get_full_path()
-  return {
-    'login_form': form,
-    'current_path': loginredirect
-  }
+  return {'login_form': form, 'current_path': loginredirect}

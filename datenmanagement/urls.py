@@ -4,14 +4,26 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views.api import DatenmanagementViewSet
-from .views.functions import assign_object_value, delete_object_immediately, \
-  download_pointcloud, set_form_template
+from .views.functions import (
+  assign_object_value,
+  delete_object_immediately,
+  download_pointcloud,
+  set_form_template,
+)
 from .views.views_form import DataAddView, DataChangeView, DataDeleteView
-from .views.views_general import GeometryView, GISFiletoGeoJSON, IndexView, StartView, \
-  AddAnotherView
-from .views.views_list_map import MapDataCompositionView, MapListView, TableDataCompositionView, \
-  TableListView
-
+from .views.views_general import (
+  AddAnotherView,
+  GeometryView,
+  GISFiletoGeoJSON,
+  IndexView,
+  StartView,
+)
+from .views.views_list_map import (
+  MapDataCompositionView,
+  MapListView,
+  TableDataCompositionView,
+  TableListView,
+)
 
 router = DefaultRouter()
 
@@ -21,9 +33,7 @@ models = apps.get_app_config(app_name).get_models()
 for model in models:
   model_name_lower = model.__name__.lower()
   router.register(
-    model_name_lower,
-    DatenmanagementViewSet.create_custom(model=model),
-    basename=model_name_lower
+    model_name_lower, DatenmanagementViewSet.create_custom(model=model), basename=model_name_lower
   )
 
 api_urlpatterns = router.urls
@@ -45,17 +55,11 @@ def permission_required(*perms):
 
 urlpatterns = [
   # main page
-  path(
-    '',
-    view=login_required(IndexView.as_view()),
-    name='index'
-  ),
+  path('', view=login_required(IndexView.as_view()), name='index'),
   # passes a file to FME Server and returns the generated GeoJSON
   path(
-    'gisfiletogeojson',
-    view=login_required(GISFiletoGeoJSON.as_view()),
-    name='gisfiletogeojson'
-  )
+    'gisfiletogeojson', view=login_required(GISFiletoGeoJSON.as_view()), name='gisfiletogeojson'
+  ),
 ]
 
 #
@@ -75,9 +79,9 @@ for model in models:
         'datenmanagement.add_' + model_name_lower,
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
-        'datenmanagement.view_' + model_name_lower
+        'datenmanagement.view_' + model_name_lower,
       )(StartView.as_view(model=model)),
-      name=model_name + '_start'
+      name=model_name + '_start',
     )
   )
 
@@ -85,10 +89,10 @@ for model in models:
   urlpatterns.append(
     path(
       model_name + '/data',
-      view=permission_required(
-        'datenmanagement.view_' + model_name_lower
-      )(TableDataCompositionView.as_view(model=model)),
-      name=model_name + '_data'
+      view=permission_required('datenmanagement.view_' + model_name_lower)(
+        TableDataCompositionView.as_view(model=model)
+      ),
+      name=model_name + '_data',
     )
   )
 
@@ -97,10 +101,10 @@ for model in models:
   urlpatterns.append(
     path(
       model_name + '/data/subset/<subset_id>',
-      view=permission_required(
-        'datenmanagement.view_' + model_name_lower
-      )(TableDataCompositionView.as_view(model=model)),
-      name=model_name + '_data_subset'
+      view=permission_required('datenmanagement.view_' + model_name_lower)(
+        TableDataCompositionView.as_view(model=model)
+      ),
+      name=model_name + '_data_subset',
     )
   )
 
@@ -111,12 +115,9 @@ for model in models:
       view=permission_required(
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
-        'datenmanagement.view_' + model_name_lower
-      )(TableListView.as_view(
-        model=model,
-        template_name='datenmanagement/list.html'
-      )),
-      name=model_name + '_list'
+        'datenmanagement.view_' + model_name_lower,
+      )(TableListView.as_view(model=model, template_name='datenmanagement/list.html')),
+      name=model_name + '_list',
     )
   )
 
@@ -128,12 +129,9 @@ for model in models:
       view=permission_required(
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
-        'datenmanagement.view_' + model_name_lower
-      )(TableListView.as_view(
-        model=model,
-        template_name='datenmanagement/list.html'
-      )),
-      name=model_name + '_list_subset'
+        'datenmanagement.view_' + model_name_lower,
+      )(TableListView.as_view(model=model, template_name='datenmanagement/list.html')),
+      name=model_name + '_list_subset',
     )
   )
 
@@ -141,10 +139,10 @@ for model in models:
   urlpatterns.append(
     path(
       model_name + '/mapdata',
-      view=permission_required(
-        'datenmanagement.view_' + model_name_lower
-      )(MapDataCompositionView.as_view(model=model)),
-      name=model_name + '_mapdata'
+      view=permission_required('datenmanagement.view_' + model_name_lower)(
+        MapDataCompositionView.as_view(model=model)
+      ),
+      name=model_name + '_mapdata',
     )
   )
 
@@ -153,10 +151,10 @@ for model in models:
   urlpatterns.append(
     path(
       model_name + '/mapdata/subset/<subset_id>',
-      view=permission_required(
-        'datenmanagement.view_' + model_name_lower
-      )(MapDataCompositionView.as_view(model=model)),
-      name=model_name + '_mapdata_subset'
+      view=permission_required('datenmanagement.view_' + model_name_lower)(
+        MapDataCompositionView.as_view(model=model)
+      ),
+      name=model_name + '_mapdata_subset',
     )
   )
 
@@ -167,12 +165,9 @@ for model in models:
       view=permission_required(
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
-        'datenmanagement.view_' + model_name_lower
-      )(MapListView.as_view(
-        model=model,
-        template_name='datenmanagement/map.html'
-      )),
-      name=model_name + '_map'
+        'datenmanagement.view_' + model_name_lower,
+      )(MapListView.as_view(model=model, template_name='datenmanagement/map.html')),
+      name=model_name + '_map',
     )
   )
 
@@ -184,12 +179,9 @@ for model in models:
       view=permission_required(
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
-        'datenmanagement.view_' + model_name_lower
-      )(MapListView.as_view(
-        model=model,
-        template_name='datenmanagement/map.html'
-      )),
-      name=model_name + '_map_subset'
+        'datenmanagement.view_' + model_name_lower,
+      )(MapListView.as_view(model=model, template_name='datenmanagement/map.html')),
+      name=model_name + '_map_subset',
     )
   )
 
@@ -197,13 +189,10 @@ for model in models:
   urlpatterns.append(
     path(
       model_name + '/add',
-      view=permission_required(
-        'datenmanagement.add_' + model_name_lower
-      )(DataAddView.as_view(
-        model=model,
-        template_name=set_form_template(model)
-      )),
-      name=model_name + '_add'
+      view=permission_required('datenmanagement.add_' + model_name_lower)(
+        DataAddView.as_view(model=model, template_name=set_form_template(model))
+      ),
+      name=model_name + '_add',
     )
   )
 
@@ -211,10 +200,10 @@ for model in models:
   urlpatterns.append(
     path(
       model_name + '/add_another',
-      view=permission_required(
-        'datenmanagement.add_' + model_name_lower
-      )(AddAnotherView.as_view(model=model)),
-      name=model_name + '_add_another'
+      view=permission_required('datenmanagement.add_' + model_name_lower)(
+        AddAnotherView.as_view(model=model)
+      ),
+      name=model_name + '_add_another',
     )
   )
 
@@ -225,12 +214,9 @@ for model in models:
       view=permission_required(
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
-        'datenmanagement.view_' + model_name_lower
-      )(DataChangeView.as_view(
-        model=model,
-        template_name=set_form_template(model)
-      )),
-      name=model_name + '_change'
+        'datenmanagement.view_' + model_name_lower,
+      )(DataChangeView.as_view(model=model, template_name=set_form_template(model))),
+      name=model_name + '_change',
     )
   )
 
@@ -238,13 +224,10 @@ for model in models:
   urlpatterns.append(
     path(
       model_name + '/delete/<pk>',
-      view=permission_required(
-        'datenmanagement.delete_' + model_name_lower
-      )(DataDeleteView.as_view(
-        model=model,
-        template_name='datenmanagement/delete.html'
-      )),
-      name=model_name + '_delete'
+      view=permission_required('datenmanagement.delete_' + model_name_lower)(
+        DataDeleteView.as_view(model=model, template_name='datenmanagement/delete.html')
+      ),
+      name=model_name + '_delete',
     )
   )
 
@@ -252,10 +235,8 @@ for model in models:
   urlpatterns.append(
     path(
       model_name + '/assign/<pk>',
-      view=permission_required(
-        'datenmanagement.change_' + model_name_lower
-      )(assign_object_value),
-      name=model_name + '_assign'
+      view=permission_required('datenmanagement.change_' + model_name_lower)(assign_object_value),
+      name=model_name + '_assign',
     )
   )
 
@@ -263,10 +244,10 @@ for model in models:
   urlpatterns.append(
     path(
       model_name + '/deleteimmediately/<pk>',
-      view=permission_required(
-        'datenmanagement.delete_' + model_name_lower
-      )(delete_object_immediately),
-      name=model_name + '_deleteimmediately'
+      view=permission_required('datenmanagement.delete_' + model_name_lower)(
+        delete_object_immediately
+      ),
+      name=model_name + '_deleteimmediately',
     )
   )
 
@@ -274,10 +255,10 @@ for model in models:
   urlpatterns.append(
     path(
       model_name + '/geometry',
-      view=permission_required(
-        'datenmanagement.view_' + model_name_lower
-      )(GeometryView.as_view(model=model)),
-      name=model_name + '_geometry'
+      view=permission_required('datenmanagement.view_' + model_name_lower)(
+        GeometryView.as_view(model=model)
+      ),
+      name=model_name + '_geometry',
     )
   )
 
@@ -286,9 +267,7 @@ for model in models:
     urlpatterns.append(
       path(
         model_name + '/download/<pk>',
-        view=permission_required(
-          'datenmanagement.view_' + model_name_lower
-        )(download_pointcloud),
-        name='download_pointcloud'
+        view=permission_required('datenmanagement.view_' + model_name_lower)(download_pointcloud),
+        name='download_pointcloud',
       )
     )

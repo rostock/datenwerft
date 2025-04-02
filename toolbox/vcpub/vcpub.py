@@ -1,7 +1,9 @@
-from django.conf import settings
 from logging import getLogger
-from toolbox.vcpub.BearerAuth import BearerAuth
+
+from django.conf import settings
 from requests import Response, Session, post
+
+from toolbox.vcpub.BearerAuth import BearerAuth
 
 
 class VCPub:
@@ -32,11 +34,8 @@ class VCPub:
       self.__url: str = f'{settings.PYBLISHER["host"]}/api/v1'
       if self.__url:
         response: Response = post(
-          url=f'{self.__url}/login/',
-          data={
-            "username": self.__user,
-            "password": self.__password
-          })
+          url=f'{self.__url}/login/', data={'username': self.__user, 'password': self.__password}
+        )
         if response.ok:
           bearer: str = response.json()['token']
           self.__auth = BearerAuth(bearer)
@@ -74,8 +73,9 @@ class VCPub:
     """
     return self.__project_id
 
-  def post(self, endpoint: str, data: dict = None, json=None, files=None,
-           *args, **kwargs) -> tuple[bool, dict | Response | None]:
+  def post(
+    self, endpoint: str, data: dict = None, json=None, files=None, *args, **kwargs
+  ) -> tuple[bool, dict | Response | None]:
     """
     Make a POST Request to the VC Publisher API.
 
@@ -85,6 +85,7 @@ class VCPub:
     :param files:
     :return:
     """
+
     def post_it():
       url: str = self.__url + endpoint
       response = self.__session.post(url=url, data=data, json=json, files=files, *args, **kwargs)
@@ -110,8 +111,9 @@ class VCPub:
         response.reason = 'Bad Gateway. VCPub Object is not connected.'
         return False, response
 
-  def get(self, endpoint: str, headers=None, stream: bool = False,
-          *args, **kwargs) -> tuple[bool, dict | Response | None]:
+  def get(
+    self, endpoint: str, headers=None, stream: bool = False, *args, **kwargs
+  ) -> tuple[bool, dict | Response | None]:
     """
     Make a GET Request to the VC Publisher API.
 
@@ -120,6 +122,7 @@ class VCPub:
     :param stream: just for file downloads, default False
     :return: Response as dict
     """
+
     def get_it():
       url: str = self.__url + endpoint
       response = self.__session.get(url=url, headers=headers, stream=stream, *args, **kwargs)
@@ -157,6 +160,7 @@ class VCPub:
     :param headers: json like dict
     :return: Response as dict
     """
+
     def delete_it():
       url: str = self.__url + endpoint
       response = self.__session.delete(url=url, headers=headers)

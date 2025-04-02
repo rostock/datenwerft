@@ -9,10 +9,10 @@ logger = _LDAPConfig.get_logger()
 
 class DatenwerftAuthBackend(LDAPBackend):
   default_settings = {
-    "LOGIN_COUNTER_KEY": "CUSTOM_LDAP_LOGIN_ATTEMPT_COUNT",
-    "LOGIN_ATTEMPT_LIMIT": 3,
-    "PERMIT_EMPTY_PASSWORD": False,
-    "RESET_TIME": 30 * 60,
+    'LOGIN_COUNTER_KEY': 'CUSTOM_LDAP_LOGIN_ATTEMPT_COUNT',
+    'LOGIN_ATTEMPT_LIMIT': 3,
+    'PERMIT_EMPTY_PASSWORD': False,
+    'RESET_TIME': 30 * 60,
   }
 
   def authenticate(self, request, username=None, password=None, **kwargs):
@@ -27,7 +27,7 @@ class DatenwerftAuthBackend(LDAPBackend):
       else:
         user = self.authenticate_ldap_user(ldap_user, password)
     else:
-      logger.debug("Rejecting empty password for %s", username)
+      logger.debug('Rejecting empty password for %s', username)
       user = None
 
     return user
@@ -38,7 +38,7 @@ class DatenwerftAuthBackend(LDAPBackend):
     if self.exceeded_login_attempt_limit():
       # Or you can raise a 403 if you do not want
       # to continue checking other auth backends
-      logger.debug("Login attempts exceeded. %s", ldap_user)
+      logger.debug('Login attempts exceeded. %s', ldap_user)
       return None
     self.increment_login_attempt_count()
     user = ldap_user.authenticate(password)
@@ -51,9 +51,7 @@ class DatenwerftAuthBackend(LDAPBackend):
 
   @property
   def login_attempt_count(self):
-    return cache.get_or_set(
-      self.settings.LOGIN_COUNTER_KEY, 0, self.settings.RESET_TIME
-    )
+    return cache.get_or_set(self.settings.LOGIN_COUNTER_KEY, 0, self.settings.RESET_TIME)
 
   def increment_login_attempt_count(self):
     try:

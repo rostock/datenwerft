@@ -10,11 +10,11 @@ def get_client_ip(request):
   :param request: client request
   :return: client IP address
   """
-  x_forwarded_for = request.headers.get("X-Forwarded-For")
+  x_forwarded_for = request.headers.get('X-Forwarded-For')
   if x_forwarded_for:
-    ip = x_forwarded_for.split(",")[0]
+    ip = x_forwarded_for.split(',')[0]
   else:
-    ip = request.META.get("REMOTE_ADDR")
+    ip = request.META.get('REMOTE_ADDR')
   return ip
 
 
@@ -58,9 +58,9 @@ def ip_to_binary(ip_string):
   :param ip_string: IP string
   :return: binary representation of IP string
   """
-  octet_list_int = ip_string.split(".")
+  octet_list_int = ip_string.split('.')
   octet_list_bin = [format(int(i), '08b') for i in octet_list_int]
-  binary = "".join(octet_list_bin)
+  binary = ''.join(octet_list_bin)
   return binary
 
 
@@ -76,7 +76,7 @@ def get_ip_network(ip_string, net_size):
   # convert IP address to 32-bit binary
   ip_bin = ip_to_binary(ip_string)
   # extract network ID from 32-bit binary
-  network = ip_bin[0:32 - (32 - net_size)]
+  network = ip_bin[0 : 32 - (32 - net_size)]
   return network
 
 
@@ -90,7 +90,7 @@ def ip_in_prefix(ip_string, prefix):
   :return: IP string is included in prefix or not?
   """
   # CIDR based separation of IP address and network size
-  [prefix_address, net_size] = prefix.split("/")
+  [prefix_address, net_size] = prefix.split('/')
   # convert string to int
   net_size = int(net_size)
   # get the network ID of both prefix and IP address based network size
@@ -109,8 +109,9 @@ def ip_in_array(ip_string, ip_cidr_array):
   :return: client IP address
   """
   for array_item in ip_cidr_array:
-    if ((validate_ip(array_item) and array_item == ip_string) or
-        (validate_cidr(array_item) and ip_in_prefix(ip_string, array_item))):
+    if (validate_ip(array_item) and array_item == ip_string) or (
+      validate_cidr(array_item) and ip_in_prefix(ip_string, array_item)
+    ):
       return True
   return False
 
@@ -127,15 +128,13 @@ PREFIX = None
 
 
 def generate_key(
-    prefix: str = PREFIX,
-    codelength: int = CODE_LENGTH,
-    segmented: str = SEGMENT_SEPARATOR,
-    segmentlength: int = SEGMENT_LENGTH,
+  prefix: str = PREFIX,
+  codelength: int = CODE_LENGTH,
+  segmented: str = SEGMENT_SEPARATOR,
+  segmentlength: int = SEGMENT_LENGTH,
 ) -> str:
-  key = "".join(random.choice(CODE_CHARS) for _ in range(codelength))
-  key = segmented.join(
-    [key[i: i + segmentlength] for i in range(0, len(key), segmentlength)]
-  )
+  key = ''.join(random.choice(CODE_CHARS) for _ in range(codelength))
+  key = segmented.join([key[i : i + segmentlength] for i in range(0, len(key), segmentlength)])
   if not prefix:
     return key
   else:

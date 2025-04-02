@@ -1,7 +1,8 @@
-from django.contrib.contenttypes.models import ContentType
-from django.db import connections
 from pathlib import Path
 from shutil import rmtree
+
+from django.contrib.contenttypes.models import ContentType
+from django.db import connections
 
 from toolbox.models import Subsets
 
@@ -40,13 +41,10 @@ def create_test_subset(model, test_object):
   """
   return Subsets.objects.create(
     model=ContentType.objects.filter(
-      app_label='datenmanagement',
-      model=model._meta.model_name
+      app_label='datenmanagement', model=model._meta.model_name
     ).first(),
     pk_field=model._meta.pk.name,
-    pk_values=[
-      test_object.pk
-    ]
+    pk_values=[test_object.pk],
   )
 
 

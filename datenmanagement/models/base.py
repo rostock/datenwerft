@@ -1,23 +1,21 @@
-from django.contrib.gis.db.models import Model
-from django.db.models.fields import BooleanField, CharField, UUIDField
 from uuid import uuid4
 
-from toolbox.constants_vars import standard_validators
+from django.contrib.gis.db.models import Model
+from django.db.models.fields import BooleanField, CharField, UUIDField
 
+from toolbox.constants_vars import standard_validators
 
 #
 # base abstract model classes
 #
 
+
 class Basemodel(Model):
   """
   default abstract model class
   """
-  uuid = UUIDField(
-    primary_key=True,
-    default=uuid4,
-    editable=False
-  )
+
+  uuid = UUIDField(primary_key=True, default=uuid4, editable=False)
 
   class Meta:
     abstract: bool = True
@@ -81,6 +79,7 @@ class Basemodel(Model):
     :ivar additional_wfs_featuretypes:
 
     """
+
     not_listed: bool = False
     editable: bool = True
     description: str = None
@@ -276,26 +275,20 @@ class Codelist(Basemodel):
 # abstract model classes for specific codelists
 #
 
+
 class Art(Codelist):
   """
   abstract model class for 'Art' codelists
   """
 
-  art = CharField(
-    verbose_name='Art',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
-  )
+  art = CharField(verbose_name='Art', max_length=255, unique=True, validators=standard_validators)
 
   class Meta(Codelist.Meta):
     abstract: bool = True
     ordering: list[str] = ['art']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {
-      'art': 'Art'
-    }
+    list_fields: dict[str, str] = {'art': 'Art'}
 
   def __str__(self):
     return self.art
@@ -307,10 +300,7 @@ class Ausfuehrung(Codelist):
   """
 
   ausfuehrung = CharField(
-    verbose_name='Ausführung',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Ausführung', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -318,9 +308,7 @@ class Ausfuehrung(Codelist):
     ordering: list[str] = ['ausfuehrung']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {
-      'ausfuehrung': 'Ausführung'
-    }
+    list_fields: dict[str, str] = {'ausfuehrung': 'Ausführung'}
 
   def __str__(self):
     return self.ausfuehrung
@@ -332,10 +320,7 @@ class Befestigungsart(Codelist):
   """
 
   befestigungsart = CharField(
-    verbose_name='Befestigungsart',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Befestigungsart', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -343,9 +328,7 @@ class Befestigungsart(Codelist):
     ordering: list[str] = ['befestigungsart']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {
-      'befestigungsart': 'Befestigungsart'
-    }
+    list_fields: dict[str, str] = {'befestigungsart': 'Befestigungsart'}
 
   def __str__(self):
     return self.befestigungsart
@@ -357,10 +340,7 @@ class Hersteller(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -368,9 +348,7 @@ class Hersteller(Codelist):
     ordering: list[str] = ['bezeichnung']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {
-      'bezeichnung': 'Bezeichnung'
-    }
+    list_fields: dict[str, str] = {'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
     return self.bezeichnung
@@ -382,10 +360,7 @@ class Material(Codelist):
   """
 
   material = CharField(
-    verbose_name='Material',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Material', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -393,9 +368,7 @@ class Material(Codelist):
     ordering: list[str] = ['material']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {
-      'material': 'Material'
-    }
+    list_fields: dict[str, str] = {'material': 'Material'}
 
   def __str__(self):
     return self.material
@@ -407,10 +380,7 @@ class Schlagwort(Codelist):
   """
 
   schlagwort = CharField(
-    verbose_name='Schlagwort',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Schlagwort', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -418,9 +388,7 @@ class Schlagwort(Codelist):
     ordering: list[str] = ['schlagwort']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {
-      'schlagwort': 'Schlagwort'
-    }
+    list_fields: dict[str, str] = {'schlagwort': 'Schlagwort'}
 
   def __str__(self):
     return self.schlagwort
@@ -432,10 +400,7 @@ class Status(Codelist):
   """
 
   status = CharField(
-    verbose_name='Status',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Status', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -443,9 +408,7 @@ class Status(Codelist):
     ordering: list[str] = ['status']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {
-      'status': 'Status'
-    }
+    list_fields: dict[str, str] = {'status': 'Status'}
 
   def __str__(self):
     return self.status
@@ -456,21 +419,14 @@ class Typ(Codelist):
   abstract model class for 'Typ' codelists
   """
 
-  typ = CharField(
-    verbose_name='Typ',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
-  )
+  typ = CharField(verbose_name='Typ', max_length=255, unique=True, validators=standard_validators)
 
   class Meta(Codelist.Meta):
     abstract: bool = True
     ordering: list[str] = ['typ']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {
-      'typ': 'Typ'
-    }
+    list_fields: dict[str, str] = {'typ': 'Typ'}
 
   def __str__(self):
     return self.typ
@@ -479,6 +435,7 @@ class Typ(Codelist):
 #
 # abstract model classes for data models
 #
+
 
 class SimpleModel(Basemodel):
   """
@@ -494,10 +451,7 @@ class SimpleModel(Basemodel):
 
   """
 
-  aktiv = BooleanField(
-    verbose_name=' aktiv?',
-    default=True
-  )
+  aktiv = BooleanField(verbose_name=' aktiv?', default=True)
 
   class Meta(Basemodel.Meta):
     abstract: bool = True

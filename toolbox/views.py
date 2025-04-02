@@ -1,16 +1,21 @@
-import requests
+from json import dumps, loads
+from os.path import join as joinpath
+from re import sub
 
+import requests
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.utils import IntegrityError
-from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseServerError, \
-  FileResponse, JsonResponse
+from django.http import (
+  FileResponse,
+  HttpResponse,
+  HttpResponseNotAllowed,
+  HttpResponseServerError,
+  JsonResponse,
+)
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
-from json import dumps, loads
-from os.path import join as joinpath
-from re import sub
 
 from .models import Subsets
 from .pdfs import baudenkmalefull, fetchdata, preparecontext, render
@@ -61,14 +66,10 @@ class AddSubsetView(View):
     try:
       content_type = ContentType.objects.filter(app_label=self.app_label, model=self.model_name)[0]
       subset = Subsets.objects.create(
-        model=content_type,
-        pk_field=self.pk_field,
-        pk_values=self.pk_values
+        model=content_type, pk_field=self.pk_field, pk_values=self.pk_values
       )
       subset.save()
-      response = {
-          'id': str(subset.pk)
-      }
+      response = {'id': str(subset.pk)}
       return JsonResponse(status=200, data=dumps(response), safe=False)
     except (IntegrityError, MultipleObjectsReturned) as e:
       print(e)
@@ -100,11 +101,7 @@ class OWSProxyView(View):
     :param kwargs:
     :return:
     """
-    self.destination_url = sub(
-        pattern='^.*owsproxy',
-        repl='',
-        string=str(request.get_full_path())
-    )
+    self.destination_url = sub(pattern='^.*owsproxy', repl='', string=str(request.get_full_path()))
     return super(OWSProxyView, self).dispatch(request, *args, **kwargs)
 
   @csrf_exempt
@@ -118,15 +115,13 @@ class OWSProxyView(View):
     :return: HTTP response with proxied OWS
     """
     url = sub(
-        pattern=r'(http[s]?):\/([a-z0-9])',
-        repl=r'\g<1>://\g<2>',
-        string=self.destination_url
+      pattern=r'(http[s]?):\/([a-z0-9])', repl=r'\g<1>://\g<2>', string=self.destination_url
     )
     try:
       if (
-          settings.OWS_PROXY_PROXIES
-          and 'http' in settings.OWS_PROXY_PROXIES
-          and 'https' in settings.OWS_PROXY_PROXIES
+        settings.OWS_PROXY_PROXIES
+        and 'http' in settings.OWS_PROXY_PROXIES
+        and 'https' in settings.OWS_PROXY_PROXIES
       ):
         response = requests.get(url, proxies=settings.OWS_PROXY_PROXIES, timeout=60)
       else:
@@ -182,13 +177,19 @@ class AddressSearchView(View):
     try:
       response = requests.get(
         url=settings.ADDRESS_SEARCH_URL
-        + "key=" + settings.ADDRESS_SEARCH_KEY
-        + "&type=" + self.addresssearch_type
-        + "&class=" + self.addresssearch_class
-        + "&query=" + self.addresssearch_query
-        + "&shape=" + self.addresssearch_shape
-        + "&limit=" + self.addresssearch_limit,
-        timeout=4
+        + 'key='
+        + settings.ADDRESS_SEARCH_KEY
+        + '&type='
+        + self.addresssearch_type
+        + '&class='
+        + self.addresssearch_class
+        + '&query='
+        + self.addresssearch_query
+        + '&shape='
+        + self.addresssearch_shape
+        + '&limit='
+        + self.addresssearch_limit,
+        timeout=4,
       )
       return HttpResponse(response, content_type='application/json')
     except Exception:
@@ -241,13 +242,21 @@ class ReverseSearchView(View):
     try:
       response = requests.get(
         url=settings.ADDRESS_SEARCH_URL
-        + "key=" + settings.ADDRESS_SEARCH_KEY
-        + "&type=" + self.reversesearch_type
-        + "&class=" + self.reversesearch_class
-        + "&query=" + self.reversesearch_x + "," + self.reversesearch_y
-        + "&in_epsg=" + self.reversesearch_in_epsg
-        + "&radius=" + str(settings.REVERSE_SEARCH_RADIUS),
-        timeout=10
+        + 'key='
+        + settings.ADDRESS_SEARCH_KEY
+        + '&type='
+        + self.reversesearch_type
+        + '&class='
+        + self.reversesearch_class
+        + '&query='
+        + self.reversesearch_x
+        + ','
+        + self.reversesearch_y
+        + '&in_epsg='
+        + self.reversesearch_in_epsg
+        + '&radius='
+        + str(settings.REVERSE_SEARCH_RADIUS),
+        timeout=10,
       )
       return HttpResponse(response, content_type='application/json')
     except Exception:
@@ -271,9 +280,8 @@ def renderpdf(request):
       data['usedkeys'] = params['usedkeys']
       data['display_names'] = display_names
     rendersuccess, responsefile = render(
-            data,
-            params['suitable'].template.templatefile,
-            pdfdir=joinpath('toolbox', 'mkpdf'))
+      data, params['suitable'].template.templatefile, pdfdir=joinpath('toolbox', 'mkpdf')
+    )
     filename = params['suitable'].template.name.lower()
     if rendersuccess:
       ret = FileResponse(responsefile, status=200)

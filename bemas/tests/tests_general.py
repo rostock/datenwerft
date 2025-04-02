@@ -1,14 +1,15 @@
 from django.contrib.contenttypes.models import ContentType
 
-from toolbox.models import Subsets
 from bemas.models import Complaint, Organization, Originator, Sector, Status, TypeOfImmission
+from toolbox.models import Subsets
+
 from .base import DefaultViewTestCase
 from .constants_vars import VALID_POINT_DB
-
 
 #
 # general views
 #
+
 
 class IndexViewTest(DefaultViewTestCase):
   """
@@ -20,14 +21,12 @@ class IndexViewTest(DefaultViewTestCase):
 
   def test_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'index', None, 200,
-      'text/html; charset=utf-8', 'keine Rechte'
+      False, False, 'index', None, 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'index', None, 200,
-      'text/html; charset=utf-8', 'Codelisten'
+      True, False, 'index', None, 200, 'text/html; charset=utf-8', 'Codelisten'
     )
 
 
@@ -38,15 +37,13 @@ class MapViewTest(DefaultViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    organization = Organization.objects.create(
-      name='N1YvcbxM'
-    )
+    organization = Organization.objects.create(name='N1YvcbxM')
     sector = Sector.objects.first()
     originator = Originator.objects.create(
       sector=sector,
       operator_organization=organization,
       description='NutMoxfw',
-      emission_point=VALID_POINT_DB
+      emission_point=VALID_POINT_DB,
     )
     status = Status.get_default_status()
     type_of_immission = TypeOfImmission.objects.first()
@@ -55,27 +52,17 @@ class MapViewTest(DefaultViewTestCase):
       type_of_immission=type_of_immission,
       immission_point=VALID_POINT_DB,
       originator=originator,
-      description='e506TjLt'
+      description='e506TjLt',
     )
     Subsets.objects.create(
-      model=ContentType.objects.filter(
-        app_label='bemas',
-        model='originator'
-      ).first(),
+      model=ContentType.objects.filter(app_label='bemas', model='originator').first(),
       pk_field='id',
-      pk_values=[
-        originator.pk
-      ]
+      pk_values=[originator.pk],
     )
     Subsets.objects.create(
-      model=ContentType.objects.filter(
-        app_label='bemas',
-        model='complaint'
-      ).first(),
+      model=ContentType.objects.filter(app_label='bemas', model='complaint').first(),
       pk_field='id',
-      pk_values=[
-        complaint.pk
-      ]
+      pk_values=[complaint.pk],
     )
 
   def setUp(self):
@@ -83,38 +70,56 @@ class MapViewTest(DefaultViewTestCase):
 
   def test_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'map', None, 200,
-      'text/html; charset=utf-8', 'keine Rechte'
+      False, False, 'map', None, 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'map', None, 200,
-      'text/html; charset=utf-8', 'Immissions- und Emissionsorte'
+      True, False, 'map', None, 200, 'text/html; charset=utf-8', 'Immissions- und Emissionsorte'
     )
 
   def test_view_originator_subset_no_rights(self):
     self.generic_view_test(
-      False, False, 'map_model_subset', ['originator', 1], 200,
-      'text/html; charset=utf-8', 'keine Rechte'
+      False,
+      False,
+      'map_model_subset',
+      ['originator', 1],
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_view_originator_subset_standard_rights(self):
     self.generic_view_test(
-      True, False, 'map_model_subset', ['originator', 1], 200,
-      'text/html; charset=utf-8', 'Kartendaten angezeigt'
+      True,
+      False,
+      'map_model_subset',
+      ['originator', 1],
+      200,
+      'text/html; charset=utf-8',
+      'Kartendaten angezeigt',
     )
 
   def test_view_complaint_subset_no_rights(self):
     self.generic_view_test(
-      False, False, 'map_model_subset', ['complaint', 1], 200,
-      'text/html; charset=utf-8', 'keine Rechte'
+      False,
+      False,
+      'map_model_subset',
+      ['complaint', 1],
+      200,
+      'text/html; charset=utf-8',
+      'keine Rechte',
     )
 
   def test_view_complaint_subset_standard_rights(self):
     self.generic_view_test(
-      True, False, 'map_model_subset', ['complaint', 1], 200,
-      'text/html; charset=utf-8', 'Kartendaten angezeigt'
+      True,
+      False,
+      'map_model_subset',
+      ['complaint', 1],
+      200,
+      'text/html; charset=utf-8',
+      'Kartendaten angezeigt',
     )
 
 
@@ -128,12 +133,10 @@ class OrphanedDataViewTest(DefaultViewTestCase):
 
   def test_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'orphaned_data', None, 200,
-      'text/html; charset=utf-8', 'keine Rechte'
+      False, False, 'orphaned_data', None, 200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'orphaned_data', None, 200,
-      'text/html; charset=utf-8', 'keine verwaisten'
+      True, False, 'orphaned_data', None, 200, 'text/html; charset=utf-8', 'keine verwaisten'
     )

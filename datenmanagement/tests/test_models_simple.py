@@ -1,5 +1,6 @@
 from django.core.files import File
 from django.test import override_settings
+
 from datenmanagement.models.models_simple import *
 from datenmanagement.utils import get_current_year
 
@@ -21,37 +22,29 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
   def setUpTestData(cls):
     super().setUpTestData()
     bewirtschafter_eigentuemer1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     cls.bewirtschafter_eigentuemer1 = bewirtschafter_eigentuemer1
     bewirtschafter_eigentuemer2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.bewirtschafter_eigentuemer2 = bewirtschafter_eigentuemer2
-    leerungszeiten_sommer = Leerungszeiten.objects.create(
-      bezeichnung='Sommer'
-    )
+    leerungszeiten_sommer = Leerungszeiten.objects.create(bezeichnung='Sommer')
     cls.leerungszeiten_sommer = leerungszeiten_sommer
-    leerungszeiten_winter = Leerungszeiten.objects.create(
-      bezeichnung='Winter'
-    )
+    leerungszeiten_winter = Leerungszeiten.objects.create(bezeichnung='Winter')
     cls.leerungszeiten_winter = leerungszeiten_winter
     cls.attributes_values_db_initial = {
       'eigentuemer': bewirtschafter_eigentuemer1,
       'bewirtschafter': bewirtschafter_eigentuemer1,
       'pflegeobjekt': 'Pflegeobjekt1',
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'eigentuemer': bewirtschafter_eigentuemer2,
       'bewirtschafter': bewirtschafter_eigentuemer2,
-      'pflegeobjekt': 'Pflegeobjekt2'
+      'pflegeobjekt': 'Pflegeobjekt2',
     }
-    cls.attributes_values_db_assigned_eigentuemer = {
-      'eigentuemer': bewirtschafter_eigentuemer1
-    }
+    cls.attributes_values_db_assigned_eigentuemer = {'eigentuemer': bewirtschafter_eigentuemer1}
     cls.attributes_values_db_assigned_bewirtschafter = {
       'bewirtschafter': bewirtschafter_eigentuemer2
     }
@@ -67,7 +60,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       'eigentuemer': str(bewirtschafter_eigentuemer1.pk),
       'bewirtschafter': str(bewirtschafter_eigentuemer1.pk),
       'pflegeobjekt': 'Pflegeobjekt3',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -75,11 +68,9 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       'eigentuemer': str(bewirtschafter_eigentuemer1.pk),
       'bewirtschafter': str(bewirtschafter_eigentuemer1.pk),
       'pflegeobjekt': 'Pflegeobjekt4',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'pflegeobjekt': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'pflegeobjekt': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -105,7 +96,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -115,7 +106,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -125,7 +116,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -135,7 +126,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -147,7 +138,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -157,7 +148,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -167,7 +158,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -177,7 +168,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -187,56 +178,32 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign_eigentuemer(self):
@@ -248,7 +215,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       str(self.bewirtschafter_eigentuemer1.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_bewirtschafter(self):
@@ -260,7 +227,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       str(self.bewirtschafter_eigentuemer2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_leerungszeiten_sommer(self):
@@ -272,7 +239,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       str(self.leerungszeiten_sommer.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_leerungszeiten_winter(self):
@@ -284,16 +251,12 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       str(self.leerungszeiten_winter.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -303,7 +266,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -313,7 +276,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -323,7 +286,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -339,19 +302,15 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    strasse = Strassen.objects.create(
-      strasse='Straße'
-    )
+    strasse = Strassen.objects.create(strasse='Straße')
     cls.attributes_values_db_initial = {
       'strasse': strasse,
       'erstmarkierung': 23,
       'breite': 4.20,
       'laenge': 42.23,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'erstmarkierung': 42
-    }
+    cls.attributes_values_db_updated = {'erstmarkierung': 42}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'strasse': str(strasse.pk),
@@ -359,7 +318,7 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       'erstmarkierung': 23,
       'breite': 4.20,
       'laenge': 42.23,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -368,11 +327,9 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       'erstmarkierung': 42,
       'breite': 4.20,
       'laenge': 42.23,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'breite': INVALID_DECIMAL
-    }
+    cls.attributes_values_view_invalid = {'breite': INVALID_DECIMAL}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -398,7 +355,7 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -408,7 +365,7 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -418,7 +375,7 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -428,7 +385,7 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -440,7 +397,7 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -450,7 +407,7 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -460,7 +417,7 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -470,7 +427,7 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -480,65 +437,37 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -548,7 +477,7 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -558,7 +487,7 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -568,7 +497,7 @@ class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -578,26 +507,19 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
   """
 
   model = Anerkennungsgebuehren_herrschend
-  attributes_values_db_initial = {
-    'grundbucheintrag': 'ja',
-    'geometrie': VALID_POINT_DB
-  }
-  attributes_values_db_updated = {
-    'grundbucheintrag': 'nein'
-  }
+  attributes_values_db_initial = {'grundbucheintrag': 'ja', 'geometrie': VALID_POINT_DB}
+  attributes_values_db_updated = {'grundbucheintrag': 'nein'}
   attributes_values_view_initial = {
     'aktiv': True,
     'grundbucheintrag': 'ja',
-    'geometrie': VALID_POINT_VIEW
+    'geometrie': VALID_POINT_VIEW,
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'grundbucheintrag': 'nein',
-    'geometrie': VALID_POINT_VIEW
+    'geometrie': VALID_POINT_VIEW,
   }
-  attributes_values_view_invalid = {
-    'bemerkungen': INVALID_STRING
-  }
+  attributes_values_view_invalid = {'bemerkungen': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -621,7 +543,7 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -631,7 +553,7 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -641,7 +563,7 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -651,7 +573,7 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -663,7 +585,7 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -673,7 +595,7 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -683,7 +605,7 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -693,7 +615,7 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -703,65 +625,37 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -771,7 +665,7 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -781,7 +675,7 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -791,7 +685,7 @@ class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -801,26 +695,19 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
   """
 
   model = Angelverbotsbereiche
-  attributes_values_db_initial = {
-    'bezeichnung': 'Bezeichnung1',
-    'geometrie': VALID_LINE_DB
-  }
-  attributes_values_db_updated = {
-    'bezeichnung': 'Bezeichnung2'
-  }
+  attributes_values_db_initial = {'bezeichnung': 'Bezeichnung1', 'geometrie': VALID_LINE_DB}
+  attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
   attributes_values_view_initial = {
     'aktiv': True,
     'bezeichnung': 'Bezeichnung3',
-    'geometrie': VALID_LINE_VIEW
+    'geometrie': VALID_LINE_VIEW,
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'bezeichnung': 'Bezeichnung4',
-    'geometrie': VALID_LINE_VIEW
+    'geometrie': VALID_LINE_VIEW,
   }
-  attributes_values_view_invalid = {
-    'bezeichnung': INVALID_STRING
-  }
+  attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -844,7 +731,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -854,7 +741,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -864,7 +751,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -874,7 +761,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -886,7 +773,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -896,7 +783,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -906,7 +793,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -916,7 +803,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -926,65 +813,37 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -994,7 +853,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -1004,7 +863,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -1014,7 +873,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -1027,27 +886,22 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
   attributes_values_db_initial = {
     'registriernummer': '12345',
     'jahr': 1987,
-    'geometrie': VALID_POLYGON_DB
+    'geometrie': VALID_POLYGON_DB,
   }
-  attributes_values_db_updated = {
-    'registriernummer': '525.43',
-    'jahr': 2023
-  }
+  attributes_values_db_updated = {'registriernummer': '525.43', 'jahr': 2023}
   attributes_values_view_initial = {
     'aktiv': True,
     'registriernummer': '54321',
     'jahr': 1978,
-    'geometrie': VALID_POLYGON_VIEW
+    'geometrie': VALID_POLYGON_VIEW,
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'registriernummer': '43.525',
     'jahr': 2024,
-    'geometrie': VALID_POLYGON_VIEW
+    'geometrie': VALID_POLYGON_VIEW,
   }
-  attributes_values_view_invalid = {
-    'registriernummer': INVALID_STRING
-  }
+  attributes_values_view_invalid = {'registriernummer': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -1071,7 +925,7 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -1081,7 +935,7 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -1091,7 +945,7 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -1101,7 +955,7 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -1113,7 +967,7 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -1123,7 +977,7 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -1133,7 +987,7 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -1143,7 +997,7 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -1153,65 +1007,37 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -1221,7 +1047,7 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -1231,7 +1057,7 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -1241,7 +1067,7 @@ class ArrondierungsflaechenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -1256,26 +1082,22 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
   attributes_values_db_initial = {
     'bearbeiter': 'Bearbeiter1',
     'pdf': pdf,
-    'geometrie': VALID_POINT_DB
+    'geometrie': VALID_POINT_DB,
   }
-  attributes_values_db_updated = {
-    'bearbeiter': 'Bearbeiter2'
-  }
+  attributes_values_db_updated = {'bearbeiter': 'Bearbeiter2'}
   attributes_values_view_initial = {
     'aktiv': True,
     'bearbeiter': 'Bearbeiter3',
     'datum': VALID_DATE,
-    'geometrie': VALID_POINT_VIEW
+    'geometrie': VALID_POINT_VIEW,
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'bearbeiter': 'Bearbeiter4',
     'datum': VALID_DATE,
-    'geometrie': VALID_POINT_VIEW
+    'geometrie': VALID_POINT_VIEW,
   }
-  attributes_values_view_invalid = {
-    'bearbeiter': INVALID_STRING
-  }
+  attributes_values_view_invalid = {'bearbeiter': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -1303,7 +1125,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1314,7 +1136,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1325,7 +1147,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1336,7 +1158,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1349,7 +1171,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1360,7 +1182,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1371,7 +1193,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1382,7 +1204,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1393,7 +1215,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1407,18 +1229,13 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       1,
       VALID_PDF_FILE,
       'pdf',
-      'application/pdf'
+      'application/pdf',
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1432,28 +1249,19 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       1,
       VALID_PDF_FILE,
       'pdf',
-      'application/pdf'
+      'application/pdf',
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1466,17 +1274,13 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       '',
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1487,7 +1291,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1498,7 +1302,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1509,7 +1313,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1526,33 +1330,24 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    status1 = Status_Baudenkmale_Denkmalbereiche.objects.create(
-      status='Status1'
-    )
-    status2 = Status_Baudenkmale_Denkmalbereiche.objects.create(
-      status='Status2'
-    )
+    status1 = Status_Baudenkmale_Denkmalbereiche.objects.create(status='Status1')
+    status2 = Status_Baudenkmale_Denkmalbereiche.objects.create(status='Status2')
     cls.status2 = status2
     cls.attributes_values_db_initial = {
       'status': status1,
       'beschreibung': 'Beschreibung1',
       'gartendenkmal': False,
-      'geometrie': VALID_MULTIPOLYGON_DB
+      'geometrie': VALID_MULTIPOLYGON_DB,
     }
-    cls.attributes_values_db_updated = {
-      'status': status2,
-      'beschreibung': 'Beschreibung2'
-    }
-    cls.attributes_values_db_assigned = {
-      'status': status2
-    }
+    cls.attributes_values_db_updated = {'status': status2, 'beschreibung': 'Beschreibung2'}
+    cls.attributes_values_db_assigned = {'status': status2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'id': 2,
       'status': str(status1.pk),
       'beschreibung': 'Beschreibung3',
       'gartendenkmal': False,
-      'geometrie': VALID_MULTIPOLYGON_VIEW
+      'geometrie': VALID_MULTIPOLYGON_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -1560,11 +1355,9 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       'status': str(status2.pk),
       'beschreibung': 'Beschreibung4',
       'gartendenkmal': False,
-      'geometrie': VALID_MULTIPOLYGON_VIEW
+      'geometrie': VALID_MULTIPOLYGON_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'beschreibung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'beschreibung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -1590,7 +1383,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -1600,7 +1393,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -1610,7 +1403,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -1620,7 +1413,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -1632,7 +1425,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -1642,7 +1435,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -1652,7 +1445,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -1662,7 +1455,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -1672,56 +1465,32 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -1733,16 +1502,12 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       str(self.status2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -1752,7 +1517,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -1762,7 +1527,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -1772,7 +1537,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -1788,48 +1553,37 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
     traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
       'traeger': traeger1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'traeger': traeger2,
-      'bezeichnung': 'Bezeichnung2'
-    }
-    cls.attributes_values_db_assigned = {
-      'traeger': traeger2
-    }
+    cls.attributes_values_db_updated = {'traeger': traeger2, 'bezeichnung': 'Bezeichnung2'}
+    cls.attributes_values_db_assigned = {'traeger': traeger2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
       'traeger': str(traeger1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
       'traeger': str(traeger2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -1855,7 +1609,7 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -1865,7 +1619,7 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -1875,7 +1629,7 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -1885,7 +1639,7 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -1897,7 +1651,7 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -1907,7 +1661,7 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -1917,7 +1671,7 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -1927,7 +1681,7 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -1937,56 +1691,32 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -1998,16 +1728,12 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       str(self.traeger2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -2017,7 +1743,7 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -2027,7 +1753,7 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -2037,7 +1763,7 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -2053,7 +1779,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
     'bearbeiter': 'Bearbeiter1',
     'vorhabenbezeichnung': 'Vorhabenbezeichnung1',
     'pdf': pdf,
-    'geometrie': VALID_POINT_DB
+    'geometrie': VALID_POINT_DB,
   }
   attributes_values_db_updated = {
     'bearbeiter': 'Bearbeiter2',
@@ -2064,18 +1790,16 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
     'bearbeiter': 'Bearbeiter3',
     'beschlussjahr': get_current_year(),
     'vorhabenbezeichnung': 'Vorhabenbezeichnung3',
-    'geometrie': VALID_POINT_VIEW
+    'geometrie': VALID_POINT_VIEW,
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'bearbeiter': 'Bearbeiter4',
     'beschlussjahr': get_current_year(),
     'vorhabenbezeichnung': 'Vorhabenbezeichnung4',
-    'geometrie': VALID_POINT_VIEW
+    'geometrie': VALID_POINT_VIEW,
   }
-  attributes_values_view_invalid = {
-    'bearbeiter': INVALID_STRING
-  }
+  attributes_values_view_invalid = {'bearbeiter': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -2101,7 +1825,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -2111,7 +1835,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -2121,7 +1845,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -2131,7 +1855,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -2143,7 +1867,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -2153,7 +1877,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -2163,7 +1887,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -2173,7 +1897,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -2183,7 +1907,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
@@ -2196,18 +1920,13 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       1,
       VALID_PDF_FILE,
       'pdf',
-      'application/pdf'
+      'application/pdf',
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
@@ -2220,36 +1939,23 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       1,
       VALID_PDF_FILE,
       'pdf',
-      'application/pdf'
+      'application/pdf',
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -2259,7 +1965,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -2269,7 +1975,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -2279,7 +1985,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -2295,33 +2001,24 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
-    schlagwort1 = Schlagwoerter_Bildungstraeger.objects.create(
-      schlagwort='Schlagwort1'
-    )
-    schlagwort2 = Schlagwoerter_Bildungstraeger.objects.create(
-      schlagwort='Schlagwort2'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
+    schlagwort1 = Schlagwoerter_Bildungstraeger.objects.create(schlagwort='Schlagwort1')
+    schlagwort2 = Schlagwoerter_Bildungstraeger.objects.create(schlagwort='Schlagwort2')
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
       'betreiber': 'Betreiber1',
       'schlagwoerter': [schlagwort1, schlagwort2],
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2',
-      'betreiber': 'Betreiber2'
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2', 'betreiber': 'Betreiber2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
       'betreiber': 'Betreiber3',
       'schlagwoerter': [schlagwort1, schlagwort2],
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -2329,11 +2026,9 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       'bezeichnung': 'Bezeichnung4',
       'betreiber': 'Betreiber4',
       'schlagwoerter': [schlagwort1, schlagwort2],
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -2359,7 +2054,7 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -2369,7 +2064,7 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -2379,7 +2074,7 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -2389,7 +2084,7 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -2401,7 +2096,7 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -2411,7 +2106,7 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -2421,7 +2116,7 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -2431,7 +2126,7 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -2441,65 +2136,37 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -2509,7 +2176,7 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -2519,7 +2186,7 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -2529,7 +2196,7 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -2545,13 +2212,11 @@ class BrunnenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    art_brunnen = Arten_Brunnen.objects.create(
-      art='Art'
-    )
+    art_brunnen = Arten_Brunnen.objects.create(art='Art')
     cls.attributes_values_db_initial = {
       'art': art_brunnen,
       'lagebeschreibung': 'Lagebeschreibung1',
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'lagebeschreibung': 'Lagebeschreibung2',
@@ -2560,17 +2225,15 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       'aktiv': True,
       'art': str(art_brunnen.pk),
       'lagebeschreibung': 'Lagebeschreibung3',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'art': str(art_brunnen.pk),
       'lagebeschreibung': 'Lagebeschreibung4',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'lagebeschreibung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'lagebeschreibung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -2596,7 +2259,7 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -2606,7 +2269,7 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -2616,7 +2279,7 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -2626,7 +2289,7 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -2638,7 +2301,7 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -2648,7 +2311,7 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -2658,7 +2321,7 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -2668,7 +2331,7 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -2678,65 +2341,37 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -2746,7 +2381,7 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -2756,7 +2391,7 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -2766,7 +2401,7 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -2782,40 +2417,29 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    anbieter1 = Anbieter_Carsharing.objects.create(
-      anbieter='Anbieter1'
-    )
-    anbieter2 = Anbieter_Carsharing.objects.create(
-      anbieter='Anbieter2'
-    )
+    anbieter1 = Anbieter_Carsharing.objects.create(anbieter='Anbieter1')
+    anbieter2 = Anbieter_Carsharing.objects.create(anbieter='Anbieter2')
     cls.anbieter2 = anbieter2
     cls.attributes_values_db_initial = {
       'bezeichnung': 'Bezeichnung1',
       'anbieter': anbieter1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2',
-      'anbieter': anbieter2
-    }
-    cls.attributes_values_db_assigned = {
-      'anbieter': anbieter2
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2', 'anbieter': anbieter2}
+    cls.attributes_values_db_assigned = {'anbieter': anbieter2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'bezeichnung': 'Bezeichnung3',
       'anbieter': str(anbieter1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'bezeichnung': 'Bezeichnung4',
       'anbieter': str(anbieter2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -2841,7 +2465,7 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -2851,7 +2475,7 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -2861,7 +2485,7 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -2871,7 +2495,7 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -2883,7 +2507,7 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -2893,7 +2517,7 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -2903,7 +2527,7 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -2913,7 +2537,7 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -2923,56 +2547,32 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -2984,16 +2584,12 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       str(self.anbieter2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -3003,7 +2599,7 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -3013,7 +2609,7 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -3023,7 +2619,7 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -3036,28 +2632,24 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
   attributes_values_db_initial = {
     'privat': False,
     'bezeichnung': 'Bezeichnung1',
-    'geometrie': VALID_POINT_DB
+    'geometrie': VALID_POINT_DB,
   }
-  attributes_values_db_updated = {
-    'bezeichnung': 'Bezeichnung2'
-  }
+  attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
   attributes_values_view_initial = {
     'aktiv': True,
     'id': '00-00',
     'privat': False,
     'bezeichnung': 'Bezeichnung3',
-    'geometrie': VALID_POINT_VIEW
+    'geometrie': VALID_POINT_VIEW,
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'id': '00-00',
     'privat': False,
     'bezeichnung': 'Bezeichnung4',
-    'geometrie': VALID_POINT_VIEW
+    'geometrie': VALID_POINT_VIEW,
   }
-  attributes_values_view_invalid = {
-    'bezeichnung': INVALID_STRING
-  }
+  attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -3081,7 +2673,7 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -3091,7 +2683,7 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -3101,7 +2693,7 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -3111,7 +2703,7 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -3123,7 +2715,7 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -3133,7 +2725,7 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -3143,7 +2735,7 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -3153,7 +2745,7 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -3163,65 +2755,37 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -3231,7 +2795,7 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -3241,7 +2805,7 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -3251,7 +2815,7 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -3267,34 +2831,28 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    status1 = Status_Baudenkmale_Denkmalbereiche.objects.create(
-      status='Status1'
-    )
-    status2 = Status_Baudenkmale_Denkmalbereiche.objects.create(
-      status='Status2'
-    )
+    status1 = Status_Baudenkmale_Denkmalbereiche.objects.create(status='Status1')
+    status2 = Status_Baudenkmale_Denkmalbereiche.objects.create(status='Status2')
     cls.status2 = status2
     cls.attributes_values_db_initial = {
       'status': status1,
       'bezeichnung': 'Bezeichnung1',
       'beschreibung': 'Beschreibung1',
-      'geometrie': VALID_MULTIPOLYGON_DB
+      'geometrie': VALID_MULTIPOLYGON_DB,
     }
     cls.attributes_values_db_updated = {
       'status': status2,
       'bezeichnung': 'Bezeichnung2',
-      'beschreibung': 'Beschreibung2'
+      'beschreibung': 'Beschreibung2',
     }
-    cls.attributes_values_db_assigned = {
-      'status': status2
-    }
+    cls.attributes_values_db_assigned = {'status': status2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'id': 2,
       'status': str(status1.pk),
       'bezeichnung': 'Bezeichnung3',
       'beschreibung': 'Beschreibung3',
-      'geometrie': VALID_MULTIPOLYGON_VIEW
+      'geometrie': VALID_MULTIPOLYGON_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -3302,11 +2860,9 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       'status': str(status2.pk),
       'bezeichnung': 'Bezeichnung4',
       'beschreibung': 'Beschreibung4',
-      'geometrie': VALID_MULTIPOLYGON_VIEW
+      'geometrie': VALID_MULTIPOLYGON_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'beschreibung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'beschreibung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -3332,7 +2888,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -3342,7 +2898,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -3352,7 +2908,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -3362,7 +2918,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -3374,7 +2930,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -3384,7 +2940,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -3394,7 +2950,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -3404,7 +2960,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -3414,56 +2970,32 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -3475,16 +3007,12 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       str(self.status2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -3494,7 +3022,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -3504,7 +3032,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -3514,7 +3042,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -3530,12 +3058,8 @@ class DenksteineTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
-    material = Materialien_Denksteine.objects.create(
-      material='Material'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
+    material = Materialien_Denksteine.objects.create(material='Material')
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'nummer': '94a',
@@ -3546,11 +3070,9 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       'material': material,
       'erstes_verlegejahr': 2010,
       'website': 'https://worschdsupp.1.de',
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'nachname': 'Nachname2'
-    }
+    cls.attributes_values_db_updated = {'nachname': 'Nachname2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
@@ -3562,7 +3084,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       'material': str(material.pk),
       'erstes_verlegejahr': 2020,
       'website': 'https://worschdsupp.3.de',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -3575,11 +3097,9 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       'material': str(material.pk),
       'erstes_verlegejahr': 2006,
       'website': 'https://worschdsupp.4.de',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'nachname': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'nachname': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -3605,7 +3125,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -3615,7 +3135,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -3625,7 +3145,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -3635,7 +3155,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -3647,7 +3167,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -3657,7 +3177,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -3667,7 +3187,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -3677,7 +3197,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -3687,65 +3207,37 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -3755,7 +3247,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -3765,7 +3257,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -3775,7 +3267,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -3791,32 +3283,26 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    art_erdwaermesonde = Arten_Erdwaermesonden.objects.create(
-      art='Art'
-    )
+    art_erdwaermesonde = Arten_Erdwaermesonden.objects.create(art='Art')
     cls.attributes_values_db_initial = {
       'aktenzeichen': 'B/EW/02/2005',
       'art': art_erdwaermesonde,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'aktenzeichen': '73.40.01.05-2001'
-    }
+    cls.attributes_values_db_updated = {'aktenzeichen': '73.40.01.05-2001'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art_erdwaermesonde.pk),
       'aktenzeichen': 'WST/20/2015',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'art': str(art_erdwaermesonde.pk),
       'aktenzeichen': '73.40.01.05-2102-Ä',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'aktenzeichen': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'aktenzeichen': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -3842,7 +3328,7 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -3852,7 +3338,7 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -3862,7 +3348,7 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -3872,7 +3358,7 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -3884,7 +3370,7 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -3894,7 +3380,7 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -3904,7 +3390,7 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -3914,7 +3400,7 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -3924,65 +3410,37 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -3992,7 +3450,7 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -4002,7 +3460,7 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -4012,7 +3470,7 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -4028,19 +3486,11 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    strasse = Strassen.objects.create(
-      strasse='Straße'
-    )
-    hersteller = Hersteller_Fahrradabstellanlagen.objects.create(
-      bezeichnung='Bezeichnung1'
-    )
+    strasse = Strassen.objects.create(strasse='Straße')
+    hersteller = Hersteller_Fahrradabstellanlagen.objects.create(bezeichnung='Bezeichnung1')
     cls.hersteller = hersteller
-    ausfuehrung1 = Ausfuehrungen_Fahrradabstellanlagen.objects.create(
-      ausfuehrung='Ausführung1'
-    )
-    ausfuehrung2 = Ausfuehrungen_Fahrradabstellanlagen.objects.create(
-      ausfuehrung='Ausführung2'
-    )
+    ausfuehrung1 = Ausfuehrungen_Fahrradabstellanlagen.objects.create(ausfuehrung='Ausführung1')
+    ausfuehrung2 = Ausfuehrungen_Fahrradabstellanlagen.objects.create(ausfuehrung='Ausführung2')
     cls.ausfuehrung2 = ausfuehrung2
     ausfuehrung_stellplaetze1 = Ausfuehrungen_Fahrradabstellanlagen_Stellplaetze.objects.create(
       ausfuehrung='AusführungStellplatz1'
@@ -4050,12 +3500,10 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
     )
     cls.ausfuehrung_stellplaetze2 = ausfuehrung_stellplaetze2
     bewirtschafter_eigentuemer1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     bewirtschafter_eigentuemer2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.bewirtschafter_eigentuemer2 = bewirtschafter_eigentuemer2
     cls.attributes_values_db_initial = {
@@ -4063,26 +3511,20 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       'ausfuehrung': ausfuehrung1,
       'ausfuehrung_stellplaetze': ausfuehrung_stellplaetze1,
       'eigentuemer': bewirtschafter_eigentuemer1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'ausfuehrung': ausfuehrung2,
       'anzahl_stellplaetze': 23,
       'ausfuehrung_stellplaetze': ausfuehrung_stellplaetze2,
-      'eigentuemer': bewirtschafter_eigentuemer2
+      'eigentuemer': bewirtschafter_eigentuemer2,
     }
-    cls.attributes_values_db_assigned_ausfuehrung = {
-      'ausfuehrung': ausfuehrung2
-    }
+    cls.attributes_values_db_assigned_ausfuehrung = {'ausfuehrung': ausfuehrung2}
     cls.attributes_values_db_assigned_ausfuehrung_stellplaetze = {
       'ausfuehrung_stellplaetze': ausfuehrung_stellplaetze2
     }
-    cls.attributes_values_db_assigned_eigentuemer = {
-      'eigentuemer': bewirtschafter_eigentuemer2
-    }
-    cls.attributes_values_db_assigned_hersteller = {
-      'hersteller': hersteller
-    }
+    cls.attributes_values_db_assigned_eigentuemer = {'eigentuemer': bewirtschafter_eigentuemer2}
+    cls.attributes_values_db_assigned_hersteller = {'hersteller': hersteller}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'strasse': str(strasse.pk),
@@ -4090,7 +3532,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       'ausfuehrung': str(ausfuehrung1.pk),
       'ausfuehrung_stellplaetze': str(ausfuehrung_stellplaetze1.pk),
       'eigentuemer': str(bewirtschafter_eigentuemer1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -4100,11 +3542,9 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       'anzahl_stellplaetze': 42,
       'ausfuehrung_stellplaetze': str(ausfuehrung_stellplaetze2.pk),
       'eigentuemer': str(bewirtschafter_eigentuemer2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'anzahl_stellplaetze': INVALID_INTEGER
-    }
+    cls.attributes_values_view_invalid = {'anzahl_stellplaetze': INVALID_INTEGER}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -4130,7 +3570,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -4140,7 +3580,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -4150,7 +3590,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -4160,7 +3600,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -4172,7 +3612,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -4182,7 +3622,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -4192,7 +3632,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -4202,7 +3642,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -4212,56 +3652,32 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign_ausfuehrung(self):
@@ -4273,7 +3689,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       str(self.ausfuehrung2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_ausfuehrung_stellplaetze(self):
@@ -4285,7 +3701,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       str(self.ausfuehrung_stellplaetze2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_eigentuemer(self):
@@ -4297,7 +3713,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       str(self.bewirtschafter_eigentuemer2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_hersteller(self):
@@ -4309,16 +3725,12 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       str(self.hersteller.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -4328,7 +3740,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -4338,7 +3750,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -4348,7 +3760,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -4364,49 +3776,37 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    strasse = Strassen.objects.create(
-      strasse='Straße'
-    )
-    ausfuehrung1 = Ausfuehrungen_Fahrradboxen.objects.create(
-      ausfuehrung='Ausführung1'
-    )
-    ausfuehrung2 = Ausfuehrungen_Fahrradboxen.objects.create(
-      ausfuehrung='Ausführung2'
-    )
+    strasse = Strassen.objects.create(strasse='Straße')
+    ausfuehrung1 = Ausfuehrungen_Fahrradboxen.objects.create(ausfuehrung='Ausführung1')
+    ausfuehrung2 = Ausfuehrungen_Fahrradboxen.objects.create(ausfuehrung='Ausführung2')
     cls.ausfuehrung2 = ausfuehrung2
     bewirtschafter_eigentuemer1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     bewirtschafter_eigentuemer2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.bewirtschafter_eigentuemer2 = bewirtschafter_eigentuemer2
     cls.attributes_values_db_initial = {
       'strasse': strasse,
       'ausfuehrung': ausfuehrung1,
       'eigentuemer': bewirtschafter_eigentuemer1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'ausfuehrung': ausfuehrung2,
       'anzahl_stellplaetze': 23,
-      'eigentuemer': bewirtschafter_eigentuemer2
+      'eigentuemer': bewirtschafter_eigentuemer2,
     }
-    cls.attributes_values_db_assigned_ausfuehrung = {
-      'ausfuehrung': ausfuehrung2
-    }
-    cls.attributes_values_db_assigned_eigentuemer = {
-      'eigentuemer': bewirtschafter_eigentuemer2
-    }
+    cls.attributes_values_db_assigned_ausfuehrung = {'ausfuehrung': ausfuehrung2}
+    cls.attributes_values_db_assigned_eigentuemer = {'eigentuemer': bewirtschafter_eigentuemer2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'strasse': str(strasse.pk),
       'id': '00000000',
       'ausfuehrung': str(ausfuehrung1.pk),
       'eigentuemer': str(bewirtschafter_eigentuemer1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -4415,11 +3815,9 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       'ausfuehrung': str(ausfuehrung2.pk),
       'anzahl_stellplaetze': 42,
       'eigentuemer': str(bewirtschafter_eigentuemer2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'anzahl_stellplaetze': INVALID_INTEGER
-    }
+    cls.attributes_values_view_invalid = {'anzahl_stellplaetze': INVALID_INTEGER}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -4445,7 +3843,7 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -4455,7 +3853,7 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -4465,7 +3863,7 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -4475,7 +3873,7 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -4487,7 +3885,7 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -4497,7 +3895,7 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -4507,7 +3905,7 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -4517,7 +3915,7 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -4527,56 +3925,32 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign_ausfuehrung(self):
@@ -4588,7 +3962,7 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       str(self.ausfuehrung2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_eigentuemer(self):
@@ -4600,16 +3974,12 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       str(self.bewirtschafter_eigentuemer2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -4619,7 +3989,7 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -4629,7 +3999,7 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -4639,7 +4009,7 @@ class FahrradboxenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -4655,49 +4025,37 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    strasse = Strassen.objects.create(
-      strasse='Straße'
-    )
-    ausfuehrung1 = Ausfuehrungen_Fahrradreparatursets.objects.create(
-      ausfuehrung='Ausführung1'
-    )
-    ausfuehrung2 = Ausfuehrungen_Fahrradreparatursets.objects.create(
-      ausfuehrung='Ausführung2'
-    )
+    strasse = Strassen.objects.create(strasse='Straße')
+    ausfuehrung1 = Ausfuehrungen_Fahrradreparatursets.objects.create(ausfuehrung='Ausführung1')
+    ausfuehrung2 = Ausfuehrungen_Fahrradreparatursets.objects.create(ausfuehrung='Ausführung2')
     cls.ausfuehrung2 = ausfuehrung2
     bewirtschafter_eigentuemer1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     bewirtschafter_eigentuemer2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.bewirtschafter_eigentuemer2 = bewirtschafter_eigentuemer2
     cls.attributes_values_db_initial = {
       'strasse': strasse,
       'ausfuehrung': ausfuehrung1,
       'eigentuemer': bewirtschafter_eigentuemer1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'ausfuehrung': ausfuehrung2,
       'baujahr': get_current_year(),
-      'eigentuemer': bewirtschafter_eigentuemer2
+      'eigentuemer': bewirtschafter_eigentuemer2,
     }
-    cls.attributes_values_db_assigned_ausfuehrung = {
-      'ausfuehrung': ausfuehrung2
-    }
-    cls.attributes_values_db_assigned_eigentuemer = {
-      'eigentuemer': bewirtschafter_eigentuemer2
-    }
+    cls.attributes_values_db_assigned_ausfuehrung = {'ausfuehrung': ausfuehrung2}
+    cls.attributes_values_db_assigned_eigentuemer = {'eigentuemer': bewirtschafter_eigentuemer2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'strasse': str(strasse.pk),
       'id': '00000000',
       'ausfuehrung': str(ausfuehrung1.pk),
       'eigentuemer': str(bewirtschafter_eigentuemer1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -4706,11 +4064,9 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       'ausfuehrung': str(ausfuehrung2.pk),
       'baujahr': get_current_year(),
       'eigentuemer': str(bewirtschafter_eigentuemer2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'baujahr': INVALID_INTEGER
-    }
+    cls.attributes_values_view_invalid = {'baujahr': INVALID_INTEGER}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -4736,7 +4092,7 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -4746,7 +4102,7 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -4756,7 +4112,7 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -4766,7 +4122,7 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -4778,7 +4134,7 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -4788,7 +4144,7 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -4798,7 +4154,7 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -4808,7 +4164,7 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -4818,56 +4174,32 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign_ausfuehrung(self):
@@ -4879,7 +4211,7 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       str(self.ausfuehrung2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_eigentuemer(self):
@@ -4891,16 +4223,12 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       str(self.bewirtschafter_eigentuemer2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -4910,7 +4238,7 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -4920,7 +4248,7 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -4930,7 +4258,7 @@ class FahrradreparatursetsTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -4946,50 +4274,38 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    strasse = Strassen.objects.create(
-      strasse='Straße'
-    )
-    ausfuehrung1 = Ausfuehrungen_Fahrradstaender.objects.create(
-      ausfuehrung='Ausführung1'
-    )
-    ausfuehrung2 = Ausfuehrungen_Fahrradstaender.objects.create(
-      ausfuehrung='Ausführung2'
-    )
+    strasse = Strassen.objects.create(strasse='Straße')
+    ausfuehrung1 = Ausfuehrungen_Fahrradstaender.objects.create(ausfuehrung='Ausführung1')
+    ausfuehrung2 = Ausfuehrungen_Fahrradstaender.objects.create(ausfuehrung='Ausführung2')
     cls.ausfuehrung2 = ausfuehrung2
     bewirtschafter_eigentuemer1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     bewirtschafter_eigentuemer2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.bewirtschafter_eigentuemer2 = bewirtschafter_eigentuemer2
     cls.attributes_values_db_initial = {
       'strasse': strasse,
       'ausfuehrung': ausfuehrung1,
       'eigentuemer': bewirtschafter_eigentuemer1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'ausfuehrung': ausfuehrung2,
       'anzahl_stellplaetze': 23,
       'anzahl_fahrradstaender': 42,
-      'eigentuemer': bewirtschafter_eigentuemer2
+      'eigentuemer': bewirtschafter_eigentuemer2,
     }
-    cls.attributes_values_db_assigned_ausfuehrung = {
-      'ausfuehrung': ausfuehrung2
-    }
-    cls.attributes_values_db_assigned_eigentuemer = {
-      'eigentuemer': bewirtschafter_eigentuemer2
-    }
+    cls.attributes_values_db_assigned_ausfuehrung = {'ausfuehrung': ausfuehrung2}
+    cls.attributes_values_db_assigned_eigentuemer = {'eigentuemer': bewirtschafter_eigentuemer2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'strasse': str(strasse.pk),
       'id': '00000000',
       'ausfuehrung': str(ausfuehrung1.pk),
       'eigentuemer': str(bewirtschafter_eigentuemer1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -4999,11 +4315,9 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       'anzahl_stellplaetze': 42,
       'anzahl_fahrradstaender': 23,
       'eigentuemer': str(bewirtschafter_eigentuemer2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'anzahl_stellplaetze': INVALID_INTEGER
-    }
+    cls.attributes_values_view_invalid = {'anzahl_stellplaetze': INVALID_INTEGER}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -5029,7 +4343,7 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -5039,7 +4353,7 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -5049,7 +4363,7 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -5059,7 +4373,7 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -5071,7 +4385,7 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -5081,7 +4395,7 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -5091,7 +4405,7 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -5101,7 +4415,7 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -5111,56 +4425,32 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign_ausfuehrung(self):
@@ -5172,7 +4462,7 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       str(self.ausfuehrung2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_eigentuemer(self):
@@ -5184,16 +4474,12 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       str(self.bewirtschafter_eigentuemer2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -5203,7 +4489,7 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -5213,7 +4499,7 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -5223,7 +4509,7 @@ class FahrradstaenderTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -5239,38 +4525,30 @@ class FairTradeTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
-    art = Arten_FairTrade.objects.create(
-      art='Art'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
+    art = Arten_FairTrade.objects.create(art='Art')
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'art': art,
       'bezeichnung': 'Bezeichnung1',
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung3',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung4',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -5296,7 +4574,7 @@ class FairTradeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -5306,7 +4584,7 @@ class FairTradeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -5316,7 +4594,7 @@ class FairTradeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -5326,7 +4604,7 @@ class FairTradeTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -5338,7 +4616,7 @@ class FairTradeTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -5348,7 +4626,7 @@ class FairTradeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -5358,7 +4636,7 @@ class FairTradeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -5368,7 +4646,7 @@ class FairTradeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -5378,65 +4656,37 @@ class FairTradeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -5446,7 +4696,7 @@ class FairTradeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -5456,7 +4706,7 @@ class FairTradeTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -5466,7 +4716,7 @@ class FairTradeTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -5482,38 +4732,30 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
-    art = Arten_Feuerwachen.objects.create(
-      art='Art'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
+    art = Arten_Feuerwachen.objects.create(art='Art')
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'art': art,
       'bezeichnung': 'Bezeichnung1',
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung3',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung4',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -5539,7 +4781,7 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -5549,7 +4791,7 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -5559,7 +4801,7 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -5569,7 +4811,7 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -5581,7 +4823,7 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -5591,7 +4833,7 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -5601,7 +4843,7 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -5611,7 +4853,7 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -5621,65 +4863,37 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -5689,7 +4903,7 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -5699,7 +4913,7 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -5709,7 +4923,7 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -5725,34 +4939,28 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    art = Arten_Fliessgewaesser.objects.create(
-      art='Art'
-    )
+    art = Arten_Fliessgewaesser.objects.create(art='Art')
     cls.attributes_values_db_initial = {
       'nummer': 'Nummer1',
       'art': art,
-      'geometrie': VALID_LINE_DB
+      'geometrie': VALID_LINE_DB,
     }
-    cls.attributes_values_db_updated = {
-      'nummer': 'Nummer2'
-    }
+    cls.attributes_values_db_updated = {'nummer': 'Nummer2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'nummer': 'Nummer3',
       'art': str(art.pk),
       'laenge': 0,
-      'geometrie': VALID_LINE_VIEW
+      'geometrie': VALID_LINE_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'nummer': 'Nummer4',
       'art': str(art.pk),
       'laenge': 0,
-      'geometrie': VALID_LINE_VIEW
+      'geometrie': VALID_LINE_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'nummer': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'nummer': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -5778,7 +4986,7 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -5788,7 +4996,7 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -5798,7 +5006,7 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -5808,7 +5016,7 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -5820,7 +5028,7 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -5830,7 +5038,7 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -5840,7 +5048,7 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -5850,7 +5058,7 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -5860,65 +5068,37 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -5928,7 +5108,7 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -5938,7 +5118,7 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -5948,7 +5128,7 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -5964,15 +5144,9 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    strasse = Strassen.objects.create(
-      strasse='Straße'
-    )
-    beleuchtungsart1 = Beleuchtungsarten.objects.create(
-      bezeichnung='Bezeichnung1'
-    )
-    beleuchtungsart2 = Beleuchtungsarten.objects.create(
-      bezeichnung='Bezeichnung2'
-    )
+    strasse = Strassen.objects.create(strasse='Straße')
+    beleuchtungsart1 = Beleuchtungsarten.objects.create(bezeichnung='Bezeichnung1')
+    beleuchtungsart2 = Beleuchtungsarten.objects.create(bezeichnung='Bezeichnung2')
     cls.beleuchtungsart2 = beleuchtungsart2
     cls.attributes_values_db_initial = {
       'strasse': strasse,
@@ -5980,17 +5154,11 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       'laenge': 42.23,
       'barrierefrei': True,
       'beleuchtungsart': beleuchtungsart1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'barrierefrei': False
-    }
-    cls.attributes_values_db_assigned_barrierefrei = {
-      'barrierefrei': True
-    }
-    cls.attributes_values_db_assigned_beleuchtungsart = {
-      'beleuchtungsart': beleuchtungsart2
-    }
+    cls.attributes_values_db_updated = {'barrierefrei': False}
+    cls.attributes_values_db_assigned_barrierefrei = {'barrierefrei': True}
+    cls.attributes_values_db_assigned_beleuchtungsart = {'beleuchtungsart': beleuchtungsart2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'strasse': str(strasse.pk),
@@ -5999,7 +5167,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       'laenge': 42.23,
       'barrierefrei': True,
       'beleuchtungsart': str(beleuchtungsart1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -6009,11 +5177,9 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       'laenge': 42.23,
       'barrierefrei': False,
       'beleuchtungsart': str(beleuchtungsart1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'breite': INVALID_DECIMAL
-    }
+    cls.attributes_values_view_invalid = {'breite': INVALID_DECIMAL}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -6039,7 +5205,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -6049,7 +5215,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -6059,7 +5225,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -6069,7 +5235,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -6081,7 +5247,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -6091,7 +5257,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -6101,7 +5267,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -6111,7 +5277,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -6121,56 +5287,32 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign_barrierefrei(self):
@@ -6182,7 +5324,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       str(True),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_beleuchtungsart(self):
@@ -6194,16 +5336,12 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       str(self.beleuchtungsart2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -6213,7 +5351,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -6223,7 +5361,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -6233,7 +5371,7 @@ class FussgaengerueberwegeTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -6246,27 +5384,22 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
   attributes_values_db_initial = {
     'registriernummer': '12345',
     'jahr': 1987,
-    'geometrie': VALID_POLYGON_DB
+    'geometrie': VALID_POLYGON_DB,
   }
-  attributes_values_db_updated = {
-    'registriernummer': '525.43',
-    'jahr': 2023
-  }
+  attributes_values_db_updated = {'registriernummer': '525.43', 'jahr': 2023}
   attributes_values_view_initial = {
     'aktiv': True,
     'registriernummer': '54321',
     'jahr': 1978,
-    'geometrie': VALID_POLYGON_VIEW
+    'geometrie': VALID_POLYGON_VIEW,
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'registriernummer': '43.525',
     'jahr': 2024,
-    'geometrie': VALID_POLYGON_VIEW
+    'geometrie': VALID_POLYGON_VIEW,
   }
-  attributes_values_view_invalid = {
-    'registriernummer': INVALID_STRING
-  }
+  attributes_values_view_invalid = {'registriernummer': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -6290,7 +5423,7 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -6300,7 +5433,7 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -6310,7 +5443,7 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -6320,7 +5453,7 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -6332,7 +5465,7 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -6342,7 +5475,7 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -6352,7 +5485,7 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -6362,7 +5495,7 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -6372,65 +5505,37 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -6440,7 +5545,7 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -6450,7 +5555,7 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -6460,7 +5565,7 @@ class GemeinbedarfsflaechenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -6477,28 +5582,24 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
     'datum': VALID_DATE,
     'aufnahmedatum': VALID_DATE,
     'foto': foto,
-    'geometrie': VALID_POINT_DB
+    'geometrie': VALID_POINT_DB,
   }
-  attributes_values_db_updated = {
-    'bearbeiter': 'Bearbeiter2'
-  }
+  attributes_values_db_updated = {'bearbeiter': 'Bearbeiter2'}
   attributes_values_view_initial = {
     'aktiv': True,
     'bearbeiter': 'Bearbeiter3',
     'datum': VALID_DATE,
     'aufnahmedatum': VALID_DATE,
-    'geometrie': VALID_POINT_VIEW
+    'geometrie': VALID_POINT_VIEW,
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'bearbeiter': 'Bearbeiter4',
     'datum': VALID_DATE,
     'aufnahmedatum': VALID_DATE,
-    'geometrie': VALID_POINT_VIEW
+    'geometrie': VALID_POINT_VIEW,
   }
-  attributes_values_view_invalid = {
-    'bearbeiter': INVALID_STRING
-  }
+  attributes_values_view_invalid = {'bearbeiter': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -6526,7 +5627,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6537,7 +5638,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6548,7 +5649,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6559,7 +5660,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6572,7 +5673,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6583,7 +5684,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6594,7 +5695,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6605,7 +5706,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6616,7 +5717,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6630,18 +5731,13 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       1,
       VALID_IMAGE_FILE,
       'foto',
-      'image/jpeg'
+      'image/jpeg',
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6655,28 +5751,19 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       1,
       VALID_IMAGE_FILE,
       'foto',
-      'image/jpeg'
+      'image/jpeg',
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6689,7 +5776,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       str(VALID_DATE),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6702,17 +5789,13 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       str(VALID_DATE),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6723,7 +5806,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6734,7 +5817,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6745,7 +5828,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6762,20 +5845,16 @@ class HausnummernTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    strasse = Strassen.objects.create(
-      strasse='Straße'
-    )
+    strasse = Strassen.objects.create(strasse='Straße')
     cls.attributes_values_db_initial = {
       'strasse': strasse,
       'hausnummer': 1,
       'postleitzahl': '12345',
       'vergabe_datum': VALID_DATE,
       'bearbeiter': 'Bearbeiter1',
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'hausnummer': 2
-    }
+    cls.attributes_values_db_updated = {'hausnummer': 2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'strasse': str(strasse.pk),
@@ -6783,7 +5862,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       'postleitzahl': '12345',
       'vergabe_datum': VALID_DATE,
       'bearbeiter': 'Bearbeiter2',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -6792,11 +5871,9 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       'postleitzahl': '12345',
       'vergabe_datum': VALID_DATE,
       'bearbeiter': 'Bearbeiter3',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'hausnummer': INVALID_INTEGER
-    }
+    cls.attributes_values_view_invalid = {'hausnummer': INVALID_INTEGER}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -6822,7 +5899,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -6832,7 +5909,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -6842,7 +5919,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -6852,7 +5929,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -6864,7 +5941,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -6874,7 +5951,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -6884,7 +5961,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -6894,7 +5971,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -6904,56 +5981,32 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -6965,16 +6018,12 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       str(VALID_DATE),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -6984,7 +6033,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -6994,7 +6043,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -7004,7 +6053,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -7020,48 +6069,37 @@ class HospizeTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
     traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
       'traeger': traeger1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2',
-      'traeger': traeger2
-    }
-    cls.attributes_values_db_assigned = {
-      'traeger': traeger2
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2', 'traeger': traeger2}
+    cls.attributes_values_db_assigned = {'traeger': traeger2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
       'traeger': str(traeger1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
       'traeger': str(traeger2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -7087,7 +6125,7 @@ class HospizeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -7097,7 +6135,7 @@ class HospizeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -7107,7 +6145,7 @@ class HospizeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -7117,7 +6155,7 @@ class HospizeTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -7129,7 +6167,7 @@ class HospizeTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -7139,7 +6177,7 @@ class HospizeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -7149,7 +6187,7 @@ class HospizeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -7159,7 +6197,7 @@ class HospizeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -7169,56 +6207,32 @@ class HospizeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -7230,16 +6244,12 @@ class HospizeTest(DefaultSimpleModelTestCase):
       str(self.traeger2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -7249,7 +6259,7 @@ class HospizeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -7259,7 +6269,7 @@ class HospizeTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -7269,7 +6279,7 @@ class HospizeTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -7285,29 +6295,24 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    art = Arten_Hundetoiletten.objects.create(
-      art='Art'
-    )
+    art = Arten_Hundetoiletten.objects.create(art='Art')
     bewirtschafter = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung',
-      art='Art'
+      bezeichnung='Bezeichnung', art='Art'
     )
     cls.attributes_values_db_initial = {
       'art': art,
       'bewirtschafter': bewirtschafter,
       'pflegeobjekt': 'Pflegeobjekt1',
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'pflegeobjekt': 'Pflegeobjekt2'
-    }
+    cls.attributes_values_db_updated = {'pflegeobjekt': 'Pflegeobjekt2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'id': '00000000',
       'art': str(art.pk),
       'bewirtschafter': str(bewirtschafter.pk),
       'pflegeobjekt': 'Pflegeobjekt3',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -7315,11 +6320,9 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       'art': str(art.pk),
       'bewirtschafter': str(bewirtschafter.pk),
       'pflegeobjekt': 'Pflegeobjekt4',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'pflegeobjekt': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'pflegeobjekt': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -7345,7 +6348,7 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -7355,7 +6358,7 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -7365,7 +6368,7 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -7375,7 +6378,7 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -7387,7 +6390,7 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -7397,7 +6400,7 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -7407,7 +6410,7 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -7417,7 +6420,7 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -7427,65 +6430,37 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -7495,7 +6470,7 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -7505,7 +6480,7 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -7515,7 +6490,7 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -7531,36 +6506,30 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    art1 = Arten_Ingenieurbauwerke.objects.create(
-      art='Art1'
-    )
-    art2 = Arten_Ingenieurbauwerke.objects.create(
-      art='Art2'
-    )
+    art1 = Arten_Ingenieurbauwerke.objects.create(art='Art1')
+    art2 = Arten_Ingenieurbauwerke.objects.create(art='Art2')
     cls.art2 = art2
     cls.attributes_values_db_initial = {
       'nummer': 'Nummer1',
       'art': art1,
       'bezeichnung': 'Bezeichnung1',
       'schwerlast': False,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'nummer': 'Nummer2',
       'art': art2,
       'bezeichnung': 'Bezeichnung2',
-      'schwerlast': True
+      'schwerlast': True,
     }
-    cls.attributes_values_db_assigned = {
-      'art': art2
-    }
+    cls.attributes_values_db_assigned = {'art': art2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'nummer': 'Nummer3',
       'art': str(art1.pk),
       'bezeichnung': 'Bezeichnung3',
       'schwerlast': False,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -7568,11 +6537,9 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       'art': str(art2.pk),
       'bezeichnung': 'Bezeichnung4',
       'schwerlast': True,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -7598,7 +6565,7 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -7608,7 +6575,7 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -7618,7 +6585,7 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -7628,7 +6595,7 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -7640,7 +6607,7 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -7650,7 +6617,7 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -7660,7 +6627,7 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -7670,7 +6637,7 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -7680,56 +6647,32 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -7741,16 +6684,12 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       str(self.art2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -7760,7 +6699,7 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -7770,7 +6709,7 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -7780,7 +6719,7 @@ class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -7799,27 +6738,21 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
     antragsteller = Antragsteller_Jagdkataster_Skizzenebenen.objects.create(
       bezeichnung='Bezeichnung'
     )
-    thema = Themen_Jagdkataster_Skizzenebenen.objects.create(
-      bezeichnung='Bezeichnung'
-    )
-    status = Status_Jagdkataster_Skizzenebenen.objects.create(
-      status='Status'
-    )
+    thema = Themen_Jagdkataster_Skizzenebenen.objects.create(bezeichnung='Bezeichnung')
+    status = Status_Jagdkataster_Skizzenebenen.objects.create(status='Status')
     cls.attributes_values_db_initial = {
       'antragsteller': antragsteller,
       'thema': thema,
       'status': status,
-      'geometrie': VALID_MULTILINE_DB
+      'geometrie': VALID_MULTILINE_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bemerkungen': 'Bemerkung1'
-    }
+    cls.attributes_values_db_updated = {'bemerkungen': 'Bemerkung1'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'antragsteller': str(antragsteller.pk),
       'thema': str(thema.pk),
       'status': str(status.pk),
-      'geometrie': VALID_MULTILINE_VIEW
+      'geometrie': VALID_MULTILINE_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -7827,11 +6760,9 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       'thema': str(thema.pk),
       'status': str(status.pk),
       'bemerkungen': 'Bemerkung2',
-      'geometrie': VALID_MULTILINE_VIEW
+      'geometrie': VALID_MULTILINE_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bemerkungen': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bemerkungen': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -7857,7 +6788,7 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -7867,7 +6798,7 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -7877,7 +6808,7 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -7887,7 +6818,7 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -7899,7 +6830,7 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -7909,7 +6840,7 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -7919,7 +6850,7 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -7929,7 +6860,7 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -7939,65 +6870,37 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -8007,7 +6910,7 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -8017,7 +6920,7 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -8027,7 +6930,7 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -8044,21 +6947,15 @@ class HydrantenTest(DefaultSimpleModelTestCase):
   def setUpTestData(cls):
     super().setUpTestData()
     bewirtschafter_eigentuemer1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     cls.bewirtschafter_eigentuemer1 = bewirtschafter_eigentuemer1
     bewirtschafter_eigentuemer2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.bewirtschafter_eigentuemer2 = bewirtschafter_eigentuemer2
-    betriebszeit1 = Betriebszeiten.objects.create(
-      betriebszeit='Betriebszeit1'
-    )
-    betriebszeit2 = Betriebszeiten.objects.create(
-      betriebszeit='Betriebszeit2'
-    )
+    betriebszeit1 = Betriebszeiten.objects.create(betriebszeit='Betriebszeit1')
+    betriebszeit2 = Betriebszeiten.objects.create(betriebszeit='Betriebszeit2')
     cls.betriebszeit2 = betriebszeit2
     cls.attributes_values_db_initial = {
       'bezeichnung': 'HSA 1',
@@ -8066,26 +6963,20 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       'bewirtschafter': bewirtschafter_eigentuemer1,
       'feuerloeschgeeignet': False,
       'betriebszeit': betriebszeit1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'bezeichnung': 'HSA 2',
       'eigentuemer': bewirtschafter_eigentuemer2,
       'bewirtschafter': bewirtschafter_eigentuemer2,
-      'betriebszeit': betriebszeit2
+      'betriebszeit': betriebszeit2,
     }
-    cls.attributes_values_db_assigned_eigentuemer = {
-      'eigentuemer': bewirtschafter_eigentuemer2
-    }
+    cls.attributes_values_db_assigned_eigentuemer = {'eigentuemer': bewirtschafter_eigentuemer2}
     cls.attributes_values_db_assigned_bewirtschafter = {
       'bewirtschafter': bewirtschafter_eigentuemer2
     }
-    cls.attributes_values_db_assigned_feuerloeschgeeignet = {
-      'feuerloeschgeeignet': True
-    }
-    cls.attributes_values_db_assigned_betriebszeit = {
-      'betriebszeit': betriebszeit2
-    }
+    cls.attributes_values_db_assigned_feuerloeschgeeignet = {'feuerloeschgeeignet': True}
+    cls.attributes_values_db_assigned_betriebszeit = {'betriebszeit': betriebszeit2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'bezeichnung': 'HSA 3',
@@ -8093,7 +6984,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       'bewirtschafter': str(bewirtschafter_eigentuemer1.pk),
       'feuerloeschgeeignet': True,
       'betriebszeit': str(betriebszeit1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -8102,11 +6993,9 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       'bewirtschafter': str(bewirtschafter_eigentuemer2.pk),
       'feuerloeschgeeignet': True,
       'betriebszeit': str(betriebszeit2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -8132,7 +7021,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -8142,7 +7031,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -8152,7 +7041,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -8162,7 +7051,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -8174,7 +7063,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -8184,7 +7073,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -8194,7 +7083,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -8204,7 +7093,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -8214,56 +7103,32 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign_eigentuemer(self):
@@ -8275,7 +7140,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       str(self.bewirtschafter_eigentuemer2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_bewirtschafter(self):
@@ -8287,7 +7152,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       str(self.bewirtschafter_eigentuemer2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_feuerloeschgeeignet(self):
@@ -8299,7 +7164,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       str(True),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_betriebszeit(self):
@@ -8311,16 +7176,12 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       str(self.betriebszeit2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -8330,7 +7191,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -8340,7 +7201,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -8350,7 +7211,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -8366,24 +7227,13 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    tierseuche = Tierseuchen.objects.create(
-      bezeichnung='Bezeichnung'
-    )
-    geschlecht = Geschlechter_Kadaverfunde.objects.create(
-      ordinalzahl=1,
-      bezeichnung='Bezeichnung'
-    )
+    tierseuche = Tierseuchen.objects.create(bezeichnung='Bezeichnung')
+    geschlecht = Geschlechter_Kadaverfunde.objects.create(ordinalzahl=1, bezeichnung='Bezeichnung')
     altersklasse = Altersklassen_Kadaverfunde.objects.create(
-      ordinalzahl=1,
-      bezeichnung='Bezeichnung'
+      ordinalzahl=1, bezeichnung='Bezeichnung'
     )
-    zustand = Zustaende_Kadaverfunde.objects.create(
-      ordinalzahl=1,
-      zustand='Zustand'
-    )
-    art_auffinden = Arten_Fallwildsuchen_Kontrollen.objects.create(
-      art='Art'
-    )
+    zustand = Zustaende_Kadaverfunde.objects.create(ordinalzahl=1, zustand='Zustand')
+    art_auffinden = Arten_Fallwildsuchen_Kontrollen.objects.create(art='Art')
     cls.attributes_values_db_initial = {
       'zeitpunkt': VALID_DATETIME,
       'tierseuche': tierseuche,
@@ -8392,11 +7242,9 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       'zustand': zustand,
       'art_auffinden': art_auffinden,
       'witterung': 'Witterung1',
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'witterung': 'Witterung2'
-    }
+    cls.attributes_values_db_updated = {'witterung': 'Witterung2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'zeitpunkt': VALID_DATETIME,
@@ -8406,7 +7254,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       'zustand': str(zustand.pk),
       'art_auffinden': str(art_auffinden.pk),
       'witterung': 'Witterung3',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -8417,11 +7265,9 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       'zustand': str(zustand.pk),
       'art_auffinden': str(art_auffinden.pk),
       'witterung': 'Witterung4',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'witterung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'witterung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -8447,7 +7293,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -8457,7 +7303,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -8467,7 +7313,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -8477,7 +7323,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -8489,7 +7335,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -8499,7 +7345,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -8509,7 +7355,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -8519,7 +7365,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -8529,65 +7375,37 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -8597,7 +7415,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -8607,7 +7425,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -8617,7 +7435,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -8633,12 +7451,8 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse1 = Adressen.objects.create(
-      adresse='Adresse1'
-    )
-    adresse2 = Adressen.objects.create(
-      adresse='Adresse2'
-    )
+    adresse1 = Adressen.objects.create(adresse='Adresse1')
+    adresse2 = Adressen.objects.create(adresse='Adresse2')
     bevollmaechtigter_bezirksschornsteinfeger1 = (
       Bevollmaechtigte_Bezirksschornsteinfeger.objects.create(
         bezirk='ABC-12',
@@ -8648,7 +7462,7 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
         anschrift_strasse='Straße1',
         anschrift_hausnummer='123',
         anschrift_postleitzahl='12345',
-        anschrift_ort='Ort1'
+        anschrift_ort='Ort1',
       )
     )
     bevollmaechtigter_bezirksschornsteinfeger2 = (
@@ -8660,36 +7474,36 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
         anschrift_strasse='Straße2',
         anschrift_hausnummer='456',
         anschrift_postleitzahl='23456',
-        anschrift_ort='Ort2'
+        anschrift_ort='Ort2',
       )
     )
     cls.bevollmaechtigter_bezirksschornsteinfeger2 = bevollmaechtigter_bezirksschornsteinfeger2
     cls.attributes_values_db_initial = {
       'adresse': adresse1,
-      'bevollmaechtigter_bezirksschornsteinfeger': bevollmaechtigter_bezirksschornsteinfeger1
+      'bevollmaechtigter_bezirksschornsteinfeger': bevollmaechtigter_bezirksschornsteinfeger1,
     }
     cls.attributes_values_db_updated = {
       'bevollmaechtigter_bezirksschornsteinfeger': bevollmaechtigter_bezirksschornsteinfeger2,
-      'vergabedatum': VALID_DATE
+      'vergabedatum': VALID_DATE,
     }
     cls.attributes_values_db_assigned_bevollmaechtigter_bezirksschornsteinfeger = {
       'bevollmaechtigter_bezirksschornsteinfeger': bevollmaechtigter_bezirksschornsteinfeger2
     }
-    cls.attributes_values_db_assigned_vergabedatum = {
-      'vergabedatum': VALID_DATE
-    }
+    cls.attributes_values_db_assigned_vergabedatum = {'vergabedatum': VALID_DATE}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse2.pk),
       'bevollmaechtigter_bezirksschornsteinfeger': str(
-        bevollmaechtigter_bezirksschornsteinfeger1.pk)
+        bevollmaechtigter_bezirksschornsteinfeger1.pk
+      ),
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse2.pk),
       'bevollmaechtigter_bezirksschornsteinfeger': str(
-        bevollmaechtigter_bezirksschornsteinfeger2.pk),
-      'vergabedatum': VALID_DATE
+        bevollmaechtigter_bezirksschornsteinfeger2.pk
+      ),
+      'vergabedatum': VALID_DATE,
     }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
@@ -8716,7 +7530,7 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -8726,7 +7540,7 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -8736,7 +7550,7 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -8746,7 +7560,7 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -8758,36 +7572,22 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign_bevollmaechtigter_bezirksschornsteinfeger(self):
@@ -8799,7 +7599,7 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       str(self.bevollmaechtigter_bezirksschornsteinfeger2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_vergabedatum(self):
@@ -8811,16 +7611,12 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       str(VALID_DATE),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
 
@@ -8836,35 +7632,29 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'vorname': 'Vorname1',
       'nachname': 'Nachname1',
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'nachname': 'Nachname2'
-    }
+    cls.attributes_values_db_updated = {'nachname': 'Nachname2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'vorname': 'Vorname3',
       'nachname': 'Nachname3',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'vorname': 'Vorname4',
       'nachname': 'Nachname4',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'nachname': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'nachname': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -8890,7 +7680,7 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -8900,7 +7690,7 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -8910,7 +7700,7 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -8920,7 +7710,7 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -8932,7 +7722,7 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -8942,7 +7732,7 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -8952,7 +7742,7 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -8962,7 +7752,7 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -8972,65 +7762,37 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -9040,7 +7802,7 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -9050,7 +7812,7 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -9060,7 +7822,7 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -9076,48 +7838,37 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
     traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
       'traeger': traeger1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2',
-      'traeger': traeger2
-    }
-    cls.attributes_values_db_assigned = {
-      'traeger': traeger2
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2', 'traeger': traeger2}
+    cls.attributes_values_db_assigned = {'traeger': traeger2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
       'traeger': str(traeger1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
       'traeger': str(traeger2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -9143,7 +7894,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -9153,7 +7904,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -9163,7 +7914,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -9173,7 +7924,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -9185,7 +7936,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -9195,7 +7946,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -9205,7 +7956,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -9215,7 +7966,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -9225,56 +7976,32 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -9286,16 +8013,12 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       str(self.traeger2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -9305,7 +8028,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -9315,7 +8038,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -9325,7 +8048,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -9341,27 +8064,23 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    typ = Typen_Kleinklaeranlagen.objects.create(
-      typ='Typ'
-    )
+    typ = Typen_Kleinklaeranlagen.objects.create(typ='Typ')
     cls.attributes_values_db_initial = {
       'd3': '538.111-047',
       'we_datum': VALID_DATE,
       'typ': typ,
       'einleitstelle': 'Einleitstelle1',
       'gewaesser_berichtspflichtig': True,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'einleitstelle': 'Einleitstelle2'
-    }
+    cls.attributes_values_db_updated = {'einleitstelle': 'Einleitstelle2'}
     cls.attributes_values_view_initial = {
       'd3': '538.111-047',
       'we_datum': VALID_DATE,
       'typ': str(typ.pk),
       'einleitstelle': 'Einleitstelle3',
       'gewaesser_berichtspflichtig': True,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'd3': '538.111-047',
@@ -9369,11 +8088,9 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       'typ': str(typ.pk),
       'einleitstelle': 'Einleitstelle4',
       'gewaesser_berichtspflichtig': True,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'einleitstelle': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'einleitstelle': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -9399,7 +8116,7 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -9409,7 +8126,7 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -9419,7 +8136,7 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -9429,7 +8146,7 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -9441,7 +8158,7 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -9451,7 +8168,7 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -9461,7 +8178,7 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -9471,7 +8188,7 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -9481,65 +8198,37 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -9549,7 +8238,7 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -9559,7 +8248,7 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -9569,7 +8258,7 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -9579,26 +8268,19 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
   """
 
   model = Kunst_im_oeffentlichen_Raum
-  attributes_values_db_initial = {
-    'bezeichnung': 'Bezeichnung1',
-    'geometrie': VALID_POINT_DB
-  }
-  attributes_values_db_updated = {
-    'bezeichnung': 'Bezeichnung2'
-  }
+  attributes_values_db_initial = {'bezeichnung': 'Bezeichnung1', 'geometrie': VALID_POINT_DB}
+  attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
   attributes_values_view_initial = {
     'aktiv': True,
     'bezeichnung': 'Bezeichnung3',
-    'geometrie': VALID_POINT_VIEW
+    'geometrie': VALID_POINT_VIEW,
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'bezeichnung': 'Bezeichnung4',
-    'geometrie': VALID_POINT_VIEW
+    'geometrie': VALID_POINT_VIEW,
   }
-  attributes_values_view_invalid = {
-    'bezeichnung': INVALID_STRING
-  }
+  attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -9622,7 +8304,7 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -9632,7 +8314,7 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -9642,7 +8324,7 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -9652,7 +8334,7 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -9664,7 +8346,7 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -9674,7 +8356,7 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -9684,7 +8366,7 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -9694,7 +8376,7 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -9704,65 +8386,37 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -9772,7 +8426,7 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -9782,7 +8436,7 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -9792,7 +8446,7 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -9808,31 +8462,19 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
     betreiber1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     betreiber2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.betreiber2 = betreiber2
-    verbund1 = Verbuende_Ladestationen_Elektrofahrzeuge.objects.create(
-      verbund='Verbund1'
-    )
-    verbund2 = Verbuende_Ladestationen_Elektrofahrzeuge.objects.create(
-      verbund='Verbund2'
-    )
+    verbund1 = Verbuende_Ladestationen_Elektrofahrzeuge.objects.create(verbund='Verbund1')
+    verbund2 = Verbuende_Ladestationen_Elektrofahrzeuge.objects.create(verbund='Verbund2')
     cls.verbund2 = verbund2
-    betriebsart1 = Betriebsarten.objects.create(
-      betriebsart='Betriebsart1'
-    )
-    betriebsart2 = Betriebsarten.objects.create(
-      betriebsart='Betriebsart2'
-    )
+    betriebsart1 = Betriebsarten.objects.create(betriebsart='Betriebsart1')
+    betriebsart2 = Betriebsarten.objects.create(betriebsart='Betriebsart2')
     cls.betriebsart2 = betriebsart2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
@@ -9841,26 +8483,18 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       'betreiber': betreiber1,
       'verbund': verbund1,
       'betriebsart': betriebsart1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'bezeichnung': 'Bezeichnung2',
       'betreiber': betreiber2,
       'verbund': verbund2,
-      'betriebsart': betriebsart2
+      'betriebsart': betriebsart2,
     }
-    cls.attributes_values_db_assigned_geplant = {
-      'geplant': True
-    }
-    cls.attributes_values_db_assigned_betreiber = {
-      'betreiber': betreiber2
-    }
-    cls.attributes_values_db_assigned_verbund = {
-      'verbund': verbund2
-    }
-    cls.attributes_values_db_assigned_betriebsart = {
-      'betriebsart': betriebsart2
-    }
+    cls.attributes_values_db_assigned_geplant = {'geplant': True}
+    cls.attributes_values_db_assigned_betreiber = {'betreiber': betreiber2}
+    cls.attributes_values_db_assigned_verbund = {'verbund': verbund2}
+    cls.attributes_values_db_assigned_betriebsart = {'betriebsart': betriebsart2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
@@ -9869,7 +8503,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       'betreiber': str(betreiber1.pk),
       'verbund': str(verbund1.pk),
       'betriebsart': str(betriebsart1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -9879,11 +8513,9 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       'betreiber': str(betreiber2.pk),
       'verbund': str(verbund2.pk),
       'betriebsart': str(betriebsart2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -9909,7 +8541,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -9919,7 +8551,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -9929,7 +8561,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -9939,7 +8571,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -9951,7 +8583,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -9961,7 +8593,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -9971,7 +8603,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -9981,7 +8613,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -9991,56 +8623,32 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign_geplant(self):
@@ -10052,7 +8660,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       str(True),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_betreiber(self):
@@ -10064,7 +8672,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       str(self.betreiber2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_verbund(self):
@@ -10076,7 +8684,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       str(self.verbund2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_betriebsart(self):
@@ -10088,16 +8696,12 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       str(self.betriebsart2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -10107,7 +8711,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -10117,7 +8721,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -10127,7 +8731,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -10143,35 +8747,29 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    art = Arten_Meldedienst_flaechenhaft.objects.create(
-      art='Art'
-    )
+    art = Arten_Meldedienst_flaechenhaft.objects.create(art='Art')
     cls.attributes_values_db_initial = {
       'art': art,
       'bearbeiter': 'Bearbeiter1',
       'datum': VALID_DATE,
-      'geometrie': VALID_POLYGON_DB
+      'geometrie': VALID_POLYGON_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bearbeiter': 'Bearbeiter2'
-    }
+    cls.attributes_values_db_updated = {'bearbeiter': 'Bearbeiter2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art.pk),
       'bearbeiter': 'Bearbeiter3',
       'datum': VALID_DATE,
-      'geometrie': VALID_POLYGON_VIEW
+      'geometrie': VALID_POLYGON_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'art': str(art.pk),
       'bearbeiter': 'Bearbeiter4',
       'datum': VALID_DATE,
-      'geometrie': VALID_POLYGON_VIEW
+      'geometrie': VALID_POLYGON_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bearbeiter': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bearbeiter': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -10197,7 +8795,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -10207,7 +8805,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -10217,7 +8815,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -10227,7 +8825,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -10239,7 +8837,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -10249,7 +8847,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -10259,7 +8857,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -10269,7 +8867,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -10279,65 +8877,37 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -10347,7 +8917,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -10357,7 +8927,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -10367,7 +8937,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -10383,40 +8953,27 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    art = Arten_Meldedienst_punkthaft.objects.create(
-      art='Art'
-    )
-    gebaeudeart1 = Gebaeudearten_Meldedienst_punkthaft.objects.create(
-      bezeichnung='Bezeichnung1'
-    )
-    gebaeudeart2 = Gebaeudearten_Meldedienst_punkthaft.objects.create(
-      bezeichnung='Bezeichnung2'
-    )
+    art = Arten_Meldedienst_punkthaft.objects.create(art='Art')
+    gebaeudeart1 = Gebaeudearten_Meldedienst_punkthaft.objects.create(bezeichnung='Bezeichnung1')
+    gebaeudeart2 = Gebaeudearten_Meldedienst_punkthaft.objects.create(bezeichnung='Bezeichnung2')
     cls.gebaeudeart2 = gebaeudeart2
     cls.attributes_values_db_initial = {
       'art': art,
       'bearbeiter': 'Bearbeiter1',
       'gebaeudeart': gebaeudeart1,
       'datum': VALID_DATE,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bearbeiter': 'Bearbeiter2',
-      'gebaeudeart': gebaeudeart2
-    }
-    cls.attributes_values_db_assigned_gebaeudeart = {
-      'gebaeudeart': gebaeudeart2
-    }
-    cls.attributes_values_db_assigned_datum = {
-      'datum': VALID_DATE
-    }
+    cls.attributes_values_db_updated = {'bearbeiter': 'Bearbeiter2', 'gebaeudeart': gebaeudeart2}
+    cls.attributes_values_db_assigned_gebaeudeart = {'gebaeudeart': gebaeudeart2}
+    cls.attributes_values_db_assigned_datum = {'datum': VALID_DATE}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art.pk),
       'bearbeiter': 'Bearbeiter3',
       'gebaeudeart': str(gebaeudeart1.pk),
       'datum': VALID_DATE,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -10424,11 +8981,9 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       'bearbeiter': 'Bearbeiter4',
       'gebaeudeart': str(gebaeudeart2.pk),
       'datum': VALID_DATE,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bearbeiter': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bearbeiter': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -10454,7 +9009,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -10464,7 +9019,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -10474,7 +9029,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -10484,7 +9039,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -10496,7 +9051,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -10506,7 +9061,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -10516,7 +9071,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -10526,7 +9081,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -10536,56 +9091,32 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign_gebaeudeart(self):
@@ -10597,7 +9128,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       str(self.gebaeudeart2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_datum(self):
@@ -10609,16 +9140,12 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       str(VALID_DATE),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -10628,7 +9155,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -10638,7 +9165,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -10648,7 +9175,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -10664,35 +9191,29 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'stob': '1234567',
       'erteilungsdatum': VALID_DATE,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'stob': '2345678'
-    }
+    cls.attributes_values_db_updated = {'stob': '2345678'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'stob': '7654321',
       'erteilungsdatum': VALID_DATE,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'stob': '8765432',
       'erteilungsdatum': VALID_DATE,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'montagehoehe': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'montagehoehe': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -10718,7 +9239,7 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -10728,7 +9249,7 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -10738,7 +9259,7 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -10748,7 +9269,7 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -10760,7 +9281,7 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -10770,7 +9291,7 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -10780,7 +9301,7 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -10790,7 +9311,7 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -10800,65 +9321,37 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -10868,7 +9361,7 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -10878,7 +9371,7 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -10888,7 +9381,7 @@ class MobilfunkantennenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -10904,35 +9397,27 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    angebot1 = Angebote_Mobilpunkte.objects.create(
-      angebot='Angebot1'
-    )
-    angebot2 = Angebote_Mobilpunkte.objects.create(
-      angebot='Angebot2'
-    )
+    angebot1 = Angebote_Mobilpunkte.objects.create(angebot='Angebot1')
+    angebot2 = Angebote_Mobilpunkte.objects.create(angebot='Angebot2')
     cls.attributes_values_db_initial = {
       'bezeichnung': 'Bezeichnung1',
       'angebote': [angebot1, angebot2],
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'bezeichnung': 'Bezeichnung3',
       'angebote': [angebot1, angebot2],
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'bezeichnung': 'Bezeichnung4',
       'angebote': [angebot1, angebot2],
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -10958,7 +9443,7 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -10968,7 +9453,7 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -10978,7 +9463,7 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -10988,7 +9473,7 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -11000,7 +9485,7 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -11010,7 +9495,7 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -11020,7 +9505,7 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -11030,7 +9515,7 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -11040,65 +9525,37 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -11108,7 +9565,7 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -11118,7 +9575,7 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -11128,7 +9585,7 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -11144,32 +9601,26 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    art = Arten_Parkmoeglichkeiten.objects.create(
-      art='Art'
-    )
+    art = Arten_Parkmoeglichkeiten.objects.create(art='Art')
     cls.attributes_values_db_initial = {
       'art': art,
       'standort': 'Standort1',
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'standort': 'Standort2'
-    }
+    cls.attributes_values_db_updated = {'standort': 'Standort2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art.pk),
       'standort': 'Standort3',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'art': str(art.pk),
       'standort': 'Standort4',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'standort': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'standort': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -11195,7 +9646,7 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -11205,7 +9656,7 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -11215,7 +9666,7 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -11225,7 +9676,7 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -11237,7 +9688,7 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -11247,7 +9698,7 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -11257,7 +9708,7 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -11267,7 +9718,7 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -11277,65 +9728,37 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -11345,7 +9768,7 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -11355,7 +9778,7 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -11365,7 +9788,7 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -11381,29 +9804,23 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
-    art = Arten_Pflegeeinrichtungen.objects.create(
-      art='Art'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
+    art = Arten_Pflegeeinrichtungen.objects.create(art='Art')
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'art': art,
       'bezeichnung': 'Bezeichnung1',
       'betreiber': 'Betreiber1',
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung3',
       'betreiber': 'Betreiber3',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -11411,11 +9828,9 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung4',
       'betreiber': 'Betreiber4',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -11441,7 +9856,7 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -11451,7 +9866,7 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -11461,7 +9876,7 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -11471,7 +9886,7 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -11483,7 +9898,7 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -11493,7 +9908,7 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -11503,7 +9918,7 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -11513,7 +9928,7 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -11523,65 +9938,37 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -11591,7 +9978,7 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -11601,7 +9988,7 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -11611,7 +9998,7 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -11627,37 +10014,26 @@ class PollerTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    art = Arten_Poller.objects.create(
-      art='Art'
-    )
-    status1 = Status_Poller.objects.create(
-      status='Status1'
-    )
-    status2 = Status_Poller.objects.create(
-      status='Status2'
-    )
+    art = Arten_Poller.objects.create(art='Art')
+    status1 = Status_Poller.objects.create(status='Status1')
+    status2 = Status_Poller.objects.create(status='Status2')
     cls.status2 = status2
     cls.attributes_values_db_initial = {
       'art': art,
       'bezeichnung': 'Bezeichnung1',
       'status': status1,
       'anzahl': 42,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2',
-      'status': status2
-    }
-    cls.attributes_values_db_assigned = {
-      'status': status2
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2', 'status': status2}
+    cls.attributes_values_db_assigned = {'status': status2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung3',
       'status': str(status1.pk),
       'anzahl': 23,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -11665,11 +10041,9 @@ class PollerTest(DefaultSimpleModelTestCase):
       'bezeichnung': 'Bezeichnung4',
       'status': str(status2.pk),
       'anzahl': 4711,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -11695,7 +10069,7 @@ class PollerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -11705,7 +10079,7 @@ class PollerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -11715,7 +10089,7 @@ class PollerTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -11725,7 +10099,7 @@ class PollerTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -11737,7 +10111,7 @@ class PollerTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -11747,7 +10121,7 @@ class PollerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -11757,7 +10131,7 @@ class PollerTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -11767,7 +10141,7 @@ class PollerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -11777,56 +10151,32 @@ class PollerTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -11838,16 +10188,12 @@ class PollerTest(DefaultSimpleModelTestCase):
       str(self.status2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -11857,7 +10203,7 @@ class PollerTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -11867,7 +10213,7 @@ class PollerTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -11877,7 +10223,7 @@ class PollerTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -11889,24 +10235,20 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
   model = Reinigungsreviere
   attributes_values_db_initial = {
     'bezeichnung': 'Bezeichnung1',
-    'geometrie': VALID_MULTIPOLYGON_DB
+    'geometrie': VALID_MULTIPOLYGON_DB,
   }
-  attributes_values_db_updated = {
-    'bezeichnung': 'Bezeichnung2'
-  }
+  attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
   attributes_values_view_initial = {
     'aktiv': True,
     'bezeichnung': 'Bezeichnung3',
-    'geometrie': VALID_MULTIPOLYGON_VIEW
+    'geometrie': VALID_MULTIPOLYGON_VIEW,
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'bezeichnung': 'Bezeichnung4',
-    'geometrie': VALID_MULTIPOLYGON_VIEW
+    'geometrie': VALID_MULTIPOLYGON_VIEW,
   }
-  attributes_values_view_invalid = {
-    'bezeichnung': INVALID_STRING
-  }
+  attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -11930,7 +10272,7 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -11940,7 +10282,7 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -11950,7 +10292,7 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -11960,7 +10302,7 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -11972,7 +10314,7 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -11982,7 +10324,7 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -11992,7 +10334,7 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -12002,7 +10344,7 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -12012,65 +10354,37 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -12080,7 +10394,7 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -12090,7 +10404,7 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -12100,7 +10414,7 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -12116,26 +10430,22 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    art = Arten_Reisebusparkplaetze_Terminals.objects.create(
-      art='Art'
-    )
+    art = Arten_Reisebusparkplaetze_Terminals.objects.create(art='Art')
     cls.attributes_values_db_initial = {
       'art': art,
       'bezeichnung': 'Bezeichnung1',
       'stellplaetze': 23,
       'gebuehren': False,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung3',
       'stellplaetze': 42,
       'gebuehren': True,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -12143,11 +10453,9 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       'bezeichnung': 'Bezeichnung4',
       'stellplaetze': 99,
       'gebuehren': False,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -12173,7 +10481,7 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -12183,7 +10491,7 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -12193,7 +10501,7 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -12203,7 +10511,7 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -12215,7 +10523,7 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -12225,7 +10533,7 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -12235,7 +10543,7 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -12245,7 +10553,7 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -12255,65 +10563,37 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -12323,7 +10603,7 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -12333,7 +10613,7 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -12343,7 +10623,7 @@ class ReisebusparkplaetzeTerminalsTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -12359,48 +10639,37 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
     traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
       'traeger': traeger1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2',
-      'traeger': traeger2
-    }
-    cls.attributes_values_db_assigned = {
-      'traeger': traeger2
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2', 'traeger': traeger2}
+    cls.attributes_values_db_assigned = {'traeger': traeger2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
       'traeger': str(traeger1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
       'traeger': str(traeger2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -12426,7 +10695,7 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -12436,7 +10705,7 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -12446,7 +10715,7 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -12456,7 +10725,7 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -12468,7 +10737,7 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -12478,7 +10747,7 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -12488,7 +10757,7 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -12498,7 +10767,7 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -12508,56 +10777,32 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -12569,16 +10814,12 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       str(self.traeger2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -12588,7 +10829,7 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -12598,7 +10839,7 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -12608,7 +10849,7 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -12624,37 +10865,29 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    hafen = Haefen.objects.create(
-      bezeichnung='Bezeichnung',
-      abkuerzung='A-BC',
-      code=1
-    )
+    hafen = Haefen.objects.create(bezeichnung='Bezeichnung', abkuerzung='A-BC', code=1)
     cls.attributes_values_db_initial = {
       'hafen': hafen,
       'liegeplatznummer': 'Liegeplatz1',
       'bezeichnung': 'Bezeichnung1',
-      'geometrie': VALID_POLYGON_DB
+      'geometrie': VALID_POLYGON_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'hafen': str(hafen.pk),
       'liegeplatznummer': 'Liegeplatz3',
       'bezeichnung': 'Bezeichnung3',
-      'geometrie': VALID_POLYGON_VIEW
+      'geometrie': VALID_POLYGON_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'hafen': str(hafen.pk),
       'liegeplatznummer': 'Liegeplatz4',
       'bezeichnung': 'Bezeichnung4',
-      'geometrie': VALID_POLYGON_VIEW
+      'geometrie': VALID_POLYGON_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -12680,7 +10913,7 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -12690,7 +10923,7 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -12700,7 +10933,7 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -12710,7 +10943,7 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -12722,7 +10955,7 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -12732,7 +10965,7 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -12742,7 +10975,7 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -12752,7 +10985,7 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -12762,65 +10995,37 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -12830,7 +11035,7 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -12840,7 +11045,7 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -12850,7 +11055,7 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -12866,42 +11071,31 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    tierseuche = Tierseuchen.objects.create(
-      bezeichnung='Bezeichnung'
-    )
-    zustand1 = Zustaende_Schutzzaeune_Tierseuchen.objects.create(
-      ordinalzahl=1,
-      zustand='Zustand1'
-    )
-    zustand2 = Zustaende_Schutzzaeune_Tierseuchen.objects.create(
-      ordinalzahl=2,
-      zustand='Zustand2'
-    )
+    tierseuche = Tierseuchen.objects.create(bezeichnung='Bezeichnung')
+    zustand1 = Zustaende_Schutzzaeune_Tierseuchen.objects.create(ordinalzahl=1, zustand='Zustand1')
+    zustand2 = Zustaende_Schutzzaeune_Tierseuchen.objects.create(ordinalzahl=2, zustand='Zustand2')
     cls.zustand2 = zustand2
     cls.attributes_values_db_initial = {
       'tierseuche': tierseuche,
       'zustand': zustand1,
-      'geometrie': VALID_MULTILINE_DB
+      'geometrie': VALID_MULTILINE_DB,
     }
-    cls.attributes_values_db_updated = {
-      'zustand': zustand2
-    }
+    cls.attributes_values_db_updated = {'zustand': zustand2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'tierseuche': str(tierseuche.pk),
       'zustand': str(zustand1.pk),
       'laenge': 0,
-      'geometrie': VALID_MULTILINE_VIEW
+      'geometrie': VALID_MULTILINE_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'tierseuche': str(tierseuche.pk),
       'zustand': str(zustand2.pk),
       'laenge': 0,
-      'geometrie': VALID_MULTILINE_VIEW
+      'geometrie': VALID_MULTILINE_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-    }
+    cls.attributes_values_view_invalid = {}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -12927,7 +11121,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -12937,7 +11131,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -12947,7 +11141,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -12957,7 +11151,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -12969,7 +11163,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -12979,7 +11173,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -12989,7 +11183,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -12999,7 +11193,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -13009,56 +11203,32 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -13070,16 +11240,12 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       str(self.zustand2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -13089,7 +11255,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -13099,7 +11265,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -13109,7 +11275,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -13125,48 +11291,37 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    art = Arten_Sportanlagen.objects.create(
-      art='Art'
-    )
+    art = Arten_Sportanlagen.objects.create(art='Art')
     traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'art': art,
       'bezeichnung': 'Bezeichnung1',
       'traeger': traeger1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2',
-      'traeger': traeger2
-    }
-    cls.attributes_values_db_assigned = {
-      'traeger': traeger2
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2', 'traeger': traeger2}
+    cls.attributes_values_db_assigned = {'traeger': traeger2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung3',
       'traeger': str(traeger1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung4',
       'traeger': str(traeger2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -13192,7 +11347,7 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -13202,7 +11357,7 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -13212,7 +11367,7 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -13222,7 +11377,7 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -13234,7 +11389,7 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -13244,7 +11399,7 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -13254,7 +11409,7 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -13264,7 +11419,7 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -13274,56 +11429,32 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -13335,16 +11466,12 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       str(self.traeger2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -13354,7 +11481,7 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -13364,7 +11491,7 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -13374,7 +11501,7 @@ class SportanlagenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -13390,50 +11517,38 @@ class SporthallenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
     traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.traeger2 = traeger2
-    sportart1 = Sportarten.objects.create(
-      bezeichnung='Bezeichnung1'
-    )
-    sportart2 = Sportarten.objects.create(
-      bezeichnung='Bezeichnung2'
-    )
+    sportart1 = Sportarten.objects.create(bezeichnung='Bezeichnung1')
+    sportart2 = Sportarten.objects.create(bezeichnung='Bezeichnung2')
     cls.sportart2 = sportart2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
       'traeger': traeger1,
       'sportart': sportart1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'bezeichnung': 'Bezeichnung2',
       'traeger': traeger2,
-      'sportart': sportart2
+      'sportart': sportart2,
     }
-    cls.attributes_values_db_assigned_traeger = {
-      'traeger': traeger2
-    }
-    cls.attributes_values_db_assigned_sportart = {
-      'sportart': sportart2
-    }
+    cls.attributes_values_db_assigned_traeger = {'traeger': traeger2}
+    cls.attributes_values_db_assigned_sportart = {'sportart': sportart2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
       'traeger': str(traeger1.pk),
       'sportart': str(sportart1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -13441,11 +11556,9 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       'bezeichnung': 'Bezeichnung4',
       'traeger': str(traeger2.pk),
       'sportart': str(sportart2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -13471,7 +11584,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -13481,7 +11594,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -13491,7 +11604,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -13501,7 +11614,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -13513,7 +11626,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -13523,7 +11636,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -13533,7 +11646,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -13543,7 +11656,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -13553,56 +11666,32 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign_traeger(self):
@@ -13614,7 +11703,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       str(self.traeger2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_sportart(self):
@@ -13626,16 +11715,12 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       str(self.sportart2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -13645,7 +11730,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -13655,7 +11740,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -13665,7 +11750,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -13681,48 +11766,37 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
     traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
       'traeger': traeger1,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2',
-      'traeger': traeger2
-    }
-    cls.attributes_values_db_assigned = {
-      'traeger': traeger2
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2', 'traeger': traeger2}
+    cls.attributes_values_db_assigned = {'traeger': traeger2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
       'traeger': str(traeger1.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
       'traeger': str(traeger2.pk),
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -13748,7 +11822,7 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -13758,7 +11832,7 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -13768,7 +11842,7 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -13778,7 +11852,7 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -13790,7 +11864,7 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -13800,7 +11874,7 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -13810,7 +11884,7 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -13820,7 +11894,7 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -13830,56 +11904,32 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -13891,16 +11941,12 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       str(self.traeger2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -13910,7 +11956,7 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -13920,7 +11966,7 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -13930,7 +11976,7 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -13946,12 +11992,8 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
-    quartier = Quartiere.objects.create(
-      code='123'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
+    quartier = Quartiere.objects.create(code='123')
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bewertungsjahr': get_current_year(),
@@ -13966,11 +12008,9 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       'beeintraechtigung_endwert': 23.42,
       'standortnutzung_anfangswert': 23.42,
       'standortnutzung_endwert': 23.42,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'standortnutzung_endwert': 42.23
-    }
+    cls.attributes_values_db_updated = {'standortnutzung_endwert': 42.23}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
@@ -13986,7 +12026,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       'beeintraechtigung_endwert': 23.42,
       'standortnutzung_anfangswert': 23.42,
       'standortnutzung_endwert': 23.42,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -14003,11 +12043,9 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       'beeintraechtigung_endwert': 42.23,
       'standortnutzung_anfangswert': 42.23,
       'standortnutzung_endwert': 42.23,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'standortnutzung_endwert': INVALID_DECIMAL
-    }
+    cls.attributes_values_view_invalid = {'standortnutzung_endwert': INVALID_DECIMAL}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -14033,7 +12071,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -14043,7 +12081,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -14053,7 +12091,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -14063,7 +12101,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -14075,7 +12113,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -14085,7 +12123,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -14095,7 +12133,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -14105,7 +12143,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -14115,65 +12153,37 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -14183,7 +12193,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -14193,7 +12203,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -14203,7 +12213,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -14219,12 +12229,8 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
-    quartier = Quartiere.objects.create(
-      code='123'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
+    quartier = Quartiere.objects.create(code='123')
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bewertungsjahr': get_current_year(),
@@ -14239,11 +12245,9 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       'beeintraechtigung_endwert': 23.42,
       'standortnutzung_anfangswert': 23.42,
       'standortnutzung_endwert': 23.42,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'standortnutzung_endwert': 42.23
-    }
+    cls.attributes_values_db_updated = {'standortnutzung_endwert': 42.23}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
@@ -14259,7 +12263,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       'beeintraechtigung_endwert': 23.42,
       'standortnutzung_anfangswert': 23.42,
       'standortnutzung_endwert': 23.42,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -14276,11 +12280,9 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       'beeintraechtigung_endwert': 42.23,
       'standortnutzung_anfangswert': 42.23,
       'standortnutzung_endwert': 42.23,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'standortnutzung_endwert': INVALID_DECIMAL
-    }
+    cls.attributes_values_view_invalid = {'standortnutzung_endwert': INVALID_DECIMAL}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -14306,7 +12308,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -14316,7 +12318,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -14326,7 +12328,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -14336,7 +12338,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -14348,7 +12350,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -14358,7 +12360,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -14368,7 +12370,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -14378,7 +12380,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -14388,65 +12390,37 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -14456,7 +12430,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -14466,7 +12440,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -14476,7 +12450,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -14490,22 +12464,17 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
     'bezeichnung': 'Bezeichnung1',
     'barrierefrei': False,
     'farbe': '#FF0011',
-    'geometrie': VALID_LINE_DB
+    'geometrie': VALID_LINE_DB,
   }
-  attributes_values_db_updated = {
-    'bezeichnung': 'Bezeichnung2',
-    'barrierefrei': True
-  }
-  attributes_values_db_assigned = {
-    'barrierefrei': True
-  }
+  attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2', 'barrierefrei': True}
+  attributes_values_db_assigned = {'barrierefrei': True}
   attributes_values_view_initial = {
     'aktiv': True,
     'bezeichnung': 'Bezeichnung3',
     'barrierefrei': False,
     'farbe': '#FF0011',
     'laenge': 0,
-    'geometrie': VALID_LINE_VIEW
+    'geometrie': VALID_LINE_VIEW,
   }
   attributes_values_view_updated = {
     'aktiv': True,
@@ -14513,11 +12482,9 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
     'barrierefrei': True,
     'farbe': '#FF0011',
     'laenge': 0,
-    'geometrie': VALID_LINE_VIEW
+    'geometrie': VALID_LINE_VIEW,
   }
-  attributes_values_view_invalid = {
-    'bezeichnung': INVALID_STRING
-  }
+  attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -14541,7 +12508,7 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -14551,7 +12518,7 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -14561,7 +12528,7 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -14571,7 +12538,7 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -14583,7 +12550,7 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -14593,7 +12560,7 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -14603,7 +12570,7 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -14613,7 +12580,7 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -14623,56 +12590,32 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -14684,16 +12627,12 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       str(True),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -14703,7 +12642,7 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -14713,7 +12652,7 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -14723,7 +12662,7 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -14739,16 +12678,12 @@ class ToilettenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    art = Arten_Toiletten.objects.create(
-      art='Art'
-    )
+    art = Arten_Toiletten.objects.create(art='Art')
     bewirtschafter1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     bewirtschafter2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.bewirtschafter2 = bewirtschafter2
     cls.attributes_values_db_initial = {
@@ -14757,15 +12692,13 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       'behindertengerecht': False,
       'duschmoeglichkeit': True,
       'wickelmoeglichkeit': False,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'bewirtschafter': bewirtschafter2,
-      'behindertengerecht': True
+      'behindertengerecht': True,
     }
-    cls.attributes_values_db_assigned = {
-      'bewirtschafter': bewirtschafter2
-    }
+    cls.attributes_values_db_assigned = {'bewirtschafter': bewirtschafter2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art.pk),
@@ -14773,7 +12706,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       'behindertengerecht': False,
       'duschmoeglichkeit': True,
       'wickelmoeglichkeit': False,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -14782,11 +12715,9 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       'behindertengerecht': False,
       'duschmoeglichkeit': True,
       'wickelmoeglichkeit': True,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'zeiten': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'zeiten': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -14812,7 +12743,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -14822,7 +12753,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -14832,7 +12763,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -14842,7 +12773,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -14854,7 +12785,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -14864,7 +12795,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -14874,7 +12805,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -14884,7 +12815,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -14894,56 +12825,32 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -14955,16 +12862,12 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       str(self.bewirtschafter2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -14974,7 +12877,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -14984,7 +12887,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -14994,7 +12897,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -15011,21 +12914,17 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
   def setUpTestData(cls):
     super().setUpTestData()
     eigentuemer1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung1',
-      art='Art1'
+      bezeichnung='Bezeichnung1', art='Art1'
     )
     eigentuemer2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung2',
-      art='Art2'
+      bezeichnung='Bezeichnung2', art='Art2'
     )
     cls.eigentuemer2 = eigentuemer2
     betreiber1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung3',
-      art='Art3'
+      bezeichnung='Bezeichnung3', art='Art3'
     )
     betreiber2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung4',
-      art='Art4'
+      bezeichnung='Bezeichnung4', art='Art4'
     )
     cls.betreiber2 = betreiber2
     cls.attributes_values_db_initial = {
@@ -15036,23 +12935,17 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       'betriebsbereit': False,
       'bohrtiefe': 5.21,
       'ausbautiefe': 89.79,
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'bezeichnung': 'Bezeichnung2',
       'eigentuemer': eigentuemer2,
       'betreiber': betreiber2,
-      'betriebsbereit': True
+      'betriebsbereit': True,
     }
-    cls.attributes_values_db_assigned_eigentuemer = {
-      'eigentuemer': eigentuemer2
-    }
-    cls.attributes_values_db_assigned_betreiber = {
-      'betreiber': betreiber2
-    }
-    cls.attributes_values_db_assigned_betriebsbereit = {
-      'betriebsbereit': True
-    }
+    cls.attributes_values_db_assigned_eigentuemer = {'eigentuemer': eigentuemer2}
+    cls.attributes_values_db_assigned_betreiber = {'betreiber': betreiber2}
+    cls.attributes_values_db_assigned_betriebsbereit = {'betriebsbereit': True}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'nummer': '13003000-003',
@@ -15062,7 +12955,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       'betriebsbereit': False,
       'bohrtiefe': 5.21,
       'ausbautiefe': 89.79,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
@@ -15073,11 +12966,9 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       'betriebsbereit': True,
       'bohrtiefe': 5.21,
       'ausbautiefe': 89.79,
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -15103,7 +12994,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -15113,7 +13004,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -15123,7 +13014,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -15133,7 +13024,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -15145,7 +13036,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -15155,7 +13046,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -15165,7 +13056,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -15175,7 +13066,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -15185,56 +13076,32 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_assign_eigentuemer(self):
@@ -15246,7 +13113,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       str(self.eigentuemer2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_betreiber(self):
@@ -15258,7 +13125,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       str(self.betreiber2.pk),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_assign_betriebsbereit(self):
@@ -15270,16 +13137,12 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       str(True),
       204,
       'text/html; charset=utf-8',
-      1
+      1,
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -15289,7 +13152,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -15299,7 +13162,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -15309,7 +13172,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -15325,41 +13188,31 @@ class VereineTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
-    schlagwort1 = Schlagwoerter_Vereine.objects.create(
-      schlagwort='Schlagwort1'
-    )
-    schlagwort2 = Schlagwoerter_Vereine.objects.create(
-      schlagwort='Schlagwort2'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
+    schlagwort1 = Schlagwoerter_Vereine.objects.create(schlagwort='Schlagwort1')
+    schlagwort2 = Schlagwoerter_Vereine.objects.create(schlagwort='Schlagwort2')
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
       'schlagwoerter': [schlagwort1, schlagwort2],
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
       'schlagwoerter': [schlagwort1, schlagwort2],
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
       'schlagwoerter': [schlagwort1, schlagwort2],
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -15385,7 +13238,7 @@ class VereineTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -15395,7 +13248,7 @@ class VereineTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -15405,7 +13258,7 @@ class VereineTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -15415,7 +13268,7 @@ class VereineTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -15427,7 +13280,7 @@ class VereineTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -15437,7 +13290,7 @@ class VereineTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -15447,7 +13300,7 @@ class VereineTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -15457,7 +13310,7 @@ class VereineTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -15467,65 +13320,37 @@ class VereineTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -15535,7 +13360,7 @@ class VereineTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -15545,7 +13370,7 @@ class VereineTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -15555,7 +13380,7 @@ class VereineTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
 
@@ -15571,32 +13396,26 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
-    )
+    adresse = Adressen.objects.create(adresse='Adresse')
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
-      'geometrie': VALID_POINT_DB
+      'geometrie': VALID_POINT_DB,
     }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
-    }
+    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
-      'geometrie': VALID_POINT_VIEW
+      'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {
-      'bezeichnung': INVALID_STRING
-    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -15622,7 +13441,7 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      START_VIEW_STRING
+      START_VIEW_STRING,
     )
 
   def test_view_list(self):
@@ -15632,7 +13451,7 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_list_subset(self):
@@ -15642,7 +13461,7 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      LIST_VIEW_STRING
+      LIST_VIEW_STRING,
     )
 
   def test_view_data(self):
@@ -15652,7 +13471,7 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_data_subset(self):
@@ -15664,7 +13483,7 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
       data_subset_view_params,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_map(self):
@@ -15674,7 +13493,7 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_map_subset(self):
@@ -15684,7 +13503,7 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'text/html; charset=utf-8',
-      MAP_VIEW_STRING
+      MAP_VIEW_STRING,
     )
 
   def test_view_mapdata(self):
@@ -15694,7 +13513,7 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_mapdata_subset(self):
@@ -15704,65 +13523,37 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
       {'subset_id': self.test_subset.pk},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -15772,7 +13563,7 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
       {},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_pk(self):
@@ -15782,7 +13573,7 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
       {'pk': str(self.test_object.pk)},
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )
 
   def test_view_geometry_lat_lng(self):
@@ -15792,5 +13583,5 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
       GEOMETRY_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      str(self.test_object.pk),
     )

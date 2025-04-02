@@ -1,12 +1,9 @@
 from datetime import date
+
 from django.contrib.gis.geos import LinearRing, Point, Polygon
 from django.utils import timezone
 
-
-DATABASES = {
-  'default',
-  'antragsmanagement'
-}
+DATABASES = {'default', 'antragsmanagement'}
 
 USERNAME = 'worschdsupp'
 PASSWORD = 'worschdsupp42'
@@ -23,8 +20,9 @@ VALID_POLYGON_DB = Polygon(
     (307845, 6005103), (307845, 6005105), (307847, 6005105), (307847, 6005103), (307845, 6005103)
   )
 )
-VALID_POLYGON_VIEW = 'POLYGON((12.057 54.158, 12.057 54.159, ' \
-                     '12.058 54.159, 12.058 54.158, 12.057 54.158))'
+VALID_POLYGON_VIEW = (
+  'POLYGON((12.057 54.158, 12.057 54.159, 12.058 54.159, 12.058 54.158, 12.057 54.158))'
+)
 VALID_STRING = 'Consetetur'
 VALID_TELEPHONE = '+1 206 555 0199'
 VALID_TEXT = 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam.'

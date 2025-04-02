@@ -4,10 +4,10 @@ from django.urls import reverse
 from .base import DefaultTestCase, GISFiletoGeoJSONTestCase
 from .constants_vars import *
 
-
 #
 # general views
 #
+
 
 class IndexViewTest(DefaultTestCase):
   """
@@ -28,10 +28,7 @@ class IndexViewTest(DefaultTestCase):
     """
     # with login?
     if login:
-      self.client.login(
-        username=USERNAME,
-        password=PASSWORD
-      )
+      self.client.login(username=USERNAME, password=PASSWORD)
     # try GETting the view
     response = self.client.get(reverse('datenmanagement:index'))
     # status code of response as expected?

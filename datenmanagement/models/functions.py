@@ -1,5 +1,6 @@
-from django.conf import settings
 from pathlib import Path, PurePath
+
+from django.conf import settings
 from PIL import ExifTags, Image
 
 from datenmanagement.utils import get_path
@@ -123,7 +124,7 @@ def photo_post_processing(sender, instance, **kwargs):
   """
   if instance.foto:
     if settings.MEDIA_ROOT and settings.MEDIA_URL:
-      path = Path(settings.MEDIA_ROOT) / instance.foto.url[len(settings.MEDIA_URL):]
+      path = Path(settings.MEDIA_ROOT) / instance.foto.url[len(settings.MEDIA_URL) :]
     else:
       path = Path(settings.BASE_DIR) / instance.foto.url
     rotate_image(path)

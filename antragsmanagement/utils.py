@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from .constants_vars import REQUESTERS, AUTHORITIES, ADMINS
+from .constants_vars import ADMINS, AUTHORITIES, REQUESTERS
 from .models import Authority, Requester
 
 
@@ -26,11 +26,7 @@ def check_necessary_permissions(user, permissions_level):
   necessary_permissions = user.is_superuser
   if not necessary_permissions:
     if permissions_level:
-      permissions_map = {
-        'REQUESTERS': REQUESTERS,
-        'AUTHORITIES': AUTHORITIES,
-        'ADMINS': ADMINS
-      }
+      permissions_map = {'REQUESTERS': REQUESTERS, 'AUTHORITIES': AUTHORITIES, 'ADMINS': ADMINS}
       check_group = permissions_map.get(permissions_level)
       if check_group:
         necessary_permissions = has_necessary_permissions(user, check_group)

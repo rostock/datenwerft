@@ -78,7 +78,7 @@ def get_logo(value):
   logos = {
     'DEVEL': 'img/logo-devel.svg',
     'TESTING': 'img/logo-testing.svg',
-    'PRODUCTION': 'img/logo.svg'
+    'PRODUCTION': 'img/logo.svg',
   }
   if instance_status in logos:
     return logos[instance_status]

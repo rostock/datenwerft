@@ -1,15 +1,17 @@
-import jinja2
 import json
 import subprocess
 from datetime import datetime
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from functools import cmp_to_key
 from itertools import chain
 from os.path import join as joinpath
 from uuid import uuid1
 
+import jinja2
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+
 from datenmanagement.models.models_simple import Baudenkmale, Denkmalbereiche
+
 from .models import SuitableFor
 
 
@@ -25,10 +27,10 @@ def compare_adresses(denkmal1, denkmal2):
       i = 0
       j = 0
       while i < len(wort1) and wort1[i].isdigit():
-        nr1 += (wort1[i])
+        nr1 += wort1[i]
         i += 1
       while j < len(wort2) and wort2[j].isdigit():
-        nr2 += (wort2[j])
+        nr2 += wort2[j]
         j += 1
       return int(nr1) - int(nr2)
     elif wort1 < wort2:
@@ -45,9 +47,9 @@ def preparecontext(request):
   if params.get('onlyactive') is None:
     params['onlyactive'] = True
   if suitable.usedkeys is None:
-    params["usedkeys"] = []
+    params['usedkeys'] = []
   else:
-    params["usedkeys"] = suitable.usedkeys
+    params['usedkeys'] = suitable.usedkeys
   if suitable.sortby is None:
     params['sortby'] = []
   else:
@@ -55,42 +57,39 @@ def preparecontext(request):
   return params
 
 
-def render(
-    data,
-    templatefiledescriptor,
-    outfilename="tmp_",
-    pdfdir=joinpath("toolbox", "mkpdf")):
-  data["jetzt"] = datetime.now().strftime("%d.%m.%Y")
+def render(data, templatefiledescriptor, outfilename='tmp_', pdfdir=joinpath('toolbox', 'mkpdf')):
+  data['jetzt'] = datetime.now().strftime('%d.%m.%Y')
   uid = uuid1()
   outfilename += str(uid)
   tpl = jinja2.Template(
-    templatefiledescriptor.read().decode("utf-8"),
-    block_start_string=settings.PDF_JINJASTRINGS["block_start"],
-    block_end_string=settings.PDF_JINJASTRINGS["block_end"],
-    variable_start_string=settings.PDF_JINJASTRINGS["variable_start"],
-    variable_end_string=settings.PDF_JINJASTRINGS["variable_end"],
-    comment_start_string=r"\JCMNT",
-    comment_end_string="}"
+    templatefiledescriptor.read().decode('utf-8'),
+    block_start_string=settings.PDF_JINJASTRINGS['block_start'],
+    block_end_string=settings.PDF_JINJASTRINGS['block_end'],
+    variable_start_string=settings.PDF_JINJASTRINGS['variable_start'],
+    variable_end_string=settings.PDF_JINJASTRINGS['variable_end'],
+    comment_start_string=r'\JCMNT',
+    comment_end_string='}',
   )
-  f = open(joinpath(settings.BASE_DIR, pdfdir, outfilename+".latex"), "w")
+  f = open(joinpath(settings.BASE_DIR, pdfdir, outfilename + '.latex'), 'w')
   f.write(tpl.render(data))
   f.close()
-  log = open(joinpath(settings.BASE_DIR, pdfdir, outfilename+"_texlog.txt"), "w")
+  log = open(joinpath(settings.BASE_DIR, pdfdir, outfilename + '_texlog.txt'), 'w')
   subprocess.run(
-      ["latexmk", outfilename+".latex", "-interaction=batchmode", "-pdf"],
-      cwd=joinpath(settings.BASE_DIR, pdfdir),
-      stdout=log,
-      stdin=subprocess.DEVNULL,
-      check=False)
+    ['latexmk', outfilename + '.latex', '-interaction=batchmode', '-pdf'],
+    cwd=joinpath(settings.BASE_DIR, pdfdir),
+    stdout=log,
+    stdin=subprocess.DEVNULL,
+    check=False,
+  )
   log.close()
 
   try:
-    f = open(joinpath(settings.BASE_DIR, pdfdir, outfilename+".pdf"), "rb")
+    f = open(joinpath(settings.BASE_DIR, pdfdir, outfilename + '.pdf'), 'rb')
     success = True
     return success, f
   except FileNotFoundError:
     success = False
-    f = open(joinpath(settings.BASE_DIR, pdfdir, f"tmp_{uid}.log"), "r", encoding='latin-1')
+    f = open(joinpath(settings.BASE_DIR, pdfdir, f'tmp_{uid}.log'), 'r', encoding='latin-1')
     ret = f.read()
   return success, ret
 
@@ -104,13 +103,13 @@ def prep4latex(string):
 def fetchdata(datenthema, pks, onlyactive=True, order=None, usedkeys=None, **kwargs):
   if order is None:
     order = []
-  dt = ContentType.objects.get(app_label="datenmanagement", model=datenthema.lower())
+  dt = ContentType.objects.get(app_label='datenmanagement', model=datenthema.lower())
   thema = dt.model_class()
 
   display_names = dict()
   for field in thema._meta.fields:
     display_names[field.name] = field.verbose_name
-    display_names[field.name+"_id"] = field.verbose_name
+    display_names[field.name + '_id'] = field.verbose_name
 
   if usedkeys is None or usedkeys == []:
     usedkeys = [field.name for field in thema._meta.fields]
@@ -138,13 +137,13 @@ def fetchdata(datenthema, pks, onlyactive=True, order=None, usedkeys=None, **kwa
 
 
 def chkforwmd(record):
-  if "Warnemünde" in record.beschreibung:
+  if 'Warnemünde' in record.beschreibung:
     return True
-  elif "Wmd" in record.beschreibung:
+  elif 'Wmd' in record.beschreibung:
     return True
-  elif "Wmd" in record.bezeichnung:
+  elif 'Wmd' in record.bezeichnung:
     return True
-  elif "Warnemünde" in record.bezeichnung:
+  elif 'Warnemünde' in record.bezeichnung:
     return True
   else:
     return False
@@ -156,12 +155,11 @@ def cleanqueryrecord(datum):
   ret['beschreibung'] = prep4latex(str(datum.beschreibung))
   ret['gartendenkmal'] = True
   if chkforwmd(datum):
-    ret['adresse'] = "(Wmd)"
+    ret['adresse'] = '(Wmd)'
   return ret
 
 
 def baudenkmalefull(pks=None, onlyactive=True):
-
   if pks is None:
     pks = []
   if onlyactive:
@@ -177,23 +175,21 @@ def baudenkmalefull(pks=None, onlyactive=True):
     else:
       bdms = Baudenkmale.objects.all().order_by('adresse')
 
-  data = [{
-    'name': "Baudenkmale",
-    'orte': [{
-      'name': "Rostock",
-      'byletter': dict()
-    }, {
-      'name': "Warnemünde",
-      'byletter': dict()
-    }]}, {
-    'name': "Denkmalbereiche",
-    'orte': [{
-      'name': "Rostock",
-      'byletter': dict()
-    }, {
-      'name': "Warnemünde",
-      'byletter': dict()
-    }]}
+  data = [
+    {
+      'name': 'Baudenkmale',
+      'orte': [
+        {'name': 'Rostock', 'byletter': dict()},
+        {'name': 'Warnemünde', 'byletter': dict()},
+      ],
+    },
+    {
+      'name': 'Denkmalbereiche',
+      'orte': [
+        {'name': 'Rostock', 'byletter': dict()},
+        {'name': 'Warnemünde', 'byletter': dict()},
+      ],
+    },
   ]
 
   for bdm in bdms:
@@ -203,8 +199,8 @@ def baudenkmalefull(pks=None, onlyactive=True):
     if bdm.lage is not None:
       rec['position'] = prep4latex(bdm.lage)
     else:
-      rec['position'] = prep4latex(adr[:len(adr)-5])
-    if adr[len(adr)-5:] == "(Wmd)":
+      rec['position'] = prep4latex(adr[: len(adr) - 5])
+    if adr[len(adr) - 5 :] == '(Wmd)':
       rec['wmd'] = True
     else:
       rec['wmd'] = False
@@ -237,7 +233,6 @@ def baudenkmalefull(pks=None, onlyactive=True):
 
 
 def sortforbaudenkmale(data, brdauch=False):
-
   baud_rost_byl = {}
   baud_wamue_byl = {}
   bere_rost_byl = {}
@@ -254,15 +249,15 @@ def sortforbaudenkmale(data, brdauch=False):
   for item in data:
     if item.get('lage') is None:
       if item.get('adresse') is None:
-        raise KeyError(f"{item} ({type(item)} hat weder Adresse noch lage!")
-      position = item['adresse'][:len(item.adresse.adresse)-5]
+        raise KeyError(f'{item} ({type(item)} hat weder Adresse noch lage!')
+      position = item['adresse'][: len(item.adresse.adresse) - 5]
     else:
       position = item['lage']
-    print(f"{item['uuid']}: {position}")
+    print(f'{item["uuid"]}: {position}')
     bschrbng = item['beschreibung']
     key = position[0].upper()
     val = {'adresse': position, 'beschreibung': bschrbng}
-    if item.get('adresse') is not None and item['adresse'][len(item['adresse'])-5:] == "(Wmd)":
+    if item.get('adresse') is not None and item['adresse'][len(item['adresse']) - 5 :] == '(Wmd)':
       if item['gartendenkmal']:
         insert_or_append(bere_wamue_byl, key, val)
       else:
@@ -273,15 +268,15 @@ def sortforbaudenkmale(data, brdauch=False):
       else:
         insert_or_append(baud_rost_byl, key, val)
 
-  baud_rost = {"name": "Baudenkmale", "byletter": baud_rost_byl}
-  bere_rost = {"name": "Denkmalbereiche", "byletter": bere_rost_byl}
-  baud_wamue = {"name": "Baudenkmale", "byletter": baud_wamue_byl}
-  bere_wamue = {"name": "Denkmalbereiche", "byletter": bere_wamue_byl}
-  rostock = {"name": "Rostock", "eintragsklassen": [baud_rost, bere_rost]}
-  warnemuende = {"name": "Warnemünde", "eintragsklassen": [baud_wamue, bere_wamue]}
+  baud_rost = {'name': 'Baudenkmale', 'byletter': baud_rost_byl}
+  bere_rost = {'name': 'Denkmalbereiche', 'byletter': bere_rost_byl}
+  baud_wamue = {'name': 'Baudenkmale', 'byletter': baud_wamue_byl}
+  bere_wamue = {'name': 'Denkmalbereiche', 'byletter': bere_wamue_byl}
+  rostock = {'name': 'Rostock', 'eintragsklassen': [baud_rost, bere_rost]}
+  warnemuende = {'name': 'Warnemünde', 'eintragsklassen': [baud_wamue, bere_wamue]}
   orte = [rostock, warnemuende]
 
-  return {"orte": orte}
+  return {'orte': orte}
 
 
 def insert_or_append(dic, key, vals):

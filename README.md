@@ -1,10 +1,32 @@
 # _Datenwerft.HRO_
 
-Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [_Django_](https://www.djangoproject.com/) aufsetzt
+Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https://www.djangoproject.com/) aufsetzt
+
+## Inhalt
+
+1. [Voraussetzungen](#voraussetzungen)
+1. [Installation](#installation)
+   - [Anwendung](#anwendung)
+   - [Datenbanken](#datenbanken)
+1. [Konfiguration](#konfiguration)
+1. [Initialisierung](#initialisierung)
+1. [Start](#start)
+1. [Deployment](#deployment)
+1. [Cronjobs](#cronjobs)
+1. [PDF-Export mit eigenen Templates](#pdf-export-mit-eigenen-templates)
+1. [Entwicklung](#entwicklung)
+   - [Grundsätzliches](#grundsätzliches)
+   - [Python](#python)
+   - [JavaScript](#javascript)
+1. [Linting](#linting)
+1. [Tests](#tests)
+1. [CI/CD](#cicd)
+   - [Ablauf](#ablauf)
+   - [_GitHub_-Actions](#github-actions)
 
 ## Voraussetzungen
 
--   [_Python_](https://www.python.org/) (>= v3.10)
+-   [_Python_](https://www.python.org/) (>=3.11)
 -   [_pip_](https://pip.pypa.io/)
 -   [_GDAL_](https://gdal.org/)
 -   [_PostgreSQL_](https://www.postgresql.org/) mit der Erweiterung [_PostGIS_](https://postgis.net/)
@@ -14,35 +36,43 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [_Django_](https://w
 
 ## Installation
 
-1. neue virtuelle _Python_-Umgebung:
+### Anwendung
+
+1. _Git_-Repository klonen:
 
 ```bash
-python3 -m venv /usr/local/datenwerft/venv
+git clone https://github.com/rostock/datenwerft
+cd datenwerft
 ```
 
-2. Projekt klonen:
+2. neue virtuelle _Python_-Umgebung anlegen:
 
 ```bash
-git clone https://github.com/rostock/datenwerft /usr/local/datenwerft/datenwerft
+# ohne Projektmanagement durch uv
+python3 -m venv .venv
+
+# mit Projektmanagement durch uv
+uv venv
 ```
 
-3. virtuelle _Python_-Umgebung aktivieren:
+3. benötigte _Python_-Module (unter anderem _Django_) installieren via _pip_:
 
 ```bash
-source /usr/local/datenwerft/venv/bin/activate
+# ohne uv
+source .venv/bin/activate
+pip install -r datenwerft/requirements.txt
+
+# mit uv
+uv sync
 ```
 
-4. benötigte _Python_-Module (unter anderem _Django_) installieren via _pip_:
+### Datenbanken
 
-```bash
-pip install -r /usr/local/datenwerft/datenwerft/requirements.txt
-```
-
-5. leere _PostgreSQL_-Datenbank für die Anwendungsadministration anlegen
-6. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Antragsmanagement_ anlegen
-7. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _BEMAS_ anlegen
-8. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Datenmanagement_ anlegen
-9. Datenbankschema in Datenbank für die App _Datenmanagement_ installieren (da keines der Datenmodelle in dieser App von _Django_ verwaltet wird):
+1. leere _PostgreSQL_-Datenbank für die Anwendungsadministration anlegen
+2. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Antragsmanagement_ anlegen
+3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _BEMAS_ anlegen
+4. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Datenmanagement_ anlegen
+5. Datenbankschema in Datenbank für die App _Datenmanagement_ installieren (da keines der Datenmodelle in dieser App von _Django_ verwaltet wird):
 
 ```bash
 psql -h [Datenbankhost] -U [Datenbanknutzer] -d [Datenbankname] -f datenmanagement/sql/schema.sql
@@ -53,102 +83,138 @@ psql -h [Datenbankhost] -U [Datenbanknutzer] -d [Datenbankname] -f datenmanageme
 1. Konfigurationsdatei auf Basis der entsprechenden Vorlage erstellen:
 
 ```bash
-cp /usr/local/datenwerft/datenwerft/secrets.template /usr/local/datenwerft/datenwerft/secrets.py
+cp datenwerft/secrets.template datenwerft/secrets.py
 ```
 
-2. Konfigurationsdatei `/usr/local/datenwerft/datenwerft/settings.py` entsprechend anpassen
-3. Service-Datei für [_Celery_](https://github.com/celery/celery) auf Basis der entsprechenden Vorlage erstellen:
+2. Konfigurationsdatei `datenwerft/secrets.py` entsprechend anpassen
+3. Service-Datei für [_RQ_](https://python-rq.org/)-Worker auf Basis der entsprechenden Vorlage erstellen:
 
 ```bash
-cp /usr/local/datenwerft/datenwerft/celery.service.template /etc/systemd/system/celery.service
+cp rq-worker.service /etc/systemd/system/rq-worker.service
 ```
 
-4. Service-Datei für _Celery_ entsprechend anpassen
+4. Service-Datei für _RQ_-Worker entsprechend anpassen
 
 ## Initialisierung
 
-1. virtuelle _Python_-Umgebung aktivieren:
-
-```bash
-source /usr/local/datenwerft/venv/bin/activate
-```
-
-2. JavaScript-Module via _npm_ installieren:
+1. JavaScript-Module via _npm_ installieren:
 
 ```bash
 npm install
 ```
 
-3. Anwendung initialisieren:
+2. Anwendung initialisieren:
 
 ```bash
-cd /usr/local/datenwerft/datenwerft
+# ohne uv
+source .venv/bin/activate
 python manage.py migrate --database=antragsmanagement antragsmanagement
 python manage.py migrate --database=bemas bemas
 python manage.py migrate
 python manage.py antragsmanagement_roles_permissions
 python manage.py bemas_roles_permissions
+
+# mit uv
+uv run manage.py migrate --database=antragsmanagement antragsmanagement
+uv run manage.py migrate --database=bemas bemas
+uv run manage.py migrate
+uv run manage.py antragsmanagement_roles_permissions
+uv run manage.py bemas_roles_permissions
 ```
 
-4. Administrator initialisieren:
+3. Administrator initialisieren:
 
 ```bash
+# ohne uv
 python manage.py createsuperuser
+
+# mit uv
+uv run manage.py createsuperuser
 ```
 
-5. Webseiten für Hilfe bauen:
+4. Webseiten für Hilfe bauen:
 
 ```bash
-cd /usr/local/datenwerft/datenwerft/hilfe
+cd hilfe
 make html
+cd ..
 ```
 
-6. statische Dateien initialisieren:
+5. statische Dateien initialisieren:
 
 ```bash
-cd /usr/local/datenwerft/datenwerft
+# ohne uv
 python manage.py collectstatic -c
+
+# mit uv
+uv run manage.py collectstatic -c
 ```
 
-7. Besitzer und Gruppe des Anwendungsverzeichnisses entsprechend des genutzten HTTP-Servers anpassen – siehe unten:
+## Start
+
+Start der Anwendung (zum Testen oder während der Entwicklung):
+
+1. _RQ_-Worker starten:
 
 ```bash
-sudo chown -R wwwrun:www /usr/local/datenwerft/datenwerft
+# ohne uv
+source .venv/bin/activate
+python manage.py rqworker default
+
+# mit uv
+uv run manage.py rqworker default
 ```
 
-8. _Celery_-Worker-Service aktivieren und starten:
+2. Entwicklungsserver starten:
+
+```bash
+# ohne uv
+python manage.py runserver
+
+# mit uv
+uv run manage.py runserver
+```
+
+## Deployment
+
+Deployment am Beispiel des [_Apache HTTP Servers_](https://httpd.apache.org/):
+
+1. Besitzer und Gruppe des Anwendungsverzeichnisses entsprechend des _Apache HTTP Servers_ anpassen:
+
+```bash
+sudo chown -R wwwrun:www /path/to/datenwerft
+```
+
+2. _RQ_-Worker-Service aktivieren und starten:
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl start celery.service
-sudo systemctl enable celery.service
+sudo systemctl enable rq-worker.service
+sudo systemctl start rq-worker.service
 ```
 
-## Deployment (am Beispiel des [_Apache HTTP Servers_](https://httpd.apache.org/))
-
-Wenn das Deployment mittels _Apache HTTP Server_ realisiert werden soll, **muss** dessen Modul [_mod_wsgi_](https://modwsgi.readthedocs.io) (für _Python_ v3.x) installiert sein, das ein Web Server Gateway Interface (WSGI) für das Hosting von _Python_-Anwendungen zur Verfügung stellt.
-
-Konfigurationsdatei des _Apache HTTP Servers_ öffnen und in etwa folgenden Inhalt einfügen (in diesem Beispiel nutzt die virtuelle _Python_-Umgebung einen _Python_-Interpreter der Version 3.10):
+3. Wenn das Deployment mittels _Apache HTTP Server_ realisiert werden soll, **muss** dessen Modul [_mod_wsgi_](https://modwsgi.readthedocs.io) (für _Python_ 3.x) installiert sein, das ein Web Server Gateway Interface (WSGI) für das Hosting von _Python_-Anwendungen zur Verfügung stellt.
+4. Konfigurationsdatei des _Apache HTTP Servers_ öffnen und in etwa folgenden Inhalt einfügen (in diesem Beispiel nutzt die virtuelle _Python_-Umgebung einen _Python_-Interpreter der Version 3.x):
 
 ```apache
-Alias                 /datenwerft/static /usr/local/datenwerft/datenwerft/static
-Alias                 /datenwerft/uploads /usr/local/datenwerft/datenwerft/uploads
-WSGIDaemonProcess     datenwerft processes=[Anzahl CPU x 2] threads=[Anzahl GB RAM x 3] connect-timeout=150 deadlock-timeout=300 eviction-timeout=0 graceful-timeout=150 inactivity-timeout=300 queue-timeout=300 request-timeout=300 shutdown-timeout=5 socket-timeout=300 startup-timeout=15 restart-interval=0 python-path=/usr/local/datenwerft/datenwerft:/usr/local/datenwerft/venv/lib64/python3.11/site-packages:/usr/local/datenwerft/venv/lib/python3.11/site-packages
+Alias                 /datenwerft/static /path/to/datenwerft/datenwerft/static
+Alias                 /datenwerft/uploads /path/to/datenwerft/datenwerft/uploads
+WSGIDaemonProcess     datenwerft processes=[Anzahl CPU x 2] threads=[Anzahl GB RAM x 3] connect-timeout=150 deadlock-timeout=300 eviction-timeout=0 graceful-timeout=150 inactivity-timeout=300 queue-timeout=300 request-timeout=300 shutdown-timeout=5 socket-timeout=300 startup-timeout=15 restart-interval=0 python-path=/path/to/datenwerft:/path/to/datenwerft/.venv/lib64/python3.1x/site-packages:/path/to/datenwerft/.venv/lib/python3.1x/site-packages
 WSGIProcessGroup      datenwerft
-WSGIScriptAlias       /datenwerft /usr/local/datenwerft/datenwerft/datenwerft/wsgi.py process-group=datenwerft
+WSGIScriptAlias       /datenwerft /path/to/datenwerft/datenwerft/wsgi.py process-group=datenwerft
 WSGIApplicationGroup  %{GLOBAL}
 
-<Directory /usr/local/datenwerft/datenwerft/datenwerft>
+<Directory /path/to/datenwerft/datenwerft>
   <Files wsgi.py>
       Order deny,allow
       Require all granted
   </Files>
 </Directory>
-<Directory /usr/local/datenwerft/datenwerft/static>
+<Directory /path/to/datenwerft/static>
   Order deny,allow
   Require all granted
 </Directory>
-<Directory /usr/local/datenwerft/datenwerft/uploads>
+<Directory /path/to/datenwerft/uploads>
   Order deny,allow
   Require all granted
 </Directory>
@@ -159,7 +225,12 @@ WSGIApplicationGroup  %{GLOBAL}
 Für die App _BEMAS_ kann optional ein Cronjob eingerichtet werden, der folgenden Befehl ausführt:
 
 ```bash
+# ohne uv
+source .venv/bin/activate
 python manage.py deletepersons
+
+# mit uv
+uv run manage.py deletepersons
 ```
 
 Dieser Befehl führt dazu, dass alle Personen gelöscht werden, die nicht als Ansprechpartner:innen mit Organisationen verknüpft sind, nicht als Betreiber:innen mit Verursachern verknüpft sind und die als Beschwerdeführer:innen nur noch mit Beschwerden verknüpft sind, die seit `BEMAS_STATUS_CHANGE_DEADLINE_DAYS` (siehe `secrets.template`) abgeschlossen sind.
@@ -183,8 +254,12 @@ Die Python-Dokumentation wird mittels [Docstrings](https://en.wikipedia.org/wiki
 Nützliche Tools für eine Entwicklungsumgebung, wie etwa _ruff,_ können zusätzlich via _pip_ installiert werden:
 
 ```bash
-source /usr/local/datenwerft/venv/bin/activate
-pip install -r /usr/local/datenwerft/datenwerft/requirements-dev.txt
+# ohne uv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+
+# mit uv
+uv sync --dev
 ```
 
 #### _PEP8_-Durchsetzung
@@ -202,114 +277,107 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
 
 ## Linting
 
--   Python-Prüfungen mittels [_ruff_](https://docs.astral.sh/ruff/):
+- Python-Prüfungen mittels [_ruff_](https://docs.astral.sh/ruff/):
 
-    ```bash
-    cd /usr/local/datenwerft/datenwerft
-    sh linting/ruff
-    ```
+```bash
+sh linting/ruff
+```
 
--   _Django_-Prüfungen mittels [_djLint_](https://github.com/Riverside-Healthcare/djlint):
+- _Django_-Prüfungen mittels [_djLint_](https://github.com/Riverside-Healthcare/djlint):
 
-    ```bash
-    cd /usr/local/datenwerft/datenwerft
-    sh linting/djlint
-    ```
+```bash
+sh linting/djlint
+```
 
--   CSS-Prüfungen mittels [_Stylelint_](https://stylelint.io/):
+- CSS-Prüfungen mittels [_Stylelint_](https://stylelint.io/):
 
-    ```bash
-    cd /usr/local/datenwerft/datenwerft
-    sh linting/stylelint
-    ```
+```bash
+sh linting/stylelint
+```
 
--   JavaScript-Prüfungen mittels [_ESLint_](https://eslint.org/):
+- JavaScript-Prüfungen mittels [_ESLint_](https://eslint.org/):
 
-    ```bash
-    cd /usr/local/datenwerft/datenwerft
-    sh linting/eslint
-    ```
+```bash
+sh linting/eslint
+```
 
--   alle vorgenannten Prüfungen nacheinander:
+- alle vorgenannten Prüfungen nacheinander:
 
-    ```bash
-    cd /usr/local/datenwerft/datenwerft
-    sh linting/lint
-    ```
+```bash
+sh linting/lint
+```
 
 ## Tests
 
--   Tests der App _Accounts_ durchführen:
+- Tests der App _Accounts_ durchführen:
 
-    ```bash
-    source /usr/local/datenwerft/venv/bin/activate
-    cd /usr/local/datenwerft/datenwerft
-    python manage.py test accounts
-    ```
+```bash
+# ohne uv
+python manage.py test accounts
 
--   Tests der App _Toolbox_ durchführen:
+# mit uv
+uv run manage.py test accounts
+```
 
-    ```bash
-    source /usr/local/datenwerft/venv/bin/activate
-    cd /usr/local/datenwerft/datenwerft
-    python manage.py test toolbox
-    ```
+- Tests der App _Toolbox_ durchführen:
 
--   Tests der App _Datenmanagement_ durchführen:
+```bash
+# ohne uv
+python manage.py test toolbox
 
-    -   Einzeltest (Beispiel):
+# mit uv
+uv run manage.py test toolbox
+```
 
-        ```bash
-        source /usr/local/datenwerft/venv/bin/activate
-        cd /usr/local/datenwerft/datenwerft
-        python manage.py test datenmanagement.tests.StrassenTest.test_create
-        ```
+- Tests der App _Datenmanagement_ durchführen:
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test datenmanagement.tests.StrassenTest.test_create
 
-    -   alle Tests:
-        ```bash
-        source /usr/local/datenwerft/venv/bin/activate
-        cd /usr/local/datenwerft/datenwerft
-        python manage.py test datenmanagement
-        ```
+  # mit uv
+  uv run manage.py test datenmanagement.tests.StrassenTest.test_create
+  ```
 
--   Tests der App _Antragsmanagement_ durchführen:
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test datenmanagement
 
-    ```bash
-    source /usr/local/datenwerft/venv/bin/activate
-    cd /usr/local/datenwerft/datenwerft
-    python manage.py test antragsmanagement
-    ```
+  # mit uv
+  uv run manage.py test datenmanagement
+  ```
 
--   Tests der App _BEMAS_ durchführen:
-    ```bash
-    source /usr/local/datenwerft/venv/bin/activate
-    cd /usr/local/datenwerft/datenwerft
-    python manage.py test bemas
-    ```
+- Tests der App _Antragsmanagement_ durchführen:
+```bash
+python manage.py test antragsmanagement
+```
+
+- Tests der App _BEMAS_ durchführen:
+```bash
+python manage.py test bemas
+```
 
 ## CI/CD
 
 ### Ablauf
 
 1. neuen Branch erstellen – Name des Branches:
-
-    - bei Features: `features/<app-name>/<feature-name>` (Beispiel: `features/datenmanagement/edit-photos`)
-    - bei Bugfixes: `bugfixes/<app-name>/<bugfix-name>` (Beispiel: `bugfixes/accounts/emails`)
-
+   - bei Features: `features/<app-name>/<feature-name>` (Beispiel: `features/datenmanagement/edit-photos`)
+   - bei Bugfixes: `bugfixes/<app-name>/<bugfix-name>` (Beispiel: `bugfixes/accounts/emails`)
 2. Änderungen linten und testen (siehe oben)
 3. Änderungen committen und Commit(s) pushen
 4. Pull-Request im Branch `main` erstellen
 5. Review anfordern und durchführen lassen
 6. ggf. Änderungen im Nachgang des Reviews committen und Commit(s) pushen
 7. Pull-Request im Branch `main` abschließen:
-
-    - Commit-Message gemäß der Syntax der [Conventional-Commit](https://www.conventionalcommits.org/) gestalten
-    - mit der Option _Squash and merge_ mergen
+   - Commit-Message gemäß der Syntax der [Conventional-Commit](https://www.conventionalcommits.org/) gestalten
+   - mit der Option _Squash and merge_ mergen
 
 ### _GitHub_-Actions
 
 Bei Commits und Pull-Requests in der Branch `main` werden folgende _GitHub_-Actions ausgeführt:
 
--   _Linting:_ Linting gemäß `.github/workflows/linting.yml`
--   _Tests:_ Tests gemäß `.github/workflows/tests.yml`
--   _Release:_ Release gemäß `.github/workflows/release.yml`
+- _Linting:_ Linting gemäß `.github/workflows/linting.yml`
+- _Tests:_ Tests gemäß `.github/workflows/tests.yml`
+- _Release:_ Release gemäß `.github/workflows/release.yml`

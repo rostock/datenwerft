@@ -31,7 +31,8 @@ def store_complaint_search_content(sender, instance, **kwargs):
       instance.save()
     elif prefix in instance.search_content:
       instance.search_content = sub(
-        prefix + '.*' + suffix, complainers_str, instance.search_content)
+        prefix + '.*' + suffix, complainers_str, instance.search_content
+      )
       if not instance.search_content:
         instance.search_content = 'anonyme Beschwerde'
       instance.save()

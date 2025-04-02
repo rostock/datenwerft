@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import login
-from django.contrib.auth.models import User, Permission, Group
+from django.contrib.auth.models import Group, Permission, User
 from django.contrib.auth.views import LoginView
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponseRedirect
@@ -10,11 +10,15 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from rest_framework import viewsets
 
-from .serializers import ContentTypeSerializer, GroupSerializer, PermissionSerializer, \
-  UserSerializer
 from .emails import send_login_code
 from .forms import ExternalAuthenticationForm
 from .models import UserAuthToken
+from .serializers import (
+  ContentTypeSerializer,
+  GroupSerializer,
+  PermissionSerializer,
+  UserSerializer,
+)
 from .utils import get_client_ip, ip_in_array
 
 
@@ -45,6 +49,7 @@ class PreLoginView(LoginView):
   users with internal ip address go through the normal login process.
   Users with external IP address have to go through a two-factor authentication process
   """
+
   template_name = 'accounts/login.html'
   redirect_authenticated_user = True
 
@@ -67,9 +72,8 @@ class PreLoginView(LoginView):
       send_login_code(user_auth.user)
       # url_token is only to show a dynamic url.
       # The crucial token is the session token
-      return HttpResponseRedirect(reverse(
-        'accounts:external_login',
-        kwargs={'url_token': user_auth.url_token})
+      return HttpResponseRedirect(
+        reverse('accounts:external_login', kwargs={'url_token': user_auth.url_token})
       )
 
 
@@ -77,6 +81,7 @@ class ExternalLoginView(LoginView):
   """
   second login View for external user
   """
+
   template_name = 'accounts/login_add_token.html'
   form_class = ExternalAuthenticationForm
   redirect_authenticated_user = True

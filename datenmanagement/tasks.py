@@ -1,10 +1,11 @@
+from logging import getLogger
+from typing import TYPE_CHECKING
+from uuid import UUID
+
 from django.apps import apps
 from django_rq import enqueue
 from laspy import open as laspy_open
-from logging import getLogger
 from pyblisher import Bucket, Project, get_project, settings
-from typing import TYPE_CHECKING
-from uuid import UUID
 
 if TYPE_CHECKING:
   from httpx import Response
@@ -66,6 +67,7 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, objectkey: str):
       logger.debug('Pointcloud upload to VCPub was successful.')
       # delete local file
       import os
+
       os.remove(path)
       logger.debug(f'Local pointcloud file {path} deleted.')
 
@@ -103,11 +105,6 @@ def calculate_2d_bounding_box_for_pointcloud(pk, path):
       wkt = f'POLYGON(({mn_x} {mn_y}, {mx_x} {mn_y}, {mx_x} {mx_y}, {mn_x} {mx_y}, {mn_x} {mn_y}))'
 
       # update model
-      enqueue(
-        update_model,
-        model_name='Punktwolken',
-        pk=pk,
-        attributes={'geometrie': wkt}
-      )
+      enqueue(update_model, model_name='Punktwolken', pk=pk, attributes={'geometrie': wkt})
   except Exception as e:
     logger.warning(f'Failed to calculate 2D bounding box for pointcloud with pk {pk}: {e}')

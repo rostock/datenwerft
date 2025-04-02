@@ -1,19 +1,31 @@
 from datetime import date
+
 from django.apps import apps
 from django.contrib.gis.db.models.fields import PointField
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import EmailValidator, RegexValidator
-from django.db.models import F, ForeignKey, ManyToManyField, CASCADE, PROTECT
+from django.db.models import CASCADE, PROTECT, F, ForeignKey, ManyToManyField
 from django.db.models.fields import BigIntegerField, CharField, DateField, DateTimeField, TextField
 from django.db.models.signals import m2m_changed
 from django.utils import timezone
 
-from toolbox.constants_vars import standard_validators, personennamen_validators, \
-  d3_regex, d3_message, email_message, hausnummer_regex, hausnummer_message, \
-  postleitzahl_regex, postleitzahl_message, rufnummer_regex, rufnummer_message
+from bemas.utils import LOG_ACTIONS, shorten_string
+from toolbox.constants_vars import (
+  d3_message,
+  d3_regex,
+  email_message,
+  hausnummer_message,
+  hausnummer_regex,
+  personennamen_validators,
+  postleitzahl_message,
+  postleitzahl_regex,
+  rufnummer_message,
+  rufnummer_regex,
+  standard_validators,
+)
 from toolbox.fields import NullTextField
 from toolbox.utils import concat_address
-from bemas.utils import LOG_ACTIONS, shorten_string
+
 from .base import GeometryObjectclass, Objectclass
 from .functions import store_complaint_search_content
 from .models_codelist import Sector, Status, TypeOfEvent, TypeOfImmission
@@ -25,48 +37,27 @@ class Organization(Objectclass):
   """
 
   name = CharField(
-    verbose_name='Name',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
+    verbose_name='Name', max_length=255, unique=True, validators=standard_validators
   )
   address_street = CharField(
-    verbose_name='Straße',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators
+    verbose_name='Straße', max_length=255, blank=True, null=True, validators=standard_validators
   )
   address_house_number = CharField(
     verbose_name='Hausnummer',
     max_length=4,
     blank=True,
     null=True,
-    validators=[
-      RegexValidator(
-        regex=hausnummer_regex,
-        message=hausnummer_message
-      )
-    ]
+    validators=[RegexValidator(regex=hausnummer_regex, message=hausnummer_message)],
   )
   address_postal_code = CharField(
     verbose_name='Postleitzahl',
     max_length=5,
     blank=True,
     null=True,
-    validators=[
-      RegexValidator(
-        regex=postleitzahl_regex,
-        message=postleitzahl_message
-      )
-    ]
+    validators=[RegexValidator(regex=postleitzahl_regex, message=postleitzahl_message)],
   )
   address_place = CharField(
-    verbose_name='Ort',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators
+    verbose_name='Ort', max_length=255, blank=True, null=True, validators=standard_validators
   )
   email_addresses = ArrayField(
     CharField(
@@ -74,15 +65,11 @@ class Organization(Objectclass):
       max_length=255,
       blank=True,
       null=True,
-      validators=[
-        EmailValidator(
-          message=email_message
-        )
-      ]
+      validators=[EmailValidator(message=email_message)],
     ),
     verbose_name='E-Mail-Adresse(n)',
     blank=True,
-    null=True
+    null=True,
   )
   telephone_numbers = ArrayField(
     CharField(
@@ -90,28 +77,18 @@ class Organization(Objectclass):
       max_length=255,
       blank=True,
       null=True,
-      validators=[
-        RegexValidator(
-          regex=rufnummer_regex,
-          message=rufnummer_message
-        )
-      ]
+      validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)],
     ),
     verbose_name='Telefonnummer(n)',
     blank=True,
-    null=True
+    null=True,
   )
   dms_link = CharField(
     verbose_name=' d.3',
     max_length=16,
     blank=True,
     null=True,
-    validators=[
-      RegexValidator(
-        regex=d3_regex,
-        message=d3_message
-      )
-    ]
+    validators=[RegexValidator(regex=d3_regex, message=d3_message)],
   )
 
   class Meta(Objectclass.Meta):
@@ -133,8 +110,9 @@ class Organization(Objectclass):
     return self.name
 
   def address(self):
-    return concat_address(self.address_street, self.address_house_number,
-                          self.address_postal_code, self.address_place)
+    return concat_address(
+      self.address_street, self.address_house_number, self.address_postal_code, self.address_place
+    )
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # store search content in designated field
@@ -153,7 +131,7 @@ class Organization(Objectclass):
       force_insert=force_insert,
       force_update=force_update,
       using=using,
-      update_fields=update_fields
+      update_fields=update_fields,
     )
 
   def delete(self, **kwargs):
@@ -168,16 +146,10 @@ class Organization(Objectclass):
     super().delete()
 
 
-PERSON_TITLES = (
-  ('Frau', 'Frau'),
-  ('Herr', 'Herr')
-)
+PERSON_TITLES = (('Frau', 'Frau'), ('Herr', 'Herr'))
 
 
-PERSON_ACADEMIC_TITLES = (
-  ('Dr.', 'Dr.'),
-  ('Prof.', 'Prof.')
-)
+PERSON_ACADEMIC_TITLES = (('Dr.', 'Dr.'), ('Prof.', 'Prof.'))
 
 
 class Person(Objectclass):
@@ -186,68 +158,40 @@ class Person(Objectclass):
   """
 
   title = CharField(
-    verbose_name='Anrede',
-    max_length=255,
-    blank=True,
-    null=True,
-    choices=PERSON_TITLES
+    verbose_name='Anrede', max_length=255, blank=True, null=True, choices=PERSON_TITLES
   )
   academic_title = CharField(
-    verbose_name='Titel',
-    max_length=255,
-    blank=True,
-    null=True,
-    choices=PERSON_ACADEMIC_TITLES
+    verbose_name='Titel', max_length=255, blank=True, null=True, choices=PERSON_ACADEMIC_TITLES
   )
   first_name = CharField(
     verbose_name='Vorname',
     max_length=255,
     blank=True,
     null=True,
-    validators=personennamen_validators
+    validators=personennamen_validators,
   )
   last_name = CharField(
-    verbose_name='Nachname',
-    max_length=255,
-    validators=personennamen_validators
+    verbose_name='Nachname', max_length=255, validators=personennamen_validators
   )
   address_street = CharField(
-    verbose_name='Straße',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators
+    verbose_name='Straße', max_length=255, blank=True, null=True, validators=standard_validators
   )
   address_house_number = CharField(
     verbose_name='Hausnummer',
     max_length=4,
     blank=True,
     null=True,
-    validators=[
-      RegexValidator(
-        regex=hausnummer_regex,
-        message=hausnummer_message
-      )
-    ]
+    validators=[RegexValidator(regex=hausnummer_regex, message=hausnummer_message)],
   )
   address_postal_code = CharField(
     verbose_name='Postleitzahl',
     max_length=5,
     blank=True,
     null=True,
-    validators=[
-      RegexValidator(
-        regex=postleitzahl_regex,
-        message=postleitzahl_message
-      )
-    ]
+    validators=[RegexValidator(regex=postleitzahl_regex, message=postleitzahl_message)],
   )
   address_place = CharField(
-    verbose_name='Ort',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators
+    verbose_name='Ort', max_length=255, blank=True, null=True, validators=standard_validators
   )
   email_addresses = ArrayField(
     CharField(
@@ -255,15 +199,11 @@ class Person(Objectclass):
       max_length=255,
       blank=True,
       null=True,
-      validators=[
-        EmailValidator(
-          message=email_message
-        )
-      ]
+      validators=[EmailValidator(message=email_message)],
     ),
     verbose_name='E-Mail-Adresse(n)',
     blank=True,
-    null=True
+    null=True,
   )
   telephone_numbers = ArrayField(
     CharField(
@@ -271,16 +211,11 @@ class Person(Objectclass):
       max_length=255,
       blank=True,
       null=True,
-      validators=[
-        RegexValidator(
-          regex=rufnummer_regex,
-          message=rufnummer_message
-        )
-      ]
+      validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)],
     ),
     verbose_name='Telefonnummer(n)',
     blank=True,
-    null=True
+    null=True,
   )
 
   class Meta(Objectclass.Meta):
@@ -305,8 +240,9 @@ class Person(Objectclass):
     return title + academic_title + name
 
   def address(self):
-    return concat_address(self.address_street, self.address_house_number,
-                          self.address_postal_code, self.address_place)
+    return concat_address(
+      self.address_street, self.address_house_number, self.address_postal_code, self.address_place
+    )
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # store search content in designated field
@@ -315,7 +251,7 @@ class Person(Objectclass):
       force_insert=force_insert,
       force_update=force_update,
       using=using,
-      update_fields=update_fields
+      update_fields=update_fields,
     )
 
   def delete(self, **kwargs):
@@ -335,22 +271,10 @@ class Contact(Objectclass):
   model class for object class contact (Ansprechpartner:in)
   """
 
-  organization = ForeignKey(
-    to=Organization,
-    verbose_name='Organisation',
-    on_delete=CASCADE
-  )
-  person = ForeignKey(
-    to=Person,
-    verbose_name='Person',
-    on_delete=CASCADE
-  )
+  organization = ForeignKey(to=Organization, verbose_name='Organisation', on_delete=CASCADE)
+  person = ForeignKey(to=Person, verbose_name='Person', on_delete=CASCADE)
   function = CharField(
-    verbose_name='Funktion',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators
+    verbose_name='Funktion', max_length=255, blank=True, null=True, validators=standard_validators
   )
 
   class Meta(Objectclass.Meta):
@@ -394,7 +318,7 @@ class Contact(Objectclass):
       force_insert=force_insert,
       force_update=force_update,
       using=using,
-      update_fields=update_fields
+      update_fields=update_fields,
     )
     # (2/2) store search content in designated field of object class organization:
     # ...and then save organization since now, its contact is referenced
@@ -415,49 +339,26 @@ class Originator(GeometryObjectclass):
   model class for geometry object class originator (Verursacher)
   """
 
-  sector = ForeignKey(
-    to=Sector,
-    verbose_name='Branche',
-    on_delete=PROTECT
-  )
+  sector = ForeignKey(to=Sector, verbose_name='Branche', on_delete=PROTECT)
   operator_organization = ForeignKey(
     to=Organization,
     verbose_name='Organisation als Betreiberin',
     on_delete=PROTECT,
     blank=True,
-    null=True
+    null=True,
   )
   operator_person = ForeignKey(
-    to=Person,
-    verbose_name='Person als Betreiber:in',
-    on_delete=PROTECT,
-    blank=True,
-    null=True
+    to=Person, verbose_name='Person als Betreiber:in', on_delete=PROTECT, blank=True, null=True
   )
-  description = TextField(
-    verbose_name='Beschreibung',
-    validators=standard_validators
-  )
-  emission_point = PointField(
-    verbose_name='Emissionsort'
-  )
-  address = CharField(
-    verbose_name='Adresse',
-    max_length=255,
-    blank=True,
-    null=True
-  )
+  description = TextField(verbose_name='Beschreibung', validators=standard_validators)
+  emission_point = PointField(verbose_name='Emissionsort')
+  address = CharField(verbose_name='Adresse', max_length=255, blank=True, null=True)
   dms_link = CharField(
     verbose_name=' d.3',
     max_length=16,
     blank=True,
     null=True,
-    validators=[
-      RegexValidator(
-        regex=d3_regex,
-        message=d3_message
-      )
-    ]
+    validators=[RegexValidator(regex=d3_regex, message=d3_message)],
   )
 
   class Meta(GeometryObjectclass.Meta):
@@ -466,7 +367,7 @@ class Originator(GeometryObjectclass):
       'sector__title',
       'operator_organization__name',
       'operator_person__last_name',
-      'description'
+      'description',
     ]
     verbose_name = 'Verursacher'
     verbose_name_plural = 'Verursacher'
@@ -511,7 +412,7 @@ class Originator(GeometryObjectclass):
       force_insert=force_insert,
       force_update=force_update,
       using=using,
-      update_fields=update_fields
+      update_fields=update_fields,
     )
 
 
@@ -520,73 +421,43 @@ class Complaint(GeometryObjectclass):
   model class for geometry object class complaint (Beschwerde)
   """
 
-  date_of_receipt = DateField(
-    verbose_name='Eingangsdatum',
-    default=date.today
-  )
-  status = ForeignKey(
-    to=Status,
-    verbose_name='Bearbeitungsstatus',
-    on_delete=PROTECT
-  )
+  date_of_receipt = DateField(verbose_name='Eingangsdatum', default=date.today)
+  status = ForeignKey(to=Status, verbose_name='Bearbeitungsstatus', on_delete=PROTECT)
   status_updated_at = DateTimeField(
-    verbose_name='letzte Änderung Bearbeitungsstatus',
-    auto_now_add=True,
-    editable=False
+    verbose_name='letzte Änderung Bearbeitungsstatus', auto_now_add=True, editable=False
   )
   type_of_immission = ForeignKey(
-    to=TypeOfImmission,
-    verbose_name='Immissionsart',
-    on_delete=PROTECT
+    to=TypeOfImmission, verbose_name='Immissionsart', on_delete=PROTECT
   )
-  immission_point = PointField(
-    verbose_name='Immissionsort'
-  )
-  address = CharField(
-    verbose_name='Adresse',
-    max_length=255,
-    blank=True,
-    null=True
-  )
-  originator = ForeignKey(
-    to=Originator,
-    verbose_name='Verursacher',
-    on_delete=PROTECT
-  )
+  immission_point = PointField(verbose_name='Immissionsort')
+  address = CharField(verbose_name='Adresse', max_length=255, blank=True, null=True)
+  originator = ForeignKey(to=Originator, verbose_name='Verursacher', on_delete=PROTECT)
   complainers_organizations = ManyToManyField(
     Organization,
     db_table='complainers_organizations',
     verbose_name='Organisation(en) als Beschwerdeführerin(nen)',
-    blank=True
+    blank=True,
   )
   complainers_persons = ManyToManyField(
     Person,
     db_table='complainers_persons',
     verbose_name='Person(en) als Beschwerdeführer:in(nen)',
-    blank=True
+    blank=True,
   )
-  description = TextField(
-    verbose_name='Beschreibung',
-    validators=standard_validators
-  )
+  description = TextField(verbose_name='Beschreibung', validators=standard_validators)
   dms_link = CharField(
     verbose_name=' d.3',
     max_length=16,
     blank=True,
     null=True,
-    validators=[
-      RegexValidator(
-        regex=d3_regex,
-        message=d3_message
-      )
-    ]
+    validators=[RegexValidator(regex=d3_regex, message=d3_message)],
   )
   storage_location = CharField(
     verbose_name='Ablageort analog',
     max_length=255,
     blank=True,
     null=True,
-    validators=standard_validators
+    validators=standard_validators,
   )
 
   class Meta(GeometryObjectclass.Meta):
@@ -606,8 +477,15 @@ class Complaint(GeometryObjectclass):
     new = 'neue'
 
   def __str__(self):
-    return '#' + str(self.id) + ' vom ' + self.date_of_receipt.strftime('%d.%m.%Y') + \
-           ' (' + str(self.status) + ')'
+    return (
+      '#'
+      + str(self.id)
+      + ' vom '
+      + self.date_of_receipt.strftime('%d.%m.%Y')
+      + ' ('
+      + str(self.status)
+      + ')'
+    )
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # on creation:
@@ -627,16 +505,16 @@ class Complaint(GeometryObjectclass):
       force_insert=force_insert,
       force_update=force_update,
       using=using,
-      update_fields=update_fields
+      update_fields=update_fields,
     )
 
 
 # extend search content in designated field
 # (via signal since the many-to-many-relationship is needed here)
 m2m_changed.connect(
-  store_complaint_search_content, sender=Complaint.complainers_organizations.through)
-m2m_changed.connect(
-  store_complaint_search_content, sender=Complaint.complainers_persons.through)
+  store_complaint_search_content, sender=Complaint.complainers_organizations.through
+)
+m2m_changed.connect(store_complaint_search_content, sender=Complaint.complainers_persons.through)
 
 
 class Event(Objectclass):
@@ -644,41 +522,17 @@ class Event(Objectclass):
   model class for object class event (Journalereignis)
   """
 
-  complaint = ForeignKey(
-    to=Complaint,
-    verbose_name='Beschwerde',
-    on_delete=CASCADE
-  )
-  type_of_event = ForeignKey(
-    to=TypeOfEvent,
-    verbose_name='Ereignisart',
-    on_delete=PROTECT
-  )
-  date = DateField(
-    verbose_name='Datum',
-    blank=True,
-    null=True
-  )
-  user = CharField(
-    verbose_name='Benutzer:in',
-    max_length=255
-  )
-  description = NullTextField(
-    verbose_name='Beschreibung',
-    blank=True,
-    null=True
-  )
+  complaint = ForeignKey(to=Complaint, verbose_name='Beschwerde', on_delete=CASCADE)
+  type_of_event = ForeignKey(to=TypeOfEvent, verbose_name='Ereignisart', on_delete=PROTECT)
+  date = DateField(verbose_name='Datum', blank=True, null=True)
+  user = CharField(verbose_name='Benutzer:in', max_length=255)
+  description = NullTextField(verbose_name='Beschreibung', blank=True, null=True)
   dms_link = CharField(
     verbose_name=' d.3',
     max_length=16,
     blank=True,
     null=True,
-    validators=[
-      RegexValidator(
-        regex=d3_regex,
-        message=d3_message
-      )
-    ]
+    validators=[RegexValidator(regex=d3_regex, message=d3_message)],
   )
 
   class Meta(Objectclass.Meta):
@@ -713,7 +567,7 @@ class Event(Objectclass):
       force_insert=force_insert,
       force_update=force_update,
       using=using,
-      update_fields=update_fields
+      update_fields=update_fields,
     )
 
 
@@ -722,32 +576,11 @@ class LogEntry(Objectclass):
   model class for object class log entry (Eintrag im Bearbeitungsverlauf)
   """
 
-  model = CharField(
-    verbose_name='Objektklasse',
-    max_length=255,
-    editable=False
-  )
-  object_pk = BigIntegerField(
-    verbose_name='ID des Objekts',
-    editable=False
-  )
-  action = CharField(
-    verbose_name='Aktion',
-    max_length=255,
-    editable=False
-  )
-  content = CharField(
-    verbose_name='Inhalt',
-    max_length=255,
-    blank=True,
-    null=True,
-    editable=False
-  )
-  user = CharField(
-    verbose_name='Benutzer:in',
-    max_length=255,
-    editable=False
-  )
+  model = CharField(verbose_name='Objektklasse', max_length=255, editable=False)
+  object_pk = BigIntegerField(verbose_name='ID des Objekts', editable=False)
+  action = CharField(verbose_name='Aktion', max_length=255, editable=False)
+  content = CharField(verbose_name='Inhalt', max_length=255, blank=True, null=True, editable=False)
+  user = CharField(verbose_name='Benutzer:in', max_length=255, editable=False)
 
   class Meta(Objectclass.Meta):
     db_table = 'logentry'
@@ -777,5 +610,5 @@ class LogEntry(Objectclass):
       force_insert=force_insert,
       force_update=force_update,
       using=using,
-      update_fields=update_fields
+      update_fields=update_fields,
     )

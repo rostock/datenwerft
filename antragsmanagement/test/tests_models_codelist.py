@@ -1,13 +1,18 @@
 from django.utils.crypto import get_random_string
 
-from .base import DefaultCodelistTestCase
-from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
-  CleanupEventCodelistWasteType, CleanupEventCodelistEquipment
+from antragsmanagement.models import (
+  CleanupEventCodelistEquipment,
+  CleanupEventCodelistWasteQuantity,
+  CleanupEventCodelistWasteType,
+  CodelistRequestStatus,
+)
 
+from .base import DefaultCodelistTestCase
 
 #
 # general codelists
 #
+
 
 class CodelistRequestStatusTest(DefaultCodelistTestCase):
   """
@@ -20,12 +25,12 @@ class CodelistRequestStatusTest(DefaultCodelistTestCase):
   attributes_values_db_create = {
     'ordinal': 4,
     'name': get_random_string(length=12),
-    'icon': get_random_string(length=12)
+    'icon': get_random_string(length=12),
   }
   attributes_values_db_update = {
     'ordinal': 5,
     'name': get_random_string(length=12),
-    'icon': get_random_string(length=12)
+    'icon': get_random_string(length=12),
   }
 
   def setUp(self):
@@ -49,6 +54,7 @@ class CodelistRequestStatusTest(DefaultCodelistTestCase):
 # clean-up events (Müllsammelaktionen)
 #
 
+
 class CleanupEventCodelistWasteQuantityTest(DefaultCodelistTestCase):
   """
   test class for codelist for request type clean-up events (Müllsammelaktionen):
@@ -57,14 +63,8 @@ class CleanupEventCodelistWasteQuantityTest(DefaultCodelistTestCase):
 
   model = CleanupEventCodelistWasteQuantity
   count = 4
-  attributes_values_db_create = {
-    'ordinal': 4,
-    'name': get_random_string(length=12)
-  }
-  attributes_values_db_update = {
-    'ordinal': 5,
-    'name': get_random_string(length=12)
-  }
+  attributes_values_db_create = {'ordinal': 4, 'name': get_random_string(length=12)}
+  attributes_values_db_update = {'ordinal': 5, 'name': get_random_string(length=12)}
 
   def setUp(self):
     self.init()
@@ -90,12 +90,8 @@ class CleanupEventCodelistWasteTypeTest(DefaultCodelistTestCase):
 
   model = CleanupEventCodelistWasteType
   count = 6
-  attributes_values_db_create = {
-    'name': get_random_string(length=12)
-  }
-  attributes_values_db_update = {
-    'name': get_random_string(length=12)
-  }
+  attributes_values_db_create = {'name': get_random_string(length=12)}
+  attributes_values_db_update = {'name': get_random_string(length=12)}
 
   def setUp(self):
     self.init()
@@ -121,12 +117,8 @@ class CleanupEventCodelistEquipmentTest(DefaultCodelistTestCase):
 
   model = CleanupEventCodelistEquipment
   count = 5
-  attributes_values_db_create = {
-    'name': get_random_string(length=12)
-  }
-  attributes_values_db_update = {
-    'name': get_random_string(length=12)
-  }
+  attributes_values_db_create = {'name': get_random_string(length=12)}
+  attributes_values_db_update = {'name': get_random_string(length=12)}
 
   def setUp(self):
     self.init()

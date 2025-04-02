@@ -2,11 +2,12 @@ from django.contrib.auth.models import Group, User
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from .constants_vars import DATABASES, USERNAME, PASSWORD
-from .functions import login
-from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
-from antragsmanagement.models import Codelist, Requester, Request
+from antragsmanagement.constants_vars import ADMINS, AUTHORITIES, REQUESTERS
+from antragsmanagement.models import Codelist, Request, Requester
 from bemas.tests.functions import clean_object_filter, get_object
+
+from .constants_vars import DATABASES, PASSWORD, USERNAME
+from .functions import login
 
 
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
@@ -127,9 +128,18 @@ class DefaultViewTestCase(DefaultTestCase):
     super().init()
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  def generic_view_test(self, log_in, antragsmanagement_requester, antragsmanagement_authority,
-                        antragsmanagement_admin, view_name, view_args, status_code, content_type,
-                        string):
+  def generic_view_test(
+    self,
+    log_in,
+    antragsmanagement_requester,
+    antragsmanagement_authority,
+    antragsmanagement_admin,
+    view_name,
+    view_args,
+    status_code,
+    content_type,
+    string,
+  ):
     """
     tests a view via GET
 
@@ -146,8 +156,9 @@ class DefaultViewTestCase(DefaultTestCase):
     """
     # authenticate test user
     if log_in:
-      login(self, antragsmanagement_requester,
-            antragsmanagement_authority, antragsmanagement_admin)
+      login(
+        self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin
+      )
     # prepare the GET
     if view_args:
       url = reverse(viewname='antragsmanagement:' + view_name, kwargs=view_args)
@@ -208,9 +219,18 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     super().init()
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  def generic_form_view_get_test(self, log_in, update_mode, antragsmanagement_requester,
-                                 antragsmanagement_authority, antragsmanagement_admin, view_name,
-                                 status_code, content_type, string):
+  def generic_form_view_get_test(
+    self,
+    log_in,
+    update_mode,
+    antragsmanagement_requester,
+    antragsmanagement_authority,
+    antragsmanagement_admin,
+    view_name,
+    status_code,
+    content_type,
+    string,
+  ):
     """
     tests a form view via GET
 
@@ -227,18 +247,16 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     """
     # authenticate test user
     if log_in:
-      login(self, antragsmanagement_requester,
-            antragsmanagement_authority, antragsmanagement_admin)
+      login(
+        self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin
+      )
     # for update mode: get primary key of last object
     last_pk = self.model.objects.only('pk').last().pk
     # set URL
     if update_mode or 'delete' in view_name:
       url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
     elif 'authorative_create' in view_name or 'requestcomment_create' in view_name:
-      url = reverse(
-        viewname='antragsmanagement:' + view_name,
-        kwargs={'request_id': last_pk}
-      )
+      url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'request_id': last_pk})
     else:
       url = reverse('antragsmanagement:' + view_name)
     # try GETting the view
@@ -253,10 +271,21 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
-  def generic_form_view_post_test(self, log_in, update_mode, antragsmanagement_requester,
-                                  antragsmanagement_authority, antragsmanagement_admin, view_name,
-                                  object_filter, count, status_code, content_type, string,
-                                  session_variables):
+  def generic_form_view_post_test(
+    self,
+    log_in,
+    update_mode,
+    antragsmanagement_requester,
+    antragsmanagement_authority,
+    antragsmanagement_admin,
+    view_name,
+    object_filter,
+    count,
+    status_code,
+    content_type,
+    string,
+    session_variables,
+  ):
     """
     tests a form view via POST
 
@@ -276,8 +305,9 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     """
     # authenticate test user
     if log_in:
-      login(self, antragsmanagement_requester,
-            antragsmanagement_authority, antragsmanagement_admin)
+      login(
+        self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin
+      )
     # in case of request: connect test user to its requester object
     if issubclass(self.model, Request):
       requester = Requester.objects.last()
@@ -292,7 +322,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     elif 'authorative_create' in view_name or 'requestcomment_create' in view_name:
       url = reverse(
         viewname='antragsmanagement:' + view_name,
-        kwargs={'request_id': session_variables['request_id']}
+        kwargs={'request_id': session_variables['request_id']},
       )
     else:
       url = reverse('antragsmanagement:' + view_name)

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.test import override_settings
+from django.urls import reverse
 from rest_framework.test import APIClient, APITestCase
 
 from .forms import ExternalAuthenticationForm
@@ -28,7 +28,6 @@ class AccountTestCase(APITestCase):
 
 
 class TestLoginForm(AccountTestCase):
-
   def setUp(self):
     self.init()
 
@@ -36,27 +35,27 @@ class TestLoginForm(AccountTestCase):
     form = ExternalAuthenticationForm(data={'email_token': self.auth_tokens.email_token})
     self.assertFalse(form.is_valid())
     error_messages_key = 'invalid_login'
-    self.assertEqual(form.error_messages[error_messages_key],
-                     ExternalAuthenticationForm.error_messages.get(error_messages_key))
+    self.assertEqual(
+      form.error_messages[error_messages_key],
+      ExternalAuthenticationForm.error_messages.get(error_messages_key),
+    )
 
   def test_signup_pass(self):
     mock_request = MockRequest(session={'_token': self.auth_tokens.session_token})
     form = ExternalAuthenticationForm(
-      data={'email_token': self.auth_tokens.email_token},
-      request=mock_request
+      data={'email_token': self.auth_tokens.email_token}, request=mock_request
     )
     self.assertTrue(form.is_valid())
 
   def test_signup_email_token_fail(self):
     mock_request = MockRequest(session={'_token': self.auth_tokens.session_token})
-    form = ExternalAuthenticationForm(
-      data={'email_token': 'ABC'},
-      request=mock_request
-    )
+    form = ExternalAuthenticationForm(data={'email_token': 'ABC'}, request=mock_request)
     self.assertFalse(form.is_valid())
     error_messages_key = 'invalid_login'
-    self.assertEqual(form.error_messages[error_messages_key],
-                     ExternalAuthenticationForm.error_messages.get(error_messages_key))
+    self.assertEqual(
+      form.error_messages[error_messages_key],
+      ExternalAuthenticationForm.error_messages.get(error_messages_key),
+    )
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES=[])
@@ -79,9 +78,8 @@ class TestLoginForm(AccountTestCase):
     session = self.client.session
     session['_token'] = f'{self.auth_tokens.session_token}'
     session.save()
-    response = self.client.post(reverse(
-      'accounts:external_login',
-      kwargs={'url_token': self.auth_tokens.url_token}),
+    response = self.client.post(
+      reverse('accounts:external_login', kwargs={'url_token': self.auth_tokens.url_token}),
       data={'email_token': self.auth_tokens.email_token},
     )
     self.assertEqual(response.wsgi_request.user, self.test_user)

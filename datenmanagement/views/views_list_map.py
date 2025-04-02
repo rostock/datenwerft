@@ -1,5 +1,10 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
+from json import dumps, loads
+from re import IGNORECASE, match, sub
+from time import time
+from zoneinfo import ZoneInfo
+
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -9,16 +14,16 @@ from django.utils.html import escape
 from django.views.generic.base import TemplateView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from jsonview.views import JsonView
-from json import dumps, loads
-from re import IGNORECASE, match, sub
-from time import time
-from zoneinfo import ZoneInfo
 
 from datenmanagement.utils import get_data, get_thumb_url, localize_number
 from toolbox.models import SuitableFor
 from toolbox.utils import optimize_datatable_filter
-from .functions import add_basic_model_context_elements, add_user_agent_context_elements, \
-  get_model_objects
+
+from .functions import (
+  add_basic_model_context_elements,
+  add_user_agent_context_elements,
+  get_model_objects,
+)
 
 
 class TableDataCompositionView(BaseDatatableView):
@@ -34,11 +39,13 @@ class TableDataCompositionView(BaseDatatableView):
     self.model_name_lower = model_name_lower
     self.model_is_editable = self.model.BasemodelMeta.editable
     self.fields_with_foreign_key_to_linkify = (
-      self.model.BasemodelMeta.fields_with_foreign_key_to_linkify)
+      self.model.BasemodelMeta.fields_with_foreign_key_to_linkify
+    )
     self.columns = self.model.BasemodelMeta.list_fields
     self.column_with_address_string = self.model.BasemodelMeta.list_field_with_address_string
     self.address_string_fallback_column = (
-      self.model.BasemodelMeta.list_field_with_address_string_fallback_field)
+      self.model.BasemodelMeta.list_field_with_address_string_fallback_field
+    )
     self.columns_with_date = self.model.BasemodelMeta.list_fields_with_date
     self.columns_with_datetime = self.model.BasemodelMeta.list_fields_with_datetime
     self.columns_with_decimal = self.model.BasemodelMeta.list_fields_with_decimal
@@ -65,13 +72,16 @@ class TableDataCompositionView(BaseDatatableView):
     for item in qs:
       item_data = []
       item_pk = getattr(item, self.model._meta.pk.name)
-      if (
-          self.model_is_editable and
-          self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower)
+      if self.model_is_editable and self.request.user.has_perm(
+        'datenmanagement.delete_' + self.model_name_lower
       ):
         item_data.append(
-          '<input id="' + str(item_pk) + '" class="action-checkbox" ' +
-          'type="checkbox" value="' + str(item_pk) + '">'
+          '<input id="'
+          + str(item_pk)
+          + '" class="action-checkbox" '
+          + 'type="checkbox" value="'
+          + str(item_pk)
+          + '">'
         )
       for column in self.columns:
         # handle all columns except address strings!
@@ -89,20 +99,30 @@ class TableDataCompositionView(BaseDatatableView):
                 data = getattr(getattr(item, column), self.columns_with_foreign_key.get(column))
               # format foreign keys as links
               elif (
-                  self.fields_with_foreign_key_to_linkify
-                  and column in self.fields_with_foreign_key_to_linkify
+                self.fields_with_foreign_key_to_linkify
+                and column in self.fields_with_foreign_key_to_linkify
               ):
                 foreign_model = value._meta.label.replace(value._meta.app_label + '.', '')
                 # format foreign keys as links only if foreign model is editable
-                if apps.get_app_config('datenmanagement').get_model(
-                    foreign_model).BasemodelMeta.editable:
+                if (
+                  apps.get_app_config('datenmanagement')
+                  .get_model(foreign_model)
+                  .BasemodelMeta.editable
+                ):
                   foreign_model_primary_key = value._meta.pk.name
                   foreign_model_title = self.columns.get(column)
-                  data = '<a href="' + reverse(
+                  data = (
+                    '<a href="'
+                    + reverse(
                       'datenmanagement:' + foreign_model + '_change',
-                      args=[getattr(value, foreign_model_primary_key)]
-                  ) + '" target="_blank" rel="noopener noreferrer" class="required" title="'\
-                    + foreign_model_title + ' ansehen oder bearbeiten">' + str(value) + '</a>'
+                      args=[getattr(value, foreign_model_primary_key)],
+                    )
+                    + '" target="_blank" rel="noopener noreferrer" class="required" title="'
+                    + foreign_model_title
+                    + ' ansehen oder bearbeiten">'
+                    + str(value)
+                    + '</a>'
+                  )
                 # otherwise take all foreign key values as they are
                 else:
                   data = escape(value)
@@ -111,7 +131,7 @@ class TableDataCompositionView(BaseDatatableView):
                 data = escape(value)
             # format numbers
             elif self.columns_with_decimal and column in self.columns_with_decimal:
-              if isinstance(value, Decimal) or match(r"^[0-9]+\.[0-9]+$", str(value)):
+              if isinstance(value, Decimal) or match(r'^[0-9]+\.[0-9]+$', str(value)):
                 data = localize_number(Decimal(str(value)))
               else:
                 data = value
@@ -121,8 +141,11 @@ class TableDataCompositionView(BaseDatatableView):
             # format datetimes
             elif self.columns_with_datetime and column in self.columns_with_datetime:
               datetimestamp_str = sub(r'([+-][0-9]{2}):', '\\1', str(value))
-              datetimestamp = datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z').\
-                replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
+              datetimestamp = (
+                datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z')
+                .replace(tzinfo=timezone.utc)
+                .astimezone(ZoneInfo(settings.TIME_ZONE))
+              )
               datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
               data = datetimestamp_str
             # handle highlight flags
@@ -131,16 +154,30 @@ class TableDataCompositionView(BaseDatatableView):
             # handle photo files
             elif column == 'foto':
               try:
-                data = ('<a href="' + value.url + '?' + str(time()) +
-                        '" target="_blank" rel="noopener noreferrer" ' +
-                        'title="große Ansicht öffnen…">')
+                data = (
+                  '<a href="'
+                  + value.url
+                  + '?'
+                  + str(time())
+                  + '" target="_blank" rel="noopener noreferrer" '
+                  + 'title="große Ansicht öffnen…">'
+                )
                 if self.thumbs:
-                  data += '<img src="' + get_thumb_url(
-                      value.url) + '?' + str(
-                      time()) + '" alt="Vorschau" />'
+                  data += (
+                    '<img src="'
+                    + get_thumb_url(value.url)
+                    + '?'
+                    + str(time())
+                    + '" alt="Vorschau" />'
+                  )
                 else:
-                  data += '<img src="' + value.url + '?' + str(
-                      time()) + '" alt="Vorschau" width="70px" />'
+                  data += (
+                    '<img src="'
+                    + value.url
+                    + '?'
+                    + str(time())
+                    + '" alt="Vorschau" width="70px" />'
+                  )
                 data += '</a>'
               except ValueError:
                 pass
@@ -163,15 +200,28 @@ class TableDataCompositionView(BaseDatatableView):
               data = ', '.join(map(str, value))
             # format external links
             elif isinstance(value, str) and value.startswith('http'):
-              data = ('<a href="' + value +
-                      '" target="_blank" rel="noopener noreferrer" title="Link öffnen…">' +
-                      value + '</a>')
+              data = (
+                '<a href="'
+                + value
+                + '" target="_blank" rel="noopener noreferrer" title="Link öffnen…">'
+                + value
+                + '</a>'
+              )
             # format colors
-            elif isinstance(value, str) and match(r"^#[a-f0-9]{6}$", value, IGNORECASE):
-              data = '<div style="background-color:' + value + '" title="Hex-Wert: ' \
-                     + value + ' || RGB-Wert: ' + str(int(value[1:3], 16)) + ', ' \
-                     + str(int(value[3:5], 16)) + ', ' + str(int(value[5:7], 16)) \
-                     + '">&zwnj;</div>'
+            elif isinstance(value, str) and match(r'^#[a-f0-9]{6}$', value, IGNORECASE):
+              data = (
+                '<div style="background-color:'
+                + value
+                + '" title="Hex-Wert: '
+                + value
+                + ' || RGB-Wert: '
+                + str(int(value[1:3], 16))
+                + ', '
+                + str(int(value[3:5], 16))
+                + ', '
+                + str(int(value[5:7], 16))
+                + '">&zwnj;</div>'
+              )
             # take all other values as they are
             else:
               data = escape(value)
@@ -186,9 +236,9 @@ class TableDataCompositionView(BaseDatatableView):
           item_data.append(address_string)
         # handle additional foreign key columns (if any)
         if (
-            self.additional_foreign_key_column
-            and column == self.additional_foreign_key_column['insert_after_field']
-            and self.additional_foreign_key_column['source_field']
+          self.additional_foreign_key_column
+          and column == self.additional_foreign_key_column['insert_after_field']
+          and self.additional_foreign_key_column['source_field']
         ):
           value, data = getattr(item, self.additional_foreign_key_column['source_field']), None
           if value is not None and self.additional_foreign_key_column['target_field']:
@@ -199,19 +249,31 @@ class TableDataCompositionView(BaseDatatableView):
         links = ''
         if self.request.user.has_perm('datenmanagement.change_' + self.model_name_lower):
           link = reverse('datenmanagement:' + self.model_name + '_change', args=[item_pk])
-          links = '<a class="btn btn-sm btn-outline-warning" role="button"' + \
-                  ' title="Datensatz bearbeiten" href="' + link + '">' + \
-                  '<i class="fas fa-edit"></i></a>'
+          links = (
+            '<a class="btn btn-sm btn-outline-warning" role="button"'
+            + ' title="Datensatz bearbeiten" href="'
+            + link
+            + '">'
+            + '<i class="fas fa-edit"></i></a>'
+          )
         elif self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower):
           link = reverse('datenmanagement:' + self.model_name + '_change', args=[item_pk])
-          links = '<a class="btn btn-sm btn-outline-primary" role="button"' + \
-                  ' title="Datensatz ansehen" href="' + link + '">' + \
-                  '<i class="fas fa-eye"></i></a>'
+          links = (
+            '<a class="btn btn-sm btn-outline-primary" role="button"'
+            + ' title="Datensatz ansehen" href="'
+            + link
+            + '">'
+            + '<i class="fas fa-eye"></i></a>'
+          )
         if self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
           link = reverse('datenmanagement:' + self.model_name + '_delete', args=[item_pk])
-          links += '<a class="ms-2 btn btn-sm btn-outline-danger" role="button"' + \
-                   ' title="Datensatz löschen" href="' + link + '">' + \
-                   '<i class="fas fa-trash"></i></a>'
+          links += (
+            '<a class="ms-2 btn btn-sm btn-outline-danger" role="button"'
+            + ' title="Datensatz löschen" href="'
+            + link
+            + '">'
+            + '<i class="fas fa-trash"></i></a>'
+          )
         item_data.append(links)
       json_data.append(item_data)
     return json_data
@@ -231,8 +293,7 @@ class TableDataCompositionView(BaseDatatableView):
         for column in self.columns:
           # take care of foreign key columns
           if (
-              self.columns_with_foreign_key
-              and self.columns_with_foreign_key.get(column) is not None
+            self.columns_with_foreign_key and self.columns_with_foreign_key.get(column) is not None
           ):
             column = column + str('__') + self.columns_with_foreign_key.get(column)
           # handle address strings
@@ -241,14 +302,18 @@ class TableDataCompositionView(BaseDatatableView):
           qs_params_inner = optimize_datatable_filter(search_element, column, qs_params_inner)
         # take care of additional foreign key columns (if any)
         if (
-            self.additional_foreign_key_column
-            and self.additional_foreign_key_column['source_field']
-            and self.additional_foreign_key_column['target_field']
+          self.additional_foreign_key_column
+          and self.additional_foreign_key_column['source_field']
+          and self.additional_foreign_key_column['target_field']
         ):
-          additional_column = (self.additional_foreign_key_column['source_field'] + str('__') +
-                               self.additional_foreign_key_column['target_field'])
+          additional_column = (
+            self.additional_foreign_key_column['source_field']
+            + str('__')
+            + self.additional_foreign_key_column['target_field']
+          )
           qs_params_inner = optimize_datatable_filter(
-            search_element, additional_column, qs_params_inner)
+            search_element, additional_column, qs_params_inner
+          )
         qs_params = qs_params & qs_params_inner if qs_params else qs_params_inner
       qs = qs.filter(qs_params)
     return qs
@@ -278,17 +343,16 @@ class TableDataCompositionView(BaseDatatableView):
         elif column == self.column_with_address_string:
           column_names.append(self.address_string_fallback_column)
         if (
-            self.additional_foreign_key_column
-            and column == self.additional_foreign_key_column['insert_after_field']
-            and self.additional_foreign_key_column['source_field']
+          self.additional_foreign_key_column
+          and column == self.additional_foreign_key_column['insert_after_field']
+          and self.additional_foreign_key_column['source_field']
         ):
           column_names.append(self.additional_foreign_key_column['source_field'])
       # careful here!
       # if there is a 0th column, the index of the order column is 0-based; otherwise 1-based
       actions = False
-      if (
-          self.model.BasemodelMeta.editable
-          and self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower)
+      if self.model.BasemodelMeta.editable and self.request.user.has_perm(
+        'datenmanagement.delete_' + self.model_name_lower
       ):
         actions = True
       column_name = column_names[int(order_column) - (1 if actions else 0)]
@@ -320,18 +384,17 @@ class TableListView(TemplateView):
     # add basic model related elements to context
     context = add_basic_model_context_elements(context, self.model)
     # add further elements to context
-    if (
-        self.model.BasemodelMeta.editable
-        and (
-            self.request.user.has_perm('datenmanagement.change_' + model_name_lower)
-            or self.request.user.has_perm('datenmanagement.delete_' + model_name_lower)
-        )
+    if self.model.BasemodelMeta.editable and (
+      self.request.user.has_perm('datenmanagement.change_' + model_name_lower)
+      or self.request.user.has_perm('datenmanagement.delete_' + model_name_lower)
     ):
       context['actions'] = True
       context['url_model_assign_placeholder'] = reverse(
-        'datenmanagement:' + model_name + '_assign', args=['worschdsupp'])
+        'datenmanagement:' + model_name + '_assign', args=['worschdsupp']
+      )
       context['url_model_deleteimmediately_placeholder'] = reverse(
-        'datenmanagement:' + model_name + '_deleteimmediately', args=['worschdsupp'])
+        'datenmanagement:' + model_name + '_deleteimmediately', args=['worschdsupp']
+      )
       # handle assignment actions (if any)
       if self.model.BasemodelMeta.list_actions_assign:
         actions_assign = self.model.BasemodelMeta.list_actions_assign
@@ -347,9 +410,9 @@ class TableListView(TemplateView):
             # get source field
             source_field = self.model._meta.get_field(action_assign['field'])
             if action_assign['type'] == 'boolean':
-              actions_assign_values.append([
-                {'value': 'True', 'text': 'ja'}, {'value': 'False', 'text': 'nein'}
-              ])
+              actions_assign_values.append(
+                [{'value': 'True', 'text': 'ja'}, {'value': 'False', 'text': 'nein'}]
+              )
             elif action_assign['type'] == 'foreignkey':
               # identify suitable source model
               source_model = source_field.remote_field.model
@@ -364,41 +427,44 @@ class TableListView(TemplateView):
         # add list of objects of suitable source models of all assignment actions to context
         if actions_assign_values:
           context['actions_assign_values'] = actions_assign_values
-    context['column_titles'] = list(self.model.BasemodelMeta.list_fields.values()) if (
-      self.model.BasemodelMeta.list_fields) else None
+    context['column_titles'] = (
+      list(self.model.BasemodelMeta.list_fields.values())
+      if (self.model.BasemodelMeta.list_fields)
+      else None
+    )
     if self.model.BasemodelMeta.list_additional_foreign_key_field:
       columns = self.model.BasemodelMeta.list_fields
       after_column = self.model.BasemodelMeta.list_additional_foreign_key_field[
-        'insert_after_field']
+        'insert_after_field'
+      ]
       additional_column_title = self.model.BasemodelMeta.list_additional_foreign_key_field[
-        'insert_as']
+        'insert_as'
+      ]
       index = list(columns).index(after_column) + 1
       context['column_titles'].insert(index, additional_column_title)
-    if (
-        self.model.BasemodelMeta.editable
-        and (
-          self.request.user.has_perm('datenmanagement.change_' + model_name_lower)
-          or self.request.user.has_perm('datenmanagement.delete_' + model_name_lower)
-          or self.request.user.has_perm('datenmanagement.view_' + model_name_lower)
-        )
+    if self.model.BasemodelMeta.editable and (
+      self.request.user.has_perm('datenmanagement.change_' + model_name_lower)
+      or self.request.user.has_perm('datenmanagement.delete_' + model_name_lower)
+      or self.request.user.has_perm('datenmanagement.view_' + model_name_lower)
     ):
       context['column_actions'] = True
-    if (
-        self.model.BasemodelMeta.editable
-        and self.request.user.has_perm('datenmanagement.add_' + model_name_lower)
+    if self.model.BasemodelMeta.editable and self.request.user.has_perm(
+      'datenmanagement.add_' + model_name_lower
     ):
       context['url_model_add'] = reverse('datenmanagement:' + model_name + '_add')
       if self.model.BasemodelMeta.geometry_type:
         context['url_model_map'] = reverse('datenmanagement:' + model_name + '_map')
         context['url_model_map_subset_placeholder'] = reverse(
-          'datenmanagement:' + model_name + '_map_subset', args=['worschdsupp'])
+          'datenmanagement:' + model_name + '_map_subset', args=['worschdsupp']
+        )
     context['url_model_tabledata'] = reverse('datenmanagement:' + model_name + '_data')
     if self.kwargs and 'subset_id' in self.kwargs and self.kwargs['subset_id']:
       subset_id = kwargs['subset_id']
       context['subset_id'] = subset_id
       context['objects_count'] = get_model_objects(self.model, subset_id, True)
       context['url_model_tabledata_subset'] = reverse(
-        'datenmanagement:' + model_name + '_data_subset', args=[subset_id])
+        'datenmanagement:' + model_name + '_data_subset', args=[subset_id]
+      )
     else:
       context['objects_count'] = get_model_objects(self.model, None, True)
     context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
@@ -448,14 +514,11 @@ class MapDataCompositionView(JsonView):
     # handle objects
     if objects:
       if limit is not None and offset is not None:
-        objects = objects[offset:(offset + limit)]
+        objects = objects[offset : (offset + limit)]
       elif limit is not None:
         objects = objects[:limit]
       # declare empty GeoJSON feature collection
-      feature_collection = {
-          'type': 'FeatureCollection',
-          'features': []
-      }
+      feature_collection = {'type': 'FeatureCollection', 'features': []}
       for curr_object in objects:
         # only if geometry is not empty...
         if curr_object.geometrie:
@@ -473,12 +536,17 @@ class MapDataCompositionView(JsonView):
                   data = data.strftime('%d.%m.%Y')
                 field_value = str(data)
               tooltip_value = (
-                  # place spaces between individual tooltip components
-                  # but not between housenumber and housenumber suffix
-                  tooltip_value + (
-                      '' if (match(r'^[a-z]$', field_value) and
-                             match(r'^[0-9]+$', previous_value)) else ' '
-                  ) + field_value if index > 0 else field_value
+                # place spaces between individual tooltip components
+                # but not between housenumber and housenumber suffix
+                tooltip_value
+                + (
+                  ''
+                  if (match(r'^[a-z]$', field_value) and match(r'^[0-9]+$', previous_value))
+                  else ' '
+                )
+                + field_value
+                if index > 0
+                else field_value
               )
               index += 1
               previous_value = field_value
@@ -489,23 +557,15 @@ class MapDataCompositionView(JsonView):
           # * get geometry from serialized GeoJSON
           # * get properties from previously declared variables
           feature = {
-              'type': 'Feature',
-              'geometry': object_serialized['features'][0]['geometry'],
-              'properties': {
-                  self.model_pk_field_name: str(curr_object.pk),
-                  'tooltip': tooltip
-              },
-              'crs': {
-                  'type': 'name',
-                  'properties': {
-                      'name': 'urn:ogc:def:crs:EPSG::25833'
-                  }
-              }
+            'type': 'Feature',
+            'geometry': object_serialized['features'][0]['geometry'],
+            'properties': {self.model_pk_field_name: str(curr_object.pk), 'tooltip': tooltip},
+            'crs': {'type': 'name', 'properties': {'name': 'urn:ogc:def:crs:EPSG::25833'}},
           }
           if self.model_is_editable:
             # set object link as property
-            feature['properties']['link'] = (
-                reverse('datenmanagement:' + self.model_name + '_change', args=[curr_object.pk])
+            feature['properties']['link'] = reverse(
+              'datenmanagement:' + self.model_name + '_change', args=[curr_object.pk]
             )
           # optional: mark object as inactive
           if hasattr(curr_object, 'aktiv') and curr_object.aktiv is False:
@@ -513,11 +573,10 @@ class MapDataCompositionView(JsonView):
           # optional: mark object as to hide it initially
           if self.model.BasemodelMeta.map_filter_hide_initial:
             if str(
-                getattr(
-                    curr_object, list(
-                        self.model.BasemodelMeta.map_filter_hide_initial.keys())[0])) == str(
-                list(
-                    self.model.BasemodelMeta.map_filter_hide_initial.values())[0]):
+              getattr(
+                curr_object, list(self.model.BasemodelMeta.map_filter_hide_initial.keys())[0]
+              )
+            ) == str(list(self.model.BasemodelMeta.map_filter_hide_initial.values())[0]):
               feature['properties']['hide_initial'] = 'true'
           # optional: mark object as to highlight it
           if self.model.BasemodelMeta.highlight_flag:
@@ -577,8 +636,12 @@ class MapListView(TemplateView):
       # construct NOT NULL filter
       field_name_isnull = field_name + '__isnull'
       # get minimum value and insert into declared variable
-      interval_filter_min = self.model.objects.exclude(**{field_name_isnull: True}).order_by(
-          field_name).values_list(field_name, flat=True).first()
+      interval_filter_min = (
+        self.model.objects.exclude(**{field_name_isnull: True})
+        .order_by(field_name)
+        .values_list(field_name, flat=True)
+        .first()
+      )
       if isinstance(interval_filter_min, datetime):
         interval_filter_min = interval_filter_min.strftime('%Y-%m-%d %H:%M:%S')
       elif isinstance(interval_filter_min, date):
@@ -588,8 +651,12 @@ class MapListView(TemplateView):
       # construct NOT NULL filter
       field_name_isnull = field_name + '__isnull'
       # get maximum value and insert into declared variable
-      interval_filter_max = self.model.objects.exclude(**{field_name_isnull: True}).order_by(
-          field_name).values_list(field_name, flat=True).last()
+      interval_filter_max = (
+        self.model.objects.exclude(**{field_name_isnull: True})
+        .order_by(field_name)
+        .values_list(field_name, flat=True)
+        .last()
+      )
       if isinstance(interval_filter_max, datetime):
         interval_filter_max = interval_filter_max.strftime('%Y-%m-%d %H:%M:%S')
       elif isinstance(interval_filter_max, date):
@@ -612,9 +679,11 @@ class MapListView(TemplateView):
         field_name_isnull = field_name + '__isnull'
         # sorted list of all unique values of the matching field obtained from the target model
         value_list = list(
-            self.model.objects.exclude(**{field_name_isnull: True}).order_by(
-                field_name + '__' + foreign_field_name_ordering).values_list(
-                field_name + '__' + foreign_field_name_naming, flat=True).distinct())
+          self.model.objects.exclude(**{field_name_isnull: True})
+          .order_by(field_name + '__' + foreign_field_name_ordering)
+          .values_list(field_name + '__' + foreign_field_name_naming, flat=True)
+          .distinct()
+        )
         # convert decimal numbers in list to strings,
         # since decimal numbers cannot be serialized as JSON
         cleaned_value_list = []
@@ -628,12 +697,9 @@ class MapListView(TemplateView):
       # go through all appropriately defined fields...
       for field_name in self.model.BasemodelMeta.map_filter_fields:
         # if it is a ChoiceArrayField or the field shall explicitly function as a checkbox set...
-        if (
-          self.model._meta.get_field(field_name).__class__.__name__ == 'ChoiceArrayField'
-          or (
-            self.model.BasemodelMeta.map_filter_fields_as_checkbox
-            and field_name in self.model.BasemodelMeta.map_filter_fields_as_checkbox
-          )
+        if self.model._meta.get_field(field_name).__class__.__name__ == 'ChoiceArrayField' or (
+          self.model.BasemodelMeta.map_filter_fields_as_checkbox
+          and field_name in self.model.BasemodelMeta.map_filter_fields_as_checkbox
         ):
           complete_field_name_ordering = complete_field_name_naming = field_name
           # if it is a foreign key field...
@@ -656,9 +722,11 @@ class MapListView(TemplateView):
           field_name_isnull = field_name + '__isnull'
           # sorted list of all unique values of the matching field obtained from the target model
           values_list = list(
-            self.model.objects.exclude(**{field_name_isnull: True}).order_by(
-              complete_field_name_ordering).values_list(
-              complete_field_name_naming, flat=True).distinct())
+            self.model.objects.exclude(**{field_name_isnull: True})
+            .order_by(complete_field_name_ordering)
+            .values_list(complete_field_name_naming, flat=True)
+            .distinct()
+          )
           # if it is NOT a foreign key field...
           if field_name == complete_field_name_ordering:
             # separate values and get a sorted list of all unique individual values
@@ -671,9 +739,9 @@ class MapListView(TemplateView):
             # since decimal numbers cannot be serialized as JSON
             cleaned_distinct_value_list = []
             for distinct_value in distinct_value_list:
-              cleaned_distinct_value_list.append(str(distinct_value)
-                                                 if isinstance(distinct_value, Decimal)
-                                                 else distinct_value)
+              cleaned_distinct_value_list.append(
+                str(distinct_value) if isinstance(distinct_value, Decimal) else distinct_value
+              )
             # insert list into declared dictionary
             checkbox_filter_lists[field_name] = cleaned_distinct_value_list
           # otherwise...
@@ -692,59 +760,65 @@ class MapListView(TemplateView):
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
     context['forms_in_high_zoom_mode'] = self.model.BasemodelMeta.forms_in_high_zoom_mode
     context['forms_in_high_zoom_mode_default_aerial'] = (
-      self.model.BasemodelMeta.forms_in_high_zoom_mode_default_aerial)
+      self.model.BasemodelMeta.forms_in_high_zoom_mode_default_aerial
+    )
     if self.model.BasemodelMeta.forms_in_high_zoom_mode:
-      context['leaflet_config_overrides'] = {
-        'MAX_ZOOM': 21
-      }
+      context['leaflet_config_overrides'] = {'MAX_ZOOM': 21}
     if self.kwargs and 'subset_id' in self.kwargs and self.kwargs['subset_id']:
       subset_id = kwargs['subset_id']
       context['subset_id'] = subset_id
       context['objects_count'] = get_model_objects(self.model, subset_id, True)
       context['url_model_mapdata_subset'] = reverse(
-        'datenmanagement:' + model_name + '_mapdata_subset', args=[subset_id])
+        'datenmanagement:' + model_name + '_mapdata_subset', args=[subset_id]
+      )
     else:
       context['objects_count'] = get_model_objects(self.model, None, True)
     context['highlight_flag'] = self.model.BasemodelMeta.highlight_flag
     context['heavy_load_limit'] = self.model.BasemodelMeta.map_heavy_load_limit
     context['additional_wms_layers'] = self.model.BasemodelMeta.additional_wms_layers
-    if (
-        self.model.BasemodelMeta.editable
-        and self.request.user.has_perm('datenmanagement.add_' + model_name_lower)
+    if self.model.BasemodelMeta.editable and self.request.user.has_perm(
+      'datenmanagement.add_' + model_name_lower
     ):
       context['url_model_add'] = reverse('datenmanagement:' + model_name + '_add')
     context['url_model_list'] = reverse('datenmanagement:' + model_name + '_list')
     context['url_model_list_subset_placeholder'] = reverse(
-      'datenmanagement:' + model_name + '_list_subset', args=['worschdsupp'])
+      'datenmanagement:' + model_name + '_list_subset', args=['worschdsupp']
+    )
     context['url_model_mapdata'] = reverse('datenmanagement:' + model_name + '_mapdata')
     context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
     # add map filter related elements to context
     if (
-        self.model.BasemodelMeta.map_filter_fields
-        or self.model.BasemodelMeta.map_intervalfilter_fields
+      self.model.BasemodelMeta.map_filter_fields
+      or self.model.BasemodelMeta.map_intervalfilter_fields
     ):
       context['map_filters_enabled'] = True
     context['map_one_click_filters'] = self.model.BasemodelMeta.map_one_click_filters
     context['map_deadlinefilter_fields'] = self.model.BasemodelMeta.map_deadlinefilter_fields
     context['map_deadlineyearfilter_fields'] = (
-      self.model.BasemodelMeta.map_deadlineyearfilter_fields)
+      self.model.BasemodelMeta.map_deadlineyearfilter_fields
+    )
     if self.model.BasemodelMeta.map_intervalfilter_fields:
       context['map_intervalfilter_fields'] = list(
-        self.model.BasemodelMeta.map_intervalfilter_fields.keys())
+        self.model.BasemodelMeta.map_intervalfilter_fields.keys()
+      )
       context['map_intervalfilter_fields_labels'] = list(
-        self.model.BasemodelMeta.map_intervalfilter_fields.values())
+        self.model.BasemodelMeta.map_intervalfilter_fields.values()
+      )
     context['interval_filter_min'] = interval_filter_min
     context['interval_filter_max'] = interval_filter_max
     if self.model.BasemodelMeta.map_filter_fields:
       context['map_filter_fields'] = list(self.model.BasemodelMeta.map_filter_fields.keys())
       context['map_filter_fields_labels'] = list(
-        self.model.BasemodelMeta.map_filter_fields.values())
+        self.model.BasemodelMeta.map_filter_fields.values()
+      )
     context['map_filter_fields_as_checkbox'] = (
-      self.model.BasemodelMeta.map_filter_fields_as_checkbox)
+      self.model.BasemodelMeta.map_filter_fields_as_checkbox
+    )
     context['map_filter_fields_as_list'] = self.model.BasemodelMeta.map_filter_fields_as_list
     context['list_filter_lists'] = dumps(list_filter_lists)
     context['checkbox_filter_lists'] = dumps(checkbox_filter_lists)
     context['map_filter_boolean_fields_as_checkbox'] = (
-      self.model.BasemodelMeta.map_filter_boolean_fields_as_checkbox)
+      self.model.BasemodelMeta.map_filter_boolean_fields_as_checkbox
+    )
     context['map_filter_hide_initial'] = self.model.BasemodelMeta.map_filter_hide_initial
     return context

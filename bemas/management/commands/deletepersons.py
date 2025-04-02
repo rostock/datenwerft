@@ -6,7 +6,6 @@ from bemas.views.functions import create_log_entry
 
 
 class Command(BaseCommand):
-
   def handle(self, *args, **options):
     # get persons to be deleted
     # (i.e. persons not connected to any contacts and any originators and any active complaints)
@@ -20,5 +19,5 @@ class Command(BaseCommand):
     self.stdout.write(
       self.style.SUCCESS(
         '{} person(s) not connected to contacts and active complaints deleted'.format(num_deleted)
-        )
+      )
     )

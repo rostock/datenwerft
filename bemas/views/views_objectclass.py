@@ -1,3 +1,5 @@
+from json import dumps
+
 from django.contrib.gis.db.models.functions import AsGeoJSON
 from django.contrib.messages import error, success
 from django.db.models import ProtectedError
@@ -6,17 +8,35 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from json import dumps
+
+from bemas.models import (
+  Complaint,
+  Contact,
+  Event,
+  GeometryObjectclass,
+  LogEntry,
+  Organization,
+  Originator,
+  Sector,
+  Status,
+)
+from bemas.utils import generate_user_string, shorten_string
+from toolbox.utils import get_array_first_element, is_geometry_field
 
 from .forms import GenericForm
-from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
-  add_sector_examples_context_element, add_table_context_elements, assign_widget, \
-  create_log_entry, generate_foreign_key_objects_list, get_referer, get_referer_url, \
-  set_generic_objectclass_create_update_delete_context, set_log_action_and_content
-from toolbox.utils import get_array_first_element, is_geometry_field
-from bemas.models import GeometryObjectclass, Complaint, Contact, Event, LogEntry, Organization, \
-  Originator, Sector, Status
-from bemas.utils import generate_user_string, shorten_string
+from .functions import (
+  add_default_context_elements,
+  add_generic_objectclass_context_elements,
+  add_sector_examples_context_element,
+  add_table_context_elements,
+  assign_widget,
+  create_log_entry,
+  generate_foreign_key_objects_list,
+  get_referer,
+  get_referer_url,
+  set_generic_objectclass_create_update_delete_context,
+  set_log_action_and_content,
+)
 
 
 class GenericObjectclassTableView(TemplateView):
@@ -56,10 +76,7 @@ class GenericObjectclassCreateView(CreateView):
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
     self.form_class = modelform_factory(
-      self.model,
-      form=GenericForm,
-      fields='__all__',
-      formfield_callback=assign_widget
+      self.model, form=GenericForm, fields='__all__', formfield_callback=assign_widget
     )
     super().__init__(*args, **kwargs)
 
@@ -77,10 +94,7 @@ class GenericObjectclassCreateView(CreateView):
       fallback_url = 'bemas:' + self.model.__name__.lower() + '_table'
     cancel_url = get_referer_url(get_referer(self.request), fallback_url)
     context = set_generic_objectclass_create_update_delete_context(
-      super().get_context_data(**kwargs),
-      self.request,
-      self.model,
-      cancel_url
+      super().get_context_data(**kwargs), self.request, self.model, cancel_url
     )
     # object class originator:
     # add list of sector examples to context
@@ -141,20 +155,14 @@ class GenericObjectclassCreateView(CreateView):
       '{} neue {} <strong><em>{}</em></strong> wurde erfolgreich angelegt!'.format(
         self.model.BasemodelMeta.definite_article.capitalize(),
         self.model._meta.verbose_name,
-        obj_str
-      )
+        obj_str,
+      ),
     )
     # create new log entry (except for object class log entry itself, of course)
     if not issubclass(self.model, LogEntry):
       curr_object = form.save()
       curr_object.save()
-      create_log_entry(
-        self.model,
-        curr_object.pk,
-        'created',
-        str(curr_object),
-        self.request.user
-      )
+      create_log_entry(self.model, curr_object.pk, 'created', str(curr_object), self.request.user)
     return super().form_valid(form)
 
   def form_invalid(self, form, **kwargs):
@@ -191,10 +199,7 @@ class GenericObjectclassUpdateView(UpdateView):
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
     self.form_class = modelform_factory(
-      self.model,
-      form=GenericForm,
-      fields='__all__',
-      formfield_callback=assign_widget
+      self.model, form=GenericForm, fields='__all__', formfield_callback=assign_widget
     )
     super().__init__(*args, **kwargs)
 
@@ -212,17 +217,12 @@ class GenericObjectclassUpdateView(UpdateView):
       fallback_url = 'bemas:' + self.model.__name__.lower() + '_table'
     cancel_url = get_referer_url(get_referer(self.request), fallback_url)
     context = set_generic_objectclass_create_update_delete_context(
-      super().get_context_data(**kwargs),
-      self.request,
-      self.model,
-      cancel_url,
-      self.object
+      super().get_context_data(**kwargs), self.request, self.model, cancel_url, self.object
     )
     # optionally add log entries link
     if not issubclass(self.model, LogEntry):
       context['objectclass_logentry_url'] = reverse(
-        'bemas:logentry_table_model_object',
-        args=[self.model.__name__, self.object.pk]
+        'bemas:logentry_table_model_object', args=[self.model.__name__, self.object.pk]
       )
     # object class organization:
     # optionally add list of contacts to context
@@ -233,7 +233,7 @@ class GenericObjectclassUpdateView(UpdateView):
         for contact in contacts:
           contact_dict = {
             'link': reverse('bemas:contact_update', args=[contact.pk]),
-            'text': contact.name_and_function()
+            'text': contact.name_and_function(),
           }
           contacts_list.append(contact_dict)
         context['contacts'] = contacts_list
@@ -246,7 +246,7 @@ class GenericObjectclassUpdateView(UpdateView):
         for event in events:
           event_dict = {
             'link': reverse('bemas:event_update', args=[event.pk]),
-            'text': event.type_of_event_and_created_at()
+            'text': event.type_of_event_and_created_at(),
           }
           events_list.append(event_dict)
         context['events'] = events_list
@@ -271,9 +271,9 @@ class GenericObjectclassUpdateView(UpdateView):
     if issubclass(self.model, GeometryObjectclass):
       geometry = getattr(self.object, self.model.BasemodelMeta.geometry_field)
       if geometry:
-        geometry = self.model.objects.annotate(
-          geojson=AsGeoJSON(geometry)
-        ).get(pk=self.object.pk).geojson
+        geometry = (
+          self.model.objects.annotate(geojson=AsGeoJSON(geometry)).get(pk=self.object.pk).geojson
+        )
       context['geometry'] = geometry
     # object class originator:
     # add list of sector examples to context
@@ -322,30 +322,22 @@ class GenericObjectclassUpdateView(UpdateView):
       '{} {} <strong><em>{}</em></strong> wurde erfolgreich geändert!'.format(
         self.model.BasemodelMeta.definite_article.capitalize(),
         self.model._meta.verbose_name,
-        str(form.instance)
-      )
+        str(form.instance),
+      ),
     )
     if form.has_changed():
       # create new log entry for the following object classes:
       # Complaint, Originator
-      if (
-          issubclass(self.model, Complaint)
-          or issubclass(self.model, Originator)
-      ):
+      if issubclass(self.model, Complaint) or issubclass(self.model, Originator):
         curr_object = form.save()
         curr_object.save()
         # loop changed data in order to create individual log entries
         for changed_attribute in form.changed_data:
           log_action, content = set_log_action_and_content(
-            self.model, curr_object, changed_attribute, form.cleaned_data)
+            self.model, curr_object, changed_attribute, form.cleaned_data
+          )
           if log_action and content:
-            create_log_entry(
-              self.model,
-              curr_object.pk,
-              log_action,
-              content,
-              self.request.user
-            )
+            create_log_entry(self.model, curr_object.pk, log_action, content, self.request.user)
     return super().form_valid(form)
 
   def form_invalid(self, form, **kwargs):
@@ -393,16 +385,12 @@ class GenericObjectclassDeleteView(DeleteView):
       fallback_url = 'bemas:' + self.model.__name__.lower() + '_table'
     cancel_url = get_referer_url(get_referer(self.request), fallback_url)
     context = set_generic_objectclass_create_update_delete_context(
-      super().get_context_data(**kwargs),
-      self.request,
-      self.model,
-      cancel_url
+      super().get_context_data(**kwargs), self.request, self.model, cancel_url
     )
     # optionally add log entries link
     if not issubclass(self.model, LogEntry):
       context['objectclass_logentry_url'] = reverse(
-        'bemas:logentry_table_model_object',
-        args=[self.model.__name__, self.object.pk]
+        'bemas:logentry_table_model_object', args=[self.model.__name__, self.object.pk]
       )
     # optionally add custom deletion hints (shown as text to user) to context
     if self.deletion_hints:
@@ -431,27 +419,26 @@ class GenericObjectclassDeleteView(DeleteView):
         '{} {} <strong><em>{}</em></strong> wurde erfolgreich gelöscht!'.format(
           self.model.BasemodelMeta.definite_article.capitalize(),
           self.model._meta.verbose_name,
-          str(self.object)
-        )
+          str(self.object),
+        ),
       )
       # create new log entry (except for object class log entry itself, of course)
       if not issubclass(self.model, LogEntry):
-        create_log_entry(
-          self.model,
-          object_pk,
-          'deleted',
-          content,
-          self.request.user
-        )
+        create_log_entry(self.model, object_pk, 'deleted', content, self.request.user)
       return HttpResponseRedirect(self.success_url)
     except ProtectedError as exception:
       error(
         self.request,
-        self.model.BasemodelMeta.definite_article.capitalize() + ' ' +
-        self.model._meta.verbose_name + ' <strong><em>' + str(self.object) +
-        '</em></strong> kann nicht gelöscht werden! Folgende(s) Objekt(e) verweist/verweisen '
-        'noch auf ' + self.model.BasemodelMeta.personal_pronoun + ':<br><br>' +
-        generate_foreign_key_objects_list(exception.protected_objects)
+        self.model.BasemodelMeta.definite_article.capitalize()
+        + ' '
+        + self.model._meta.verbose_name
+        + ' <strong><em>'
+        + str(self.object)
+        + '</em></strong> kann nicht gelöscht werden! Folgende(s) Objekt(e) verweist/verweisen '
+        'noch auf '
+        + self.model.BasemodelMeta.personal_pronoun
+        + ':<br><br>'
+        + generate_foreign_key_objects_list(exception.protected_objects),
       )
       return self.render_to_response(self.get_context_data(form=form))
 
@@ -472,25 +459,27 @@ class OrganizationDeleteView(GenericObjectclassDeleteView):
     self.deletion_hints = []
     contacts = self.object.contact_set.all()
     if contacts:
-      deletion_hint = 'Es werden automatisch auch alle Ansprechpartner:innen-Verbindungen ' \
-                      'mit folgender/folgenden Person(en) gelöscht:<br><br>'
+      deletion_hint = (
+        'Es werden automatisch auch alle Ansprechpartner:innen-Verbindungen '
+        'mit folgender/folgenden Person(en) gelöscht:<br><br>'
+      )
       deletion_hint += generate_foreign_key_objects_list(contacts, 'person')
       self.deletion_hints.append(deletion_hint)
     # list linked complaints (if any) which will automatically be unlinked
     complaints = Complaint.objects.filter(complainers_organizations__id=self.object.pk)
     if complaints:
-      deletion_hint = 'Es werden automatisch auch alle Verbindungen als Beschwerdeführerin ' \
-                      'mit folgender/folgenden Beschwerden(n) gelöst:<br><br>'
+      deletion_hint = (
+        'Es werden automatisch auch alle Verbindungen als Beschwerdeführerin '
+        'mit folgender/folgenden Beschwerden(n) gelöst:<br><br>'
+      )
       deletion_hint += generate_foreign_key_objects_list(complaints)
       self.deletion_hints.append(deletion_hint)
     # set generic object class context for this view
     cancel_url = get_referer_url(
-      get_referer(self.request), 'bemas:' + self.model.__name__.lower() + '_table')
+      get_referer(self.request), 'bemas:' + self.model.__name__.lower() + '_table'
+    )
     context = set_generic_objectclass_create_update_delete_context(
-      super().get_context_data(**kwargs),
-      self.request,
-      self.model,
-      cancel_url
+      super().get_context_data(**kwargs), self.request, self.model, cancel_url
     )
     # add custom deletion hints (shown as text to user) to context
     context['deletion_hints'] = self.deletion_hints
@@ -513,25 +502,27 @@ class PersonDeleteView(GenericObjectclassDeleteView):
     self.deletion_hints = []
     contacts = self.object.contact_set.all()
     if contacts:
-      deletion_hint = 'Es werden automatisch auch alle Ansprechpartner:innen-Verbindungen ' \
-                      'mit folgender/folgenden Organisation(en) gelöscht:<br><br>'
+      deletion_hint = (
+        'Es werden automatisch auch alle Ansprechpartner:innen-Verbindungen '
+        'mit folgender/folgenden Organisation(en) gelöscht:<br><br>'
+      )
       deletion_hint += generate_foreign_key_objects_list(contacts, 'organization')
       self.deletion_hints.append(deletion_hint)
     # list linked complaints (if any) which will automatically be unlinked
     complaints = Complaint.objects.filter(complainers_persons__id=self.object.pk)
     if complaints:
-      deletion_hint = 'Es werden automatisch auch alle Verbindungen als Beschwerdeführer:in ' \
-                      'mit folgender/folgenden Beschwerden(n) gelöst:<br><br>'
+      deletion_hint = (
+        'Es werden automatisch auch alle Verbindungen als Beschwerdeführer:in '
+        'mit folgender/folgenden Beschwerden(n) gelöst:<br><br>'
+      )
       deletion_hint += generate_foreign_key_objects_list(complaints)
       self.deletion_hints.append(deletion_hint)
     # set generic object class context for this view
     cancel_url = get_referer_url(
-      get_referer(self.request), 'bemas:' + self.model.__name__.lower() + '_table')
+      get_referer(self.request), 'bemas:' + self.model.__name__.lower() + '_table'
+    )
     context = set_generic_objectclass_create_update_delete_context(
-      super().get_context_data(**kwargs),
-      self.request,
-      self.model,
-      cancel_url
+      super().get_context_data(**kwargs), self.request, self.model, cancel_url
     )
     # add custom deletion hints (shown as text to user) to context
     context['deletion_hints'] = self.deletion_hints
@@ -554,18 +545,17 @@ class ComplaintDeleteView(GenericObjectclassDeleteView):
     self.deletion_hints = []
     events = self.object.event_set.all()
     if events:
-      deletion_hint = 'Es werden automatisch auch alle Journalereignisse ' \
-                      'zu dieser Beschwerde gelöscht:<br><br>'
+      deletion_hint = (
+        'Es werden automatisch auch alle Journalereignisse zu dieser Beschwerde gelöscht:<br><br>'
+      )
       deletion_hint += generate_foreign_key_objects_list(events)
       self.deletion_hints.append(deletion_hint)
     # set generic object class context for this view
     cancel_url = get_referer_url(
-      get_referer(self.request), 'bemas:' + self.model.__name__.lower() + '_table')
+      get_referer(self.request), 'bemas:' + self.model.__name__.lower() + '_table'
+    )
     context = set_generic_objectclass_create_update_delete_context(
-      super().get_context_data(**kwargs),
-      self.request,
-      self.model,
-      cancel_url
+      super().get_context_data(**kwargs), self.request, self.model, cancel_url
     )
     # add custom deletion hints (shown as text to user) to context
     context['deletion_hints'] = self.deletion_hints

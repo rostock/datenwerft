@@ -1,4 +1,5 @@
 from datetime import date, datetime
+
 from django.apps import apps
 from django.db.models import ForeignKey
 from django.urls import reverse
@@ -6,13 +7,24 @@ from django.utils.html import escape
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from jsonview.views import JsonView
 
-from .functions import create_geojson_feature, generate_foreign_key_link, \
-  generate_foreign_key_link_simplified, get_model_objects
+from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Originator, Person
+from bemas.utils import (
+  LOG_ACTIONS,
+  get_foreign_key_target_model,
+  get_foreign_key_target_object,
+  get_icon_from_settings,
+  is_bemas_admin,
+  is_bemas_user,
+)
 from toolbox.models import Subsets
 from toolbox.utils import format_date_datetime, optimize_datatable_filter
-from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Originator, Person
-from bemas.utils import LOG_ACTIONS, get_foreign_key_target_model, get_foreign_key_target_object, \
-  get_icon_from_settings, is_bemas_admin, is_bemas_user
+
+from .functions import (
+  create_geojson_feature,
+  generate_foreign_key_link,
+  generate_foreign_key_link_simplified,
+  get_model_objects,
+)
 
 
 class GenericTableDataView(BaseDatatableView):
@@ -30,9 +42,9 @@ class GenericTableDataView(BaseDatatableView):
     if self.kwargs and 'subset_pk' in self.kwargs and self.kwargs['subset_pk']:
       subset = Subsets.objects.get(pk=self.kwargs['subset_pk'])
       if (
-          subset is not None
-          and isinstance(subset, Subsets)
-          and subset.model.model == self.model.__name__.lower()
+        subset is not None
+        and isinstance(subset, Subsets)
+        and subset.model.model == self.model.__name__.lower()
       ):
         objects = self.model.objects.filter(pk__in=subset.pk_values)
     else:
@@ -48,9 +60,9 @@ class GenericTableDataView(BaseDatatableView):
     """
     json_data = []
     if (
-        is_bemas_admin(self.request.user)
-        or is_bemas_user(self.request.user)
-        or self.request.user.is_superuser
+      is_bemas_admin(self.request.user)
+      or is_bemas_user(self.request.user)
+      or self.request.user.is_superuser
     ):
       for item in qs:
         item_data = []
@@ -73,8 +85,13 @@ class GenericTableDataView(BaseDatatableView):
               icon = '<i class="fas fa-{}"></i>'.format(get_icon_from_settings(model_name))
               text = icon + ' ' + model_title
               if value != 'Contact':
-                text = '<a href="' + reverse('bemas:' + model_name + '_table') + \
-                       '" title="Tabelle anzeigen">' + text + '</a>'
+                text = (
+                  '<a href="'
+                  + reverse('bemas:' + model_name + '_table')
+                  + '" title="Tabelle anzeigen">'
+                  + text
+                  + '</a>'
+                )
               item_data.append(text)
             # log entry specific column "object_pk"
             elif issubclass(self.model, LogEntry) and column.name == 'object_pk':
@@ -83,8 +100,13 @@ class GenericTableDataView(BaseDatatableView):
               model_name = model.__name__.lower()
               text = str(value)
               if model.objects.filter(pk=value).exists():
-                text = '<a href="' + reverse('bemas:' + model_name + '_update', args=[value]) + \
-                       '" title="Objekt ansehen oder bearbeiten">' + text + '</a>'
+                text = (
+                  '<a href="'
+                  + reverse('bemas:' + model_name + '_update', args=[value])
+                  + '" title="Objekt ansehen oder bearbeiten">'
+                  + text
+                  + '</a>'
+                )
               item_data.append(text)
             # log entry specific column "action"
             elif issubclass(self.model, LogEntry) and column.name == 'action':
@@ -152,16 +174,19 @@ class GenericTableDataView(BaseDatatableView):
             data += generate_foreign_key_link_simplified(Person, operator_person)
           # designate anonymous complaint if necessary
           if not data:
-            data = '<em><i class="fas fa-' + \
-                   get_icon_from_settings('originator_without_operator') + \
-                   '"></i> unbekannte Betreiberverhältnisse</em>'
+            data = (
+              '<em><i class="fas fa-'
+              + get_icon_from_settings('originator_without_operator')
+              + '"></i> unbekannte Betreiberverhältnisse</em>'
+            )
           item_data.append(data)
         # object class complaint:
         # add column which lists complainer(s)
         elif issubclass(self.model, Complaint):
           data = ''
           complainers_organizations = Complaint.objects.get(
-            pk=item_pk).complainers_organizations.all()
+            pk=item_pk
+          ).complainers_organizations.all()
           if complainers_organizations:
             for index, organization in enumerate(complainers_organizations):
               data += '<br>' if index > 0 else ''
@@ -173,20 +198,17 @@ class GenericTableDataView(BaseDatatableView):
               data += generate_foreign_key_link_simplified(Person, person)
           # designate anonymous complaint if necessary
           if not data:
-            data = '<em><i class="fas fa-' + get_icon_from_settings('anonymous_complaint') + \
-                   '"></i> anonyme Beschwerde</em>'
+            data = (
+              '<em><i class="fas fa-'
+              + get_icon_from_settings('anonymous_complaint')
+              + '"></i> anonyme Beschwerde</em>'
+            )
           item_data.append(data)
         # append links for updating, deleting, etc.
         if (
-            (
-                issubclass(self.model, Codelist)
-                and (
-                    is_bemas_admin(self.request.user)
-                    or self.request.user.is_superuser
-                )
-            )
-            or not issubclass(self.model, LogEntry)
-        ):
+          issubclass(self.model, Codelist)
+          and (is_bemas_admin(self.request.user) or self.request.user.is_superuser)
+        ) or not issubclass(self.model, LogEntry):
           view_name_prefix = self.model.__name__.lower()
           if issubclass(self.model, Codelist):
             view_name_prefix = 'codelists_' + view_name_prefix
@@ -197,7 +219,8 @@ class GenericTableDataView(BaseDatatableView):
             log_entry_link = '<a class="ms-2 btn btn-sm btn-outline-primary" '
             log_entry_link += 'title="Einträge im Bearbeitungsverlauf anzeigen" href="'
             log_entry_link += reverse(
-              'bemas:logentry_table_model_object', args=[self.model.__name__, item_pk])
+              'bemas:logentry_table_model_object', args=[self.model.__name__, item_pk]
+            )
             log_entry_link += '"><i class="fas fa-' + get_icon_from_settings('logentry')
             log_entry_link += '"></i></a>'
           event_link = ''
@@ -216,17 +239,25 @@ class GenericTableDataView(BaseDatatableView):
             map_link += '?center=' + str(point.x) + ',' + str(point.y) + '">'
             map_link += '<i class="fas fa-' + get_icon_from_settings('show_on_map') + '"></i></a>'
           item_data.append(
-            '<a class="btn btn-sm btn-outline-warning" role="button" ' +
-            'title="' + title + ' ansehen oder bearbeiten" href="' +
-            reverse('bemas:' + view_name_prefix + '_update', args=[item_pk]) +
-            '"><i class="fas fa-' + get_icon_from_settings('update') + '"></i></a>' +
-            '<a class="ms-2 btn btn-sm btn-outline-danger" role="button" ' +
-            'title="' + title + ' löschen" href="' +
-            reverse('bemas:' + view_name_prefix + '_delete', args=[item_pk]) +
-            '"><i class="fas fa-' + get_icon_from_settings('delete') + '"></i></a>' +
-            event_link +
-            log_entry_link +
-            map_link
+            '<a class="btn btn-sm btn-outline-warning" role="button" '
+            + 'title="'
+            + title
+            + ' ansehen oder bearbeiten" href="'
+            + reverse('bemas:' + view_name_prefix + '_update', args=[item_pk])
+            + '"><i class="fas fa-'
+            + get_icon_from_settings('update')
+            + '"></i></a>'
+            + '<a class="ms-2 btn btn-sm btn-outline-danger" role="button" '
+            + 'title="'
+            + title
+            + ' löschen" href="'
+            + reverse('bemas:' + view_name_prefix + '_delete', args=[item_pk])
+            + '"><i class="fas fa-'
+            + get_icon_from_settings('delete')
+            + '"></i></a>'
+            + event_link
+            + log_entry_link
+            + map_link
           )
         json_data.append(item_data)
     return json_data
@@ -254,7 +285,8 @@ class GenericTableDataView(BaseDatatableView):
             else:
               search_column += '__search_content'
           qs_params_inner = optimize_datatable_filter(
-            search_element, search_column, qs_params_inner)
+            search_element, search_column, qs_params_inner
+          )
         qs_params = qs_params & qs_params_inner if qs_params else qs_params_inner
       qs = qs.filter(qs_params)
     return qs
@@ -318,9 +350,9 @@ class GenericMapDataView(JsonView):
     if self.kwargs and 'subset_pk' in self.kwargs and self.kwargs['subset_pk']:
       subset = Subsets.objects.get(pk=self.kwargs['subset_pk'])
       if (
-          subset is not None
-          and isinstance(subset, Subsets)
-          and subset.model.model == self.model.__name__.lower()
+        subset is not None
+        and isinstance(subset, Subsets)
+        and subset.model.model == self.model.__name__.lower()
       ):
         objects = self.model.objects.filter(pk__in=subset.pk_values)
     else:
@@ -328,10 +360,7 @@ class GenericMapDataView(JsonView):
     # handle objects
     if objects:
       # declare empty GeoJSON feature collection
-      feature_collection = {
-          'type': 'FeatureCollection',
-          'features': []
-      }
+      feature_collection = {'type': 'FeatureCollection', 'features': []}
       for curr_object in objects:
         # create GeoJSON feature
         feature = create_geojson_feature(curr_object)

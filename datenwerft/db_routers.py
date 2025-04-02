@@ -3,11 +3,8 @@ class DatabaseRouter:
   router to control all database operations
   on various apps
   """
-  route_app_labels = {
-    'antragsmanagement',
-    'bemas',
-    'datenmanagement'
-  }
+
+  route_app_labels = {'antragsmanagement', 'bemas', 'datenmanagement'}
 
   def db_for_read(self, model, **hints):
     """

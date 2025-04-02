@@ -1,12 +1,12 @@
 [Unit]
-Description=Django-RQ Worker
+Description=RQ-Worker
 After=network.target
 
 [Service]
-WorkingDirectory=/var/www/datenwerft/datenwerft
-ExecStart=/var/www/datenwerft/.virtualenv/bin/python \
-    /var/www/datenwerft/datenwerft/manage.py \
-    rqworker high default low
+WorkingDirectory=/path/to/datenwerft
+ExecStart=/path/to/datenwerft/.venv/bin/python \
+    /path/to/datenwerft/manage.py \
+    rqworker default
 
 [Install]
 WantedBy=multi-user.target
