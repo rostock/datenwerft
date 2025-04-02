@@ -193,7 +193,7 @@ class Abfallbehaelter(SimpleModel):
     ]
 
   def __str__(self):
-    return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
+    return f'{self.id} [Typ: {self.typ}]' if self.typ else ''
 
 
 class Abstellflaechen_E_Tretroller(SimpleModel):
@@ -284,7 +284,7 @@ class Abstellflaechen_E_Tretroller(SimpleModel):
     map_filter_fields_as_list = ['strasse']
 
   def __str__(self):
-    return self.id
+    return str(self.id)
 
 
 class Anerkennungsgebuehren_herrschend(SimpleModel):
@@ -399,9 +399,9 @@ class Angelverbotsbereiche(SimpleModel):
     map_feature_tooltip_fields = ['bezeichnung']
 
   def __str__(self):
-    return (self.bezeichnung if self.bezeichnung else 'ohne Bezeichnung') + (
-      ' [Beschreibung: ' + str(self.beschreibung) + ']' if self.beschreibung else ''
-    )
+    bezeichnung = self.bezeichnung if self.bezeichnung else 'ohne Bezeichnung'
+    beschreibung = f'[Beschreibung: {self.beschreibung}]' if self.beschreibung else ''
+    return f'{bezeichnung} {beschreibung}'
 
 
 class Arrondierungsflaechen(SimpleModel):
@@ -446,7 +446,7 @@ class Arrondierungsflaechen(SimpleModel):
     ]
 
   def __str__(self):
-    return self.registriernummer + ' (Jahr: ' + str(self.jahr) + ')'
+    return f'{self.registriernummer} (Jahr: {self.jahr})'
 
 
 class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
@@ -488,9 +488,9 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
   pdf = FileField(
     verbose_name='PDF',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(
-      settings.PDF_PATH_PREFIX_PRIVATE + 'aufteilungsplaene_wohnungseigentumsgesetz'
-    ),
+    upload_to=str(path_and_rename(
+        f'{settings.PDF_PATH_PREFIX_PRIVATE}aufteilungsplaene_wohnungseigentumsgesetz'
+    )),
     max_length=255,
   )
   geometrie = point_field
@@ -541,11 +541,9 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
     }
 
   def __str__(self):
-    return (
-      'Abgeschlossenheitserklärung mit Datum '
-      + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y')
-      + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
-    )
+    datum = datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y')
+    adresse = '[Adresse: ' + str(self.adresse) + ']' if self.adresse else ''
+    return f'Abgeschlossenheitserklärung mit Datum {datum} {adresse}'
 
 
 post_delete.connect(delete_pdf, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
@@ -680,7 +678,8 @@ class Baudenkmale(SimpleModel):
     ]
 
   def __str__(self):
-    return self.beschreibung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    adresse = self.adresse if self.adresse else ""
+    return f'{self.beschreibung} {adresse}'
 
 
 class Behinderteneinrichtungen(SimpleModel):
@@ -770,14 +769,8 @@ class Behinderteneinrichtungen(SimpleModel):
     map_filter_fields_as_list = ['traeger']
 
   def __str__(self):
-    return (
-      self.bezeichnung
-      + ' ['
-      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
-      + 'Träger: '
-      + str(self.traeger)
-      + ']'
-    )
+    adresse = f'Adresse: {self.adresse}, ' if self.adresse else ''
+    return f'{self.bezeichnung} [{adresse}Träger: {self.traeger}]'
 
 
 class Beschluesse_Bau_Planungsausschuss(SimpleModel):
@@ -810,9 +803,9 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
   pdf = FileField(
     verbose_name='PDF',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(
-      settings.PDF_PATH_PREFIX_PRIVATE + 'beschluesse_bau_planungsausschuss'
-    ),
+    upload_to=str(path_and_rename(
+      f'{settings.PDF_PATH_PREFIX_PRIVATE}beschluesse_bau_planungsausschuss'
+    )),
     max_length=255,
   )
   geometrie = point_field
@@ -846,13 +839,8 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
     }
 
   def __str__(self):
-    return (
-      self.vorhabenbezeichnung
-      + ' (Beschlussjahr '
-      + str(self.beschlussjahr)
-      + ')'
-      + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
-    )
+    adresse = f'[Adresse: {self.adresse}]' if self.adresse else ''
+    return f'{self.vorhabenbezeichnung} (Beschlussjahr {self.beschlussjahr}) {adresse}'
 
 
 post_delete.connect(delete_pdf, sender=Beschluesse_Bau_Planungsausschuss)
@@ -936,7 +924,8 @@ class Bildungstraeger(SimpleModel):
     map_filter_fields = {'bezeichnung': 'Bezeichnung', 'schlagwoerter': 'Schlagwörter'}
 
   def __str__(self):
-    return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    adresse = f'[Adresse: {self.adresse}]' if self.adresse else ''
+    return f'{self.bezeichnung} {adresse}'
 
 
 class Brunnen(SimpleModel):
@@ -1040,7 +1029,7 @@ class Brunnen(SimpleModel):
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
-    return self.lagebeschreibung
+    return str(self.lagebeschreibung)
 
 
 class Carsharing_Stationen(SimpleModel):
@@ -1140,14 +1129,8 @@ class Carsharing_Stationen(SimpleModel):
     map_filter_fields_as_list = ['anbieter']
 
   def __str__(self):
-    return (
-      self.bezeichnung
-      + ' ['
-      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
-      + 'Anbieter: '
-      + str(self.anbieter)
-      + ']'
-    )
+    adresse = f'Adresse: {self.adresse}, ' if self.adresse else ''
+    return f'{self.bezeichnung} [{adresse}Anbieter: {self.anbieter}]'
 
 
 class Containerstellplaetze(SimpleModel):
@@ -1339,7 +1322,7 @@ class Containerstellplaetze(SimpleModel):
     map_filter_fields = {'id': 'ID', 'privat': 'privat?', 'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 pre_save.connect(set_pre_save_instance, sender=Containerstellplaetze)
@@ -1444,7 +1427,7 @@ class Denkmalbereiche(SimpleModel):
     map_filter_fields_as_list = ['status']
 
   def __str__(self):
-    return self.bezeichnung + ' [Beschreibung: ' + str(self.beschreibung) + ']'
+    return f'{self.bezeichnung} [Beschreibung: {self.beschreibung}]'
 
 
 class Denksteine(SimpleModel):
@@ -1546,17 +1529,10 @@ class Denksteine(SimpleModel):
     map_filter_fields_as_list = ['titel']
 
   def __str__(self):
-    return (
-      (str(self.titel) + ' ' if self.titel else '')
-      + self.vorname
-      + ' '
-      + self.nachname
-      + ' (* '
-      + str(self.geburtsjahr)
-      + (', † ' + str(self.sterbejahr) if self.sterbejahr else '')
-      + ')'
-      + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
-    )
+    titel = f'{self.titel} ' if self.titel else ''
+    sterbejahr = f', † {self.sterbejahr}' if self.sterbejahr else ''
+    adresse = f'[Adresse: {self.adresse}]' if self.adresse else ''
+    return f'{titel}{self.vorname} {self.nachname} (* {self.geburtsjahr}{sterbejahr}) {adresse}'
 
 
 class Erdwaermesonden(SimpleModel):
@@ -1667,7 +1643,7 @@ class Erdwaermesonden(SimpleModel):
     map_filter_fields_as_list = ['art', 'typ']
 
   def __str__(self):
-    return self.aktenzeichen
+    return str(self.aktenzeichen)
 
 
 class Fahrradabstellanlagen(SimpleModel):
@@ -1825,7 +1801,7 @@ class Fahrradabstellanlagen(SimpleModel):
     ]
 
   def __str__(self):
-    return self.id
+    return str(self.id)
 
 
 pre_save.connect(set_pre_save_instance, sender=Fahrradabstellanlagen)
@@ -1943,7 +1919,7 @@ class Fahrradboxen(SimpleModel):
     map_filter_fields_as_list = ['strasse', 'ausfuehrung', 'eigentuemer']
 
   def __str__(self):
-    return self.id
+    return str(self.id)
 
 
 pre_save.connect(set_pre_save_instance, sender=Fahrradboxen)
@@ -2052,7 +2028,7 @@ class Fahrradreparatursets(SimpleModel):
     map_filter_fields_as_list = ['strasse', 'ausfuehrung', 'eigentuemer']
 
   def __str__(self):
-    return self.id
+    return str(self.id)
 
 
 class Fahrradstaender(SimpleModel):
@@ -2166,7 +2142,7 @@ class Fahrradstaender(SimpleModel):
     map_filter_fields_as_list = ['strasse', 'ausfuehrung', 'eigentuemer']
 
   def __str__(self):
-    return self.id
+    return str(self.id)
 
 
 pre_save.connect(set_pre_save_instance, sender=Fahrradstaender)
@@ -2265,14 +2241,8 @@ class FairTrade(SimpleModel):
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
-    return (
-      self.bezeichnung
-      + ' ['
-      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
-      + 'Art: '
-      + str(self.art)
-      + ']'
-    )
+    adresse = f'Adresse: {self.adresse}, ' if self.adresse else ''
+    return f'{self.bezeichnung} [{adresse}Art: {self.art}]'
 
 
 class Feuerwachen(SimpleModel):
@@ -2353,14 +2323,8 @@ class Feuerwachen(SimpleModel):
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
-    return (
-      self.bezeichnung
-      + ' ['
-      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
-      + 'Art: '
-      + str(self.art)
-      + ']'
-    )
+    adresse = f'Adresse: {self.adresse}, ' if self.adresse else ''
+    return f'{self.bezeichnung} [{adresse}Art: {self.art}]'
 
 
 class Fliessgewaesser(SimpleModel):
@@ -2434,13 +2398,8 @@ class Fliessgewaesser(SimpleModel):
     map_filter_fields_as_list = ['art', 'ordnung']
 
   def __str__(self):
-    return (
-      self.nummer
-      + ' [Art: '
-      + str(self.art)
-      + (', Ordnung: ' + str(self.ordnung) if self.ordnung else '')
-      + ']'
-    )
+    ordnung = f', Ordnung: {self.ordnung}' if self.ordnung else ''
+    return f'{self.nummer} [Art: {self.art}{ordnung}]'
 
 
 class Fussgaengerueberwege(SimpleModel):
@@ -2563,7 +2522,7 @@ class Fussgaengerueberwege(SimpleModel):
     map_filter_fields_as_list = ['strasse', 'beleuchtungsart']
 
   def __str__(self):
-    return self.id
+    return str(self.id)
 
 
 class Gemeinbedarfsflaechen(SimpleModel):
@@ -2608,7 +2567,7 @@ class Gemeinbedarfsflaechen(SimpleModel):
     ]
 
   def __str__(self):
-    return self.registriernummer + ' (Jahr: ' + str(self.jahr) + ')'
+    return f'{self.registriernummer} (Jahr: {self.jahr})'
 
 
 class Gutachterfotos(SimpleModel):
@@ -2866,14 +2825,9 @@ class Hausnummern(SimpleModel):
     map_filter_fields_as_list = ['strasse', 'gebaeude_bauweise', 'gebaeude_funktion']
 
   def __str__(self):
+    hausnummer_zusatz = f'{self.hausnummer_zusatz}' if self.hausnummer_zusatz else ''
     return (
-      str(self.strasse)
-      + ' '
-      + str(self.hausnummer)
-      + (self.hausnummer_zusatz if self.hausnummer_zusatz else '')
-      + ' [Postleitzahl: '
-      + self.postleitzahl
-      + ']'
+      f'{self.strasse} {self.hausnummer}{hausnummer_zusatz} [Postleitzahl: {self.postleitzahl}]'
     )
 
 
@@ -2964,14 +2918,8 @@ class Hospize(SimpleModel):
     map_filter_fields_as_list = ['traeger']
 
   def __str__(self):
-    return (
-      self.bezeichnung
-      + ' ['
-      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
-      + 'Träger: '
-      + str(self.traeger)
-      + ']'
-    )
+    adresse = f'Adresse: {self.adresse}, ' if self.adresse else ''
+    return f'{self.bezeichnung} [{adresse}Träger: {self.traeger}]'
 
 
 class Hundetoiletten(SimpleModel):
@@ -3067,7 +3015,7 @@ class Hundetoiletten(SimpleModel):
     map_filter_fields_as_list = ['art', 'bewirtschafter']
 
   def __str__(self):
-    return self.id + ' [Art: ' + str(self.art) + ']'
+    return f'{self.id} [Art: {self.art}]'
 
 
 class Hydranten(SimpleModel):
@@ -3184,7 +3132,7 @@ class Hydranten(SimpleModel):
     map_filter_fields_as_list = ['eigentuemer', 'bewirtschafter', 'betriebszeit']
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Ingenieurbauwerke(SimpleModel):
@@ -3418,7 +3366,7 @@ class Ingenieurbauwerke(SimpleModel):
     map_filter_fields_as_list = ['art', 'strasse', 'ausfuehrung']
 
   def __str__(self):
-    return self.nummer
+    return str(self.nummer)
 
 
 class Jagdkataster_Skizzenebenen(SimpleModel):
@@ -3518,8 +3466,8 @@ class Jagdkataster_Skizzenebenen(SimpleModel):
     ansprechpartner = 'Antragsteller:in: ' + str(self.antragsteller)
     thema = 'Thema: ' + str(self.thema)
     status = 'Status: ' + str(self.status)
-    bemerkungen = ', Bemerkungen: ' + self.bemerkungen if self.bemerkungen else ''
-    return ansprechpartner + ', ' + thema + ', ' + status + bemerkungen
+    bemerkungen = f', Bemerkungen: {self.bemerkungen}' if self.bemerkungen else ''
+    return f'{ansprechpartner}, {thema}, {status}{bemerkungen}'
 
 
 class Kadaverfunde(SimpleModel):
@@ -3704,9 +3652,7 @@ class Kehrbezirke(SimpleModel):
     ]
 
   def __str__(self):
-    return (
-      str(self.adresse.adresse_lang) + ' zu ' + str(self.bevollmaechtigter_bezirksschornsteinfeger)
-    )
+    return f'{self.adresse.adresse_lang} zu {self.bevollmaechtigter_bezirksschornsteinfeger}'
 
 
 class Kindertagespflegeeinrichtungen(SimpleModel):
@@ -3786,12 +3732,8 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
     map_filter_fields = {'vorname': 'Vorname', 'nachname': 'Nachname', 'plaetze': 'Plätze'}
 
   def __str__(self):
-    return (
-      self.vorname
-      + ' '
-      + self.nachname
-      + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
-    )
+    adresse = f'[Adresse: {self.adresse}]' if self.adresse else ''
+    return f'{self.vorname} {self.nachname} {adresse}'
 
 
 class Kinder_Jugendbetreuung(SimpleModel):
@@ -3880,14 +3822,8 @@ class Kinder_Jugendbetreuung(SimpleModel):
     map_filter_fields_as_list = ['traeger']
 
   def __str__(self):
-    return (
-      self.bezeichnung
-      + ' ['
-      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
-      + 'Träger: '
-      + str(self.traeger)
-      + ']'
-    )
+    adresse = f'Adresse: {self.adresse}, ' if self.adresse else ''
+    return f'{self.bezeichnung} [{adresse}Träger: {self.traeger}]'
 
 
 class Kleinklaeranlagen(SimpleModel):
@@ -4026,7 +3962,7 @@ class Kleinklaeranlagen(SimpleModel):
     map_filter_fields_as_list = ['typ']
 
   def __str__(self):
-    return self.d3 + ' mit Datum der wasserrechtlichen Erlaubnis ' + str(self.we_datum)
+    return f'{self.d3} mit Datum der wasserrechtlichen Erlaubnis {self.we_datum}'
 
 
 class Kunst_im_oeffentlichen_Raum(SimpleModel):
@@ -4070,7 +4006,7 @@ class Kunst_im_oeffentlichen_Raum(SimpleModel):
     map_feature_tooltip_fields = ['bezeichnung']
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Ladestationen_Elektrofahrzeuge(SimpleModel):
@@ -4216,7 +4152,8 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
     map_filter_fields_as_list = ['betreiber', 'verbund', 'betriebsart']
 
   def __str__(self):
-    return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    adresse = f'[Adresse: {self.adresse}]' if self.adresse else ''
+    return f'{self.bezeichnung} {adresse}'
 
 
 class Meldedienst_flaechenhaft(SimpleModel):
@@ -4267,12 +4204,8 @@ class Meldedienst_flaechenhaft(SimpleModel):
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
-    return (
-      str(self.art)
-      + ' [Datum: '
-      + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y')
-      + ']'
-    )
+    datum = datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y')
+    return f'{self.art} [Datum: {datum}]'
 
 
 class Meldedienst_punkthaft(SimpleModel):
@@ -4396,13 +4329,9 @@ class Meldedienst_punkthaft(SimpleModel):
     map_filter_fields_as_list = ['art', 'gebaeudeart']
 
   def __str__(self):
-    return (
-      str(self.art)
-      + ' [Datum: '
-      + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y')
-      + (', Adresse: ' + str(self.adresse) if self.adresse else '')
-      + ']'
-    )
+    datum = datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y')
+    adresse = f', Adresse: {self.adresse}' if self.adresse else ''
+    return f'{self.art} [{datum}{adresse}]'
 
 
 class Mobilfunkantennen(SimpleModel):
@@ -4514,7 +4443,7 @@ class Mobilfunkantennen(SimpleModel):
     }
 
   def __str__(self):
-    return self.stob
+    return str(self.stob)
 
 
 class Mobilpunkte(SimpleModel):
@@ -4555,7 +4484,7 @@ class Mobilpunkte(SimpleModel):
     map_feature_tooltip_fields = ['bezeichnung']
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Parkmoeglichkeiten(SimpleModel):
@@ -4701,12 +4630,8 @@ class Parkmoeglichkeiten(SimpleModel):
     map_filter_fields_as_list = ['art', 'betreiber']
 
   def __str__(self):
-    return (
-      str(self.art)
-      + ' '
-      + self.standort
-      + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
-    )
+    adresse = f'[Adresse: {self.adresse}]' if self.adresse else ''
+    return f'{self.art} {adresse}'
 
 
 class Pflegeeinrichtungen(SimpleModel):
@@ -4792,14 +4717,8 @@ class Pflegeeinrichtungen(SimpleModel):
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
-    return (
-      self.bezeichnung
-      + ' ['
-      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
-      + 'Art: '
-      + str(self.art)
-      + ']'
-    )
+    adresse = f'Adresse: {self.adresse}, ' if self.adresse else ''
+    return f'{self.bezeichnung} [{adresse}Art: {self.art}]'
 
 
 class Poller(SimpleModel):
@@ -4919,13 +4838,8 @@ class Poller(SimpleModel):
     map_filter_fields_as_list = ['art', 'status', 'hersteller', 'typ']
 
   def __str__(self):
-    return (
-      (self.nummer + ', ' if self.nummer else '')
-      + self.bezeichnung
-      + ' [Status: '
-      + str(self.status)
-      + ']'
-    )
+    nummer = f'{self.nummer}, ' if self.nummer else ''
+    return f'{nummer}{self.bezeichnung} [Status: {self.status}]'
 
 
 class Reinigungsreviere(SimpleModel):
@@ -4996,7 +4910,8 @@ class Reinigungsreviere(SimpleModel):
     ]
 
   def __str__(self):
-    return self.bezeichnung + (' (Nummer: ' + str(self.nummer) + ')' if self.nummer else '')
+    nummer = f' (Nummer: {self.nummer})' if self.nummer else ''
+    return f'{self.bezeichnung}{nummer}'
 
 
 class Reisebusparkplaetze_Terminals(SimpleModel):
@@ -5054,7 +4969,7 @@ class Reisebusparkplaetze_Terminals(SimpleModel):
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
-    return str(self.art) + ' ' + self.bezeichnung
+    return f'{self.art} {self.bezeichnung}'
 
 
 class Rettungswachen(SimpleModel):
@@ -5143,14 +5058,8 @@ class Rettungswachen(SimpleModel):
     map_filter_fields_as_list = ['traeger']
 
   def __str__(self):
-    return (
-      self.bezeichnung
-      + ' ['
-      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
-      + 'Träger: '
-      + str(self.traeger)
-      + ']'
-    )
+    adresse = f'Adresse: {self.adresse}, ' if self.adresse else ''
+    return f'{self.bezeichnung} [{adresse}Träger: {self.traeger}]'
 
 
 class Schiffsliegeplaetze(SimpleModel):
@@ -5285,7 +5194,7 @@ class Schiffsliegeplaetze(SimpleModel):
     map_filter_fields_as_list = ['hafen']
 
   def __str__(self):
-    return self.liegeplatznummer + ', ' + self.bezeichnung + ' [Hafen: ' + str(self.hafen) + ']'
+    return f'{self.liegeplatznummer}, {self.bezeichnung} [Hafen: {self.hafen}]'
 
 
 class Schutzzaeune_Tierseuchen(SimpleModel):
@@ -5342,7 +5251,7 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
     map_filter_fields_as_list = ['tierseuche', 'zustand']
 
   def __str__(self):
-    return str(self.tierseuche) + ', ' + str(self.zustand)
+    return f'{self.tierseuche}, {self.zustand}'
 
 
 class Sportanlagen(SimpleModel):
@@ -5408,7 +5317,7 @@ class Sportanlagen(SimpleModel):
     map_filter_fields_as_list = ['art', 'traeger']
 
   def __str__(self):
-    return self.bezeichnung + ' [Art: ' + str(self.art) + ']'
+    return f'{self.bezeichnung} [Art: {self.art}]'
 
 
 pre_save.connect(set_pre_save_instance, sender=Sportanlagen)
@@ -5508,16 +5417,8 @@ class Sporthallen(SimpleModel):
     map_filter_fields_as_list = ['traeger', 'sportart']
 
   def __str__(self):
-    return (
-      self.bezeichnung
-      + ' ['
-      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
-      + 'Träger: '
-      + str(self.traeger)
-      + ', Sportart: '
-      + str(self.sportart)
-      + ']'
-    )
+    adresse = f'Adresse: {self.adresse}, ' if self.adresse else ''
+    return f'{self.bezeichnung} [{adresse}Träger: {self.traeger}, Sportart: {self.sportart}]'
 
 
 pre_save.connect(set_pre_save_instance, sender=Sporthallen)
@@ -5617,14 +5518,8 @@ class Stadtteil_Begegnungszentren(SimpleModel):
     map_filter_fields_as_list = ['traeger']
 
   def __str__(self):
-    return (
-      self.bezeichnung
-      + ' ['
-      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
-      + 'Träger: '
-      + str(self.traeger)
-      + ']'
-    )
+    adresse = f'Adresse: {self.adresse}, ' if self.adresse else ''
+    return f'{self.bezeichnung} [{adresse}Träger: {self.traeger}]'
 
 
 class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
@@ -6170,7 +6065,7 @@ class Thalasso_Kurwege(SimpleModel):
     }
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Toiletten(SimpleModel):
@@ -6240,11 +6135,9 @@ class Toiletten(SimpleModel):
     map_filter_fields_as_list = ['art', 'bewirtschafter']
 
   def __str__(self):
-    return (
-      str(self.art)
-      + (' [Bewirtschafter: ' + str(self.bewirtschafter) + ']' if self.bewirtschafter else '')
-      + (' mit Öffnungszeiten ' + self.zeiten + ']' if self.zeiten else '')
-    )
+    bewirtschafter = f' [Bewirtschafter: {self.bewirtschafter}]' if self.bewirtschafter else ''
+    zeiten = f' mit Öffnungszeiten {self.zeiten}' if self.zeiten else ''
+    return f'{self.art}{bewirtschafter}{zeiten}'
 
 
 class Trinkwassernotbrunnen(SimpleModel):
@@ -6367,7 +6260,7 @@ class Trinkwassernotbrunnen(SimpleModel):
     map_filter_fields_as_list = ['eigentuemer', 'betreiber']
 
   def __str__(self):
-    return self.nummer
+    return str(self.nummer)
 
 
 class Vereine(SimpleModel):
@@ -6449,7 +6342,8 @@ class Vereine(SimpleModel):
     map_filter_fields = {'bezeichnung': 'Bezeichnung', 'schlagwoerter': 'Schlagwörter'}
 
   def __str__(self):
-    return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    adresse = f'[Adresse: {self.adresse}]' if self.adresse else ''
+    return f'{self.bezeichnung} {adresse}'
 
 
 class Verkaufstellen_Angelberechtigungen(SimpleModel):
@@ -6535,4 +6429,5 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
     }
 
   def __str__(self):
-    return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    adresse = f'[Adresse: {self.adresse}]' if self.adresse else ''
+    return f'{self.bezeichnung} {adresse}'
