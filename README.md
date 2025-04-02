@@ -179,7 +179,7 @@ uv run manage.py runserver
 
 Deployment am Beispiel des [_Apache HTTP Servers_](https://httpd.apache.org/):
 
-1. Besitzer und Gruppe des Anwendungsverzeichnisses entsprechend des genutzten HTTP-Servers anpassen – siehe unten:
+1. Besitzer und Gruppe des Anwendungsverzeichnisses entsprechend des _Apache HTTP Servers_ anpassen:
 
 ```bash
 sudo chown -R wwwrun:www /path/to/datenwerft
@@ -363,16 +363,16 @@ python manage.py test bemas
 ### Ablauf
 
 1. neuen Branch erstellen – Name des Branches:
-  - bei Features: `features/<app-name>/<feature-name>` (Beispiel: `features/datenmanagement/edit-photos`)
-  - bei Bugfixes: `bugfixes/<app-name>/<bugfix-name>` (Beispiel: `bugfixes/accounts/emails`)
+   - bei Features: `features/<app-name>/<feature-name>` (Beispiel: `features/datenmanagement/edit-photos`)
+   - bei Bugfixes: `bugfixes/<app-name>/<bugfix-name>` (Beispiel: `bugfixes/accounts/emails`)
 2. Änderungen linten und testen (siehe oben)
 3. Änderungen committen und Commit(s) pushen
 4. Pull-Request im Branch `main` erstellen
 5. Review anfordern und durchführen lassen
 6. ggf. Änderungen im Nachgang des Reviews committen und Commit(s) pushen
 7. Pull-Request im Branch `main` abschließen:
-  - Commit-Message gemäß der Syntax der [Conventional-Commit](https://www.conventionalcommits.org/) gestalten
-  - mit der Option _Squash and merge_ mergen
+   - Commit-Message gemäß der Syntax der [Conventional-Commit](https://www.conventionalcommits.org/) gestalten
+   - mit der Option _Squash and merge_ mergen
 
 ### _GitHub_-Actions
 
