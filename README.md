@@ -1,10 +1,32 @@
 # _Datenwerft.HRO_
 
-Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [_Django_](https://www.djangoproject.com/) aufsetzt
+Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https://www.djangoproject.com/) aufsetzt
+
+## Inhalt
+
+1. [Voraussetzungen](#voraussetzungen)
+1. [Installation](#installation)
+   - [Anwendung](#anwendung)
+   - [Datenbanken](#datenbanken)
+1. [Konfiguration](#konfiguration)
+1. [Initialisierung](#initialisierung)
+1. [Start](#start)
+1. [Deployment](#deployment)
+1. [Cronjobs](#cronjobs)
+1. [PDF-Export mit eigenen Templates](#pdf-export-mit-eigenen-templates)
+1. [Entwicklung](#entwicklung)
+   - [Grundsätzliches](#grundsätzliches)
+   - [Python](#python)
+   - [JavaScript](#javascript)
+1. [Linting](#linting)
+1. [Tests](#tests)
+1. [CI/CD](#cicd)
+   - [Ablauf](#ablauf)
+   - [_GitHub_-Actions](#github-actions)
 
 ## Voraussetzungen
 
--   [_Python_](https://www.python.org/) (>= v3.11)
+-   [_Python_](https://www.python.org/) (>=3.11)
 -   [_pip_](https://pip.pypa.io/)
 -   [_GDAL_](https://gdal.org/)
 -   [_PostgreSQL_](https://www.postgresql.org/) mit der Erweiterung [_PostGIS_](https://postgis.net/)
@@ -14,22 +36,22 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [_Django_](https://w
 
 ## Installation
 
-### Projekt Anlegen
+### Anwendung
 
-1. Git Repository klonen:
+1. _Git_-Repository klonen:
 
 ```bash
 git clone https://github.com/rostock/datenwerft
 cd datenwerft
 ```
 
-2. neue virtuelle _Python_-Umgebung:
+2. neue virtuelle _Python_-Umgebung anlegen:
 
 ```bash
 # ohne Projektmanagement durch uv
 python3 -m venv .venv
 
-# mit uv
+# mit Projektmanagement durch uv
 uv venv
 ```
 
@@ -44,7 +66,8 @@ pip install -r datenwerft/requirements.txt
 uv sync
 ```
 
-### Datenbanken Anlegen
+### Datenbanken
+
 1. leere _PostgreSQL_-Datenbank für die Anwendungsadministration anlegen
 2. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Antragsmanagement_ anlegen
 3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _BEMAS_ anlegen
@@ -63,14 +86,14 @@ psql -h [Datenbankhost] -U [Datenbanknutzer] -d [Datenbankname] -f datenmanageme
 cp datenwerft/secrets.template datenwerft/secrets.py
 ```
 
-2. Konfigurationsdatei `datenwerft/settings.py` entsprechend anpassen
-3. Service-Datei für [_RQ_](https://python-rq.org/) auf Basis der entsprechenden Vorlage erstellen:
+2. Konfigurationsdatei `datenwerft/secrets.py` entsprechend anpassen
+3. Service-Datei für [_RQ_](https://python-rq.org/)-Worker auf Basis der entsprechenden Vorlage erstellen:
 
 ```bash
 cp rq-worker.service /etc/systemd/system/rq-worker.service
 ```
 
-4. Service-Datei für den _RQ_ Worker entsprechend anpassen
+4. Service-Datei für _RQ_-Worker entsprechend anpassen
 
 ## Initialisierung
 
@@ -83,7 +106,7 @@ npm install
 2. Anwendung initialisieren:
 
 ```bash
-# ohne Projektmanagement durch uv
+# ohne uv
 source .venv/bin/activate
 python manage.py migrate --database=antragsmanagement antragsmanagement
 python manage.py migrate --database=bemas bemas
@@ -127,9 +150,12 @@ python manage.py collectstatic -c
 uv run manage.py collectstatic -c
 ```
 
-### Ausführen der Anwendung während der Entwicklung
+## Start
 
-1. RQ-Worker starten:
+Start der Anwendung (zum Testen oder während der Entwicklung):
+
+1. _RQ_-Worker starten:
+
 ```bash
 # ohne uv
 source .venv/bin/activate
@@ -149,45 +175,46 @@ python manage.py runserver
 uv run manage.py runserver
 ```
 
-## Deployment (am Beispiel des [_Apache HTTP Servers_](https://httpd.apache.org/))
+## Deployment
+
+Deployment am Beispiel des [_Apache HTTP Servers_](https://httpd.apache.org/):
 
 1. Besitzer und Gruppe des Anwendungsverzeichnisses entsprechend des genutzten HTTP-Servers anpassen – siehe unten:
 
 ```bash
-sudo chown -R wwwrun:www /usr/local/datenwerft/datenwerft
+sudo chown -R wwwrun:www /path/to/datenwerft
 ```
 
 2. _RQ_-Worker-Service aktivieren und starten:
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl start rq-worker.service
 sudo systemctl enable rq-worker.service
+sudo systemctl start rq-worker.service
 ```
 
-3. Wenn das Deployment mittels _Apache HTTP Server_ realisiert werden soll, **muss** dessen Modul [_mod_wsgi_](https://modwsgi.readthedocs.io) (für _Python_ v3.x) installiert sein, das ein Web Server Gateway Interface (WSGI) für das Hosting von _Python_-Anwendungen zur Verfügung stellt.
-
-4. Konfigurationsdatei des _Apache HTTP Servers_ öffnen und in etwa folgenden Inhalt einfügen (in diesem Beispiel nutzt die virtuelle _Python_-Umgebung einen _Python_-Interpreter der Version 3.10):
+3. Wenn das Deployment mittels _Apache HTTP Server_ realisiert werden soll, **muss** dessen Modul [_mod_wsgi_](https://modwsgi.readthedocs.io) (für _Python_ 3.x) installiert sein, das ein Web Server Gateway Interface (WSGI) für das Hosting von _Python_-Anwendungen zur Verfügung stellt.
+4. Konfigurationsdatei des _Apache HTTP Servers_ öffnen und in etwa folgenden Inhalt einfügen (in diesem Beispiel nutzt die virtuelle _Python_-Umgebung einen _Python_-Interpreter der Version 3.x):
 
 ```apache
-Alias                 /datenwerft/static /pfad/zur/datenwerft/datenwerft/static
-Alias                 /datenwerft/uploads /pfad/zur/datenwerft/datenwerft/uploads
-WSGIDaemonProcess     datenwerft processes=[Anzahl CPU x 2] threads=[Anzahl GB RAM x 3] connect-timeout=150 deadlock-timeout=300 eviction-timeout=0 graceful-timeout=150 inactivity-timeout=300 queue-timeout=300 request-timeout=300 shutdown-timeout=5 socket-timeout=300 startup-timeout=15 restart-interval=0 python-path=/pfad/zur/datenwerft:/pfad/zur/datenwerft/.venv/lib64/python3.1x/site-packages:/pfad/zur/datenwerft/.venv/lib/python3.1x/site-packages
+Alias                 /datenwerft/static /path/to/datenwerft/datenwerft/static
+Alias                 /datenwerft/uploads /path/to/datenwerft/datenwerft/uploads
+WSGIDaemonProcess     datenwerft processes=[Anzahl CPU x 2] threads=[Anzahl GB RAM x 3] connect-timeout=150 deadlock-timeout=300 eviction-timeout=0 graceful-timeout=150 inactivity-timeout=300 queue-timeout=300 request-timeout=300 shutdown-timeout=5 socket-timeout=300 startup-timeout=15 restart-interval=0 python-path=/path/to/datenwerft:/path/to/datenwerft/.venv/lib64/python3.1x/site-packages:/path/to/datenwerft/.venv/lib/python3.1x/site-packages
 WSGIProcessGroup      datenwerft
-WSGIScriptAlias       /datenwerft /pfad/zur/datenwerft/datenwerft/wsgi.py process-group=datenwerft
+WSGIScriptAlias       /datenwerft /path/to/datenwerft/datenwerft/wsgi.py process-group=datenwerft
 WSGIApplicationGroup  %{GLOBAL}
 
-<Directory /pfad/zur/datenwerft/datenwerft>
+<Directory /path/to/datenwerft/datenwerft>
   <Files wsgi.py>
       Order deny,allow
       Require all granted
   </Files>
 </Directory>
-<Directory /pfad/zur/datenwerft/static>
+<Directory /path/to/datenwerft/static>
   Order deny,allow
   Require all granted
 </Directory>
-<Directory /pfad/zur/datenwerft/uploads>
+<Directory /path/to/datenwerft/uploads>
   Order deny,allow
   Require all granted
 </Directory>
