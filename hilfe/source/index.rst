@@ -2,25 +2,21 @@ Hilfe zu *Datenwerft.HRO*
 =========================
 
 .. toctree::
-   :glob:
-   :maxdepth: 2
+   :caption: Allgemein
+
+   datenwerft/usage/login
 
 Anmeldung und Rechte
 --------------------
 
 .. toctree::
-   :glob:
-   :maxdepth: 2
 
-   auth/anmeldung
    auth/rechte
 
 Zurechtfinden
 -------------
 
 .. toctree::
-   :glob:
-   :maxdepth: 2
 
    nav/titelleiste
    nav/datenthemen-uebersicht
@@ -32,8 +28,6 @@ Arbeiten
 --------
 
 .. toctree::
-   :glob:
-   :maxdepth: 2
 
    work/datensatz-anlegen
    work/datensatz-bearbeiten
