@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import uuid4
 
 from django.contrib.gis.db.models import Model
@@ -82,20 +83,20 @@ class Basemodel(Model):
 
     not_listed: bool = False
     editable: bool = True
-    description: str = None
-    short_name: str = None
+    description: Optional[str] = None
+    short_name: Optional[str] = None
     as_overlay: bool = False
-    default_overlays: list[str] = None
+    default_overlays: Optional[list[str]] = None
     forms_in_mobile_mode: bool = False
     forms_in_high_zoom_mode: bool = False
     forms_in_high_zoom_mode_default_aerial: bool = False
-    naming: str = None
-    readonly_fields: list[str] = None
-    geometry_type: str = None
+    naming: Optional[str] = None
+    readonly_fields: Optional[list[str]] = None
+    geometry_type: Optional[str] = None
     geometry_calculation: bool = False
     address_search_class: str = 'address_hro'
     address_search_long_results: bool = False
-    address_type: str = None
+    address_type: Optional[str] = None
     address_mandatory: bool = False
     thumbs: bool = True
     geojson_input: bool = False
@@ -104,27 +105,27 @@ class Basemodel(Model):
     # shall other models (as keys), each referencing this model
     # with certain foreign key fields (as values), be used to provide corresponding links
     # in the form views and in the table of the list view of this model?
-    associated_models: dict[str, str] = None
+    associated_models: Optional[dict[str, str]] = None
 
     # names of those fields of this model (as keys)
     # to which other models (as values) are assigned,
     # whose values are to be used to fill corresponding selection lists
     # in the form views of this model
-    choices_models_for_choices_fields: dict[str, str] = None
+    choices_models_for_choices_fields: Optional[dict[str, str]] = None
 
     # name of a group of users which shall be used to fill the contact person field selection list
     # in the form views of this model
-    group_with_users_for_choice_field: str = None
+    group_with_users_for_choice_field: Optional[str] = None
 
     # names of those fields of this model
     # which shall be equipped with additional foreign key links
     # in the form views of this model
-    fields_with_foreign_key_to_linkify: list[str] = None
+    fields_with_foreign_key_to_linkify: Optional[list[str]] = None
 
     # names of those fields of this model (as keys)
     # which shall be equipped with additional external links (as values)
     # in the form views of this model
-    catalog_link_fields: dict[str, str] = None
+    catalog_link_fields: Optional[dict[str, str]] = None
 
     # shall it be possible to upload multiple files (e.g. photos) at once for this model?
     # if true, multiple datasets are created, i.e. one for each file (e.g. each photo).
@@ -133,66 +134,66 @@ class Basemodel(Model):
     # name of the field of this model
     # which shall be equipped with a postcode assignment function
     # in the form views of this model
-    postcode_assigner: str = None
+    postcode_assigner: Optional[str] = None
 
     # names of those fields of this model (as keys)
     # which shall appear as columns in the table of the list view of this model
     # in exactly this order, with their respective labels, i.e. column headers (as values)
-    list_fields: dict[str, str] = None
+    list_fields: Optional[dict[str, str]] = None
 
     # name of the field appearing in ``list_fields``
     # which shall be considered as an address string
     # and thus be created from the respective model fields
-    list_field_with_address_string: str = None
+    list_field_with_address_string: Optional[str] = None
 
     # name of the field of this model
     # which shall be used as a fallback when address strings cannot be used
-    list_field_with_address_string_fallback_field: str = None
+    list_field_with_address_string_fallback_field: Optional[str] = None
 
     # names of those fields of this model appearing in ``list_fields``
     # whose values are of data type date and which must therefore be treated accordingly
     # for sorting in the table of the list view of this model to work
-    list_fields_with_date: list[str] = None
+    list_fields_with_date: Optional[list[str]] = None
 
     # names of those fields of this model appearing in ``list_fields``
     # whose values are of data type datetime and which must therefore be treated accordingly
     # for sorting in the table of the list view of this model to work
-    list_fields_with_datetime: list[str] = None
+    list_fields_with_datetime: Optional[list[str]] = None
 
     # names of those fields of this model appearing in ``list_fields``
     # whose values are of Decimal type and which must therefore be treated accordingly
     # for sorting in the table of the list view of this model to work
-    list_fields_with_decimal: list[str] = None
+    list_fields_with_decimal: Optional[list[str]] = None
 
     # names of those fields appearing in ``list_fields`` (as keys)
     # which are to be converted into names of foreign key fields (as values)
     # for the table of the list view so that they can also be found and displayed
     # in the referenced table of the corresponding list view
-    list_fields_with_foreign_key: dict[str, str] = None
+    list_fields_with_foreign_key: Optional[dict[str, str]] = None
 
     # details of a foreign key field of this model
     # which shall appear as an additional column in the table of the list view of this model
-    list_additional_foreign_key_field: dict[str, str] = None
+    list_additional_foreign_key_field: Optional[dict[str, str]] = None
 
     # properties of assignment actions
     # which shall be selectable below the table of the list view of this model
-    list_actions_assign: list[dict] = None
+    list_actions_assign: Optional[list[dict]] = None
 
     # name of that Boolean field of this model
     # whose values (only if ``True``) shall be used as a flag for highlighting
     # both in the table of the list view of this model and in the map view of this model
-    highlight_flag: str = None
+    highlight_flag: Optional[str] = None
 
     # limit for individual map feature loading steps
     # (i.e. maximum number of map features to be loaded in one step at once)
     # in the map view of this model
-    map_heavy_load_limit: int = None
+    map_heavy_load_limit: Optional[int] = None
 
     # names of the fields of this model
     # whose values shall concatenated
     # and as such be used as the source for the map feature tooltips in the map view of this model
     # (if not specified, primary key is used)
-    map_feature_tooltip_fields: list[str] = None
+    map_feature_tooltip_fields: Optional[list[str]] = None
 
     # shall the one-click map filters defined in the map view template
     # appear in the map view of this model?
@@ -201,33 +202,33 @@ class Basemodel(Model):
     # names of exactly two fields of this model
     # which shall appear as a deadline map filter in the map view of this model
     # (always processed in pairs!)
-    map_deadlinefilter_fields: list[str] = None
+    map_deadlinefilter_fields: Optional[list[str]] = None
 
     # names of exactly two fields of this model
     # which shall appear as a deadline year map filter in the map view of this model
     # (always processed in pairs!)
-    map_deadlineyearfilter_fields: list[str] = None
+    map_deadlineyearfilter_fields: Optional[list[str]] = None
 
     # names of those fields of this model (as keys)
     # which shall appear as interval map filters in the map view of this model
     # in exactly this order, with their respective titles (as values)
     # (always processed in pairs!)
-    map_intervalfilter_fields: dict[str, str] = None
+    map_intervalfilter_fields: Optional[dict[str, str]] = None
 
     # names of those fields of this model (as keys)
     # which shall appear as map filters in the map view of this model
     # in exactly this order, with their respective titles (as values)
-    map_filter_fields: dict[str, str] = None
+    map_filter_fields: Optional[dict[str, str]] = None
 
     # names of those fields of this model appearing in ``map_filter_fields``
     # which shall appear as drop-down list map filters in the map view of this model
-    map_filter_fields_as_list: list[str] = None
+    map_filter_fields_as_list: Optional[list[str]] = None
 
     # names of those fields of this model appearing in ``map_filter_fields``
     # which shall appear as checkbox-set map filters in the map view of this model
     # (but these must not be the fields from ``map_filter_fields``
     # which are already multiple selection fields!)
-    map_filter_fields_as_checkbox: list[str] = None
+    map_filter_fields_as_checkbox: Optional[list[str]] = None
 
     # shall those fields of this model appearing in ``map_filter_fields``
     # which are of data type Boolean
@@ -238,15 +239,15 @@ class Basemodel(Model):
     # whose specific value (as value) shall ensure that all those objects
     # that have exactly this specific value in this field
     # do not initially appear on the map in the map view of this model
-    map_filter_hide_initial: dict[str, str] = None
+    map_filter_hide_initial: Optional[dict[str, str]] = None
 
     # properties of WMS which shall be selectable as additional overlay layers
     # in the maps of the form views of this model
-    additional_wms_layers: list[dict] = None
+    additional_wms_layers: Optional[list[dict]] = None
 
     # properties of WFS which shall be selectable as additional overlay layers
     # in the maps of the form views of this model
-    additional_wfs_featuretypes: list[dict] = None
+    additional_wfs_featuretypes: Optional[list[dict]] = None
 
 
 class Metamodel(Basemodel):
@@ -288,10 +289,10 @@ class Art(Codelist):
     ordering: list[str] = ['art']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {'art': 'Art'}
+    list_fields = {'art': 'Art'}
 
   def __str__(self):
-    return self.art
+    return str(self.art)
 
 
 class Ausfuehrung(Codelist):
@@ -308,10 +309,10 @@ class Ausfuehrung(Codelist):
     ordering: list[str] = ['ausfuehrung']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {'ausfuehrung': 'Ausführung'}
+    list_fields = {'ausfuehrung': 'Ausführung'}
 
   def __str__(self):
-    return self.ausfuehrung
+    return str(self.ausfuehrung)
 
 
 class Befestigungsart(Codelist):
@@ -328,10 +329,10 @@ class Befestigungsart(Codelist):
     ordering: list[str] = ['befestigungsart']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {'befestigungsart': 'Befestigungsart'}
+    list_fields = {'befestigungsart': 'Befestigungsart'}
 
   def __str__(self):
-    return self.befestigungsart
+    return str(self.befestigungsart)
 
 
 class Hersteller(Codelist):
@@ -348,10 +349,10 @@ class Hersteller(Codelist):
     ordering: list[str] = ['bezeichnung']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {'bezeichnung': 'Bezeichnung'}
+    list_fields = {'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Material(Codelist):
@@ -368,10 +369,10 @@ class Material(Codelist):
     ordering: list[str] = ['material']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {'material': 'Material'}
+    list_fields = {'material': 'Material'}
 
   def __str__(self):
-    return self.material
+    return str(self.material)
 
 
 class Schlagwort(Codelist):
@@ -388,10 +389,10 @@ class Schlagwort(Codelist):
     ordering: list[str] = ['schlagwort']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {'schlagwort': 'Schlagwort'}
+    list_fields = {'schlagwort': 'Schlagwort'}
 
   def __str__(self):
-    return self.schlagwort
+    return str(self.schlagwort)
 
 
 class Status(Codelist):
@@ -408,10 +409,10 @@ class Status(Codelist):
     ordering: list[str] = ['status']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {'status': 'Status'}
+    list_fields = {'status': 'Status'}
 
   def __str__(self):
-    return self.status
+    return str(self.status)
 
 
 class Typ(Codelist):
@@ -426,10 +427,10 @@ class Typ(Codelist):
     ordering: list[str] = ['typ']
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    list_fields: dict[str, str] = {'typ': 'Typ'}
+    list_fields = {'typ': 'Typ'}
 
   def __str__(self):
-    return self.typ
+    return str(self.typ)
 
 
 #
