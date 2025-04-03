@@ -5,6 +5,7 @@ Hilfe zu *Datenwerft.HRO*
    :caption: Allgemein
 
    datenwerft/usage/login
+   datenwerft/usage/navigation
 
 Anmeldung und Rechte
 --------------------
@@ -18,7 +19,6 @@ Zurechtfinden
 
 .. toctree::
 
-   nav/titelleiste
    nav/datenthemen-uebersicht
    nav/datenthema-startseite
    nav/datensaetze-tabelle

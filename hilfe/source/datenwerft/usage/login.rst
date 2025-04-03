@@ -8,7 +8,7 @@ Anmeldung
 Wie kann ich mich anmelden?
 ---------------------------
 
-Die Anmeldung erfolgt über die Anmeldeseite, auf die Sie über den blauen Button *Anmeldung* in der :doc:`Titelleiste <../../nav/titelleiste>` gelangen: In das erste Eingabefeld auf der Anmeldeseite müssen Sie Ihren Benutzernamen eingeben, in das zweite Feld Ihr Passwort – Achtung, beide Felder berücksichtigen Groß- und Kleinschreibung! Danach klicken Sie auf den grünen Button *anmelden*: Sie werden dann automatisch zu Ihrer :doc:`Datenthemen-Übersicht <../../nav/datenthemen-uebersicht>` weitergeleitet und Ihr Name erscheint oben in der Titelleiste als „Beleg“ dafür, dass Sie jetzt angemeldet sind.
+Die Anmeldung erfolgt über die Anmeldeseite, auf die Sie über den blauen Button *Anmeldung* in der :doc:`Titelleiste <navigation>` gelangen: In das erste Eingabefeld auf der Anmeldeseite müssen Sie Ihren Benutzernamen eingeben, in das zweite Feld Ihr Passwort – Achtung, beide Felder berücksichtigen Groß- und Kleinschreibung! Danach klicken Sie auf den grünen Button *anmelden*: Sie werden dann automatisch zu Ihrer Startübersicht weitergeleitet und Ihr Name erscheint oben in der Titelleiste als „Beleg“ dafür, dass Sie jetzt angemeldet sind.
 
 **Tipp:** Sie können auch einfach die ``Enter``-Taste auf Ihrer Tastatur drücken statt auf den grünen Button *anmelden* zu klicken!
 
@@ -31,4 +31,4 @@ Wir haben Ihnen Ihre Zugangsdaten (Benutzername und ggf. Passwort) per E-Mail mi
 Wie kann ich mich wieder abmelden?
 ----------------------------------
 
-Die Abmeldung können Sie jederzeit durchführen, indem Sie auf den roten Button *abmelden* rechts oben in der :doc:`Titelleiste <../../nav/titelleiste>` klicken: Sie werden dann automatisch abgemeldet und zu einer entsprechenden Hinweisseite weitergeleitet.
+Die Abmeldung können Sie jederzeit durchführen, indem Sie auf den roten Button *abmelden* rechts oben in der :doc:`Titelleiste <navigation>` klicken: Sie werden dann automatisch abgemeldet und zu einer entsprechenden Hinweisseite weitergeleitet.
