@@ -97,7 +97,7 @@ class Adressunsicherheiten(ComplexModel):
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
-    return str(self.art) + (' ' + str(self.adresse) if self.adresse else '')
+    return f'{self.art} {self.adresse if self.adresse else ""}'
 
 
 class Adressunsicherheiten_Fotos(ComplexModel):
@@ -145,11 +145,8 @@ class Adressunsicherheiten_Fotos(ComplexModel):
     list_fields_with_foreign_key = {'adressunsicherheit': 'adresse'}
 
   def __str__(self):
-    return (
-      str(self.adressunsicherheit)
-      + ' mit Aufnahmedatum '
-      + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
-    )
+    datum = datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+    return f'{self.adressunsicherheit} mit Aufnahmedatum {datum}'
 
 
 post_save.connect(photo_post_processing, sender=Adressunsicherheiten_Fotos)
@@ -252,7 +249,7 @@ class Baugrunduntersuchungen(ComplexModel):
     ]
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Baugrunduntersuchungen_Baugrundbohrungen(ComplexModel):
@@ -296,7 +293,7 @@ class Baugrunduntersuchungen_Baugrundbohrungen(ComplexModel):
     map_filter_fields_as_list = ['baugrunduntersuchung']
 
   def __str__(self):
-    return self.nummer
+    return str(self.nummer)
 
 
 class Baugrunduntersuchungen_Dokumente(ComplexModel):
@@ -317,7 +314,7 @@ class Baugrunduntersuchungen_Dokumente(ComplexModel):
   pdf = FileField(
     verbose_name='Dokument',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PDF_PATH_PREFIX_PRIVATE + 'baugrunduntersuchungen'),
+    upload_to=str(path_and_rename(f'{settings.PDF_PATH_PREFIX_PRIVATE}baugrunduntersuchungen')),
     max_length=255,
   )
 
@@ -448,7 +445,8 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
     map_filter_fields_as_list = ['auftraggeber']
 
   def __str__(self):
-    return self.bezeichnung + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '')
+    strasse = f'[Straße: {self.strasse}]' if self.strasse else ''
+    return f'{self.bezeichnung} {strasse}'
 
 
 class Baustellen_Fotodokumentation_Fotos(ComplexModel):
@@ -525,13 +523,8 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
     ]
 
   def __str__(self):
-    return (
-      str(self.baustellen_fotodokumentation_baustelle)
-      + ' mit Status '
-      + str(self.status)
-      + ' und Aufnahmedatum '
-      + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
-    )
+    datum = datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+    return f'{self.baustellen_fotodokumentation_baustelle} mit Aufnahmedatum {datum}'
 
 
 post_save.connect(photo_post_processing, sender=Baustellen_Fotodokumentation_Fotos)
@@ -686,16 +679,10 @@ class Baustellen_geplant(ComplexModel):
     map_filter_hide_initial = {'status': 'abgeschlossen'}
 
   def __str__(self):
-    return (
-      self.bezeichnung
-      + ' ['
-      + ('Straße: ' + str(self.strasse) + ', ' if self.strasse else '')
-      + 'Beginn: '
-      + datetime.strptime(str(self.beginn), '%Y-%m-%d').strftime('%d.%m.%Y')
-      + ', Ende: '
-      + datetime.strptime(str(self.ende), '%Y-%m-%d').strftime('%d.%m.%Y')
-      + ']'
-    )
+    strasse = f'Straße: {self.strasse}, ' if self.strasse else ''
+    beginn = datetime.strptime(str(self.beginn), '%Y-%m-%d').strftime('%d.%m.%Y')
+    ende = datetime.strptime(str(self.ende), '%Y-%m-%d').strftime('%d.%m.%Y')
+    return f'{self.bezeichnung} [{strasse}Beginn: {beginn}, Ende: {ende}]'
 
 
 class Baustellen_geplant_Dokumente(ComplexModel):
@@ -718,7 +705,7 @@ class Baustellen_geplant_Dokumente(ComplexModel):
   pdf = FileField(
     verbose_name='Dokument',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PDF_PATH_PREFIX_PUBLIC + 'baustellen_geplant'),
+    upload_to=str(path_and_rename(f'{settings.PDF_PATH_PREFIX_PUBLIC}baustellen_geplant')),
     max_length=255,
   )
 
@@ -743,7 +730,7 @@ class Baustellen_geplant_Dokumente(ComplexModel):
     list_fields_with_foreign_key = {'baustelle_geplant': 'bezeichnung'}
 
   def __str__(self):
-    return str(self.baustelle_geplant) + ' mit Bezeichnung ' + self.bezeichnung
+    return f'{self.baustelle_geplant} mit Bezeichnung {self.bezeichnung}'
 
 
 post_delete.connect(delete_pdf, sender=Baustellen_geplant_Dokumente)
@@ -790,7 +777,7 @@ class Baustellen_geplant_Links(ComplexModel):
     list_fields_with_foreign_key = {'baustelle_geplant': 'bezeichnung'}
 
   def __str__(self):
-    return str(self.baustelle_geplant) + ' mit Bezeichnung ' + self.bezeichnung
+    return f'{self.baustelle_geplant} mit Bezeichnung {self.bezeichnung}'
 
 
 #
@@ -960,7 +947,7 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     map_filter_fields_as_list = ['art', 'material']
 
   def __str__(self):
-    return self.aktenzeichen
+    return str(self.aktenzeichen)
 
 
 class Durchlaesse_Fotos(ComplexModel):
@@ -1026,12 +1013,9 @@ class Durchlaesse_Fotos(ComplexModel):
     ]
 
   def __str__(self):
-    return str(self.durchlaesse_durchlass) + (
-      ' mit Aufnahmedatum '
-      + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
-      if self.aufnahmedatum
-      else ''
-    )
+    datum = datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+    aufnahmedatum = f'mit Aufnahmedatum {datum}' if self.aufnahmedatum else ''
+    return f'{self.durchlaesse_durchlass} {aufnahmedatum}'
 
 
 post_save.connect(photo_post_processing, sender=Durchlaesse_Fotos)
@@ -1083,7 +1067,7 @@ class Fallwildsuchen_Kontrollgebiete(ComplexModel):
     map_filter_fields_as_list = ['tierseuche']
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Fallwildsuchen_Nachweise(ComplexModel):
@@ -1263,7 +1247,7 @@ class Feuerwehrzufahrten_Feuerwehrzufahrten(ComplexModel):
     if self.registriernummer:
       return str(self.registriernummer)
     elif self.bemerkungen:
-      return 'ohne Registriernummer – ' + self.bemerkungen
+      return f'ohne Registriernummer – {self.bemerkungen}'
     else:
       return 'ohne Registriernummer – ohne Bemerkungen'
 
@@ -1358,7 +1342,7 @@ class Feuerwehrzufahrten_Schilder(ComplexModel):
     map_filter_fields_as_list = ['feuerwehrzufahrt', 'typ']
 
   def __str__(self):
-    return self.hinweise_aufstellort
+    return str(self.hinweise_aufstellort)
 
 
 pre_save.connect(set_pre_save_instance, sender=Feuerwehrzufahrten_Schilder)
@@ -1454,18 +1438,17 @@ class Freizeitsport(ComplexModel):
     }
     map_filter_fields_as_list = ['gruenpflegeobjekt']
 
-  def string_representation(self):
-    gruenpflegeobjekt_str = str(self.gruenpflegeobjekt) + ', ' if self.gruenpflegeobjekt else ''
-    bezeichnung_str = self.bezeichnung + ', ' if self.bezeichnung else ''
+  def __str__(self):
+    gruenpflegeobjekt_str = f'{self.gruenpflegeobjekt}, ' if self.gruenpflegeobjekt else ''
+    bezeichnung_str = f'{self.bezeichnung}, ' if self.bezeichnung else ''
     staedtisch_str = 'städtisch' if self.staedtisch else 'nicht städtisch'
     return gruenpflegeobjekt_str + bezeichnung_str + staedtisch_str
 
-  def __str__(self):
-    return self.string_representation()
-
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self, force_insert=False, force_update=False, using=None, update_fields=None, *args, **kwargs
+  ):
     # store search content in designated field
-    self.freizeitsport = self.string_representation()
+    self.freizeitsport = self.__str__()
     super().save(
       force_insert=force_insert,
       force_update=force_update,
@@ -2250,12 +2233,12 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
 
   def __str__(self):
     return (
-      self.hst_bezeichnung
+      str(self.hst_bezeichnung)
       + ' [ID: '
       + str(self.id)
-      + (', HAFAS-ID: ' + self.hst_hafas_id if self.hst_hafas_id else '')
+      + (f', HAFAS-ID: {self.hst_hafas_id}' if self.hst_hafas_id else '')
       + (
-        ', Bus-/Bahnsteig: ' + self.hst_bus_bahnsteigbezeichnung
+        f', Bus-/Bahnsteig: {self.hst_bus_bahnsteigbezeichnung}'
         if self.hst_bus_bahnsteigbezeichnung
         else ''
       )
@@ -2375,7 +2358,7 @@ class Lichtwellenleiterinfrastruktur_Abschnitte(ComplexModel):
     list_fields = {'aktiv': 'aktiv?', 'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Lichtwellenleiterinfrastruktur(ComplexModel):
@@ -2466,7 +2449,7 @@ class Lichtwellenleiterinfrastruktur(ComplexModel):
     map_filter_fields_as_list = ['abschnitt', 'objektart', 'kabeltyp']
 
   def __str__(self):
-    return str(self.objektart) + ' ' + str(self.pk)
+    return f'{self.objektart} {self.pk}'
 
 
 #
@@ -2632,7 +2615,7 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     }
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
@@ -2739,7 +2722,7 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     map_filter_fields_as_list = ['parkscheinautomaten_tarif', 'zone']
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 #
@@ -2789,9 +2772,11 @@ class Punktwolken_Projekte(ComplexModel):
     geometry_calculation = True
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self, force_insert=False, force_update=False, using=None, update_fields=None, *args, **kwargs
+  ):
     if not self.vcp_task_id:
       try:
         # create Task
@@ -2885,8 +2870,10 @@ class Punktwolken(ComplexModel):
   )
   punktwolke = FileField(
     verbose_name='Punktwolkendatei',
-    upload_to=path_and_rename(
-      path=settings.PC_PATH_PREFIX_PRIVATE + 'punktwolken/', foreign_key_subdir_attr='projekt_id'
+    upload_to=str(
+      path_and_rename(
+        path=settings.PC_PATH_PREFIX_PRIVATE + 'punktwolken/', foreign_key_subdir_attr='projekt_id'
+      )
     ),
     storage=OverwriteStorage(path_root=settings.PC_MEDIA_ROOT),
     validators=[FileExtensionValidator(allowed_extensions=['e57', 'las', 'laz', 'xyz'])],
@@ -2930,9 +2917,11 @@ class Punktwolken(ComplexModel):
       aufnahme_str = ''
     if self.file_size:
       aufnahme_str = aufnahme_str + f' ({format_filesize(self.file_size)})'
-    return self.dateiname + aufnahme_str
+    return str(self.dateiname) + aufnahme_str
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self, force_insert=False, force_update=False, using=None, update_fields=None, *args, **kwargs
+  ):
     """
     Modified django save method.
     :param force_insert:
@@ -2975,7 +2964,7 @@ class Punktwolken(ComplexModel):
     if self.vcp_object_key:
       project: Project = get_project(id=pyblisher_settings.project_id)
       bucket: Bucket = project.get_bucket(id=self.projekt.vcp_dataset_bucket_id)
-      response = bucket.delete_object(key=self.vcp_object_key)
+      response = bucket.delete_object(key=str(self.vcp_object_key))
       if response.status_code == 204:
         super().delete(using=using, keep_parents=keep_parents)
       elif response.status_code == 404:
@@ -3346,7 +3335,7 @@ class RSAG_Masten(ComplexModel):
     ]
 
   def __str__(self):
-    return self.mastnummer
+    return str(self.mastnummer)
 
 
 class RSAG_Leitungen(ComplexModel):
@@ -3553,18 +3542,17 @@ class Spielplaetze(ComplexModel):
     }
     map_filter_fields_as_list = ['gruenpflegeobjekt']
 
-  def string_representation(self):
-    gruenpflegeobjekt_str = str(self.gruenpflegeobjekt) + ', ' if self.gruenpflegeobjekt else ''
-    bezeichnung_str = self.bezeichnung + ', ' if self.bezeichnung else ''
-    staedtisch_str = 'städtisch' if self.staedtisch else 'nicht städtisch'
-    return gruenpflegeobjekt_str + bezeichnung_str + staedtisch_str
-
   def __str__(self):
-    return self.string_representation()
+    gruenpflegeobjekt = f'{self.gruenpflegeobjekt}, ' if self.gruenpflegeobjekt else ''
+    bezeichnung = f'{self.bezeichnung}, ' if self.bezeichnung else ''
+    staedtisch = 'städtisch' if self.staedtisch else 'nicht städtisch'
+    return gruenpflegeobjekt + bezeichnung + staedtisch
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self, force_insert=False, force_update=False, using=None, update_fields=None, *args, **kwargs
+  ):
     # store search content in designated field
-    self.spielplatz = self.string_representation()
+    self.spielplatz = self.__str__()
     super().save(
       force_insert=force_insert,
       force_update=force_update,
@@ -4003,7 +3991,7 @@ class Strassen_Simple(ComplexModel):
     ]
 
   def __str__(self):
-    return self.bezeichnung + ' (' + self.schluessel + ')'
+    return f'{self.bezeichnung} ({self.schluessel})'
 
 
 class Strassen_Simple_Historie(ComplexModel):
@@ -4269,7 +4257,7 @@ class UVP_Vorhaben(ComplexModel):
     map_filter_fields_as_list = ['vorgangsart', 'genehmigungsbehoerde', 'rechtsgrundlage', 'typ']
 
   def __str__(self):
-    return self.bezeichnung
+    return str(self.bezeichnung)
 
 
 class UVP_Vorpruefungen(ComplexModel):
@@ -4373,11 +4361,5 @@ class UVP_Vorpruefungen(ComplexModel):
     ]
 
   def __str__(self):
-    return (
-      str(self.uvp_vorhaben)
-      + ' mit Datum '
-      + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y')
-      + ' [Art: '
-      + str(self.art)
-      + ']'
-    )
+    datum = datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y')
+    return f'{self.uvp_vorhaben} mit Datum {datum} [Art: {self.art}]'
