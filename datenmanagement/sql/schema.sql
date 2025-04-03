@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.11
+-- Dumped from database version 15.12
 -- Dumped by pg_dump version 16.8
 
 SET statement_timeout = 0;
@@ -2675,10 +2675,12 @@ CREATE TABLE fachdaten.meldedienst_flaechenhaft_hro (
     aktiv boolean DEFAULT true NOT NULL,
     deaktiviert date,
     art uuid NOT NULL,
-    bearbeiter character varying(255) NOT NULL,
+    erfasser character varying(255) NOT NULL,
     bemerkungen character varying(255),
-    datum date NOT NULL,
-    geometrie public.geometry(Polygon,25833) NOT NULL
+    erfassungsdatum date NOT NULL,
+    geometrie public.geometry(Polygon,25833) NOT NULL,
+    bearbeitungsbeginn date,
+    bearbeiter character varying(255)
 );
 
 

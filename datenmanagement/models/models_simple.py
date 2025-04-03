@@ -4232,9 +4232,8 @@ class Meldedienst_flaechenhaft(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_arten',
   )
-  bearbeiter = CharField(
-    verbose_name='Bearbeiter:in', max_length=255, validators=standard_validators
-  )
+  erfasser = CharField(verbose_name='Erfasser:in', max_length=255, validators=standard_validators)
+  erfassungsdatum = DateField(verbose_name='Erfassungsdatum', default=date.today)
   bemerkungen = CharField(
     verbose_name='Bemerkungen',
     max_length=255,
@@ -4242,7 +4241,14 @@ class Meldedienst_flaechenhaft(SimpleModel):
     null=True,
     validators=standard_validators,
   )
-  datum = DateField(verbose_name='Datum', default=date.today)
+  bearbeiter = CharField(
+    verbose_name='Bearbeiter:in',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  bearbeitungsbeginn = DateField(verbose_name='Bearbeitungsbeginn', blank=True, null=True)
   geometrie = polygon_field
 
   class Meta(SimpleModel.Meta):
@@ -4252,25 +4258,36 @@ class Meldedienst_flaechenhaft(SimpleModel):
 
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Meldedienst (flächenhaft) der Hanse- und Universitätsstadt Rostock'
+    group_with_users_for_choice_field = 'datenmanagement_meldedienst_flaechenhaft_full'
     geometry_type = 'Polygon'
     list_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
-      'bearbeiter': 'Bearbeiter:in',
+      'erfasser': 'Erfasser:in',
+      'erfassungsdatum': 'Erfassungsdatum',
       'bemerkungen': 'Bemerkungen',
-      'datum': 'Datum',
+      'bearbeiter': 'Bearbeiter:in',
+      'bearbeitungsbeginn': 'Bearbeitungsbeginn',
     }
-    list_fields_with_date = ['datum']
+    list_fields_with_date = ['erfassungsdatum', 'bearbeitungsbeginn']
     list_fields_with_foreign_key = {'art': 'art'}
     map_feature_tooltip_fields = ['art']
-    map_filter_fields = {'art': 'Art', 'bearbeiter': 'Bearbeiter:in', 'datum': 'Datum'}
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'art': 'Art',
+      'erfasser': 'Erfasser:in',
+      'erfassungsdatum': 'Erfassungsdatum',
+      'bemerkungen': 'Bemerkungen',
+      'bearbeiter': 'Bearbeiter:in',
+      'bearbeitungsbeginn': 'Bearbeitungsbeginn',
+    }
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
     return (
       str(self.art)
-      + ' [Datum: '
-      + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y')
+      + ' [Erfassungsdatum: '
+      + datetime.strptime(str(self.erfassungsdatum), '%Y-%m-%d').strftime('%d.%m.%Y')
       + ']'
     )
 

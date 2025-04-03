@@ -8750,26 +8750,26 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
     art = Arten_Meldedienst_flaechenhaft.objects.create(art='Art')
     cls.attributes_values_db_initial = {
       'art': art,
-      'bearbeiter': 'Bearbeiter1',
-      'datum': VALID_DATE,
+      'erfasser': 'Erfasser1',
+      'erfassungsdatum': VALID_DATE,
       'geometrie': VALID_POLYGON_DB,
     }
-    cls.attributes_values_db_updated = {'bearbeiter': 'Bearbeiter2'}
+    cls.attributes_values_db_updated = {'erfasser': 'Erfasser2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art.pk),
-      'bearbeiter': 'Bearbeiter3',
-      'datum': VALID_DATE,
+      'erfasser': 'Erfasser3',
+      'erfassungsdatum': VALID_DATE,
       'geometrie': VALID_POLYGON_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'art': str(art.pk),
-      'bearbeiter': 'Bearbeiter4',
-      'datum': VALID_DATE,
+      'erfasser': 'Erfasser4',
+      'erfassungsdatum': VALID_DATE,
       'geometrie': VALID_POLYGON_VIEW,
     }
-    cls.attributes_values_view_invalid = {'bearbeiter': INVALID_STRING}
+    cls.attributes_values_view_invalid = {'erfasser': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 

@@ -52,7 +52,11 @@ class GenericForm(ModelForm):
           request is not None
           and hasattr(request, 'user')
           and request.user is not None
-          and (field.name == 'ansprechpartner' or field.name == 'bearbeiter')
+          and (
+            field.name == 'ansprechpartner'
+            or field.name == 'bearbeiter'
+            or field.name == 'erfasser'
+          )
         ):
           if (
             self.group_with_users_for_choice_field
@@ -90,18 +94,23 @@ class GenericForm(ModelForm):
             choices = [(user, user) for user in user_list]
             # insert blank value on first position
             choices.insert(0, ('', '---------'))
+            if field.blank and field.null:
+              required = False
+              initial = None
+            else:
+              required = True
+              initial = (
+                request.user.first_name
+                + ' '
+                + request.user.last_name
+                + ' ('
+                + request.user.email.lower()
+                + ')'
+              )
             choice_field = ChoiceField(
-              label=field.verbose_name,
-              choices=choices,
-              initial=request.user.first_name
-              + ' '
-              + request.user.last_name
-              + ' ('
-              + request.user.email.lower()
-              + ')',
+              required=required, label=field.verbose_name, choices=choices, initial=initial
             )
-            if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
-              self.fields[field.name] = choice_field
+            self.fields[field.name] = choice_field
         # convert address fields to custom field types
         elif field.name == 'adresse' or field.name == 'strasse' or field.name == 'gemeindeteil':
           attrs = {
