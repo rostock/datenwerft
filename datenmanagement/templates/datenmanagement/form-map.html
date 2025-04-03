@@ -404,16 +404,15 @@
                   // iterate all fields...
                   {% for field in form %}
                     // if contact person/processor field...
-                    {% if field.name == 'ansprechpartner' or field.name == 'bearbeiter' %}
-                      let select = $('select#id_' + '{{ field.name }}');
+                    {% if field.name == 'ansprechpartner' or field.name == 'bearbeiter' or field.name == 'erfasser' %}
                       // add Bootstrap 5 CSS class
-                      select.addClass('form-select');
+                      $('select#id_' + '{{ field.name }}').addClass('form-select');
                       // preselect the appropriate value if the email address contained therein matches the field value
                       {% if object %}
-                        select.children().each(function () {
+                        $('select#id_' + '{{ field.name }}').children().each(function () {
                           let optionValue = $(this).val();
                           if (optionValue.indexOf('{{ field.value }}'.toLowerCase()) !== -1)
-                            select.val(optionValue);
+                            $('select#id_' + '{{ field.name }}').val(optionValue);
                         });
                       {% endif %}
                     {% endif %}

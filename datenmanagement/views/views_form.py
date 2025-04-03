@@ -99,6 +99,7 @@ class DataAddView(CreateView):
     :return: dictionary with initial field values for this view
     """
     ansprechpartner = None
+    erfasser = None
     bearbeiter = None
     preselect_field = self.request.GET.get('preselect_field', None)
     preselect_value = self.request.GET.get('preselect_value', None)
@@ -121,11 +122,21 @@ class DataAddView(CreateView):
           + self.request.user.email.lower()
           + ')'
         )
-    if ansprechpartner or bearbeiter or (preselect_field and preselect_value):
+      if field.name == 'erfasser':
+        erfasser = (
+          self.request.user.first_name
+          + ' '
+          + self.request.user.last_name
+          + ' ('
+          + self.request.user.email.lower()
+          + ')'
+        )
+    if ansprechpartner or bearbeiter or erfasser or (preselect_field and preselect_value):
       if not self.model.BasemodelMeta.group_with_users_for_choice_field:
         return {
           'ansprechpartner': ansprechpartner,
           'bearbeiter': bearbeiter,
+          'erfasser': erfasser,
           preselect_field: preselect_value,
         }
 
