@@ -31,7 +31,7 @@ class Status(Codelist):
     min_numbers = {'ordinal': 1}
 
   def __str__(self):
-    return self.title
+    return str(self.title)
 
   @staticmethod
   def get_default_status():
@@ -64,7 +64,7 @@ class Sector(Codelist):
     description = 'definiert Verursacher näher'
 
   def __str__(self):
-    return self.title
+    return str(self.title)
 
 
 class TypeOfEvent(Codelist):
@@ -89,7 +89,7 @@ class TypeOfEvent(Codelist):
     description = 'definiert Journalereignisse näher'
 
   def __str__(self):
-    return self.title
+    return str(self.title)
 
 
 class TypeOfImmission(Codelist):
@@ -114,4 +114,4 @@ class TypeOfImmission(Codelist):
     description = 'definiert Immissionen näher'
 
   def __str__(self):
-    return self.title
+    return str(self.title)

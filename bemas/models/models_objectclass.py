@@ -107,14 +107,16 @@ class Organization(Objectclass):
     new = 'neue'
 
   def __str__(self):
-    return self.name
+    return str(self.name)
 
   def address(self):
     return concat_address(
       self.address_street, self.address_house_number, self.address_postal_code, self.address_place
     )
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self, force_insert=False, force_update=False, using=None, update_fields=None, *args, **kwargs
+  ):
     # store search content in designated field
     self.search_content = str(self)
     # add contacts to search content if organization already exists
@@ -234,17 +236,19 @@ class Person(Objectclass):
     new = 'neue'
 
   def __str__(self):
-    title = '(' + self.title + ') ' if self.title else ''
-    academic_title = self.academic_title + ' ' if self.academic_title else ''
-    name = (self.first_name + ' ' if self.first_name else '') + self.last_name
-    return title + academic_title + name
+    title = f'({self.title}) ' if self.title else ''
+    academic_title = f'{self.academic_title} ' if self.academic_title else ''
+    first_name = f'{self.first_name} ' if self.first_name else ''
+    return f'{title}{academic_title}{first_name}{self.last_name}'
 
   def address(self):
     return concat_address(
       self.address_street, self.address_house_number, self.address_postal_code, self.address_place
     )
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self, force_insert=False, force_update=False, using=None, update_fields=None, *args, **kwargs
+  ):
     # store search content in designated field
     self.search_content = str(self)
     super().save(
@@ -290,12 +294,12 @@ class Contact(Objectclass):
     personal_pronoun = 'sie/ihn'
     new = 'neue:n'
 
-  def __str__(self):
-    function = ' mit der Funktion ' + self.function if self.function else ''
-    return str(self.person) + ' in der Organisation ' + str(self.organization) + function
+  def __str__(self) -> str:
+    function = f' mit der Funktion {self.function}' if self.function else ''
+    return f'{self.person} in der Organisation {self.organization}{function}'
 
-  def name_and_function(self):
-    function_str = ' (Funktion: ' + self.function + ')' if self.function else ''
+  def name_and_function(self) -> str:
+    function_str = f' (Funktion: {self.function})' if self.function else ''
     if self.person.telephone_numbers or self.person.email_addresses:
       contact_data_str = ' – Kontakt: '
       if self.person.telephone_numbers and type(self.person.telephone_numbers) is list:
@@ -308,7 +312,9 @@ class Contact(Objectclass):
       contact_data_str = ''
     return str(self.person) + function_str + contact_data_str
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self, force_insert=False, force_update=False, using=None, update_fields=None, *args, **kwargs
+  ):
     # (1/2) store search content in designated field of object class organization:
     # first get organization...
     organization = Organization.objects.get(pk=self.organization.pk)
@@ -382,7 +388,7 @@ class Originator(GeometryObjectclass):
     personal_pronoun = 'ihn'
     new = 'neuen'
 
-  def __str__(self):
+  def __str__(self) -> str:
     operator = ''
     if self.operator_organization:
       operator = ' mit der Betreiberin ' + str(self.operator_organization)
@@ -390,9 +396,9 @@ class Originator(GeometryObjectclass):
       if self.operator_organization:
         operator += ' und'
       operator += ' mit der/dem Betreiber:in ' + str(self.operator_person)
-    return str(self.sector) + operator + ' (' + shorten_string(self.description) + ')'
+    return f'{self.sector}{operator} ({shorten_string(self.description)})'
 
-  def sector_and_operator(self):
+  def sector_and_operator(self) -> str:
     operator = ' (unbekannte Betreiberverhältnisse'
     if self.operator_organization:
       operator = ' (Betreiberin: ' + str(self.operator_organization)
@@ -405,7 +411,9 @@ class Originator(GeometryObjectclass):
         operator += ' Betreiber:in: ' + str(self.operator_person)
     return str(self.sector) + operator + ')'
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self, force_insert=False, force_update=False, using=None, update_fields=None, *args, **kwargs
+  ):
     # store search content in designated field
     self.search_content = self.sector_and_operator()
     super().save(
@@ -476,18 +484,13 @@ class Complaint(GeometryObjectclass):
     personal_pronoun = 'sie'
     new = 'neue'
 
-  def __str__(self):
-    return (
-      '#'
-      + str(self.id)
-      + ' vom '
-      + self.date_of_receipt.strftime('%d.%m.%Y')
-      + ' ('
-      + str(self.status)
-      + ')'
-    )
+  def __str__(self) -> str:
+    date = self.date_of_receipt.strftime('%d.%m.%Y')
+    return f'#{self.id} vom {date} ({self.status})'
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self, force_insert=False, force_update=False, using=None, update_fields=None, *args, **kwargs
+  ):
     # on creation:
     if not self.pk and Status.get_default_status():
       # store default status in designated field
@@ -548,19 +551,21 @@ class Event(Objectclass):
     personal_pronoun = 'es'
     new = 'neues'
 
-  def __str__(self):
-    description = ' (' + shorten_string(self.description) + ')' if self.description else ''
-    return str(self.type_of_event) + ' zur Beschwerde ' + str(self.complaint) + description
+  def __str__(self) -> str:
+    description = f'({shorten_string(self.description)})' if self.description else ''
+    return f'{self.type_of_event} zur Beschwerde {self.complaint} {description}'
 
-  def type_of_event_and_complaint(self):
-    return str(self.type_of_event) + ' (Beschwerde: ' + str(self.complaint) + ')'
+  def type_of_event_and_complaint(self) -> str:
+    return f'{self.type_of_event} (Beschwerde: {self.complaint})'
 
-  def type_of_event_and_created_at(self):
-    date_str = ' vom ' + self.date.strftime('%d.%m.%Y') if self.date else ' (ohne Datum)'
-    description = ': ' + shorten_string(self.description, 200) if self.description else ''
-    return str(self.type_of_event) + date_str + description
+  def type_of_event_and_created_at(self) -> str:
+    date_str = f' vom {self.date.strftime("%d.%m.%Y")}' if self.date else ' (ohne Datum)'
+    description = f': {shorten_string(self.description, 200)}' if self.description else ''
+    return f'{self.type_of_event}{date_str}{description}'
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self, force_insert=False, force_update=False, using=None, update_fields=None, *args, **kwargs
+  ):
     # store search content in designated field
     self.search_content = self.type_of_event_and_complaint()
     super().save(
@@ -596,10 +601,12 @@ class LogEntry(Objectclass):
     personal_pronoun = 'ihn'
     new = 'neuen'
 
-  def __str__(self):
-    return '#' + str(self.id)
+  def __str__(self) -> str:
+    return f'#{self.id}'
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self, force_insert=False, force_update=False, using=None, update_fields=None, *args, **kwargs
+  ):
     # force object string to be NULL
     if self.content == '/':
       self.content = None
