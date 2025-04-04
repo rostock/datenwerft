@@ -76,11 +76,6 @@ jobs:
           psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB_DATENMANAGEMENT -f datenmanagement/sql/schema.sql
       - name: Install Node.js dependencies
         run: npm install
-      - name: Create HTML files for help
-        run: |
-          cd hilfe
-          make html
-          cd ..
       - name: Collect static files
         run: python manage.py collectstatic -c
       - name: Run migrations
