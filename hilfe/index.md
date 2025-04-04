@@ -12,6 +12,10 @@
 
 ## _BEMAS_
 
+### [Administration](bemas/admin.md)
+
+### [Berechtigungen](bemas/usage/permissions.md)
+
 ## Datenmanagement
 
 ### [Berechtigungen](datenmanagement/usage/permissions.md)
