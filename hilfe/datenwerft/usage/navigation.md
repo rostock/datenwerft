@@ -1,4 +1,4 @@
-# Navigation
+# Allgemein → Navigation
 
 Ihr ständiger Begleiter für die Hauptnavigation ist auf jeder Seite der
 Anwendung die *Titelleiste*. Sie besteht von links nach rechts aus

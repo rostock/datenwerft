@@ -1,4 +1,4 @@
-# Anmeldung
+# Allgemein → Anmeldung
 
 ## Wie kann ich mich anmelden?
 

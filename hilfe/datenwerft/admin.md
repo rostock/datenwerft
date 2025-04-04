@@ -1,10 +1,11 @@
-# Administration
+# Allgemein → Administration
 
 ## Benutzer:in hinzufügen
 
 ### mit LDAP
 
-1.  ggf. sicherstellen, dass Benutzer:in in LDAP in `AUTH_LDAP_REQUIRE_GROUP` eingetragen ist
+1.  ggf. sicherstellen, dass Benutzer:in in LDAP in `AUTH_LDAP_REQUIRE_GROUP`
+    eingetragen ist
 2.  Benutzer:in einmalig in *Datenwerft.HRO* an- und wieder abmelden
     lassen, sodass *Django* automatisch ein neues Benutzerobjekt anlegt
 3.  als Administrator:in in *Datenwerft.HRO* anmelden
