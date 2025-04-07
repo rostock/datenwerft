@@ -30,7 +30,7 @@
                       {{ field.label_tag }}
                       <small>(<a href="{{ catalog_link_fields|get_dict_value_by_key:field.name }}"><i class="fas fa-circle-info"></i> ALKIS-Katalog</a>)</small>
                     {% elif field|is_field_hours_related_field %}
-                      {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i class="fas fa-circle-question"></i> Hilfe</a>)</small>
+                      {{ field.label_tag }} <small>(<a href="https://github.com/rostock/datenwerft/blob/main/hilfe/datenmanagement/usage/work_dataset-create.md"><i class="fas fa-circle-question"></i> Hilfe</a>)</small>
                     {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
                       {% if object and user|user_has_model_change_permission:model_name_lower and object|get_value_of_field:field.name %}
                         {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}

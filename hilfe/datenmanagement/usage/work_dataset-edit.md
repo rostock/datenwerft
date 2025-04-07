@@ -98,5 +98,5 @@ sich um einen bereits bestehenden Datensatz handelt, nicht um einen neuen.
 
 ## Wie kann ich die Änderungen speichern?
 
-Sie können den neuen Datensatz speichern, indem Sie auf den Button
-*Änderungen speichern* links unten auf der Seite klicken.
+Sie können die Änderungen am bestehenden Datensatz speichern, indem Sie auf den grünen Button
+*Änderungen speichern* (links) unten auf der Seite klicken.

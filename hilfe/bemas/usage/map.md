@@ -1,13 +1,8 @@
-# Datenmanagement → Zurechtfinden → Datensätze-Karte
+# *BEMAS* → Bereiche und Aktionen → Übersichtskarte
 
-Auf die *Datensätze-Karte* eines Datenthemas gelangen Sie immer dann,
-wenn Sie entweder auf der [Startseite](orientation_topic-start.md) oder
-in der [Datensätze-Tabelle](orientation_datasets-table.md) eines Datenthemas
-auf den Button *alle Datensätze auf Karte
-anzeigen* (bzw. *aktuelle Filtermenge auf Karte übernehmen)* geklickt
-haben. Auf der Karte sind alle Datensätze zu sehen, für die wir Ihnen
-(mindestens) [Leserechte](permissions.md) gegeben haben:
-In der Regel sind dies **alle** Datensätze des Datenthemas.
+Auf der Übersichtskarte mit allen Immissions- und Emissionsorten
+sind **alle** Datensätze der Objektklassen *Verursacher* und *Beschwerden* zu sehen.
+Die Inhalte der Karte können gefiltert und durchsucht werden.
 
 Wenn sehr viele Datensätze und damit Symbole auf der Karte vorhanden
 sind bzw. diese sehr dicht beieinander liegen, so findet ein
@@ -30,10 +25,9 @@ ein Klick auf diese alle geclusterten (zusammengefassten) Einzelsymbole
 in einer Art „Spinne" auf.
 
 Wenn Sie mit der Maus auf einem Einzelsymbol in der Karte stehenbleiben,
-wird die ID oder die Bezeichnung des repräsentierten Datensatzes (oder
-ein anderes Attribut, das den Datensatz eindeutig identifiziert) in
-einer Sprechblase angezeigt. Klicken Sie nun, gelangen Sie auf die
-[Bearbeitungsseite](work_dataset-edit.md) des Datensatzes.
+werden die wichtigsten Informationen des repräsentierten Datensatzes (vor allem dessen ID)
+in einer Sprechblase angezeigt. Klicken Sie nun, öffnet sich eine größere Sprechblase
+mit allen Informationen des repräsentierten Datensatzes sowie Interaktionsmöglichkeiten.
 
 ## Wie kann ich in der Karte navigieren?
 
@@ -73,14 +67,14 @@ als Layer zuschaltbar!
 ## Wie kann ich den Karteninhalt filtern?
 
 Den Karteninhalt können Sie filtern, indem Sie die Filterfelder unter
-der Überschrift *Filter für Kartenobjekte* rechts neben der Karte
-nutzen. Wenn Sie eines oder mehrere Filterfelder wie gewünscht gesetzt
+der Überschrift *Filter für Beschwerden* bzw. *Filter für Verursacher*
+rechts neben der Karte nutzen. Wenn Sie eines oder mehrere Filterfelder wie gewünscht gesetzt
 bzw. ausgefüllt haben, klicken Sie auf den unterhalb der Filterfelder
-befindlichen Button *Filter anwenden.* Daraufhin wird der Karteninhalt
-auf diejenigen Datensätze reduziert, auf die die aktuelle
-Filtersituation passt. Ein Klick auf den Button *Filter zurücksetzen*
-leert alle Filterfelder und zeigt wieder alle Datensätze auf der Karte
-an.
+befindlichen Button *Filter auf Beschwerden anwenden* bzw. *Filter auf Verursacher anwenden.*
+Daraufhin wird der Karteninhalt auf diejenigen Beschwerden oder Verursacher reduziert,
+auf die die aktuelle Filtersituation passt. Ein Klick auf den Button
+*Filter für Beschwerden zurücksetzen* bzw. *Filter für Verursacher zurücksetzen*
+leert alle Filterfelder und zeigt wieder alle Beschwerden oder Verursacher auf der Karte an.
 
 **Hinweis:** Die Filter wirken **additiv** (wie „UND")!
 
@@ -89,9 +83,10 @@ an.
 Unter der Überschrift *Kartenausschnitt* rechts neben der Karte finden
 Sie mehrere Buttons:
 
--   Wenn Sie auf den Button *aktuelle Filtermenge* klicken, zoomt und
+-   Wenn Sie auf den Button *aktuell gefilterte Beschwerden*
+    bzw. *aktuell gefilterte Verursacher* klicken, zoomt und
     zentriert die Karte auf die Gesamtausdehnung der Kartensymbole und
-    damit der Datensätze gemäß der aktuellen Filtersituation.
+    damit der Beschwerden oder Verursacher gemäß der aktuellen Filtersituation.
 -   Wenn Sie auf den Button *gesamt* klicken, zoomt und zentriert die
     Karte (wieder) auf den initialen Kartenausschnitt – also (wieder)
     auf den Kartenausschnitt, den die Karte zeigt, wenn Sie die Seite
@@ -118,11 +113,21 @@ zentrieren lassen, an dem Sie sich gerade befinden: Klicken Sie dazu
 einfach den Button mit dem Pfeil links oben in der Karte an und warten
 Sie kurz.
 
-## Kann der aktuelle Karteninhalt auch als Filtermenge in die Tabelle übernommen werden?
+## Kann der aktuelle Karteninhalt auch als Filtermenge in die Tabellenansicht übernommen werden?
 
-Der **aktuelle Karteninhalt** kann über den Button *aktuelle Filtermenge
-in Tabelle übernehmen* oben auf der Seite in die
-[Datensätze-Tabelle](orientation_datasets-table.md)
-des Datenthemas übernommen werden. Es werden dort dann folgerichtig
-nicht alle Datensätze in der Tabelle angezeigt, sondern nur die aus der
-Karte übernommenen Datensätze.
+Bei den Objektklassen *Verursacher* und *Beschwerden,* die jeweils
+einen räumlichen Bezug aufweisen, kann der
+**aktuelle Tabelleninhalt** über den grauen Button *aktuell gefiltere
+Verursacher* bzw. *aktuell gefiltere Beschwerden*
+oben auf der Seite in eine [Übersichtskarte](map.md) übernommen werden.
+Es werden dort dann folgerichtig nicht alle Datensätze
+der Objektklassen *Verursacher* und *Beschwerden*auf der Karte angezeigt,
+sondern nur die aus der Tabelle übernommenen Datensätze.
+
+Der **aktuelle Karteninhalt** kann über den grauen Button *aktuell gefiltere
+Verursacher* bzw. *aktuell gefiltere Beschwerden*
+oben auf der Seite in die entsprechende [Tabellenansicht](table.md)
+der Beschwerdern bzw. Verursacher übernommen werden.
+Es werden dort dann folgerichtig nicht alle Datensätze
+der Objektklassen *Verursacher* oder *Beschwerden* in der Tabelle aufgelistet,
+sondern nur die aus der Karte übernommenen Datensätze.

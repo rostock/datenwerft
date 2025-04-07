@@ -17,7 +17,7 @@ Seitenbereich) einzugeben, in dem alle vorgesehenen Attribute in
 sinnvoller Reihenfolge untereinander aufgeführt sind, und zwar jeweils
 ausgestattet mit dem entsprechenden Eingabefeld: Dies kann ein
 Texteingabefeld sein, eine Auswahlliste, ein Kalender zur Datumsauswahl
-usw. -- je nach Datentyp des entsprechenden Attributs.
+usw. – je nach Datentyp des entsprechenden Attributs.
 
 ## Muss ich alle Attribute (Sachdaten) eingeben?
 
@@ -377,11 +377,11 @@ werden.
 ## Kann ich Stützpunkte vorhandener Geometrien (auch anderer Datenthemen) fangen?
 
 Es können die Stützpunkte aller vorhandenen Geometrien gefangen werden,
-auch der Geometrien anderer Datenthemen -- schalten Sie hierfür zunächst
+auch der Geometrien anderer Datenthemen – schalten Sie hierfür zunächst
 diejenigen anderen Datenthemen als zusätzliche Layer in der Karte zu,
 aus denen Sie Stützpunkte fangen möchten.
 Gefangen werden Stützpunkte, indem man bei aktivierten Kartenwerkzeugen
-zum Anlegen oder Bearbeiten von Geometrien in deren Nähe kommt -- man
+zum Anlegen oder Bearbeiten von Geometrien in deren Nähe kommt – man
 wird dann quasi „magnetisch angezogen".
 
 ## Was bedeutet das Kartenwerkzeug „vorhandene Geometrien adoptieren"?
@@ -396,7 +396,7 @@ Datenthemen als zusätzliche Layer in der Karte zu, aus denen Sie Flächen
 übernehmen möchten. Nun
 aktivieren Sie das Kartenwerkzeug *vorhandene Geometrien adoptieren* und
 klicken auf diejenigen Fläche(n) in der Karte, die Sie übernehmen
-möchten -- diese wechseln dann ihre Farbe von blau zu rot. Klicken Sie
+möchten – diese wechseln dann ihre Farbe von blau zu rot. Klicken Sie
 auf den Button *beenden,* sodass die Übernahme(n) endgültig vorgenommen
 wird/werden.
 
@@ -461,4 +461,4 @@ genau auf die geometrische Mitte des gewünschten Gemeindeteils gesetzt.
 ## Wie kann ich den neuen Datensatz speichern?
 
 Sie können den neuen Datensatz speichern, indem Sie auf den Button
-*neuen Datensatz speichern* links unten auf der Seite klicken.
+*neuen Datensatz speichern* (links) unten auf der Seite klicken.
