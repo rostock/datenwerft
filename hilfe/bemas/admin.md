@@ -4,7 +4,7 @@
 
 Während der [Initialisierung](../../README.md#initialisierung) der Anwendung *Datenwerft.HRO*
 werden die Gruppen `BEMAS_ADMIN_GROUP_NAME` und `BEMAS_USERS_GROUP_NAME` angelegt
-und automatisch mit den passenden [Berechtigungen](usage/permissions.md) versehen.
+und automatisch mit den passenden [Berechtigungen](permissions.md) versehen.
 Zu diesen Gruppen müssen dann manuell die entsprechenden
 [Benutzer:innen hinzugefügt](../datenwerft/admin.md#benutzerin-hinzufügen) werden.
 
@@ -31,4 +31,4 @@ Auswahl-Attribut *Immissionsart* eingebunden, sodass man dort eben zwischen
 *Lärm, Erschütterungen* und anderen Werten wählen kann.
 
 Die Inhalte von Codelisten können in *BEMAS* selbst bearbeitet werden.
-Hierfür müssen Sie allerdings der [Berechtigungsstufe](usage/permissions.md) *Admin* angehören.
+Hierfür müssen Sie allerdings der [Berechtigungsstufe](permissions.md) *Admin* angehören.

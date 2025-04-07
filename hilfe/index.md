@@ -17,7 +17,7 @@ Hier finden Sie Hilfestellungen zur Standard-Umgebung der Anwendung *Datenwerft.
 dem Datenmanagement – zum Beispiel: Wie können Datensätze übersichtlich angezeigt werden?
 Wie können neue Datensätze angelegt werden?
 
-### [Berechtigungen](datenmanagement/usage/permissions.md)
+### [Berechtigungen](datenmanagement/permissions.md)
 
 ### Zurechtfinden
 
@@ -47,7 +47,7 @@ Hier finden Sie Hilfestellungen zum Beschwerdemanagementsystem *BEMAS.*
 
 ### [Glossar](bemas/glossary.md)
 
-### [Berechtigungen](bemas/usage/permissions.md)
+### [Berechtigungen](bemas/permissions.md)
 
 ### [Zusammenhänge und Workflows](bemas/usage/context-workflows)
 
@@ -69,3 +69,9 @@ Hier finden Sie Hilfestellungen zum Beschwerdemanagementsystem *BEMAS.*
 
 Hier finden Sie Hilfestellungen zum System zum Management von Anträgen,
 wie etwa zu Müllsammelaktionen.
+
+### [Administration](antragsmanagement/admin.md)
+
+### [Berechtigungen](antragsmanagement/permissions.md)
+
+### [Startseite (Dashboard)](antragsmanagement/usage/dashboard.md)

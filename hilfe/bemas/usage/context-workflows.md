@@ -43,7 +43,7 @@ als Beschwerdeführer:in handelt.
    3. Person suchen – falls gefunden, mit Schritt 3 fortfahren
 2. falls nicht gefunden, Person neu im System anlegen:
    1. in [Tabellenansicht](table.md) mit allen Personen
-      auf blauen Button _neue Person anlegen_ klicken
+      auf blauen Button *neue Person anlegen* klicken
    2. Eingabemaske auf [Anlegeseite](dataset-create.md) für neue Person
       entsprechend ausfüllen und neuen Datensatz speichern
 3. prüfen, ob der Verursacher mit seinem Emissionsort bereits im System eingetragen ist:
@@ -53,7 +53,7 @@ als Beschwerdeführer:in handelt.
    3. Verursacher suchen – falls gefunden, mit Schritt 5 fortfahren
 4. falls nicht gefunden, Verursacher mit seinem Emissionsort neu im System anlegen:
    1. in [Tabellenansicht](table.md) mit allen Verursachern (Emissionsorten)
-      auf blauen Button _neuen Verursacher anlegen_ klicken
+      auf blauen Button *neuen Verursacher anlegen* klicken
       oder auf [Startseite (Dashboard)](dashboard.md) Link auf die [Anlegeseite](dataset-create.md)
       für einen neuen Verursacher öffnen
    2. Eingabemaske auf [Anlegeseite](dataset-create.md) für neuen Verursacher
@@ -76,7 +76,7 @@ müssen die obigen Schritte 2 und 3 entsprechend auch hierfür durchgeführt wer
 2. auf den blauen Button mit der Heftklammer rechts unterhalb der Liste mit den letzten
    Aktivitäten klicken, um [Tabellenansicht](table.md) mit allen Journalereignissen
    aller Beschwerden aufzurufen
-3. auf blauen Button _neues Journalereignis anlegen_ klicken
+3. auf blauen Button *neues Journalereignis anlegen* klicken
 4. Eingabemaske für neues Journalereignis entsprechend ausfüllen und neuen Datensatz speichern 
 
 #### falls ID der Beschwerde nicht bekannt
@@ -86,5 +86,5 @@ müssen die obigen Schritte 2 und 3 entsprechend auch hierfür durchgeführt wer
    und/oder [Übersichtskarte](map.md) mit allen Immissions- und Emissionsorten aufrufen
 3. Beschwerde suchen (und anklicken, falls man sich auf der Übersichtskarte befindet)
 4. auf blauen Button mit Heftklammer klicken, um alle Journalereignisse zur Beschwerde aufzurufen
-5. auf blauen Button _neues Journalereignis anlegen_ klicken
+5. auf blauen Button *neues Journalereignis anlegen* klicken
 6. Eingabemaske für neues Journalereignis entsprechend ausfüllen und neuen Datensatz speichern 

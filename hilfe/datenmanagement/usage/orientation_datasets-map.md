@@ -6,7 +6,7 @@ in der [Datensätze-Tabelle](orientation_datasets-table.md) eines Datenthemas
 auf den Button *alle Datensätze auf Karte
 anzeigen* (bzw. *aktuelle Filtermenge auf Karte übernehmen)* geklickt
 haben. Auf der Karte sind alle Datensätze zu sehen, für die wir Ihnen
-(mindestens) [Leserechte](permissions.md) gegeben haben:
+(mindestens) [Leserechte](../permissions.md) gegeben haben:
 In der Regel sind dies **alle** Datensätze des Datenthemas.
 
 Wenn sehr viele Datensätze und damit Symbole auf der Karte vorhanden

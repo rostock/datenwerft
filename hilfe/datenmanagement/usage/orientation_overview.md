@@ -5,7 +5,7 @@ weitergeleitet werden, nachdem Sie sich
 [angemeldet](../../datenwerft/usage/login.md) haben. Hier werden
 alle Datenthemen alphabetisch sortiert mit Titel und Kurzbeschreibung
 aufgelistet, für die wir Ihnen (mindestens)
-[Leserechte](permissions.md) gegeben haben.
+[Leserechte](../permissions.md) gegeben haben.
 Klicken Sie ein Datenthema an, gelangen Sie zu
 [dessen Startseite](orientation_topic-start.md).
 

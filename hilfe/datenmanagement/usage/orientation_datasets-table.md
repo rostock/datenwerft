@@ -6,7 +6,7 @@ in der [Datensätze-Karte](orientation_datasets-map.md) eines Datenthemas
 auf den Button *alle Datensätze in Tabelle
 auflisten* (bzw. *aktuelle Filtermenge in Tabelle übernehmen)* geklickt
 haben. In der Tabelle sind alle Datensätze als Zeilen aufgelistet, für
-die wir Ihnen (mindestens) [Leserechte](permissions.md) gegeben haben:
+die wir Ihnen (mindestens) [Leserechte](../permissions.md) gegeben haben:
 In der Regel sind dies **alle** Datensätze des Datenthemas.
 
 **Hinweis:** Es sind in der Regel **nicht alle Attribute** des
@@ -14,7 +14,7 @@ Datenthemas in Form von Tabellenspalten vertreten, sondern nur die für
 das Zurechtfinden notwendigen (wie zum Beispiel die Bezeichnung), sonst
 würde die Tabelle viel zu breit.
 
-Je nach [Rechten](permissions.md) weist
+Je nach [Rechten](../permissions.md) weist
 die Spalte *Redaktion* ganz rechts in der Tabelle unterschiedliche oder
 keine Symbole auf:
 
