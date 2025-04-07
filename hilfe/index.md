@@ -49,9 +49,9 @@ Hier finden Sie Hilfestellungen zum Beschwerdemanagementsystem *BEMAS.*
 
 ### [Berechtigungen](bemas/usage/permissions.md)
 
-### [Startseite (Dashboard)](bemas/usage/dashboard.md)
+### [Zusammenhänge und Workflows](bemas/usage/context-workflows)
 
-### [Workflow](bemas/usage/workflow.md)
+### [Startseite (Dashboard)](bemas/usage/dashboard.md)
 
 ### Bereiche und Aktionen
 

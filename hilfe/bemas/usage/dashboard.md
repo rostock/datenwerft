@@ -21,9 +21,9 @@ das Dashboard wie folgt:
     6. Ein Klick auf den Bleistift hinter einem Listeneintrag
        öffnet die [Bearbeitungsseite](dataset-edit.md) des entsprechenden Datensatzes.
 
-    Ein Klick auf den Button mit der Uhr links unterhalb der Liste mit den letzten
+    Ein Klick auf den blauen Button mit der Uhr links unterhalb der Liste mit den letzten
     Aktivitäten öffnet diese gesondert in einer ausführlicheren [Tabellenansicht](table.md).
-    Klickt man rechts auf den Button mit der Heftklammer, öffnet sich eine ausführliche
+    Klickt man rechts auf den blauen Button mit der Heftklammer, öffnet sich eine ausführliche
     [Tabellenansicht](table.md) mit allen Journalereignissen aller Beschwerden.
 -   Links auf die [Tabellenansicht](table.md) mit allen Verursachern (Emissionsorten)
     sowie auf die [Anlegeseite](dataset-create.md) für einen neuen Verursacher (Emissionsort)
