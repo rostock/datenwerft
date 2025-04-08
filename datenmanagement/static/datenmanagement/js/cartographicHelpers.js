@@ -21,8 +21,9 @@ function activateMapLayer(layerName, map) {
  *
  * @param {Object} map - map
  * @param {string} [geometryType=''] - geometry type of the current data theme in the form
+ * @param {boolean} [geometryAdoption=false] - add geometry adoption control?
  */
-function configureLeafletGeoman(map, geometryType = '') {
+function configureLeafletGeoman(map, geometryType = '', geometryAdoption = false) {
   // define custom translations
   const customTranslation = {
     actions: {
@@ -134,7 +135,7 @@ function configureLeafletGeoman(map, geometryType = '') {
   }
 
   // if the geometry type of the data theme is areal...
-  if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
+  if (geometryAdoption === true && (geometryType === 'Polygon' || geometryType === 'MultiPolygon')) {
     // add control button to adopt geometries
     map.pm.Toolbar.createCustomControl({
       name: 'adoptGeometry',
@@ -175,6 +176,12 @@ function configureLeafletGeoman(map, geometryType = '') {
     map.on('pm:buttonclick', (e) => {
       // disable editing
       if (e.btnName === 'adoptGeometry' && e.button.toggleStatus === true) {
+        // fire event to
+        // either set address or street (if address reference is mandatory) automatically or
+        // to enable address reference button (if address reference is not mandatory)
+        map.fire('pm:create', {
+          layer: map.pm.getGeomanDrawLayers()[0]
+        });
         map.pm.getGeomanLayers().forEach((layer) => {
           layer.setInteractive(false);
         });
@@ -183,6 +190,12 @@ function configureLeafletGeoman(map, geometryType = '') {
     map.on('pm:actionclick', (e) => {
       // disable editing
       if (e.btnName === 'adoptGeometry' && e.text === 'beenden') {
+        // fire event to
+        // either set address or street (if address reference is mandatory) automatically or
+        // to enable address reference button (if address reference is not mandatory)
+        map.fire('pm:create', {
+          layer: map.pm.getGeomanDrawLayers()[0]
+        });
         map.pm.getGeomanLayers().forEach((layer) => {
           layer.setInteractive(false);
         });

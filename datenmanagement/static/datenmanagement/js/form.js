@@ -180,24 +180,38 @@ function keepDjangoRequiredMessages() {
  * @name setAddressReference
  *
  * @param addressType - address reference type (i.e. address, street or district)
- * @param {Object} layer - layer
+ * @param {Object} geometryLayers - layers with geometries
  *
- * adopts the current address reference of the geometry in the map
+ * adopts the current address reference of the geometries in the map
  */
-function setAddressReference(addressType, layer) {
-  let geoJson = layer.toGeoJSON();
-  let geometryType = 'Polygon';
-  if (window.geometryType.toLowerCase().indexOf('point') !== -1)
-    geometryType = 'Point';
-  else if (window.geometryType.toLowerCase().indexOf('line') !== -1)
-    geometryType = 'LineString';
-  let ort = getFeatureCenter(geoJson, geometryType);
-  fetch(window.reverseSearchUrl + '?search_class=address&x=' + ort[0] + '&y=' + ort[1], {
+function setAddressReference(addressType, geometryLayers) {
+  let geoJson;
+  // handle multiple geometries
+  if (geometryLayers.length > 1) {
+    geoJson = {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'MultiPolygon',
+        coordinates: []
+      }
+    };
+    geometryLayers.forEach((geometryLayer) => {
+      let tempGeoJson = geometryLayer.toGeoJSON();
+      geoJson.geometry.coordinates.push(tempGeoJson.geometry.coordinates);
+    });
+  } else if (typeof geometryLayers[0] !== 'undefined') {
+    geoJson = geometryLayers[0].toGeoJSON();
+  } else {
+    geoJson = geometryLayers.toGeoJSON();
+  }
+  let center = L.geoJSON(geoJson).getBounds().getCenter();
+  fetch(window.reverseSearchUrl + '?search_class=address&x=' + center.lng + '&y=' + center.lat, {
     method: 'GET'
   })
   .then(response => response.json())
   .then(data => {
-    if (ort[0] !== 0 && ort[1] !== 0)
+    if (center.lng !== 0 && center.lat !== 0)
       adoptReverseSearchResult(data, addressType);
   })
   .catch(error => console.log(error))
@@ -278,10 +292,8 @@ function setFinalGeometry() {
   if (window.addressUuidField && $.trim(window.searchField.val()).length) {
     // keep current address, street or district temporarily
     window.addressTempField.val(window.searchField.val());
-    console.log(window.addressTempField.val());
     // sets reference from field with UUID of the referenced address, street or district
     window.searchField.val(window.addressUuidField.val());
-    console.log(window.searchField.val());
   }
 }
 

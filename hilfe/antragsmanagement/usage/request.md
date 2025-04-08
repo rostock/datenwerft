@@ -84,3 +84,72 @@ Zudem können Sie, falls Sie ein mobiles Gerät nutzen, auch die
 automatische **Standortbestimmung** nutzen und die Karte auf den Ort
 zentrieren lassen, an dem Sie sich gerade befinden: Klicken Sie dazu
 einfach den Button mit dem Pfeil links oben in der Karte an und warten Sie kurz.
+
+## Wie kann ich einen Marker in der Karte setzen?
+
+Wenn die Art des räumlichen Bezugs punkthaft ist, müssen Sie einen Marker setzen.
+Dazu navigieren Sie in der Karte an die gewünschte Stelle, klicken auf den Button mit dem
+Marker-Symbol links oben in der Karte und klicken dann an den
+gewünschten Punkt in der Karte, an dem der Marker liegen soll.
+
+## Wie kann ich eine Linie in die Karte einzeichnen?
+
+Wenn die Art des räumlichen Bezugs linienhaft ist, müssen Sie eine Linie zeichnen.
+Dazu navigieren Sie in der Karte an die gewünschte Stelle und klicken auf den
+Button *Linie zeichnen* (mit dem Linien-Symbol) links oben in der Karte.
+Daraufhin können Sie durch Klicks in die Karte Ihre Linie fortlaufend
+(also Stützpunkt für Stützpunkt) zeichnen. Um die Linie abzuschließen,
+klicken Sie für den letzten Stützpunkt doppelt oder klicken Sie auf den
+Button *beenden.*
+
+**Tipp:** Eine vorhandene Linie können Sie **bearbeiten,** indem Sie den
+Button *vorhandene Kartenobjekte bearbeiten* (mit dem Mauszeiger-Symbol)
+links oben in der Karte klicken: Alle vorhandenen Stützpunkte der Linie
+sind jetzt anfassbar und verschiebbar. Auch besteht jetzt die
+Möglichkeit, durch Anfassen und Verschieben der Mittelpunkte der
+einzelnen Liniensegmente neue Stützpunkte hinzuzufügen. Sobald Sie mit
+dem Resultat zufrieden sind, klicken Sie auf den Button *beenden,*
+sodass die Bearbeitungen endgültig übernommen werden.
+
+**Tipp:** Eine vorhandene Linie können Sie **löschen,** indem Sie den
+Button *vorhandene Kartenobjekte löschen* (mit dem Radiergummi-Symbol)
+links oben in der Karte klicken: Ein Klick auf eine vorhandene Linie
+löscht diese. Sobald Sie mit dem Resultat zufrieden sind, klicken Sie
+auf den Button *beenden,* sodass die Löschungen endgültig vorgenommen
+werden.
+
+## Wie kann ich eine Fläche in die Karte einzeichnen?
+
+Wenn die Art des räumlichen Bezugs flächenhaft ist, müssen Sie eine Fläche zeichnen.
+Dazu navigieren Sie in der Karte an die gewünschte Stelle und klicken auf den
+Button *Polygon zeichnen* (mit dem Polygon-Symbol) links oben in der
+Karte. Daraufhin können Sie durch Klicks in die Karte Ihre Fläche
+fortlaufend (also Stützpunkt für Stützpunkt) zeichnen. Um die Fläche
+abzuschließen, klicken Sie zuletzt den ersten Stützpunkt nochmals an
+oder klicken Sie auf den Button *beenden.*
+
+**Tipp:** Statt einer frei zeichenbaren Fläche können Sie auch ein
+einfaches Rechteck aufziehen, indem Sie statt des Buttons *Polygon
+zeichnen* (mit dem Polygon-Symbol) links oben in der Karte den Button
+*Rechteck zeichnen* (mit dem Rechteck-Symbol) wählen: Durch einen ersten
+Klick in die Karte setzen Sie daraufhin den ersten Stützpunkt (= linke
+obere oder rechte untere Ecke des Rechtecks) und mit einem zweiten Klick
+den zweiten Stützpunkt (= rechte untere oder linke obere Ecke des
+Rechtecks).
+
+**Tipp:** Eine vorhandene Fläche können Sie **bearbeiten,** indem Sie
+den Button *vorhandene Kartenobjekte bearbeiten* (mit dem
+Mauszeiger-Symbol) links oben in der Karte klicken: Alle vorhandenen
+Stützpunkte der Fläche sind jetzt anfassbar und verschiebbar. Auch
+besteht jetzt die Möglichkeit, durch Anfassen und Verschieben der
+Mittelpunkte der einzelnen Begrenzungsliniensegmente der Fläche neue
+Stützpunkte hinzuzufügen. Sobald Sie mit dem Resultat zufrieden sind,
+klicken Sie auf den Button *beenden,* sodass die Bearbeitungen endgültig
+übernommen werden.
+
+**Tipp:** Eine vorhandene Fläche können Sie **löschen,** indem Sie den
+Button *vorhandene Kartenobjekte löschen* (mit dem Radiergummi-Symbol)
+links oben in der Karte klicken: Ein Klick auf eine vorhandene Fläche
+löscht diese. Sobald Sie mit dem Resultat zufrieden sind, klicken Sie
+auf den Button *beenden,* sodass die Löschungen endgültig vorgenommen
+werden.
