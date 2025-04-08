@@ -27,8 +27,6 @@ dependencies = [
     "pyyaml>=6.0.2",
     "redis>=5.2.1",
     "requests>=2.32.3",
-    "sphinx>=8.2.3",
-    "sphinx-rtd-theme>=3.0.2",
     "ua-parser>=1.0.1",
     "user-agents>=2.2.0",
 ]
@@ -47,7 +45,7 @@ dev = [
 [tool.djlint]
 profile = "django"
 use_gitignore = true
-exclude = ".github,docs,hilfe,linting,logs,node_modules,static,uploads,vendor"
+exclude = ".github,docs,linting,logs,node_modules,static,uploads,vendor"
 ignore = "H006,T003"
 ignore_case = true
 
@@ -58,7 +56,6 @@ ignore_case = true
 exclude = [
   ".github",
   "docs",
-  "hilfe",
   "linting",
   "logs",
   "node_modules",

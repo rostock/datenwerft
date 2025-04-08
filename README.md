@@ -12,6 +12,7 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
 1. [Initialisierung](#initialisierung)
 1. [Start](#start)
 1. [Deployment](#deployment)
+1. [Hilfe](hilfe/index.md) (für Administration und Nutzung)
 1. [Cronjobs](#cronjobs)
 1. [PDF-Export mit eigenen Templates](#pdf-export-mit-eigenen-templates)
 1. [Entwicklung](#entwicklung)
@@ -132,15 +133,7 @@ python manage.py createsuperuser
 uv run manage.py createsuperuser
 ```
 
-4. Webseiten für Hilfe bauen:
-
-```bash
-cd hilfe
-make html
-cd ..
-```
-
-5. statische Dateien initialisieren:
+4. statische Dateien initialisieren:
 
 ```bash
 # ohne uv
@@ -233,7 +226,7 @@ python manage.py deletepersons
 uv run manage.py deletepersons
 ```
 
-Dieser Befehl führt dazu, dass alle Personen gelöscht werden, die nicht als Ansprechpartner:innen mit Organisationen verknüpft sind, nicht als Betreiber:innen mit Verursachern verknüpft sind und die als Beschwerdeführer:innen nur noch mit Beschwerden verknüpft sind, die seit `BEMAS_STATUS_CHANGE_DEADLINE_DAYS` (siehe `secrets.template`) abgeschlossen sind.
+Zum Hintergrund dieses Befehls siehe [hier](hilfe/bemas/admin.md#datenschutz).
 
 ## PDF-Export mit eigenen Templates
 

@@ -7,7 +7,6 @@ db.sqlite3
 
 # Datenwerft.HRO
 datenwerft/secrets.py
-hilfe/build
 toolbox/mkpdf/tmp_*
 static
 logs/*
