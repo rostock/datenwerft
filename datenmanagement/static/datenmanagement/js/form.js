@@ -185,27 +185,21 @@ function keepDjangoRequiredMessages() {
  * adopts the current address reference of the geometries in the map
  */
 function setAddressReference(addressType, geometryLayers) {
-  let geoJson;
+  let geoJsonLayer, center;
   // handle multiple geometries
   if (geometryLayers.length > 1) {
-    geoJson = {
-      type: 'Feature',
-      properties: {},
-      geometry: {
-        type: 'MultiPolygon',
-        coordinates: []
-      }
-    };
+    geoJsonLayer = L.geoJSON();
     geometryLayers.forEach((geometryLayer) => {
-      let tempGeoJson = geometryLayer.toGeoJSON();
-      geoJson.geometry.coordinates.push(tempGeoJson.geometry.coordinates);
+      if ('_drawnByGeoman' in geometryLayer && geometryLayer._drawnByGeoman === true) {
+        geoJsonLayer.addData(geometryLayer.toGeoJSON());
+      }
     });
   } else if (typeof geometryLayers[0] !== 'undefined') {
-    geoJson = geometryLayers[0].toGeoJSON();
+    geoJsonLayer = L.geoJSON(geometryLayers[0].toGeoJSON());
   } else {
-    geoJson = geometryLayers.toGeoJSON();
+    geoJsonLayer = L.geoJSON(geometryLayers.toGeoJSON());
   }
-  let center = L.geoJSON(geoJson).getBounds().getCenter();
+  center = geoJsonLayer.getBounds().getCenter();
   fetch(window.reverseSearchUrl + '?search_class=address&x=' + center.lng + '&y=' + center.lat, {
     method: 'GET'
   })
