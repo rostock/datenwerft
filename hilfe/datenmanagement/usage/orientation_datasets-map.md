@@ -105,8 +105,7 @@ Datensätze unterhalb) der Karte nutzen. Fangen Sie einfach an, einen
 Suchbegriff in das Eingabefeld einzutragen: Nach dem dritten Zeichen
 springt die Suche an und es wird eine Resultateliste angezeigt, die aus
 Adressen, Straßen und/oder Gemeindeteilen besteht. Wenn Sie dann auf das
-gewünschte Resultat klicken, springt die Karte automatisch an diesen
-Ort.
+gewünschte Resultat klicken, springt die Karte automatisch an diesen Ort.
 
 **Tipp:** In der Regel genügen der Suche bereits sehr kurze Eingaben, um
 das gewünschte Resultat zu finden (zum Beispiel findet bereits `helsi 2`
@@ -115,8 +114,7 @@ die gewünschte *Helsinkier Str. 2*).
 Zudem können Sie, falls Sie ein mobiles Gerät nutzen, auch die
 automatische **Standortbestimmung** nutzen und die Karte auf den Ort
 zentrieren lassen, an dem Sie sich gerade befinden: Klicken Sie dazu
-einfach den Button mit dem Pfeil links oben in der Karte an und warten
-Sie kurz.
+einfach den Button mit dem Pfeil links oben in der Karte an und warten Sie kurz.
 
 ## Kann der aktuelle Karteninhalt auch als Filtermenge in die Tabelle übernommen werden?
 

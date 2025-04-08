@@ -23,8 +23,8 @@ sowie für die Bearbeitung der übrigen Attribute.
 
 ## Objektklasse *E-Mail*
 
-Die Objektklasse *E-Mail* umfasst die E-Mail-Vorlagen, die für alle automatisch versandten
-E-Mails herangezogen werden.
+Die Objektklasse *E-Mail* umfasst die E-Mail-Vorlagen, die für alle [automatisch versandten
+E-Mail-Benachrichtigungen](usage/notifications.md) herangezogen werden.
 Wenn Sie einer Gruppe in der [Rolle](permissions.md) *Administrator:innen* angehören,
 können Sie je E-Mail-Vorlage deren Betreff und Inhalt bearbeiten. Dabei ist jedoch
 stets auf die korrekte Verwendung der **Platzhalter** (Variablen) zu achten!

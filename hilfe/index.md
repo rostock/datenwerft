@@ -75,3 +75,15 @@ wie etwa zu Müllsammelaktionen.
 ### [Berechtigungen](antragsmanagement/permissions.md)
 
 ### [Startseite (Dashboard)](antragsmanagement/usage/dashboard.md)
+
+### Bereiche und Aktionen
+
+#### [Kontaktdaten](antragsmanagement/usage/requester.md)
+
+#### [Antrag](antragsmanagement/usage/request.md)
+
+#### [Anträge in Tabelle](antragsmanagement/usage/requests-table.md)
+
+#### [Anträge auf Karte](antragsmanagement/usage/requests-map.md)
+
+### [Benachrichtigungen](antragsmanagement/usage/notifications.md)
