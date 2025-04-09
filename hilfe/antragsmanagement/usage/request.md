@@ -36,27 +36,22 @@ oder Fläche eingezeichnet werden – je nach Art des räumlichen Bezugs.
 
 Sie können wie folgt in der Karte navigieren:
 
--   Kartenausschnitt verschieben: mit linker Maustaste in Kartenfenster
-    klicken ⇒ Maustaste gedrückt halten und verschieben
--   auf bestimmten Kartenausschnitt zoomen: `Shift`-Taste auf der
-    Tastatur gedrückt halten ⇒ mit gedrückter linker Maustaste in
-    Kartenfenster ein Rechteck aufziehen ⇒ linke Maustaste und
-    `Shift`-Taste loslassen
--   Maßstab vergrößern bzw. in Karte hineinzoomen: Maus-Scrollrad nach
-    oben drehen
--   Maßstab verkleinern bzw. aus Karte herauszoomen: Maus-Scrollrad nach
-    unten drehen
+- Kartenausschnitt verschieben: mit linker Maustaste in Kartenfenster
+  klicken ⇒ Maustaste gedrückt halten und verschieben
+- auf bestimmten Kartenausschnitt zoomen: `Shift`-Taste auf der
+  Tastatur gedrückt halten ⇒ mit gedrückter linker Maustaste in
+  Kartenfenster ein Rechteck aufziehen ⇒ linke Maustaste und `Shift`-Taste loslassen
+- Maßstab vergrößern bzw. in Karte hineinzoomen: Maus-Scrollrad nach oben drehen
+- Maßstab verkleinern bzw. aus Karte herauszoomen: Maus-Scrollrad nach unten drehen
 
 **Tipp:** Den Maßstab vergrößern bzw. in Karte hineinzoomen und den
 Maßstab verkleinern bzw. aus Karte herauszoomen können Sie auch mittels
-der beiden Buttons (mit Plus- und Minus-Zeichen) links oben in der
-Karte.
+der beiden Buttons (mit Plus- und Minus-Zeichen) links oben in der Karte.
 
 Zudem können Sie, falls Sie ein mobiles Gerät nutzen, auch die
 automatische **Standortbestimmung** nutzen und die Karte auf den Ort
 zentrieren lassen, an dem Sie sich gerade befinden: Klicken Sie dazu
-einfach den Button mit dem Pfeil links oben in der Karte an und warten
-Sie kurz.
+einfach den Button mit dem Pfeil links oben in der Karte an und warten Sie kurz.
 
 ## Wie kann ich in den Kartenhintergrund bzw. die Hintergrundkarte wechseln?
 
@@ -64,8 +59,7 @@ Den Kartenhintergrund können Sie wechseln, indem Sie mit dem Mauszeiger
 auf das Layer-Symbol rechts oben in der Karte zeigen und per Klick einen
 anderen Kartenhintergrund wählen.
 
-**Tipp:** Abhängig vom Datensatz sind auch noch zusätzliche Kartenthemen
-als Layer zuschaltbar!
+**Tipp:** Abhängig vom Datensatz sind auch noch zusätzliche Kartenthemen als Layer zuschaltbar!
 
 ## Wie kann ich einen bestimmten Ort in der Karte finden?
 
@@ -115,8 +109,7 @@ sodass die Bearbeitungen endgültig übernommen werden.
 Button *vorhandene Kartenobjekte löschen* (mit dem Radiergummi-Symbol)
 links oben in der Karte klicken: Ein Klick auf eine vorhandene Linie
 löscht diese. Sobald Sie mit dem Resultat zufrieden sind, klicken Sie
-auf den Button *beenden,* sodass die Löschungen endgültig vorgenommen
-werden.
+auf den Button *beenden,* sodass die Löschungen endgültig vorgenommen werden.
 
 ## Wie kann ich eine Fläche in die Karte einzeichnen?
 
@@ -134,8 +127,7 @@ zeichnen* (mit dem Polygon-Symbol) links oben in der Karte den Button
 *Rechteck zeichnen* (mit dem Rechteck-Symbol) wählen: Durch einen ersten
 Klick in die Karte setzen Sie daraufhin den ersten Stützpunkt (= linke
 obere oder rechte untere Ecke des Rechtecks) und mit einem zweiten Klick
-den zweiten Stützpunkt (= rechte untere oder linke obere Ecke des
-Rechtecks).
+den zweiten Stützpunkt (= rechte untere oder linke obere Ecke des Rechtecks).
 
 **Tipp:** Eine vorhandene Fläche können Sie **bearbeiten,** indem Sie
 den Button *vorhandene Kartenobjekte bearbeiten* (mit dem
@@ -151,5 +143,4 @@ klicken Sie auf den Button *beenden,* sodass die Bearbeitungen endgültig
 Button *vorhandene Kartenobjekte löschen* (mit dem Radiergummi-Symbol)
 links oben in der Karte klicken: Ein Klick auf eine vorhandene Fläche
 löscht diese. Sobald Sie mit dem Resultat zufrieden sind, klicken Sie
-auf den Button *beenden,* sodass die Löschungen endgültig vorgenommen
-werden.
+auf den Button *beenden,* sodass die Löschungen endgültig vorgenommen werden.

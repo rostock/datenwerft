@@ -27,13 +27,13 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
 
 ## Voraussetzungen
 
--   [_Python_](https://www.python.org/) (>=3.11)
--   [_pip_](https://pip.pypa.io/)
--   [_GDAL_](https://gdal.org/)
--   [_PostgreSQL_](https://www.postgresql.org/) mit der Erweiterung [_PostGIS_](https://postgis.net/)
--   [_npm_](https://www.npmjs.com/)
--   optional [_Redis_](https://redis.io/)
--   optional für App _Toolbox_ siehe [hier](toolbox/README.md)
+- [_Python_](https://www.python.org/) (>=3.11)
+- [_pip_](https://pip.pypa.io/)
+- [_GDAL_](https://gdal.org/)
+- [_PostgreSQL_](https://www.postgresql.org/) mit der Erweiterung [_PostGIS_](https://postgis.net/)
+- [_npm_](https://www.npmjs.com/)
+- optional [_Redis_](https://redis.io/)
+- optional für App _Toolbox_ siehe [hier](toolbox/README.md)
 
 ## Installation
 
@@ -199,8 +199,8 @@ WSGIApplicationGroup  %{GLOBAL}
 
 <Directory /path/to/datenwerft/datenwerft>
   <Files wsgi.py>
-      Order deny,allow
-      Require all granted
+    Order deny,allow
+    Require all granted
   </Files>
 </Directory>
 <Directory /path/to/datenwerft/static>

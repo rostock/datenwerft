@@ -7,15 +7,15 @@ Die Inhalte der Tabelle können gefiltert, durchsucht und exportiert werden.
 Verfügen Sie über entsprechende [Berechtigungen](../permissions.md) sehen Sie
 eine zusätzliche Spalte ***Redaktion*** rechts in der Tabelle, über die Sie:
 
--   Teilinformationen des Antrags bearbeiten,
--   Teilinformationen des Antrags neu hinzufügen oder
--   Teilinformationen des Antrags löschen können.
+- Teilinformationen des Antrags bearbeiten,
+- Teilinformationen des Antrags neu hinzufügen oder
+- Teilinformationen des Antrags löschen können.
 
 Zudem steht Ihnen rechts der Spalte *Redaktion* eine weitere Spalte ***Kommentare***
 zur Verfügung, über die Sie:
 
--   vorhandene Kommentare zum Antrag ansehen oder
--   neue Kommentare zum Antrag hinzufügen können.
+- vorhandene Kommentare zum Antrag ansehen oder
+- neue Kommentare zum Antrag hinzufügen können.
 
 ## Wie kann ich die Tabelle sortieren?
 

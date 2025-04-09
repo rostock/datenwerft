@@ -5,27 +5,27 @@
 In *BEMAS* sind mehrere sogenannte **Objektklassen** definiert, deren einzelne Datensätze
 miteinander in Beziehung stehen (siehe hierzu auch das [Glossar](../glossary.md)):
 
--   *Person:*
-    -   heißt *Betreiber:in,* wenn sie mit einem Verursacher verknüpft ist
-    -   heißt *Beschwerdeführer:in,* wenn sie mit einer Beschwerde verknüpft ist
--   *Organisation:*
-    -   heißt *Betreiberin,* wenn sie mit einem Verursacher verknüpft ist
-    -   heißt *Beschwerdeführerin,* wenn sie mit einer Beschwerde verknüpft ist
--   *Ansprechpartner:in:* Verknüpfung zwischen einer Person und einer Organisation
--   *Verursacher:*
-    -   Verursacher einer Emission mit punkthaftem Emissionsort
-    -   optional mit beliebig vielen Organisationen als Betreiberinnen verknüpft
-    -   optional mit beliebig vielen Personen als Betreiber:innen verknüpft
--   *Beschwerde:*
-    -   Folge einer Immission mit punkthaftem Immissionsort
-    -   immer mit genau einem Verursacher verknüpft
-    -   optional mit beliebig vielen Organisationen als Beschwerdeführerinnen verknüpft
-    -   optional mit beliebig vielen Personen als Beschwerdeführer:innen verknüpft
--   *Journalereignis:*
-    -   Ereignis im Journal zu einer Beschwerde
-    -   immer mit genau einer Beschwerde verknüpft
--   *Eintrag im Bearbeitungsverlauf:* Aktivität im System bzw. „Logbucheintrag“,
-    der durch ausgewählte Ereignisse ausgelöst wird
+- *Person:*
+  - heißt *Betreiber:in,* wenn sie mit einem Verursacher verknüpft ist
+  - heißt *Beschwerdeführer:in,* wenn sie mit einer Beschwerde verknüpft ist
+- *Organisation:*
+  - heißt *Betreiberin,* wenn sie mit einem Verursacher verknüpft ist
+  - heißt *Beschwerdeführerin,* wenn sie mit einer Beschwerde verknüpft ist
+- *Ansprechpartner:in:* Verknüpfung zwischen einer Person und einer Organisation
+- *Verursacher:*
+  - Verursacher einer Emission mit punkthaftem Emissionsort
+  - optional mit beliebig vielen Organisationen als Betreiberinnen verknüpft
+  - optional mit beliebig vielen Personen als Betreiber:innen verknüpft
+- *Beschwerde:*
+  - Folge einer Immission mit punkthaftem Immissionsort
+  - immer mit genau einem Verursacher verknüpft
+  - optional mit beliebig vielen Organisationen als Beschwerdeführerinnen verknüpft
+  - optional mit beliebig vielen Personen als Beschwerdeführer:innen verknüpft
+- *Journalereignis:*
+  - Ereignis im Journal zu einer Beschwerde
+  - immer mit genau einer Beschwerde verknüpft
+- *Eintrag im Bearbeitungsverlauf:* Aktivität im System bzw. „Logbucheintrag“,
+  der durch ausgewählte Ereignisse ausgelöst wird
 
 ## Workflows
 
