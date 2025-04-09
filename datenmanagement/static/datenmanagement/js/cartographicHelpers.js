@@ -21,7 +21,7 @@ function activateMapLayer(layerName, map) {
  *
  * @param {Object} map - map
  * @param {string} [geometryType=''] - geometry type of the current data theme in the form
- * @param {boolean} [geometryAdoption=false] - add geometry adoption control?
+ * @param {boolean} [geometryAdoption=false] - enable geometry adoption?
  */
 function configureLeafletGeoman(map, geometryType = '', geometryAdoption = false) {
   // define custom translations
@@ -134,7 +134,7 @@ function configureLeafletGeoman(map, geometryType = '', geometryAdoption = false
     });
   }
 
-  // if the geometry type of the data theme is areal...
+  // if geometry adoption is enabled and geometry type of data theme is areal...
   if (geometryAdoption === true && (geometryType === 'Polygon' || geometryType === 'MultiPolygon')) {
     // add control button to adopt geometries
     map.pm.Toolbar.createCustomControl({
@@ -168,38 +168,19 @@ function configureLeafletGeoman(map, geometryType = '', geometryAdoption = false
               // add Leaflet-Geoman draw layer to map
               geometryToAdopt.addTo(map);
             }
-            map.pm.getGeomanDrawLayers()[0].unite(layer, type);
+            // unite adopted geometry with geometry added before
+            map.pm.getGeomanDrawLayers()[map.pm.getGeomanDrawLayers().length - 1].unite(layer, type);
           });
         });
       }
     });
     map.on('pm:buttonclick', (e) => {
-      // disable editing
-      if (e.btnName === 'adoptGeometry' && e.button.toggleStatus === true) {
-        // fire event to
-        // either set address or street (if address reference is mandatory) automatically or
-        // to enable address reference button (if address reference is not mandatory)
-        map.fire('pm:create', {
-          layer: map.pm.getGeomanDrawLayers()[0]
-        });
-        map.pm.getGeomanLayers().forEach((layer) => {
-          layer.setInteractive(false);
-        });
-      }
+      if (e.btnName === 'adoptGeometry' && e.button.toggleStatus === true)
+        geometryAdoptionPostProcessing(map);
     });
     map.on('pm:actionclick', (e) => {
-      // disable editing
-      if (e.btnName === 'adoptGeometry' && e.text === 'beenden') {
-        // fire event to
-        // either set address or street (if address reference is mandatory) automatically or
-        // to enable address reference button (if address reference is not mandatory)
-        map.fire('pm:create', {
-          layer: map.pm.getGeomanDrawLayers()[0]
-        });
-        map.pm.getGeomanLayers().forEach((layer) => {
-          layer.setInteractive(false);
-        });
-      }
+      if (e.btnName === 'adoptGeometry' && e.text === 'beenden')
+        geometryAdoptionPostProcessing(map);
     });
   }
 }
@@ -394,6 +375,30 @@ function enableMapLocate(map) {
       title: 'Standortbestimmung'
     }
   }).addTo(map);
+}
+
+/**
+ * @function
+ * @name geometryAdoptionPostProcessing
+ *
+ * does some post-processing after geometry adoption
+ *
+ * @param {Object} map - map
+ */
+function geometryAdoptionPostProcessing(map) {
+  // fire event to either set address or street (if address reference is mandatory) automatically
+  // or to enable address reference button (if address reference is not mandatory)
+  map.fire('pm:create', {
+    layer: map.pm.getGeomanDrawLayers()[map.pm.getGeomanDrawLayers().length - 1]
+  });
+  // disable editing of non-adopted layers...
+  map.pm.getGeomanLayers().forEach((layer) => {
+    layer.setInteractive(false);
+  });
+  // ...but keep editing of adopted layers
+  map.pm.getGeomanDrawLayers().forEach((layer) => {
+    layer.setInteractive(true);
+  });
 }
 
 /**
