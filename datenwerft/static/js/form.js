@@ -118,14 +118,13 @@ function keepDjangoRequiredMessages() {
  */
 function setAddressToMarkerAddress(layer, reverseSearchBaseUrl) {
   let geoJson = layer.toGeoJSON();
-  let geometryType = 'Point';
-  let ort = getFeatureCenter(geoJson, geometryType);
-  fetch(reverseSearchBaseUrl + '?search_class=address&x=' + ort[0] + '&y=' + ort[1], {
+  let center = L.geoJSON(geoJson).getBounds().getCenter();
+  fetch(reverseSearchBaseUrl + '?search_class=address&x=' + center.lng + '&y=' + center.lat, {
     method: 'GET'
   })
   .then(response => response.json())
   .then(data => {
-    if (ort[0] !== 0 && ort[1] !== 0)
+    if (center.lng !== 0 && center.lat !== 0)
       adoptReverseSearchResult(data);
   })
   .catch(error => console.log(error))

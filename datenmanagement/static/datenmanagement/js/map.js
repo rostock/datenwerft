@@ -89,17 +89,11 @@ function filterGeoJsonFeatures(filterObjectsList, layer, isSubLayer, clusterLaye
         stillVisible = false;
     // deadline year filter
     } else if (filterObjectsList[i].name === 'deadline-year') {
-        console.log(new Date(filterObjectsList[i].value + '-12-31'));
-        console.log(new Date(filterObjectsList[i].value + '-01-01'));
       if (!(new Date(filterObjectsList[i].value + '-12-31') > new Date(layer.feature.properties['deadline-year_0'])) || !(new Date(layer.feature.properties['deadline-year_1']) > new Date(filterObjectsList[i].value + '-01-01')))
         stillVisible = false;
     // "left" interval filter
     } else if (filterObjectsList[i].intervalside === 'left') {
       if (filterObjectsList[i].type === 'date') {
-        console.log('Objektname: ' + filterObjectsList[i].name);
-        console.log('Objektwert: ' + layer.feature.properties[filterObjectsList[i].name]);
-        console.log('Seite: ' + 'left');
-        console.log('Filterwert: ' + filterObjectsList[i].value);
         if (new Date(filterObjectsList[i].value) > new Date(layer.feature.properties[filterObjectsList[i].name]))
           stillVisible = false;
       } else if (filterObjectsList[i].type === 'datetime') {
@@ -112,10 +106,6 @@ function filterGeoJsonFeatures(filterObjectsList, layer, isSubLayer, clusterLaye
     // "right" interval filter
     } else if (filterObjectsList[i].intervalside === 'right') {
       if (filterObjectsList[i].type === 'date') {
-        console.log('Objektname: ' + filterObjectsList[i].name);
-        console.log('Objektwert: ' + layer.feature.properties[filterObjectsList[i].name]);
-        console.log('Seite: ' + 'right');
-        console.log('Filterwert: ' + filterObjectsList[i].value);
         if (new Date(layer.feature.properties[filterObjectsList[i].name]) > new Date(filterObjectsList[i].value))
           stillVisible = false;
       } else if (filterObjectsList[i].type === 'datetime') {

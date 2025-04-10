@@ -9,8 +9,8 @@ ist jedoch abhängig von Ihrer Rolle im System, also von Ihren [Berechtigungen](
 Nutzen Sie das Antragsmanagement **ohne** [Anmeldung](../../datenwerft/usage/login.md), haben Sie
 folgende Möglichkeiten im Dashboard:
 
--   [Kontaktdaten](requester.md) erstellen oder aktualisieren
--   neuen [Antrag](request.md) erstellen
+- [Kontaktdaten](requester.md) erstellen oder aktualisieren
+- neuen [Antrag](request.md) erstellen
 
 **Hinweis:** Die Kontaktdaten werden nur für die Dauer Ihrer Sitzung auf der Website gespeichert.
 Erstellen Sie zum Beispiel Ihre Kontaktdaten, schließen dann den Browser und besuchen die Website
@@ -22,10 +22,10 @@ Nutzen Sie das Antragsmanagement **mit** [Anmeldung](../../datenwerft/usage/logi
 und gehören der [Rolle](../permissions.md) *Antragsteller:innen* an, haben Sie
 folgende Möglichkeiten im Dashboard:
 
--   [Kontaktdaten](requester.md) erstellen oder aktualisieren
--   neuen [Antrag](request.md) erstellen
--   alle [Anträge in Tabelle](requests-table.md) ansehen
--   alle [Anträge auf Karte](requests-map.md) ansehen
+- [Kontaktdaten](requester.md) erstellen oder aktualisieren
+- neuen [Antrag](request.md) erstellen
+- alle [Anträge in Tabelle](requests-table.md) ansehen
+- alle [Anträge auf Karte](requests-map.md) ansehen
 
 Um eigene Zugangsdaten für sich (und/oder Ihre Organisation) zu erhalten
 und der Rolle *Antragsteller:innen* zugewiesen zu werden, kontaktieren Sie uns gerne
@@ -37,10 +37,10 @@ Nutzen Sie das Antragsmanagement **mit** [Anmeldung](../../datenwerft/usage/logi
 und gehören der [Rolle](../permissions.md) *Behördenmitarbeiter:innen* an, haben Sie
 folgende Möglichkeiten im Dashboard:
 
--   alle [Anträge mit eigener Zuständigkeit in Tabelle](requests-table.md) ansehen
--   alle [Anträge mit eigener Zuständigkeit auf Karte](requests-map.md) ansehen
--   alle [Anträge ohne eigene Zuständigkeit in Tabelle](requests-table.md) ansehen
--   alle [Anträge ohne eigene Zuständigkeit auf Karte](requests-map.md) ansehen
+- alle [Anträge mit eigener Zuständigkeit in Tabelle](requests-table.md) ansehen
+- alle [Anträge mit eigener Zuständigkeit auf Karte](requests-map.md) ansehen
+- alle [Anträge ohne eigene Zuständigkeit in Tabelle](requests-table.md) ansehen
+- alle [Anträge ohne eigene Zuständigkeit auf Karte](requests-map.md) ansehen
 
 Bei den *Anträgen mit eigener Zuständigkeit* handelt es sich um alle Anträge, die sich in der
 Zuständigkeit einer oder mehrerer Behörde(n) befinden, der Sie angehören. Diese Anträge bzw.
@@ -57,10 +57,10 @@ Nutzen Sie das Antragsmanagement **mit** [Anmeldung](../../datenwerft/usage/logi
 und gehören der [Rolle](../permissions.md) *Administrator:innen* an, haben Sie
 folgende Möglichkeiten im Dashboard:
 
--   alle [Behörden](../admin.md) in Tabelle ansehen
--   alle [E-Mails](../admin.md) in Tabelle ansehen
--   alle [Anträge in Tabelle](requests-table.md) ansehen
--   alle [Anträge auf Karte](requests-map.md) ansehen
+- alle [Behörden](../admin.md) in Tabelle ansehen
+- alle [E-Mails](../admin.md) in Tabelle ansehen
+- alle [Anträge in Tabelle](requests-table.md) ansehen
+- alle [Anträge auf Karte](requests-map.md) ansehen
 
 Die Rolle *Administrator:innen* gestattet es, Behörden und E-Mails auch zu bearbeiten
 – siehe auch [hier](../admin.md). Anträge können Sie jedoch in dieser Rolle **nicht** bearbeiten

@@ -49,7 +49,7 @@ Hier finden Sie Hilfestellungen zum Beschwerdemanagementsystem *BEMAS.*
 
 ### [Berechtigungen](bemas/permissions.md)
 
-### [Zusammenhänge und Workflows](bemas/usage/context-workflows)
+### [Zusammenhänge und Workflows](bemas/usage/context-workflows.md)
 
 ### [Startseite (Dashboard)](bemas/usage/dashboard.md)
 

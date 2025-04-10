@@ -18,19 +18,19 @@ Je nach [Rechten](../permissions.md) weist
 die Spalte *Redaktion* ganz rechts in der Tabelle unterschiedliche oder
 keine Symbole auf:
 
--   Wenn Sie das entsprechende Bearbeitungsrecht
-    besitzen, finden Sie in der Spalte *Redaktion* einer Zeile einen
-    Bleistift. Klicken Sie auf den Bleistift, gelangen Sie auf die
-    [Bearbeitungsseite](work_dataset-edit.md) des Datensatzes.
--   Wenn Sie das entsprechende Bearbeitungsrecht nicht besitzen, wohl
-    aber das entsprechende Leserecht, finden Sie in der Spalte
-    *Redaktion* einer Zeile ein Auge. Klicken Sie auf das Auge, gelangen
-    Sie zwar auf die Bearbeitungsseite des Datensatzes, haben dort
-    jedoch keine Möglichkeit Bearbeitungen vorzunehmen.
--   Wenn Sie das entsprechende Löschrecht besitzen,
-    finden Sie in der Spalte *Redaktion* einer Zeile einen Papierkorb.
-    Klicken Sie auf den Papierkorb, gelangen Sie auf die
-    [Löschseite](work_dataset-delete.md) des Datensatzes.
+- Wenn Sie das entsprechende Bearbeitungsrecht
+  besitzen, finden Sie in der Spalte *Redaktion* einer Zeile einen
+  Bleistift. Klicken Sie auf den Bleistift, gelangen Sie auf die
+  [Bearbeitungsseite](work_dataset-edit.md) des Datensatzes.
+- Wenn Sie das entsprechende Bearbeitungsrecht nicht besitzen, wohl
+  aber das entsprechende Leserecht, finden Sie in der Spalte
+  *Redaktion* einer Zeile ein Auge. Klicken Sie auf das Auge, gelangen
+  Sie zwar auf die Bearbeitungsseite des Datensatzes, haben dort
+  jedoch keine Möglichkeit Bearbeitungen vorzunehmen.
+- Wenn Sie das entsprechende Löschrecht besitzen,
+  finden Sie in der Spalte *Redaktion* einer Zeile einen Papierkorb.
+  Klicken Sie auf den Papierkorb, gelangen Sie auf die
+  [Löschseite](work_dataset-delete.md) des Datensatzes.
 
 **Tipp:** Sie können auch **mehrere Datensätze auf einmal löschen**,
 indem Sie zunächst in jeder gewünschten Zeile der Tabelle – also für

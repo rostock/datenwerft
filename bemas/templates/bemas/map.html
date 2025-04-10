@@ -132,11 +132,7 @@
                 <div class="d-grid mt-2 mb-3">
                   <label for="filter-input-complaints-originator" class="form-label"><em>Verursacher</em></label>
                   <div class="input-group">
-                    <select id="filter-input-complaints-originator" name="complaints-originator" class="form-select filter-input" data-type="list">
-                      {% for originator in complaints_originators %}
-                        <option value="{{ originator }}">{{ originator }}</option>
-                      {% endfor %}
-                    </select>
+                    <input id="filter-input-complaints-originator" type="text" name="complaints-originator" class="form-control filter-input" data-type="text">
                     <button class="input-reset btn btn-outline-secondary">
                       <i class="fas fa-{{ 'delete'|get_icon }}"></i>
                     </button>

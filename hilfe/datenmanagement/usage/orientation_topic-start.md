@@ -5,12 +5,12 @@ der [Datenthemen-Übersicht](orientation_overview.md) auf eines Ihrer
 verfügbaren Datenthemen geklickt haben. Hier
 wird gefragt, was Sie als nächstes tun möchten:
 
--   [neuen Datensatz anlegen](work_dataset-create.md) in diesem Datenthema
--   alle Datensätze dieses Datenthemas
-    [in einer Tabelle auflisten](orientation_datasets-table.md)
--   sofern das Datenthema einen räumlichen Bezug aufweist: alle
-    Datensätze dieses Datenthemas
-    [auf einer Karte anzeigen](orientation_datasets-map.md)
+- [neuen Datensatz anlegen](work_dataset-create.md) in diesem Datenthema
+- alle Datensätze dieses Datenthemas
+  [in einer Tabelle auflisten](orientation_datasets-table.md)
+- sofern das Datenthema einen räumlichen Bezug aufweist: alle
+  Datensätze dieses Datenthemas
+  [auf einer Karte anzeigen](orientation_datasets-map.md)
 
 ## Wie gelange ich zur Startseite eines Datenthemas (zurück)?
 

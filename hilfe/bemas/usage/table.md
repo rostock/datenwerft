@@ -7,15 +7,15 @@ Die Inhalte der Tabelle können gefiltert, durchsucht und exportiert werden.
 
 Die Spalte *Redaktion* ganz rechts in der Tabelle weist folgende Symbole auf:
 
--   Bleistift: [Bearbeitungsseite](dataset-edit.md) des entsprechenden Datensatzes öffnen
--   Papierkorb: [Löschseite](dataset-delete.md) des entsprechenden Datensatzes öffnen
--   Heftklammer (nur Objektklasse *Beschwerden)*: neue Tabellenansicht mit allen
-    Journalereignissen zur entsprechenden Beschwerde öffnen
--   Uhr: neue Tabellenansicht mit allen Einträgen im Bearbeitungsverlauf
-    zum entsprechenden Datensatz öffnen
--   Karte (nur Objektklassen *Verursacher* und *Beschwerden)*:
-    [Übersichtskarte](map.md) mit allen Immissions- und Emissionsorten öffnen
-    und auf entsprechende(n) Verursacher (Emissionsort) oder Beschwerde (Immissionsort) zoomen
+- Bleistift: [Bearbeitungsseite](dataset-edit.md) des entsprechenden Datensatzes öffnen
+- Papierkorb: [Löschseite](dataset-delete.md) des entsprechenden Datensatzes öffnen
+- Heftklammer (nur Objektklasse *Beschwerden)*: neue Tabellenansicht mit allen
+  Journalereignissen zur entsprechenden Beschwerde öffnen
+- Uhr: neue Tabellenansicht mit allen Einträgen im Bearbeitungsverlauf
+  zum entsprechenden Datensatz öffnen
+- Karte (nur Objektklassen *Verursacher* und *Beschwerden)*:
+  [Übersichtskarte](map.md) mit allen Immissions- und Emissionsorten öffnen
+  und auf entsprechende(n) Verursacher (Emissionsort) oder Beschwerde (Immissionsort) zoomen
 
 ## Wie kann ich die Tabelle sortieren?
 
