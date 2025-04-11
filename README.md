@@ -213,6 +213,16 @@ WSGIApplicationGroup  %{GLOBAL}
 </Directory>
 ```
 
+## Datenmodelle
+
+### App _Antragsmanagement_
+
+- Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](antragsmanagement/models/class-structure.puml)
+
+### App _BEMAS_
+
+- Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](bemas/models/class-structure.puml)
+
 ## Cronjobs
 
 Für die App _BEMAS_ kann optional ein Cronjob eingerichtet werden, der folgenden Befehl ausführt:
