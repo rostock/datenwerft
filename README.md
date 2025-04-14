@@ -12,6 +12,8 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
 1. [Initialisierung](#initialisierung)
 1. [Start](#start)
 1. [Deployment](#deployment)
+1. [Datenmodelle](#datenmodelle)
+1. [Hilfe](hilfe/README) (für Administration und Nutzung)
 1. [Cronjobs](#cronjobs)
 1. [PDF-Export mit eigenen Templates](#pdf-export-mit-eigenen-templates)
 1. [Entwicklung](#entwicklung)
@@ -26,13 +28,13 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
 
 ## Voraussetzungen
 
--   [_Python_](https://www.python.org/) (>=3.11)
--   [_pip_](https://pip.pypa.io/)
--   [_GDAL_](https://gdal.org/)
--   [_PostgreSQL_](https://www.postgresql.org/) mit der Erweiterung [_PostGIS_](https://postgis.net/)
--   [_npm_](https://www.npmjs.com/)
--   optional [_Redis_](https://redis.io/)
--   optional für App _Toolbox_ siehe [hier](toolbox/README.md)
+- [_Python_](https://www.python.org/) (>=3.11)
+- [_pip_](https://pip.pypa.io/)
+- [_GDAL_](https://gdal.org/)
+- [_PostgreSQL_](https://www.postgresql.org/) mit der Erweiterung [_PostGIS_](https://postgis.net/)
+- [_npm_](https://www.npmjs.com/)
+- optional [_Redis_](https://redis.io/)
+- optional für App _Toolbox_ siehe [hier](toolbox/README.md)
 
 ## Installation
 
@@ -132,15 +134,7 @@ python manage.py createsuperuser
 uv run manage.py createsuperuser
 ```
 
-4. Webseiten für Hilfe bauen:
-
-```bash
-cd hilfe
-make html
-cd ..
-```
-
-5. statische Dateien initialisieren:
+4. statische Dateien initialisieren:
 
 ```bash
 # ohne uv
@@ -206,8 +200,8 @@ WSGIApplicationGroup  %{GLOBAL}
 
 <Directory /path/to/datenwerft/datenwerft>
   <Files wsgi.py>
-      Order deny,allow
-      Require all granted
+    Order deny,allow
+    Require all granted
   </Files>
 </Directory>
 <Directory /path/to/datenwerft/static>
@@ -219,6 +213,16 @@ WSGIApplicationGroup  %{GLOBAL}
   Require all granted
 </Directory>
 ```
+
+## Datenmodelle
+
+### App _Antragsmanagement_
+
+- Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](antragsmanagement/models/class-structure.puml)
+
+### App _BEMAS_
+
+- Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](bemas/models/class-structure.puml)
 
 ## Cronjobs
 
@@ -233,7 +237,7 @@ python manage.py deletepersons
 uv run manage.py deletepersons
 ```
 
-Dieser Befehl führt dazu, dass alle Personen gelöscht werden, die nicht als Ansprechpartner:innen mit Organisationen verknüpft sind, nicht als Betreiber:innen mit Verursachern verknüpft sind und die als Beschwerdeführer:innen nur noch mit Beschwerden verknüpft sind, die seit `BEMAS_STATUS_CHANGE_DEADLINE_DAYS` (siehe `secrets.template`) abgeschlossen sind.
+Zum Hintergrund dieses Befehls siehe [hier](hilfe/bemas/admin.md#datenschutz).
 
 ## PDF-Export mit eigenen Templates
 

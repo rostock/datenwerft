@@ -1,47 +1,5 @@
 /**
  * @function
- * @name getFeatureCenter
- *
- * returns center of passed GeoJSON feature
- *
- * @param {JSON} geoJson - GeoJSON feature
- * @param {string} [geometryType=''] - geometry type of GeoJSON feature
- * @returns {Array} - center (i.e. array with x and y coordinates) of passed GeoJSON feature
- */
-function getFeatureCenter(geoJson, geometryType = '') {
-  let xArray = [];
-  let yArray = [];
-  let ort = [];
-  if (geometryType === 'Point') {
-    ort = geoJson.geometry.coordinates;
-  } else if (geometryType === 'LineString' || geometryType === 'Polygon') {
-    Array.min = function(array) {
-      return Math.min.apply(Math, array);
-    };
-    Array.max = function(array) {
-      return Math.max.apply(Math, array);
-    };
-    if (geometryType === 'LineString') {
-      $.each(geoJson.geometry.coordinates, function (index) {
-        xArray.push(geoJson.geometry.coordinates[index][0]);
-        yArray.push(geoJson.geometry.coordinates[index][1]);
-      });
-    } else {
-      $.each(geoJson.geometry.coordinates, function (index_outer) {
-        $.each(geoJson.geometry.coordinates[index_outer], function (index_inner) {
-          xArray.push(geoJson.geometry.coordinates[index_outer][index_inner][0]);
-          yArray.push(geoJson.geometry.coordinates[index_outer][index_inner][1]);
-        });
-      });
-    }
-    ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
-    ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
-  }
-  return ort;
-}
-
-/**
- * @function
  * @name getFeatureGeometryLatLng
  *
  * returns center of passed GeoJSON feature geometry

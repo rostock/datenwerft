@@ -170,7 +170,7 @@
                 if (window.enableMapTools && !window.gpxInput && window.geometryType.includes('LineString'))
                   configureLeafletGeoman(map, 'LineString');
                 else if (window.enableMapTools && !window.gpxInput && (window.geometryType === 'Point' || window.geometryType.includes('Polygon')))
-                  configureLeafletGeoman(map, window.geometryType);
+                  configureLeafletGeoman(map, window.geometryType, true);
                 else
                   configureLeafletGeoman(map);
 
@@ -342,8 +342,8 @@
                    * @function
                    *
                    * if address reference is mandatory,
-                   * sets (on creating a Leaflet-Geoman layer) address or street
-                   * and, if necessary, enables postcode auto-assignment;
+                   * sets (on creating a Leaflet-Geoman layer) address or street, and,
+                   * if necessary, enables postcode auto-assignment;
                    * otherwise, enables (on creating a Leaflet-Geoman layer) address reference button
                    *
                    * @param {Object} layer - layer (= feature)
@@ -578,21 +578,21 @@
                 // on clicking the address reference (i.e. map to address) button...
                 $('#mapToAddress').on('click', function () {
                   // adopt the current address of the geometry in the map
-                  setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
+                  setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers());
                   $('#addressToMap').prop('disabled', false);
                 });
 
                 // on clicking the street reference (i.e. map to street) button...
                 $('#mapToStreet').on('click', function () {
                   // adopt the current street of the geometry in the map
-                  setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
+                  setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers());
                   $('#addressToMap').prop('disabled', false);
                 });
 
                 // on clicking the district reference (i.e. map to district) button...
                 $('#mapToDistrict').on('click', function () {
                   // adopt the current district of the geometry in the map
-                  setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
+                  setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers());
                   $('#addressToMap').prop('disabled', false);
                 });
 
@@ -786,19 +786,12 @@
                 // this attribute is written into the input field provided after the server's response has been successfully received
                 $('#postcode-assigner').parent('span').click(function () {
                   let geoJson = currMap.pm.getGeomanLayers()[0].toGeoJSON();
-                  let geometryType = '{{ model_geometry_type|lower }}';
-                  if (geometryType.indexOf('point') !== -1)
-                    geometryType = 'Point';
-                  else if (geometryType.indexOf('line') !== -1)
-                    geometryType = 'LineString';
-                  else
-                    geometryType = 'Polygon';
-                  let ort = getFeatureCenter(geoJson, geometryType);
+                  let center = L.geoJSON(geoJson).getBounds().getCenter();
                   // requesting the server and waiting for its response
                   let params = {
                     search_class: 'postcode_areas',
-                    x: ort[0],
-                    y: ort[1]
+                    x: center.lng,
+                    y: center.lat
                   };
                   let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
                   let url = '{% url "toolbox:reversesearch" %}' + '?' + query;
@@ -836,7 +829,7 @@
               {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
                 {% if model_geometry_type == 'Point' or address_type and not address_mandatory %}
                   <div class="d-grid mt-3 gap-2">
-                    {% if model_geometry_type == 'Point' %}
+                    {% if model_geometry_type == 'Point' and address_type == 'Adresse' %}
                       <button disabled id="addressToMap" class="btn btn-primary" type="button"><i class="fas fa-location-dot"></i> Marker auf aktuelle Adresse setzen</button>
                     {% endif %}
                     {% if not address_mandatory %}

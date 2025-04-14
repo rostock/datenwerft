@@ -1,5 +1,7 @@
 @startuml
 
+skinparam linetype ortho
+
 abstract class Base {
   + id: BigAutoField <<PK>>
   + created: DateTimeField
