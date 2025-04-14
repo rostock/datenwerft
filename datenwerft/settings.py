@@ -15,6 +15,7 @@ DJANGO_APPS = [
   'django.contrib.messages',
   'django.contrib.staticfiles',
   'django.contrib.gis',
+  'rest_framework.authtoken',
 ]
 THIRD_PARTY_APPS = [
   'django_user_agents',
@@ -136,6 +137,11 @@ LEAFLET_CONFIG = {
 # REST framework
 
 REST_FRAMEWORK = {
+  'DEFAULT_AUTHENTICATION_CLASSES': [
+    'rest_framework.authentication.TokenAuthentication',
+    'rest_framework.authentication.BasicAuthentication',
+    'rest_framework.authentication.SessionAuthentication',
+  ],
   'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.DjangoModelPermissions'],
   'DATETIME_FORMAT': 'iso-8601',
   'DATE_FORMAT': 'iso-8601',
