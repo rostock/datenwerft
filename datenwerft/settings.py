@@ -25,7 +25,7 @@ THIRD_PARTY_APPS = [
   'jsonview',
   'django_rq',
 ]
-LOCAL_APPS = ['accounts', 'toolbox', 'datenmanagement', 'antragsmanagement', 'bemas']
+LOCAL_APPS = ['accounts', 'toolbox', 'datenmanagement', 'antragsmanagement', 'bemas', 'metadatenmanagement']
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 LOGIN_REDIRECT_URL = '/'
 MIDDLEWARE = [
@@ -50,6 +50,7 @@ TEMPLATES = [
       BASE_DIR / 'datenmanagement/templates',
       BASE_DIR / 'antragsmanagement/templates',
       BASE_DIR / 'bemas/templates',
+      BASE_DIR / 'metadatenmanagement/templates',
     ],
     'APP_DIRS': True,
     'OPTIONS': {
@@ -65,6 +66,7 @@ TEMPLATES = [
         'datenmanagement_tags': 'datenmanagement.tags',
         'antragsmanagement_tags': 'antragsmanagement.tags',
         'bemas_tags': 'bemas.tags',
+        'metadatenmanagement_tags': 'metadatenmanagement.tags',
       },
     },
   },
