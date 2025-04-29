@@ -51,13 +51,13 @@ class HashType(Codelist):
 
 class HvdCategory(Codelist):
   """
-  high-value dataset category (Kategorie eines hochwertigen Datensatzes)
+  high-value dataset category (HVD-Kategorie)
   """
 
 
 class InspireServiceType(Codelist):
   """
-  INSPIRE service type (Typ eines INSPIRE-Dienstes)
+  INSPIRE service type (Typ eines INSPIRE-Services)
   """
 
 

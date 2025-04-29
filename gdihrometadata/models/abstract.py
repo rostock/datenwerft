@@ -3,6 +3,9 @@ from uuid import uuid4
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from toolbox.constants_vars import standard_validators
+from toolbox.fields import NullTextField
+
 
 class Base(models.Model):
   """
@@ -25,10 +28,12 @@ class Codelist(Base):
   """
 
   code = models.URLField(unique=True, verbose_name=_('Code (URL)'))
-  title = models.TextField(verbose_name=_('Titel'))
-  description = models.TextField(blank=True, null=True, verbose_name=_('Beschreibung'))
+  title = models.CharField(validators=standard_validators, verbose_name=_('Titel'))
+  description = NullTextField(
+    blank=True, null=True, validators=standard_validators, verbose_name=_('Beschreibung')
+  )
 
-  class Meta:
+  class Meta(Base.Meta):
     abstract = True
     ordering = ['title']
 
@@ -42,7 +47,9 @@ class BaseMetadata(models.Model):
   """
 
   uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
-  description = models.TextField(blank=True, null=True, verbose_name=_('Beschreibung'))
+  description = NullTextField(
+    blank=True, null=True, validators=standard_validators, verbose_name=_('Beschreibung')
+  )
   external = models.URLField(blank=True, null=True, verbose_name=_('externe URL'))
   # ManyToManyField for tags is included in the concrete models that inherit from this base model
 

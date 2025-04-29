@@ -1,6 +1,5 @@
 from .abstract import Base, BaseMetadata, Codelist, CreationalMetadata, SpatioTemporalMetadata
-
-# from .auxiliary import Contact, CrsSet, DataType, Legal, Organization, SpatialReference
+from .auxiliary import Contact, CrsSet, DataType, Legal, Organization, SpatialReference
 from .codelists import (
   Access,
   AssetType,
@@ -22,8 +21,7 @@ from .codelists import (
   SpatialRepresentationType,
   Tag,
 )
-
-# from .core import App, Assetset, Dataset, Repository, Service, Source, Theme
+from .core import App, Assetset, Dataset, Repository, Service, Source, Topic
 from .enums import GeometryType, ProcessingType, RepositoryType, ServiceType, UnitOfMeasurement
 
 __all__ = [
@@ -59,19 +57,19 @@ __all__ = [
   'PoliticalGeocodingLevel',
   'SpatialRepresentationType',
   'Tag',
-  ## Hilfsmodelle
-  #'CrsSet',
-  #'DataType',
-  #'Legal',
-  #'SpatialReference',
-  #'Organization',
-  #'Contact',
-  ## Kernmodelle
-  #'App',
-  #'Theme',
-  #'Service',
-  #'Dataset',
-  #'Assetset',
-  #'Source',
-  #'Repository',
+  # auxiliary models
+  'CrsSet',
+  'DataType',
+  'Legal',
+  'SpatialReference',
+  'Organization',
+  'Contact',
+  # core models
+  'App',
+  'Topic',
+  'Service',
+  'Dataset',
+  'Assetset',
+  'Source',
+  'Repository',
 ]

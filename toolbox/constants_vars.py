@@ -49,6 +49,11 @@ d3_message = (
   'Der <strong><em>d.3</em></strong>-Vorgang muss folgendes Format aufweisen '
   '(Beispiele): 512.431-003/002 oder 002.13 oder 114.521-025'
 )
+dateiname_regex = r'^[a-z-]*(\.?[a-z]*?)$'
+dateiname_message = (
+  'Es dürfen nur Kleinbuchstaben – exklusive ä, ö, ü sowie ß – und Bindestriche verwendet werden'
+  'sowie optional am Ende eine durch Punkt abgetrennte Dateiendung.'
+)
 doppelleerzeichen_regex = r'^(?!.*  ).*$'
 doppelleerzeichen_message = 'Texte dürfen keine doppelten Leerzeichen enthalten.'
 email_message = (
@@ -72,6 +77,10 @@ hausnummer_zusatz_message = (
 inventarnummer_regex = r'^[0-9]{8}$'
 inventarnummer_message = (
   'Die <strong><em>Inventarnummer</em></strong> muss aus genau acht Ziffern bestehen.'
+)
+kleinbuchstaben_bindestrich_regex = r'^[a-z-]*$'
+kleinbuchstaben_bindestrich_message = (
+  'Es dürfen nur Kleinbuchstaben – exklusive ä, ö, ü sowie ß – und Bindestriche verwendet werden.'
 )
 leerzeichen_bindestrich_regex = r'^(?!.* -).*$'
 leerzeichen_bindestrich_message = 'Im Text darf vor einem Bindestrich kein Leerzeichen stehen.'

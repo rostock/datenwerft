@@ -28,7 +28,7 @@ class ProcessingType(models.TextChoices):
 
 class RepositoryType(models.TextChoices):
   """
-  repository type (Typ eines Repositories)
+  repository type (Typ eines Speicherorts)
   """
 
   INTERFACE = 'interface', _('Schnittstelle (z.B. eine API)')
@@ -38,7 +38,7 @@ class RepositoryType(models.TextChoices):
 
 class ServiceType(models.TextChoices):
   """
-  service type (Typ eines Dienstes)
+  service type (Typ eines Services)
   """
 
   GEORSS = 'OGC:GeoRSS 1.0', _('GeoRSS')
