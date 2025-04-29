@@ -1,0 +1,379 @@
+@startuml
+
+skinparam linetype ortho
+
+enum GeometryType {
+  "Point"
+  "LineString"
+  "Polygon"
+  "MultiPoint"
+  "MultiLineString"
+  "MultiPolygon"
+  "GeometryCollection"
+}
+
+enum ProcessingType {
+  "directly"
+  "automatically"
+  "manually"
+}
+
+enum RepositoryType {
+  "interface"
+  "database"
+  "file"
+}
+
+enum ServiceType {
+  "OGC:GeoRSS 1.0"
+  "OGC:OGC API - Features"
+  "OGC:SOS 2.0.0"
+  "OGC:TMS 1.0.0"
+  "OGC:WCS 2.0"
+  "OGC:WFS 2.0"
+  "OGC:WMS 1.3.0"
+  "OGC:WMTS 1.0.0"
+}
+
+enum UnitOfMeasurement {
+  "m"
+}
+
+abstract class Base {
+  +id : IDENTITY <<PK>>
+  +created : DATETIME
+  +modified : DATETIME
+}
+
+abstract class Codelist {
+  +code : URL {unique}
+  +title : TEXT
+  +description : TEXT [0..1]
+}
+
+class Access {
+}
+
+class AssetType {
+}
+
+class Charset {
+}
+
+class Crs {
+}
+
+class CrsSet {
+  +title : TEXT {unique}
+  #crs [1..*]
+}
+
+class DatathemeCategory {
+}
+
+class Format {
+}
+
+class Frequency {
+}
+
+class HashType {
+}
+
+class HvdCategory {
+}
+
+class InspireServiceType {
+}
+
+class InspireSpatialScope {
+}
+
+class InspireTheme {
+}
+
+class Language {
+}
+
+class License {
+}
+
+class MimeType {
+}
+
+class PoliticalGeocoding {
+}
+
+class PoliticalGeocodingLevel {
+}
+
+class SpatialRepresentationType {
+}
+
+class Tag {
+}
+
+class DataType {
+  +title : TEXT {unique}
+  ~format <<FK>> [0..1]
+  ~mime_type <<FK>> [0..1]
+}
+
+class Legal {
+  +title : TEXT {unique}
+  ~access <<FK>> [0..1]
+  ~license <<FK>> [0..1]
+  +constraints : TEXT [0..1]
+}
+
+class SpatialReference {
+  +title : TEXT {unique}
+  +extent_spatial_south : NUMERIC
+  +extent_spatial_east : NUMERIC
+  +extent_spatial_north : NUMERIC
+  +extent_spatial_west : NUMERIC
+  ~political_geocoding_level <<FK>> [0..1]
+  ~political_geocoding <<FK>> [0..1]
+}
+
+abstract class BaseMetadata {
+  +uuid : UUID {unique}
+  +description : TEXT [0..1]
+  +external : URL [0..1]
+  #tags [0..*]
+}
+
+abstract class CreationalMetadata {
+  +creation : DATE
+  +last_update : DATE
+  ~update_frequency <<FK>>
+}
+
+abstract class SpatioTemporalMetadata {
+  ~native_crs <<FK>> [0..1]
+  #additional_crs [0..*]
+  ~spatial_reference <<FK>> [0..1]
+  +extent_temporal_start : DATETIME [0..1]
+  +extent_temporal_end : DATETIME [0..1]
+}
+
+class Organization {
+  +name : TEXT {unique}
+  +title : TEXT
+  +image : URL [0..1]
+}
+
+class Contact {
+  +first_name : TEXT [0..1]
+  +last_name : TEXT [0..1]
+  +email : EMAIL
+  ~organization <<FK>> [0..1]
+}
+
+class App {
+  +name : TEXT {unique}
+  +title : TEXT
+  #publisher [1..*]
+  #maintainer [1..*]
+  ~legal <<FK>>
+  #language [1..*]
+  #theme [0..*]
+  #service [0..*]
+  #dataset [0..*]
+  #assetset [0..*]
+  #repository [0..*]
+}
+
+class Theme {
+  +name : TEXT {unique}
+  +title : TEXT
+  #category [1..*]
+  ~hvd_category <<FK>> [0..1]
+  #service [0..*]
+  #dataset [0..*]
+  #assetset [0..*]
+}
+
+class Service {
+  +name : TEXT
+  +title : TEXT
+  #publisher [1..*]
+  #maintainer [1..*]
+  ~legal <<FK>>
+  +type : ServiceType
+  ~inspire_theme <<FK>> [0..1]
+  ~inspire_spatial_scope <<FK>> [0..1]
+  ~inspire_service_type <<FK>> [0..1]
+  ~language <<FK>>
+  ~charset <<FK>>
+  #dataset [0..*]
+  #assetset [0..*]
+  #repository [0..*]
+}
+
+note right of Service
+  Unique constraint on (name, type)
+end note
+
+class Dataset {
+  +name : TEXT {unique}
+  +title : TEXT
+  #publisher [1..*]
+  #maintainer [1..*]
+  ~legal <<FK>>
+  ~inspire_theme <<FK>> [0..1]
+  ~inspire_spatial_scope <<FK>> [0..1]
+  ~language <<FK>>
+  ~charset <<FK>>
+  ~data_type <<FK>>
+  ~spatial_representation_type <<FK>> [0..1]
+  +geometry_type : GeometryType [0..1]
+  ~hash_type <<FK>>
+  +hash : TEXT
+  +byte_size : INTEGER
+  +scale_factor : INTEGER [0..1]
+  +ground_resolution : NUMERIC [0..1]
+  +ground_resolution_uom : UnitOfMeasurement [0..1]
+  #repository [1..*]
+}
+
+class Assetset {
+  +name : TEXT {unique}
+  +title : TEXT [0..1]
+  #publisher [1..*]
+  #maintainer [1..*]
+  ~legal <<FK>>
+  ~type <<FK>>
+  #repository [1..*]
+}
+
+class Repository {
+  #maintainer [1..*]
+  #author [1..*]
+  +type : RepositoryType
+  +connection_info : TEXT
+  ~data_type <<FK>>
+  ~spatial_representation_type <<FK>> [0..1]
+  +geometry_type : GeometryType [0..1]
+  ~source <<FK>> [0..1]
+}
+
+class Source {
+  +last_import : DATE
+  ~import_frequency <<FK>>
+  #author [1..*]
+  +processing_type : ProcessingType
+  +type : RepositoryType
+  +connection_info : TEXT
+  ~data_type <<FK>>
+  ~spatial_representation_type <<FK>> [0..1]
+  +geometry_type : GeometryType [0..1]
+}
+
+Base <|-- Codelist
+Codelist <|-- Access
+Codelist <|-- AssetType
+Codelist <|-- Charset
+Codelist <|-- Crs
+Base <|-- CrsSet
+CrsSet *--* Crs : crs
+Codelist <|-- DatathemeCategory
+Codelist <|-- Format
+Codelist <|-- Frequency
+Codelist <|-- HashType
+Codelist <|-- HvdCategory
+Codelist <|-- InspireServiceType
+Codelist <|-- InspireSpatialScope
+Codelist <|-- InspireTheme
+Codelist <|-- Language
+Codelist <|-- License
+Codelist <|-- MimeType
+Codelist <|-- PoliticalGeocoding
+Codelist <|-- PoliticalGeocodingLevel
+Codelist <|-- SpatialRepresentationType
+Codelist <|-- Tag
+DataType --> Format : format
+DataType --> MimeType : mime_type
+Legal --> Access : access
+Legal --> License : license
+SpatialReference --> PoliticalGeocodingLevel : political_geocoding_level
+SpatialReference --> PoliticalGeocoding : political_geocoding
+BaseMetadata *--* Tag : tags
+CreationalMetadata --> Frequency : update_frequency
+SpatioTemporalMetadata --> Crs : native_crs
+SpatioTemporalMetadata *--* CrsSet : additional_crs
+SpatioTemporalMetadata --> SpatialReference : spatial_reference
+Base <|-- Organization
+Base <|-- Contact
+Contact --> Organization : organization
+Base <|-- App
+BaseMetadata <|-- App
+App *--* Contact : publisher
+App *--* Contact : maintainer
+App --> Legal : legal
+App *--* Language : language
+App *--* Theme : theme
+App *--* Service : service
+App *--* Dataset : dataset
+App *--* Assetset : assetset
+App *--* Repository : repository
+Base <|-- Theme
+BaseMetadata <|-- Theme
+Theme *--* DatathemeCategory : category
+Theme --> HvdCategory : hvd_category
+Theme *--* Service : service
+Theme *--* Dataset : dataset
+Theme *--* Assetset : assetset
+Base <|-- Service
+BaseMetadata <|-- Service
+SpatioTemporalMetadata <|-- Service
+Service *--* Contact : publisher
+Service *--* Contact : maintainer
+Service --> Legal : legal
+Service --> InspireTheme : inspire_theme
+Service --> InspireSpatialScope : inspire_spatial_scope
+Service --> InspireServiceType : inspire_service_type
+Service --> Language : language
+Service --> Charset : charset
+Service *--* Dataset : dataset
+Service *--* Assetset : assetset
+Service *--* Repository : repository
+Base <|-- Dataset
+BaseMetadata <|-- Dataset
+CreationalMetadata <|-- Dataset
+SpatioTemporalMetadata <|-- Dataset
+Dataset *--* Contact : publisher
+Dataset *--* Contact : maintainer
+Dataset --> Legal : legal
+Dataset --> InspireTheme : inspire_theme
+Dataset --> InspireSpatialScope : inspire_spatial_scope
+Dataset --> Language : language
+Dataset --> Charset : charset
+Dataset --> DataType : data_type
+Dataset --> SpatialRepresentationType : spatial_representation_type
+Dataset --> HashType : hash_type
+Dataset *--* Repository : repository
+Base <|-- Assetset
+BaseMetadata <|-- Assetset
+CreationalMetadata <|-- Assetset
+Assetset *--* Contact : publisher
+Assetset *--* Contact : maintainer
+Assetset --> Legal : legal
+Assetset --> AssetType : type
+Assetset *--* Repository : repository
+Base <|-- Repository
+BaseMetadata <|-- Repository
+CreationalMetadata <|-- Repository
+Repository *--* Contact : maintainer
+Repository *--* Contact : author
+Repository --> DataType : data_type
+Repository --> SpatialRepresentationType : spatial_representation_type
+Repository --> Source : source
+Base <|-- Source
+BaseMetadata <|-- Source
+Source --> Frequency : import_frequency
+Source *--* Contact : author
+Source --> DataType : data_type
+Source --> SpatialRepresentationType : spatial_representation_type
+
+@enduml

@@ -25,7 +25,14 @@ THIRD_PARTY_APPS = [
   'jsonview',
   'django_rq',
 ]
-LOCAL_APPS = ['accounts', 'toolbox', 'datenmanagement', 'antragsmanagement', 'bemas']
+LOCAL_APPS = [
+  'accounts',
+  'toolbox',
+  'datenmanagement',
+  'antragsmanagement',
+  'bemas',
+  'gdihrometadata',
+]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 LOGIN_REDIRECT_URL = '/'
 MIDDLEWARE = [

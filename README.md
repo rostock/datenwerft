@@ -13,7 +13,7 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
 1. [Start](#start)
 1. [Deployment](#deployment)
 1. [Datenmodelle](#datenmodelle)
-1. [Hilfe](hilfe/README) (für Administration und Nutzung)
+1. [Hilfe](hilfe) (für Administration und Nutzung)
 1. [Cronjobs](#cronjobs)
 1. [PDF-Export mit eigenen Templates](#pdf-export-mit-eigenen-templates)
 1. [Entwicklung](#entwicklung)
@@ -74,6 +74,7 @@ uv sync
 2. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Antragsmanagement_ anlegen
 3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _BEMAS_ anlegen
 4. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Datenmanagement_ anlegen
+3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _GDI.HRO Metadata_ anlegen
 5. Datenbankschema in Datenbank für die App _Datenmanagement_ installieren (da keines der Datenmodelle in dieser App von _Django_ verwaltet wird):
 
 ```bash
@@ -224,6 +225,10 @@ WSGIApplicationGroup  %{GLOBAL}
 
 - Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](bemas/models/class-structure.puml)
 
+### App _GDI.HRO Metadata_
+
+- Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](gdihrometadata/models/class-structure.puml)
+
 ## Cronjobs
 
 Für die App _BEMAS_ kann optional ein Cronjob eingerichtet werden, der folgenden Befehl ausführt:
@@ -360,6 +365,11 @@ python manage.py test antragsmanagement
 - Tests der App _BEMAS_ durchführen:
 ```bash
 python manage.py test bemas
+```
+
+- Tests der App _GDI.HRO Metadata_ durchführen:
+```bash
+python manage.py test gdihrometadata
 ```
 
 ## CI/CD
