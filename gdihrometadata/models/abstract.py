@@ -14,7 +14,7 @@ class Base(models.Model):
 
   id = models.BigAutoField(verbose_name=_('ID'), primary_key=True, editable=False)
   created = models.DateTimeField(verbose_name=_('Erstellung'), auto_now_add=True, editable=False)
-  modified = models.DateTimeField(verbose_name=_('letzte Änderung'), auto_now=True, editable=False)
+  modified = models.DateTimeField(verbose_name=_('Änderung'), auto_now=True, editable=False)
 
   class Meta:
     abstract = True
@@ -50,7 +50,9 @@ class BaseMetadata(models.Model):
   description = NullTextField(
     blank=True, null=True, validators=standard_validators, verbose_name=_('Beschreibung')
   )
-  external = models.URLField(blank=True, null=True, verbose_name=_('externe URL'))
+  external = models.URLField(
+    blank=True, null=True, verbose_name=_('Referenz auf externe Ressource (URL)')
+  )
   # ManyToManyField for tags is included in the concrete models that inherit from this base model
 
   class Meta:

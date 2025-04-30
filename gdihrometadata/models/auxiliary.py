@@ -28,10 +28,14 @@ class CrsSet(Base):
   """
 
   title = models.CharField(unique=True, validators=standard_validators, verbose_name=_('Titel'))
-  crs = models.ManyToManyField(Crs, verbose_name=_('Koordinatenreferenzsystem(e)'))
+  crs = models.ManyToManyField(
+    Crs, related_name='crs_sets', verbose_name=_('Koordinatenreferenzsystem(e)')
+  )
 
   class Meta(Base.Meta):
     ordering = ['title']
+    verbose_name = _('Set aus einem oder mehreren Koordinatenreferenzsystem(en)')
+    verbose_name_plural = _('Sets aus einem oder mehreren Koordinatenreferenzsystem(en)')
 
   def __str__(self):
     return self.title
@@ -62,6 +66,8 @@ class DataType(Base):
 
   class Meta(Base.Meta):
     ordering = ['title']
+    verbose_name = _('Datentyp')
+    verbose_name_plural = _('Datentypen')
 
   def __str__(self):
     return self.title
@@ -85,6 +91,8 @@ class Legal(Base):
 
   class Meta(Base.Meta):
     ordering = ['title']
+    verbose_name = _('Rechtsstatus')
+    verbose_name_plural = _('Rechtsstatus')
 
   def __str__(self):
     return self.title
@@ -97,16 +105,16 @@ class SpatialReference(Base):
 
   title = models.CharField(unique=True, validators=standard_validators, verbose_name=_('Titel'))
   extent_spatial_south = models.DecimalField(
-    max_digits=8, decimal_places=5, verbose_name=_('räumliche Ausdehnung Süden')
+    max_digits=8, decimal_places=5, verbose_name=_('Süden (räumliche Ausdehnung)')
   )
   extent_spatial_east = models.DecimalField(
-    max_digits=8, decimal_places=5, verbose_name=_('räumliche Ausdehnung Osten')
+    max_digits=8, decimal_places=5, verbose_name=_('Osten (räumliche Ausdehnung)')
   )
   extent_spatial_north = models.DecimalField(
-    max_digits=8, decimal_places=5, verbose_name=_('räumliche Ausdehnung Norden')
+    max_digits=8, decimal_places=5, verbose_name=_('Norden (räumliche Ausdehnung)')
   )
   extent_spatial_west = models.DecimalField(
-    max_digits=8, decimal_places=5, verbose_name=_('räumliche Ausdehnung Westen')
+    max_digits=8, decimal_places=5, verbose_name=_('Westen (räumliche Ausdehnung)')
   )
   political_geocoding_level = models.ForeignKey(
     PoliticalGeocodingLevel,
@@ -114,7 +122,7 @@ class SpatialReference(Base):
     blank=True,
     null=True,
     related_name='spatialreference_legal_political_geocoding_levels',
-    verbose_name=_('Ebene der geopolitischen Verwaltungscodierung)'),
+    verbose_name=_('Ebene der geopolitischen Verwaltungscodierung'),
   )
   political_geocoding = models.ForeignKey(
     PoliticalGeocoding,
@@ -122,11 +130,13 @@ class SpatialReference(Base):
     blank=True,
     null=True,
     related_name='spatialreference_legal_political_geocodings',
-    verbose_name=_('geopolitische Verwaltungscodierung'),
+    verbose_name=_('Geopolitische Verwaltungscodierung'),
   )
 
   class Meta(Base.Meta):
     ordering = ['title']
+    verbose_name = _('Raumbezug')
+    verbose_name_plural = _('Raumbezüge')
 
   def __str__(self):
     return self.title
@@ -151,6 +161,8 @@ class Organization(Base):
 
   class Meta(Base.Meta):
     ordering = ['title']
+    verbose_name = _('Organisation')
+    verbose_name_plural = _('Organisationen')
 
   def __str__(self):
     return self.title
@@ -179,6 +191,8 @@ class Contact(Base):
 
   class Meta(Base.Meta):
     ordering = ['last_name', 'first_name', 'email']
+    verbose_name = _('Kontakt')
+    verbose_name_plural = _('Kontakte')
 
   def __str__(self):
     name = f'{self.first_name or ""} {self.last_name or ""}'.strip()
