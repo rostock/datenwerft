@@ -12,8 +12,8 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
 1. [Initialisierung](#initialisierung)
 1. [Start](#start)
 1. [Deployment](#deployment)
-1. [Datenmodelle](#datenmodelle)
-1. [Hilfe](hilfe/README) (für Administration und Nutzung)
+1. [UML-Klassendiagramme](#uml-klassendiagramme)
+1. [Hilfe](hilfe) (für Administration und Nutzung)
 1. [Cronjobs](#cronjobs)
 1. [PDF-Export mit eigenen Templates](#pdf-export-mit-eigenen-templates)
 1. [Entwicklung](#entwicklung)
@@ -74,6 +74,7 @@ uv sync
 2. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Antragsmanagement_ anlegen
 3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _BEMAS_ anlegen
 4. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Datenmanagement_ anlegen
+3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _GDI.HRO Metadata_ anlegen
 5. Datenbankschema in Datenbank für die App _Datenmanagement_ installieren (da keines der Datenmodelle in dieser App von _Django_ verwaltet wird):
 
 ```bash
@@ -214,15 +215,21 @@ WSGIApplicationGroup  %{GLOBAL}
 </Directory>
 ```
 
-## Datenmodelle
+## UML-Klassendiagramme
+
+Für die Visualisierung der nachfolgend verlinkten UML-Klassendiagramme kann zum Beispiel [dieses Online-Tool](https://plantuml-editor.kkeisuke.com) genutzt werden.
 
 ### App _Antragsmanagement_
 
-- Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](antragsmanagement/models/class-structure.puml)
+Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](antragsmanagement/models/class-structure.puml)
 
 ### App _BEMAS_
 
-- Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](bemas/models/class-structure.puml)
+Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](bemas/models/class-structure.puml)
+
+### App _GDI.HRO Metadata_
+
+Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](gdihrometadata/models/class-structure.puml)
 
 ## Cronjobs
 
@@ -362,13 +369,18 @@ python manage.py test antragsmanagement
 python manage.py test bemas
 ```
 
+- Tests der App _GDI.HRO Metadata_ durchführen:
+```bash
+python manage.py test gdihrometadata
+```
+
 ## CI/CD
 
 ### Ablauf
 
 1. neuen Branch erstellen – Name des Branches:
-   - bei Features: `features/<app-name>/<feature-name>` (Beispiel: `features/datenmanagement/edit-photos`)
-   - bei Bugfixes: `bugfixes/<app-name>/<bugfix-name>` (Beispiel: `bugfixes/accounts/emails`)
+   - bei Features: `feature/<app-name>/<feature-name>` (Beispiel: `feature/datenmanagement/edit-photos`)
+   - bei Bugfixes: `bugfix/<app-name>/<bugfix-name>` (Beispiel: `bugfix/accounts/emails`)
 2. Änderungen linten und testen (siehe oben)
 3. Änderungen committen und Commit(s) pushen
 4. Pull-Request im Branch `main` erstellen
