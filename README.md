@@ -71,11 +71,11 @@ uv sync
 ### Datenbanken
 
 1. leere _PostgreSQL_-Datenbank für die Anwendungsadministration anlegen
-2. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Antragsmanagement_ anlegen
-3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _BEMAS_ anlegen
-4. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Datenmanagement_ anlegen
-3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _GDI.HRO Metadata_ anlegen
-5. Datenbankschema in Datenbank für die App _Datenmanagement_ installieren (da keines der Datenmodelle in dieser App von _Django_ verwaltet wird):
+2. leere _PostgreSQL_-Datenbank für die App _GDI.HRO Metadata_ anlegen
+3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Antragsmanagement_ anlegen
+4. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _BEMAS_ anlegen
+5. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Datenmanagement_ anlegen
+6. Datenbankschema in Datenbank für die App _Datenmanagement_ installieren (da keines der Datenmodelle in dieser App von _Django_ verwaltet wird):
 
 ```bash
 psql -h [Datenbankhost] -U [Datenbanknutzer] -d [Datenbankname] -f datenmanagement/sql/schema.sql
