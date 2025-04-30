@@ -84,8 +84,8 @@ class Source(Base, BaseMetadata):
 
   class Meta(Base.Meta):
     ordering = ['connection_info']
-    verbose_name = _('Datenquelle')
-    verbose_name_plural = _('Datenquellen')
+    verbose_name = _('Entität → Datenquelle')
+    verbose_name_plural = _('Entitätsklasse → Datenquellen')
 
   def __str__(self):
     type_display = self.get_type_display() if hasattr(self, 'get_type_display') else self.type
@@ -147,8 +147,8 @@ class Repository(Base, BaseMetadata, CreationalMetadata):
 
   class Meta(Base.Meta):
     ordering = ['connection_info']
-    verbose_name = _('Speicherort')
-    verbose_name_plural = _('Speicherorte')
+    verbose_name = _('Entität → Speicherort')
+    verbose_name_plural = _('Entitätsklasse → Speicherorte')
 
   def __str__(self):
     type_display = self.get_type_display() if hasattr(self, 'get_type_display') else self.type
@@ -199,8 +199,8 @@ class Assetset(Base, BaseMetadata, CreationalMetadata):
 
   class Meta(Base.Meta):
     ordering = ['title', 'name']
-    verbose_name = _('Asset-Sammlung')
-    verbose_name_plural = _('Asset-Sammlungen')
+    verbose_name = _('Entität → Asset-Sammlung')
+    verbose_name_plural = _('Entitätsklasse → Asset-Sammlungen')
 
   def __str__(self):
     return self.title or self.name
@@ -328,8 +328,8 @@ class Dataset(Base, BaseMetadata, CreationalMetadata, SpatioTemporalMetadata):
 
   class Meta(Base.Meta):
     ordering = ['title']
-    verbose_name = _('Datensatz')
-    verbose_name_plural = _('Datensätze')
+    verbose_name = _('Entität → Datensatz')
+    verbose_name_plural = _('Entitätsklasse → Datensätze')
 
   def __str__(self):
     return self.title
@@ -430,8 +430,8 @@ class Service(Base, BaseMetadata, SpatioTemporalMetadata):
   class Meta(Base.Meta):
     unique_together = ('name', 'type')
     ordering = ['title']
-    verbose_name = _('Service')
-    verbose_name_plural = _('Services')
+    verbose_name = _('Entität → Service')
+    verbose_name_plural = _('Entitätsklasse → Services')
 
   def __str__(self):
     return f'{self.title} ({self.get_type_display()})'
@@ -478,8 +478,8 @@ class Topic(Base, BaseMetadata):
 
   class Meta(Base.Meta):
     ordering = ['title']
-    verbose_name = _('Datenthema')
-    verbose_name_plural = _('Datenthemen')
+    verbose_name = _('Entität → Datenthema')
+    verbose_name_plural = _('Entitätsklasse → Datenthemen')
 
   def __str__(self):
     return self.title
@@ -531,8 +531,8 @@ class App(Base, BaseMetadata):
 
   class Meta(Base.Meta):
     ordering = ['title']
-    verbose_name = _('App')
-    verbose_name_plural = _('Apps')
+    verbose_name = _('Entität → App')
+    verbose_name_plural = _('Entitätsklasse → Apps')
 
   def __str__(self):
     return self.title

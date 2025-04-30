@@ -29,13 +29,15 @@ class CrsSet(Base):
 
   title = models.CharField(unique=True, validators=standard_validators, verbose_name=_('Titel'))
   crs = models.ManyToManyField(
-    Crs, related_name='crs_sets', verbose_name=_('Koordinatenreferenzsystem(e)')
+    Crs, related_name='crssets', verbose_name=_('Koordinatenreferenzsystem(e)')
   )
 
   class Meta(Base.Meta):
     ordering = ['title']
-    verbose_name = _('Set aus einem oder mehreren Koordinatenreferenzsystem(en)')
-    verbose_name_plural = _('Sets aus einem oder mehreren Koordinatenreferenzsystem(en)')
+    verbose_name = _('Hilfsobjekt → Set aus einem oder mehreren Koordinatenreferenzsystem(en)')
+    verbose_name_plural = _(
+      'Hilfsobjekte → Sets aus einem oder mehreren Koordinatenreferenzsystem(en)'
+    )
 
   def __str__(self):
     return self.title
@@ -66,8 +68,8 @@ class DataType(Base):
 
   class Meta(Base.Meta):
     ordering = ['title']
-    verbose_name = _('Datentyp')
-    verbose_name_plural = _('Datentypen')
+    verbose_name = _('Hilfsobjekt → Datentyp')
+    verbose_name_plural = _('Hilfsobjekte → Datentypen')
 
   def __str__(self):
     return self.title
@@ -91,8 +93,8 @@ class Legal(Base):
 
   class Meta(Base.Meta):
     ordering = ['title']
-    verbose_name = _('Rechtsstatus')
-    verbose_name_plural = _('Rechtsstatus')
+    verbose_name = _('Hilfsobjekt → Rechtsstatus')
+    verbose_name_plural = _('Hilfsobjekte → Rechtsstatus')
 
   def __str__(self):
     return self.title
@@ -121,7 +123,7 @@ class SpatialReference(Base):
     on_delete=models.PROTECT,
     blank=True,
     null=True,
-    related_name='spatialreference_legal_political_geocoding_levels',
+    related_name='spatialreference_political_geocoding_levels',
     verbose_name=_('Ebene der geopolitischen Verwaltungscodierung'),
   )
   political_geocoding = models.ForeignKey(
@@ -129,14 +131,14 @@ class SpatialReference(Base):
     on_delete=models.PROTECT,
     blank=True,
     null=True,
-    related_name='spatialreference_legal_political_geocodings',
+    related_name='spatialreference_political_geocodings',
     verbose_name=_('Geopolitische Verwaltungscodierung'),
   )
 
   class Meta(Base.Meta):
     ordering = ['title']
-    verbose_name = _('Raumbezug')
-    verbose_name_plural = _('Raumbezüge')
+    verbose_name = _('Hilfsobjekt → Raumbezug')
+    verbose_name_plural = _('Hilfsobjekte → Raumbezüge')
 
   def __str__(self):
     return self.title
@@ -161,8 +163,8 @@ class Organization(Base):
 
   class Meta(Base.Meta):
     ordering = ['title']
-    verbose_name = _('Organisation')
-    verbose_name_plural = _('Organisationen')
+    verbose_name = _('Hilfsobjekt → Organisation')
+    verbose_name_plural = _('Hilfsobjekte → Organisationen')
 
   def __str__(self):
     return self.title
@@ -191,8 +193,8 @@ class Contact(Base):
 
   class Meta(Base.Meta):
     ordering = ['last_name', 'first_name', 'email']
-    verbose_name = _('Kontakt')
-    verbose_name_plural = _('Kontakte')
+    verbose_name = _('Hilfsobjekt → Kontakt')
+    verbose_name_plural = _('Hilfsobjekte → Kontakte')
 
   def __str__(self):
     name = f'{self.first_name or ""} {self.last_name or ""}'.strip()
