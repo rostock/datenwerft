@@ -24,6 +24,7 @@ class IndexView(TemplateView):
     if request.user.is_authenticated:
       if (
         not request.user.is_superuser
+        and not request.user.is_staff
         and not is_antragsmanagement_user(request.user)
         and not is_bemas_user(request.user)
       ):

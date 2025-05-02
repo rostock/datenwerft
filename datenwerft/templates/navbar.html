@@ -15,8 +15,10 @@
         <ul class="navbar-nav me-auto">
           {% if user.is_authenticated %}
             <li class="nav-item active">
-              {% if user.is_staff %}
+              {% if user.is_superuser %}
                 <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-user"></i> {{ user.username }}</a>
+              {% elif user.is_staff %}
+                <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-user"></i> {{ user.first_name }} {{ user.last_name }}</a>
               {% else %}
                 <span class="nav-link"><i class="fas fa-user"></i> {{ user.first_name }} {{ user.last_name }}</span>
               {% endif %}
