@@ -87,3 +87,11 @@ wie etwa zu Müllsammelaktionen.
 #### [Anträge auf Karte](antragsmanagement/usage/requests-map.md)
 
 ### [Benachrichtigungen](antragsmanagement/usage/notifications.md)
+
+## *GDI.HRO Metadata*
+
+Hier finden Sie Hilfestellungen zum System zur Administration von Metadaten im Rahmen der GDI.HRO.
+
+### [Administration](gdihrometadata/admin.md)
+
+### [Berechtigungen](gdihrometadata/permissions.md)

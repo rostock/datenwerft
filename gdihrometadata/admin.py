@@ -42,23 +42,26 @@ from .models import (
 
 @admin.register(Access)
 class AccessAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(AssetType)
 class AssetTypeAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(Charset)
 class CharsetAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(Crs)
@@ -70,65 +73,74 @@ class CrsAdmin(admin.ModelAdmin):
 
 @admin.register(DatathemeCategory)
 class DatathemeCategoryAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(Format)
 class FormatAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(Frequency)
 class FrequencyAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(HashType)
 class HashTypeAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(HvdCategory)
 class HvdCategoryAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(InspireServiceType)
 class InspireServiceTypeAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(InspireSpatialScope)
 class InspireSpatialScopeAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(InspireTheme)
 class InspireThemeAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(Language)
 class LanguageAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(License)
@@ -140,9 +152,10 @@ class LicenseAdmin(admin.ModelAdmin):
 
 @admin.register(MimeType)
 class MimeTypeAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(PoliticalGeocoding)
@@ -161,16 +174,18 @@ class PoliticalGeocodingLevelAdmin(admin.ModelAdmin):
 
 @admin.register(SpatialRepresentationType)
 class SpatialRepresentationTypeAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-  list_display = ('code', 'title', 'description')
-  search_fields = ('code', 'title', 'description')
+  list_display = ('code', 'title')
+  search_fields = ('code', 'title')
   empty_value_display = ''
+  exclude = ['description']
 
 
 #
@@ -196,33 +211,38 @@ class DataTypeAdmin(admin.ModelAdmin):
   list_display = ('title', 'format', 'mime_type')
   search_fields = ('title', 'format__title', 'mime_type__title')
   list_filter = ('format', 'mime_type')
+  empty_value_display = ''
 
 
 @admin.register(Legal)
 class LegalAdmin(admin.ModelAdmin):
   list_display = ('title', 'access', 'license')
-  search_fields = ('title', 'constraints')
+  search_fields = ('title', 'access__title', 'license__title', 'constraints')
   list_filter = ('access', 'license')
+  empty_value_display = ''
 
 
 @admin.register(SpatialReference)
 class SpatialReferenceAdmin(admin.ModelAdmin):
   list_display = ('title', 'political_geocoding_level', 'political_geocoding')
-  search_fields = ('title',)
+  search_fields = ('title', 'political_geocoding_level__title', 'political_geocoding__title')
   list_filter = ('political_geocoding_level', 'political_geocoding')
+  empty_value_display = ''
 
 
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
   list_display = ('name', 'title')
   search_fields = ('name', 'title')
+  empty_value_display = ''
 
 
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
   list_display = ('first_name', 'last_name', 'email', 'organization')
-  search_fields = ('first_name', 'last_name', 'email')
+  search_fields = ('first_name', 'last_name', 'email', 'organization__name', 'organization__title')
   list_filter = ('organization',)
+  empty_value_display = ''
 
 
 #

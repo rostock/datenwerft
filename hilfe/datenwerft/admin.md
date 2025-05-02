@@ -13,7 +13,8 @@
 4.  in Administrationsbereich wechseln
 5.  unter *Authentifizierung und Autorisierung* → *Benutzer* die/den
     Benutzer:in anklicken
-6.  Gruppenzugehörigkeit(en) entsprechend setzen
+6.  unter *Berechtigungen* Gruppenzugehörigkeit(en) entsprechend setzen
+7.  ggf. *Mitarbeiter-Status* unter *Berechtigungen* aktivieren
 
 ### ohne LDAP
 
@@ -23,7 +24,8 @@
     Benutzer:in anlegen
 4.  unter *Authentifizierung und Autorisierung* → *Benutzer* die/den gerade
     neu angelegte:n Benutzer:in anklicken
-5.  Gruppenzugehörigkeit(en) entsprechend setzen
+5.  unter *Berechtigungen* Gruppenzugehörigkeit(en) entsprechend setzen
+6.  ggf. *Mitarbeiter-Status* unter *Berechtigungen* aktivieren
 
 ## Berechtigungen an Datenmodell vergeben
 
