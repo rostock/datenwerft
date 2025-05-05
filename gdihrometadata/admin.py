@@ -201,7 +201,7 @@ class CrsSetAdmin(admin.ModelAdmin):
   empty_value_display = ''
 
   def crs_display(self, obj):
-    return ', '.join([crs.title for crs in obj.crs.all()])
+    return ', '.join([str(crs) for crs in obj.crs.all()])
 
   crs_display.short_description = 'Koordinatenreferenzsystem(e)'
 
@@ -209,15 +209,15 @@ class CrsSetAdmin(admin.ModelAdmin):
 @admin.register(DataType)
 class DataTypeAdmin(admin.ModelAdmin):
   list_display = ('title', 'format', 'mime_type')
-  search_fields = ('title', 'format__title', 'mime_type__title')
+  search_fields = ('title',)
   list_filter = ('format', 'mime_type')
   empty_value_display = ''
 
 
 @admin.register(Legal)
 class LegalAdmin(admin.ModelAdmin):
-  list_display = ('title', 'access', 'license')
-  search_fields = ('title', 'access__title', 'license__title', 'constraints')
+  list_display = ('title', 'access', 'license', 'constraints')
+  search_fields = ('title', 'constraints')
   list_filter = ('access', 'license')
   empty_value_display = ''
 
@@ -225,7 +225,7 @@ class LegalAdmin(admin.ModelAdmin):
 @admin.register(SpatialReference)
 class SpatialReferenceAdmin(admin.ModelAdmin):
   list_display = ('title', 'political_geocoding_level', 'political_geocoding')
-  search_fields = ('title', 'political_geocoding_level__title', 'political_geocoding__title')
+  search_fields = ('title',)
   list_filter = ('political_geocoding_level', 'political_geocoding')
   empty_value_display = ''
 
@@ -240,7 +240,11 @@ class OrganizationAdmin(admin.ModelAdmin):
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
   list_display = ('first_name', 'last_name', 'email', 'organization')
-  search_fields = ('first_name', 'last_name', 'email', 'organization__name', 'organization__title')
+  search_fields = (
+    'first_name',
+    'last_name',
+    'email',
+  )
   list_filter = ('organization',)
   empty_value_display = ''
 
@@ -252,31 +256,145 @@ class ContactAdmin(admin.ModelAdmin):
 
 @admin.register(Source)
 class SourceAdmin(admin.ModelAdmin):
-  list_display = ('type', 'connection_info', 'last_import', 'processing_type')
-  list_filter = ('type', 'processing_type', 'geometry_type')
-  search_fields = ('connection_info', 'description')
+  list_display = (
+    'uuid',
+    'modified',
+    'last_import',
+    'import_frequency',
+    'processing_type',
+    'type',
+    'connection_info',
+    'data_type',
+  )
+  list_filter = (
+    'import_frequency',
+    'processing_type',
+    'type',
+    'data_type',
+  )
+  search_fields = (
+    'uuid',
+    'modified',
+    'last_import',
+    'connection_info',
+  )
   filter_horizontal = ('tags', 'authors')
+  empty_value_display = ''
+  fieldsets = [
+    ('Allgemeine Informationen', {'fields': ['description', 'external', 'tags', 'authors']}),
+    ('Aktualität', {'fields': ['last_import', 'import_frequency']}),
+    (
+      'Technische Informationen',
+      {
+        'fields': [
+          'processing_type',
+          'type',
+          'connection_info',
+          'data_type',
+          'spatial_representation_type',
+          'geometry_type',
+        ]
+      },
+    ),
+  ]
 
 
 @admin.register(Repository)
 class RepositoryAdmin(admin.ModelAdmin):
-  list_display = ('type', 'connection_info', 'geometry_type', 'created', 'modified')
-  list_filter = ('type', 'geometry_type', 'data_type')
-  search_fields = ('connection_info', 'description')
+  list_display = (
+    'uuid',
+    'modified',
+    'creation',
+    'last_update',
+    'update_frequency',
+    'type',
+    'connection_info',
+    'data_type',
+    'source',
+  )
+  list_filter = (
+    'update_frequency',
+    'type',
+    'data_type',
+    'source',
+  )
+  search_fields = (
+    'uuid',
+    'modified',
+    'creation',
+    'last_update',
+    'connection_info',
+  )
   filter_horizontal = ('tags', 'maintainers', 'authors')
+  empty_value_display = ''
+  fieldsets = [
+    (
+      'Allgemeine Informationen',
+      {'fields': ['description', 'external', 'tags', 'maintainers', 'authors']},
+    ),
+    ('Aktualität', {'fields': ['creation', 'last_update', 'update_frequency']}),
+    (
+      'Technische Informationen',
+      {
+        'fields': [
+          'type',
+          'connection_info',
+          'data_type',
+          'spatial_representation_type',
+          'geometry_type',
+        ]
+      },
+    ),
+    ('Verknüpfungen', {'fields': ['source']}),
+  ]
 
 
 @admin.register(Assetset)
 class AssetsetAdmin(admin.ModelAdmin):
-  list_display = ('name', 'title', 'created', 'modified')
-  search_fields = ('name', 'title', 'description')
-  list_filter = ('type',)
-  filter_horizontal = (
-    'tags',
-    'publishers',
-    'maintainers',
-    'repositories',
+  list_display = (
+    'uuid',
+    'modified',
+    'name',
+    'title',
+    'creation',
+    'last_update',
+    'update_frequency',
+    'legal',
+    'type',
+    'repositories_display',
   )
+  list_filter = (
+    'update_frequency',
+    'legal',
+    'type',
+  )
+  search_fields = (
+    'uuid',
+    'modified',
+    'name',
+    'title',
+    'creation',
+    'last_update',
+  )
+  filter_horizontal = ('tags', 'publishers', 'maintainers', 'repositories')
+  empty_value_display = ''
+  fieldsets = [
+    (
+      'Allgemeine Informationen',
+      {
+        'fields': ['name', 'title', 'description', 'external', 'tags', 'publishers', 'maintainers']
+      },
+    ),
+    ('Aktualität', {'fields': ['creation', 'last_update', 'update_frequency']}),
+    ('Rechtliche Informationen', {'fields': ['legal']}),
+    ('Technische Informationen', {'fields': ['type']}),
+    ('Verknüpfungen', {'fields': ['repositories']}),
+  ]
+
+  def repositories_display(self, obj):
+    return ', '.join([str(repository) for repository in obj.repositories.all()])
+
+  repositories_display.short_description = 'Speicherort(e)'
 
 
 @admin.register(Dataset)
