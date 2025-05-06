@@ -9,8 +9,8 @@ class Access(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Zugriff')
-    verbose_name_plural = _('Zugriffe')
+    verbose_name = _('Codelistenelement → Zugriff')
+    verbose_name_plural = _('Codeliste → Zugriffe')
 
 
 class AssetType(Codelist):
@@ -19,8 +19,8 @@ class AssetType(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Typ eines Assets')
-    verbose_name_plural = _('Typen von Assets')
+    verbose_name = _('Codelistenelement → Typ eines Assets')
+    verbose_name_plural = _('Codeliste → Typen von Assets')
 
 
 class Charset(Codelist):
@@ -29,8 +29,8 @@ class Charset(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Zeichensatz')
-    verbose_name_plural = _('Zeichensätze')
+    verbose_name = _('Codelistenelement → Zeichensatz')
+    verbose_name_plural = _('Codeliste → Zeichensätze')
 
 
 class Crs(Codelist):
@@ -39,8 +39,8 @@ class Crs(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Koordinatenreferenzsystem')
-    verbose_name_plural = _('Koordinatenreferenzsysteme')
+    verbose_name = _('Codelistenelement → Koordinatenreferenzsystem')
+    verbose_name_plural = _('Codeliste → Koordinatenreferenzsysteme')
 
 
 class DatathemeCategory(Codelist):
@@ -49,8 +49,8 @@ class DatathemeCategory(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Datenthemenkategorie')
-    verbose_name_plural = _('Datenthemenkategorien')
+    verbose_name = _('Codelistenelement → Datenthemenkategorie')
+    verbose_name_plural = _('Codeliste → Datenthemenkategorien')
 
 
 class Format(Codelist):
@@ -59,8 +59,8 @@ class Format(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Format')
-    verbose_name_plural = _('Formate')
+    verbose_name = _('Codelistenelement → Format')
+    verbose_name_plural = _('Codeliste → Formate')
 
 
 class Frequency(Codelist):
@@ -69,8 +69,8 @@ class Frequency(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Häufigkeit')
-    verbose_name_plural = _('Häufigkeiten')
+    verbose_name = _('Codelistenelement → Häufigkeit')
+    verbose_name_plural = _('Codeliste → Häufigkeiten')
 
 
 class HashType(Codelist):
@@ -79,8 +79,8 @@ class HashType(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Typ eines Hashes')
-    verbose_name_plural = _('Typen von Hashes')
+    verbose_name = _('Codelistenelement → Typ eines Hashes')
+    verbose_name_plural = _('Codeliste → Typen von Hashes')
 
 
 class HvdCategory(Codelist):
@@ -89,8 +89,8 @@ class HvdCategory(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('HVD-Kategorie')
-    verbose_name_plural = _('HVD-Kategorien')
+    verbose_name = _('Codelistenelement → HVD-Kategorie')
+    verbose_name_plural = _('Codeliste → HVD-Kategorien')
 
 
 class InspireServiceType(Codelist):
@@ -99,8 +99,8 @@ class InspireServiceType(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Typ eines INSPIRE-Services')
-    verbose_name_plural = _('Typen von INSPIRE-Services')
+    verbose_name = _('Codelistenelement → Typ eines INSPIRE-Services')
+    verbose_name_plural = _('Codeliste → Typen von INSPIRE-Services')
 
 
 class InspireSpatialScope(Codelist):
@@ -109,8 +109,8 @@ class InspireSpatialScope(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('INSPIRE-Raumbezug')
-    verbose_name_plural = _('INSPIRE-Raumbezüge')
+    verbose_name = _('Codelistenelement → INSPIRE-Raumbezug')
+    verbose_name_plural = _('Codeliste → INSPIRE-Raumbezüge')
 
 
 class InspireTheme(Codelist):
@@ -119,8 +119,8 @@ class InspireTheme(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('INSPIRE-Thema')
-    verbose_name_plural = _('INSPIRE-Themen')
+    verbose_name = _('Codelistenelement → INSPIRE-Thema')
+    verbose_name_plural = _('Codeliste → INSPIRE-Themen')
 
 
 class Language(Codelist):
@@ -129,8 +129,8 @@ class Language(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Sprache')
-    verbose_name_plural = _('Sprachen')
+    verbose_name = _('Codelistenelement → Sprache')
+    verbose_name_plural = _('Codeliste → Sprachen')
 
 
 class License(Codelist):
@@ -139,8 +139,8 @@ class License(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Lizenz')
-    verbose_name_plural = _('Lizenzen')
+    verbose_name = _('Codelistenelement → Lizenz')
+    verbose_name_plural = _('Codeliste → Lizenzen')
 
 
 class MimeType(Codelist):
@@ -149,8 +149,8 @@ class MimeType(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('MIME-Typ')
-    verbose_name_plural = _('MIME-Typen')
+    verbose_name = _('Codelistenelement → MIME-Typ')
+    verbose_name_plural = _('Codeliste → MIME-Typen')
 
 
 class PoliticalGeocoding(Codelist):
@@ -159,8 +159,8 @@ class PoliticalGeocoding(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Geopolitische Verwaltungscodierungen')
-    verbose_name_plural = _('Geopolitische Verwaltungscodierung')
+    verbose_name = _('Codelistenelement → Geopolitische Verwaltungscodierungen')
+    verbose_name_plural = _('Codeliste → Geopolitische Verwaltungscodierung')
 
 
 class PoliticalGeocodingLevel(Codelist):
@@ -169,8 +169,8 @@ class PoliticalGeocodingLevel(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Ebene der geopolitischen Verwaltungscodierung')
-    verbose_name_plural = _('Ebenen der geopolitischen Verwaltungscodierung')
+    verbose_name = _('Codelistenelement → Ebene der geopolitischen Verwaltungscodierung')
+    verbose_name_plural = _('Codeliste → Ebenen der geopolitischen Verwaltungscodierung')
 
 
 class SpatialRepresentationType(Codelist):
@@ -179,8 +179,8 @@ class SpatialRepresentationType(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Typ der räumlichen Repräsentation')
-    verbose_name_plural = _('Typen der räumlichen Repräsentation')
+    verbose_name = _('Codelistenelement → Typ der räumlichen Repräsentation')
+    verbose_name_plural = _('Codeliste → Typen der räumlichen Repräsentation')
 
 
 class Tag(Codelist):
@@ -189,5 +189,5 @@ class Tag(Codelist):
   """
 
   class Meta(Codelist.Meta):
-    verbose_name = _('Schlagwort')
-    verbose_name_plural = _('Schlagwörter')
+    verbose_name = _('Codelistenelement → Schlagwort')
+    verbose_name_plural = _('Codeliste → Schlagwörter')
