@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.forms import ModelForm, ValidationError
 
 from .models import (
   Access,
@@ -34,6 +35,120 @@ from .models import (
   Tag,
   Topic,
 )
+
+#
+# forms
+#
+
+
+class SpatioTemporalMetadataAdminForm(ModelForm):
+  def clean(self):
+    extent_temporal_start = self.cleaned_data.get('extent_temporal_start', None)
+    extent_temporal_end = self.cleaned_data.get('extent_temporal_end', None)
+    # extent_temporal_start and extent_temporal_end must always be set together
+    if (extent_temporal_end and not extent_temporal_start) or (
+      extent_temporal_start and not extent_temporal_end
+    ):
+      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
+        self._meta.model._meta.get_field('extent_temporal_start').verbose_name,
+        self._meta.model._meta.get_field('extent_temporal_end').verbose_name,
+      )
+      raise ValidationError(text)
+    # extent_temporal_end must be later than extent_temporal_start
+    elif (
+      extent_temporal_start and extent_temporal_end and extent_temporal_start > extent_temporal_end
+    ):
+      text = '{} muss zeitlich nach {} liegen.'.format(
+        self._meta.model._meta.get_field('extent_temporal_end').verbose_name,
+        self._meta.model._meta.get_field('extent_temporal_start').verbose_name,
+      )
+      raise ValidationError(text)
+    return self.cleaned_data
+
+
+class SpatialReferenceAdminForm(ModelForm):
+  def clean(self):
+    extent_spatial_south = self.cleaned_data.get('extent_spatial_south', None)
+    extent_spatial_east = self.cleaned_data.get('extent_spatial_east', None)
+    extent_spatial_north = self.cleaned_data.get('extent_spatial_north', None)
+    extent_spatial_west = self.cleaned_data.get('extent_spatial_west', None)
+    # extent_spatial_south must be smaller than extent_spatial_north
+    if (
+      extent_spatial_south and extent_spatial_north and extent_spatial_south > extent_spatial_north
+    ):
+      text = '{} muss größer sein als {}.'.format(
+        self._meta.model._meta.get_field('extent_spatial_north').verbose_name,
+        self._meta.model._meta.get_field('extent_spatial_south').verbose_name,
+      )
+      raise ValidationError(text)
+    # extent_spatial_east must be smaller than extent_spatial_west
+    if extent_spatial_east and extent_spatial_west and extent_spatial_south > extent_spatial_west:
+      text = '{} muss größer sein als {}.'.format(
+        self._meta.model._meta.get_field('extent_spatial_west').verbose_name,
+        self._meta.model._meta.get_field('extent_spatial_east').verbose_name,
+      )
+      raise ValidationError(text)
+    return self.cleaned_data
+
+
+class ContactAdminForm(ModelForm):
+  def clean(self):
+    organization = self.cleaned_data.get('organization', None)
+    first_name = self.cleaned_data.get('first_name', None)
+    last_name = self.cleaned_data.get('last_name', None)
+    if not organization and not first_name and not last_name:
+      text = '{} muss gesetzt sein, wenn {} und {} nicht gesetzt sind.'.format(
+        self._meta.model._meta.get_field('organization').verbose_name,
+        self._meta.model._meta.get_field('first_name').verbose_name,
+        self._meta.model._meta.get_field('last_name').verbose_name,
+      )
+      text += ' {} und {} müssen gesetzt sein, wenn {} nicht gesetzt ist.'.format(
+        self._meta.model._meta.get_field('first_name').verbose_name,
+        self._meta.model._meta.get_field('last_name').verbose_name,
+        self._meta.model._meta.get_field('organization').verbose_name,
+      )
+      raise ValidationError(text)
+    elif (not first_name and last_name) or (first_name and not last_name):
+      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
+        self._meta.model._meta.get_field('first_name').verbose_name,
+        self._meta.model._meta.get_field('last_name').verbose_name,
+      )
+      raise ValidationError(text)
+    return self.cleaned_data
+
+
+class ServiceAdminForm(ModelForm):
+  def clean(self):
+    extent_temporal_start = self.cleaned_data.get('extent_temporal_start', None)
+    extent_temporal_end = self.cleaned_data.get('extent_temporal_end', None)
+    # extent_temporal_start and extent_temporal_end must always be set together
+    if (extent_temporal_end and not extent_temporal_start) or (
+      extent_temporal_start and not extent_temporal_end
+    ):
+      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
+        self._meta.model._meta.get_field('extent_temporal_start').verbose_name,
+        self._meta.model._meta.get_field('extent_temporal_end').verbose_name,
+      )
+      raise ValidationError(text)
+    # extent_temporal_end must be later than extent_temporal_start
+    elif (
+      extent_temporal_start and extent_temporal_end and extent_temporal_start > extent_temporal_end
+    ):
+      text = '{} muss zeitlich nach {} liegen.'.format(
+        self._meta.model._meta.get_field('extent_temporal_end').verbose_name,
+        self._meta.model._meta.get_field('extent_temporal_start').verbose_name,
+      )
+      raise ValidationError(text)
+    datasets = self.cleaned_data.get('datasets', None)
+    assetsets = self.cleaned_data.get('assetsets', None)
+    repositories = self.cleaned_data.get('repositories', None)
+    if not datasets and not assetsets and not repositories:
+      raise ValidationError(
+        'Es muss mindestens ein Datensatz, eine Asset-Sammlung '
+        'oder ein Speicherort verknüpft werden.'
+      )
+    return self.cleaned_data
+
 
 #
 # codelists
@@ -224,6 +339,7 @@ class LegalAdmin(admin.ModelAdmin):
 
 @admin.register(SpatialReference)
 class SpatialReferenceAdmin(admin.ModelAdmin):
+  form = SpatialReferenceAdminForm
   list_display = ('title', 'political_geocoding_level', 'political_geocoding')
   search_fields = ('title',)
   list_filter = ('political_geocoding_level', 'political_geocoding')
@@ -239,6 +355,7 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
+  form = ContactAdminForm
   list_display = ('first_name', 'last_name', 'email', 'organization')
   search_fields = (
     'first_name',
@@ -399,23 +516,124 @@ class AssetsetAdmin(admin.ModelAdmin):
 
 @admin.register(Dataset)
 class DatasetAdmin(admin.ModelAdmin):
-  list_display = ('name', 'title', 'geometry_type', 'created', 'modified', 'uuid')
-  list_filter = ('geometry_type', 'language', 'charset', 'data_type')
-  search_fields = ('name', 'title', 'uuid', 'description')
-  filter_horizontal = (
-    'tags',
-    'additional_crs',
-    'publishers',
-    'maintainers',
-    'repositories',
+  form = SpatioTemporalMetadataAdminForm
+  list_display = (
+    'uuid',
+    'modified',
+    'name',
+    'title',
+    'creation',
+    'last_update',
+    'update_frequency',
+    'legal',
+    'data_type',
+    'repositories_display',
   )
+  list_filter = (
+    'update_frequency',
+    'native_crs',
+    'spatial_reference',
+    'legal',
+    'inspire_theme',
+    'inspire_spatial_scope',
+    'language',
+    'charset',
+    'data_type',
+    'spatial_representation_type',
+    'geometry_type',
+    'hash_type',
+    'ground_resolution_uom',
+  )
+  search_fields = (
+    'uuid',
+    'modified',
+    'name',
+    'title',
+    'creation',
+    'last_update',
+  )
+  filter_horizontal = ('tags', 'additional_crs', 'publishers', 'maintainers', 'repositories')
+  empty_value_display = ''
+  fieldsets = [
+    (
+      'Allgemeine Informationen',
+      {
+        'fields': ['name', 'title', 'description', 'external', 'tags', 'publishers', 'maintainers']
+      },
+    ),
+    ('Aktualität', {'fields': ['creation', 'last_update', 'update_frequency']}),
+    (
+      'Raum-zeitliche Informationen',
+      {
+        'fields': [
+          'native_crs',
+          'additional_crs',
+          'spatial_reference',
+          'extent_temporal_start',
+          'extent_temporal_end',
+        ]
+      },
+    ),
+    ('Rechtliche Informationen', {'fields': ['legal']}),
+    ('INSPIRE', {'fields': ['inspire_theme', 'inspire_spatial_scope']}),
+    (
+      'Technische Informationen',
+      {
+        'fields': [
+          'language',
+          'charset',
+          'data_type',
+          'spatial_representation_type',
+          'geometry_type',
+          'hash_type',
+          'hash',
+          'byte_size',
+          'scale_factor',
+          'ground_resolution',
+          'ground_resolution_uom',
+        ]
+      },
+    ),
+    ('Verknüpfungen', {'fields': ['repositories']}),
+  ]
+
+  def repositories_display(self, obj):
+    return ', '.join([str(repository) for repository in obj.repositories.all()])
+
+  repositories_display.short_description = 'Speicherort(e)'
 
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-  list_display = ('name', 'title', 'type', 'created', 'modified', 'uuid')
-  list_filter = ('type', 'language', 'charset')
-  search_fields = ('name', 'title', 'uuid', 'description')
+  form = ServiceAdminForm
+  list_display = (
+    'uuid',
+    'modified',
+    'name',
+    'title',
+    'legal',
+    'type',
+    'datasets_display',
+    'assetsets_display',
+    'repositories_display',
+  )
+  list_filter = (
+    'native_crs',
+    'spatial_reference',
+    'legal',
+    'type',
+    'inspire_theme',
+    'inspire_spatial_scope',
+    'inspire_service_type',
+    'language',
+    'charset',
+  )
+  search_fields = (
+    'uuid',
+    'modified',
+    'name',
+    'title',
+  )
   filter_horizontal = (
     'tags',
     'additional_crs',
@@ -425,12 +643,75 @@ class ServiceAdmin(admin.ModelAdmin):
     'assetsets',
     'repositories',
   )
+  empty_value_display = ''
+  fieldsets = [
+    (
+      'Allgemeine Informationen',
+      {
+        'fields': ['name', 'title', 'description', 'external', 'tags', 'publishers', 'maintainers']
+      },
+    ),
+    (
+      'Raum-zeitliche Informationen',
+      {
+        'fields': [
+          'native_crs',
+          'additional_crs',
+          'spatial_reference',
+          'extent_temporal_start',
+          'extent_temporal_end',
+        ]
+      },
+    ),
+    ('Rechtliche Informationen', {'fields': ['legal']}),
+    ('INSPIRE', {'fields': ['inspire_theme', 'inspire_spatial_scope', 'inspire_service_type']}),
+    (
+      'Technische Informationen',
+      {
+        'fields': [
+          'type',
+          'language',
+          'charset',
+        ]
+      },
+    ),
+    ('Verknüpfungen', {'fields': ['datasets', 'assetsets', 'repositories']}),
+  ]
+
+  def datasets_display(self, obj):
+    return ', '.join([str(dataset) for dataset in obj.datasets.all()])
+
+  def assetsets_display(self, obj):
+    return ', '.join([str(assetset) for assetset in obj.assetsets.all()])
+
+  def repositories_display(self, obj):
+    return ', '.join([str(repository) for repository in obj.repositories.all()])
+
+  datasets_display.short_description = 'Datensatz/Datensätze'
+  assetsets_display.short_description = 'Asset-Sammlung(en)'
+  repositories_display.short_description = 'Speicherort(e)'
 
 
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
-  list_display = ('name', 'title', 'created', 'modified', 'uuid')
-  search_fields = ('name', 'title', 'uuid', 'description')
+  list_display = (
+    'uuid',
+    'modified',
+    'name',
+    'title',
+    'categories_display',
+    'hvd_category',
+    'services_display',
+    'datasets_display',
+    'assetsets_display',
+  )
+  list_filter = ('hvd_category',)
+  search_fields = (
+    'uuid',
+    'modified',
+    'name',
+    'title',
+  )
   filter_horizontal = (
     'tags',
     'categories',
@@ -438,12 +719,55 @@ class TopicAdmin(admin.ModelAdmin):
     'datasets',
     'assetsets',
   )
+  empty_value_display = ''
+  fieldsets = [
+    (
+      'Allgemeine Informationen',
+      {'fields': ['name', 'title', 'description', 'external', 'tags']},
+    ),
+    ('Kategoriale Informationen', {'fields': ['categories', 'hvd_category']}),
+    ('Verknüpfungen', {'fields': ['services', 'datasets', 'assetsets']}),
+  ]
+
+  def categories_display(self, obj):
+    return ', '.join([str(category) for category in obj.categories.all()])
+
+  def services_display(self, obj):
+    return ', '.join([str(service) for service in obj.services.all()])
+
+  def datasets_display(self, obj):
+    return ', '.join([str(dataset) for dataset in obj.datasets.all()])
+
+  def assetsets_display(self, obj):
+    return ', '.join([str(assetset) for assetset in obj.assetsets.all()])
+
+  categories_display.short_description = 'Kategorie(n)'
+  services_display.short_description = 'Service(s)'
+  datasets_display.short_description = 'Datensatz/Datensätze'
+  assetsets_display.short_description = 'Asset-Sammlung(en)'
 
 
 @admin.register(App)
 class AppAdmin(admin.ModelAdmin):
-  list_display = ('name', 'title', 'created', 'modified', 'uuid')
-  search_fields = ('name', 'title', 'uuid', 'description')
+  list_display = (
+    'uuid',
+    'modified',
+    'name',
+    'title',
+    'legal',
+    'topics_display',
+    'services_display',
+    'datasets_display',
+    'assetsets_display',
+    'repositories_display',
+  )
+  list_filter = ('legal',)
+  search_fields = (
+    'uuid',
+    'modified',
+    'name',
+    'title',
+  )
   filter_horizontal = (
     'tags',
     'publishers',
@@ -455,3 +779,36 @@ class AppAdmin(admin.ModelAdmin):
     'assetsets',
     'repositories',
   )
+  empty_value_display = ''
+  fieldsets = [
+    (
+      'Allgemeine Informationen',
+      {
+        'fields': ['name', 'title', 'description', 'external', 'tags', 'publishers', 'maintainers']
+      },
+    ),
+    ('Rechtliche Informationen', {'fields': ['legal']}),
+    ('Technische Informationen', {'fields': ['languages']}),
+    ('Verknüpfungen', {'fields': ['topics', 'services', 'datasets', 'assetsets', 'repositories']}),
+  ]
+
+  def topics_display(self, obj):
+    return ', '.join([str(topic) for topic in obj.topics.all()])
+
+  def services_display(self, obj):
+    return ', '.join([str(service) for service in obj.services.all()])
+
+  def datasets_display(self, obj):
+    return ', '.join([str(dataset) for dataset in obj.datasets.all()])
+
+  def assetsets_display(self, obj):
+    return ', '.join([str(assetset) for assetset in obj.assetsets.all()])
+
+  def repositories_display(self, obj):
+    return ', '.join([str(repository) for repository in obj.repositories.all()])
+
+  topics_display.short_description = 'Datenthema/-themen'
+  services_display.short_description = 'Service(s)'
+  datasets_display.short_description = 'Datensatz/Datensätze'
+  assetsets_display.short_description = 'Asset-Sammlung(en)'
+  repositories_display.short_description = 'Speicherort(e)'

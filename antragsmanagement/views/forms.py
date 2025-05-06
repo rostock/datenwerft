@@ -284,7 +284,7 @@ class CleanupEventEventForm(RequestFollowUpForm):
     # to_date must either be later than from_date
     # or omitted if the action is to take place on just one day
     if from_date and to_date and to_date <= from_date:
-      text = '<strong><em>{}</em></strong> muss nach <em>{}</em> liegen!'.format(
+      text = '<strong><em>{}</em></strong> muss zeitlich nach <em>{}</em> liegen!'.format(
         self._meta.model._meta.get_field('to_date').verbose_name,
         self._meta.model._meta.get_field('from_date').verbose_name,
       )

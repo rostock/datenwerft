@@ -1,4 +1,6 @@
-from django.core.validators import RegexValidator
+from decimal import Decimal
+
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -107,16 +109,64 @@ class SpatialReference(Base):
 
   title = models.CharField(unique=True, validators=standard_validators, verbose_name=_('Titel'))
   extent_spatial_south = models.DecimalField(
-    max_digits=8, decimal_places=5, verbose_name=_('Süden (räumliche Ausdehnung)')
+    max_digits=8,
+    decimal_places=5,
+    validators=[
+      MinValueValidator(
+        Decimal('-90'),
+        'Der Wert für Süden (räumliche Ausdehnung) muss mindestens -90 sein.',
+      ),
+      MaxValueValidator(
+        Decimal('90'),
+        'Der Wert für Süden (räumliche Ausdehnung) darf höchstens 90 sein.',
+      ),
+    ],
+    verbose_name=_('Süden (räumliche Ausdehnung)'),
   )
   extent_spatial_east = models.DecimalField(
-    max_digits=8, decimal_places=5, verbose_name=_('Osten (räumliche Ausdehnung)')
+    max_digits=8,
+    decimal_places=5,
+    validators=[
+      MinValueValidator(
+        Decimal('-180'),
+        'Der Wert für Osten (räumliche Ausdehnung) muss mindestens -180 sein.',
+      ),
+      MaxValueValidator(
+        Decimal('180'),
+        'Der Wert für Osten (räumliche Ausdehnung) darf höchstens 180 sein.',
+      ),
+    ],
+    verbose_name=_('Osten (räumliche Ausdehnung)'),
   )
   extent_spatial_north = models.DecimalField(
-    max_digits=8, decimal_places=5, verbose_name=_('Norden (räumliche Ausdehnung)')
+    max_digits=8,
+    decimal_places=5,
+    validators=[
+      MinValueValidator(
+        Decimal('-90'),
+        'Der Wert für Norden (räumliche Ausdehnung) muss mindestens -90 sein.',
+      ),
+      MaxValueValidator(
+        Decimal('90'),
+        'Der Wert für Norden (räumliche Ausdehnung) darf höchstens 90 sein.',
+      ),
+    ],
+    verbose_name=_('Norden (räumliche Ausdehnung)'),
   )
   extent_spatial_west = models.DecimalField(
-    max_digits=8, decimal_places=5, verbose_name=_('Westen (räumliche Ausdehnung)')
+    max_digits=8,
+    decimal_places=5,
+    validators=[
+      MinValueValidator(
+        Decimal('-180'),
+        'Der Wert für Westen (räumliche Ausdehnung) muss mindestens -180 sein.',
+      ),
+      MaxValueValidator(
+        Decimal('180'),
+        'Der Wert für Westen (räumliche Ausdehnung) darf höchstens 180 sein.',
+      ),
+    ],
+    verbose_name=_('Westen (räumliche Ausdehnung)'),
   )
   political_geocoding_level = models.ForeignKey(
     PoliticalGeocodingLevel,

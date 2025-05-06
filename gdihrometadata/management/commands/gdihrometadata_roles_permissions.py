@@ -18,7 +18,7 @@ class Command(BaseCommand):
     else:
       num_groups_existing += 1
     # assign permissions if not assigned yet
-    permissions = Permission.objects.filter(content_type__app_label='gdihrometadata')
+    permissions = Permission.objects.filter(content_type__app_label=app_label)
     for permission in permissions:
       if group.permissions.filter(pk=permission.pk).exists():
         num_permissions_already_assigned += 1
