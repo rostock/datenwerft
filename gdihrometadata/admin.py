@@ -348,19 +348,19 @@ class SpatialReferenceAdmin(admin.ModelAdmin):
 
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
-  list_display = ('name', 'title')
-  search_fields = ('name', 'title')
+  list_display = ('title', 'name', 'image')
+  search_fields = ('title', 'name')
   empty_value_display = ''
 
 
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
   form = ContactAdminForm
-  list_display = ('first_name', 'last_name', 'email', 'organization')
+  list_display = ('email', 'first_name', 'last_name', 'organization')
   search_fields = (
+    'email',
     'first_name',
     'last_name',
-    'email',
   )
   list_filter = ('organization',)
   empty_value_display = ''

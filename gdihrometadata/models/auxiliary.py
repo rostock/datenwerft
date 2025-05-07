@@ -200,12 +200,13 @@ class Organization(Base):
   """
 
   name = models.CharField(
-    unique=True,
     validators=[
       RegexValidator(
         regex=kleinbuchstaben_bindestrich_regex, message=kleinbuchstaben_bindestrich_message
       )
     ],
+    blank=True,
+    null=True,
     verbose_name=_('Name'),
   )
   title = models.CharField(validators=standard_validators, verbose_name=_('Titel'))
