@@ -61,7 +61,7 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, objectkey: str):
   logger.debug('Run Task send_pointcloud_to_vcpub')
   project: Project = get_project(id=settings.project_id)
   bucket: Bucket = project.get_bucket(id=str(dataset))
-  response: Response = bucket.upload(key=objectkey, path=path)
+  response: Response = bucket.upload(key=f'/dataset/{objectkey}', path=path)
   match response.status_code:
     case 204:
       logger.debug('Pointcloud upload to VCPub was successful.')
