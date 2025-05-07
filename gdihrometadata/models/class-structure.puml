@@ -1,5 +1,5 @@
 @startuml
-
+faadg
 skinparam linetype ortho
 
 enum GeometryType {
@@ -158,7 +158,7 @@ abstract class SpatioTemporalMetadata {
 }
 
 class Organization {
-  +name : TEXT {unique}
+  +name : TEXT [0..1]
   +title : TEXT
   +image : URL [0..1]
 }
