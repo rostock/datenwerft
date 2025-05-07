@@ -2853,11 +2853,11 @@ class Punktwolken_Projekte(ComplexModel):
       project = get_project(id=pyblisher_settings.project_id)
       bucket = project.get_bucket(id=str(self.vcp_dataset_bucket_id))
       response = bucket.delete()
-      if response.status_code == 204 or response.status_code == 200:
+      if response.status_code == 200:
         # bucket deleted
-        logger.info(f'{response.status_code}: task deleted, deleting project now')
+        logger.info('200: task deleted, deleting project now')
         super().delete(using=using, keep_parents=keep_parents)
-      elif response.status_code == 404:
+      elif response.status_code == 400:
         # bucket is already deleted
         logger.info('404: task not found, deleting project now')
         super().delete(using=using, keep_parents=keep_parents)
