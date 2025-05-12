@@ -1,6 +1,7 @@
 Django
 django-auth-ldap
 django-datatables-view
+django-filter
 django-jsonview
 django-leaflet
 django-ratelimit
