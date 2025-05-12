@@ -1,7 +1,7 @@
 from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.viewsets import ModelViewSet
-from ..models import Punktwolken, Angelverbotsbereiche  # Import Punktwolken and Angelverbotsbereiche
-from ..api_filters import PunktwolkenFilter, AngelverbotsbereicheFilter  # Import PunktwolkenFilter and AngelverbotsbereicheFilter
+from ..models import Punktwolken
+from ..api_filters import PunktwolkenFilter
 
 
 class DatenmanagementViewSet(ModelViewSet):
@@ -15,8 +15,6 @@ class DatenmanagementViewSet(ModelViewSet):
     _filterset_class = None
     if _model == Punktwolken:
       _filterset_class = PunktwolkenFilter
-    elif _model == Angelverbotsbereiche:
-      _filterset_class = AngelverbotsbereicheFilter
 
     class CustomViewSet(cls):
       model = _model
