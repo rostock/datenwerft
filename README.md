@@ -117,6 +117,7 @@ python manage.py migrate
 python manage.py antragsmanagement_roles_permissions
 python manage.py bemas_roles_permissions
 python manage.py gdihrometadata_roles_permissions
+python manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 
 # mit uv
 uv run manage.py migrate --database=antragsmanagement antragsmanagement
@@ -125,6 +126,7 @@ uv run manage.py migrate
 uv run manage.py antragsmanagement_roles_permissions
 uv run manage.py bemas_roles_permissions
 uv run manage.py gdihrometadata_roles_permissions
+uv run manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 ```
 
 3. Administrator initialisieren:
