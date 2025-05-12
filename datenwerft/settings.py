@@ -22,6 +22,7 @@ THIRD_PARTY_APPS = [
   'leaflet',
   'requests',
   'rest_framework',
+  'django_filters',  # Add django-filter
   'jsonview',
   'django_rq',
 ]
@@ -150,6 +151,7 @@ REST_FRAMEWORK = {
     'rest_framework.authentication.SessionAuthentication',
   ],
   'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.DjangoModelPermissions'],
+  'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
   'DATETIME_FORMAT': 'iso-8601',
   'DATE_FORMAT': 'iso-8601',
   'TIME_FORMAT': 'iso-8601',
