@@ -1,5 +1,5 @@
 import django_filters
-from .models import Punktwolken, Punktwolken_Projekte, Angelverbotsbereiche # Hinzufügen von Angelverbotsbereiche
+from .models import Punktwolken, Punktwolken_Projekte
 
 class PunktwolkenFilter(django_filters.FilterSet):
   projekt = django_filters.ModelChoiceFilter(
