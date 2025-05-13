@@ -392,13 +392,14 @@ class SourceAdmin(admin.ModelAdmin):
   search_fields = (
     'uuid',
     'modified',
+    'description',
     'last_import',
     'connection_info',
   )
-  filter_horizontal = ('tags', 'authors')
+  filter_horizontal = ('authors',)
   empty_value_display = ''
   fieldsets = [
-    ('Allgemeine Informationen', {'fields': ['description', 'external', 'tags', 'authors']}),
+    ('Allgemeine Informationen', {'fields': ['description', 'external', 'authors']}),
     ('Aktualität', {'fields': ['last_import', 'import_frequency']}),
     (
       'Technische Informationen',
@@ -438,16 +439,17 @@ class RepositoryAdmin(admin.ModelAdmin):
   search_fields = (
     'uuid',
     'modified',
+    'description',
     'creation',
     'last_update',
     'connection_info',
   )
-  filter_horizontal = ('tags', 'maintainers', 'authors')
+  filter_horizontal = ('maintainers', 'authors')
   empty_value_display = ''
   fieldsets = [
     (
       'Allgemeine Informationen',
-      {'fields': ['description', 'external', 'tags', 'maintainers', 'authors']},
+      {'fields': ['description', 'external', 'maintainers', 'authors']},
     ),
     ('Aktualität', {'fields': ['creation', 'last_update', 'update_frequency']}),
     (
@@ -490,17 +492,16 @@ class AssetsetAdmin(admin.ModelAdmin):
     'modified',
     'name',
     'title',
+    'description',
     'creation',
     'last_update',
   )
-  filter_horizontal = ('tags', 'publishers', 'maintainers', 'repositories')
+  filter_horizontal = ('publishers', 'maintainers', 'repositories')
   empty_value_display = ''
   fieldsets = [
     (
       'Allgemeine Informationen',
-      {
-        'fields': ['name', 'title', 'description', 'external', 'tags', 'publishers', 'maintainers']
-      },
+      {'fields': ['name', 'title', 'description', 'external', 'publishers', 'maintainers']},
     ),
     ('Aktualität', {'fields': ['creation', 'last_update', 'update_frequency']}),
     ('Rechtliche Informationen', {'fields': ['legal']}),
@@ -522,6 +523,7 @@ class DatasetAdmin(admin.ModelAdmin):
     'modified',
     'name',
     'title',
+    'link',
     'creation',
     'last_update',
     'update_frequency',
@@ -531,7 +533,7 @@ class DatasetAdmin(admin.ModelAdmin):
   )
   list_filter = (
     'update_frequency',
-    'native_crs',
+    'crs',
     'spatial_reference',
     'legal',
     'inspire_theme',
@@ -549,16 +551,27 @@ class DatasetAdmin(admin.ModelAdmin):
     'modified',
     'name',
     'title',
+    'description',
+    'link',
     'creation',
     'last_update',
   )
-  filter_horizontal = ('tags', 'additional_crs', 'publishers', 'maintainers', 'repositories')
+  filter_horizontal = ('tags', 'publishers', 'maintainers', 'repositories')
   empty_value_display = ''
   fieldsets = [
     (
       'Allgemeine Informationen',
       {
-        'fields': ['name', 'title', 'description', 'external', 'tags', 'publishers', 'maintainers']
+        'fields': [
+          'name',
+          'title',
+          'description',
+          'link',
+          'external',
+          'tags',
+          'publishers',
+          'maintainers',
+        ]
       },
     ),
     ('Aktualität', {'fields': ['creation', 'last_update', 'update_frequency']}),
@@ -566,8 +579,7 @@ class DatasetAdmin(admin.ModelAdmin):
       'Raum-zeitliche Informationen',
       {
         'fields': [
-          'native_crs',
-          'additional_crs',
+          'crs',
           'spatial_reference',
           'extent_temporal_start',
           'extent_temporal_end',
@@ -611,6 +623,7 @@ class ServiceAdmin(admin.ModelAdmin):
     'modified',
     'name',
     'title',
+    'link',
     'legal',
     'type',
     'datasets_display',
@@ -633,6 +646,8 @@ class ServiceAdmin(admin.ModelAdmin):
     'modified',
     'name',
     'title',
+    'description',
+    'link',
   )
   filter_horizontal = (
     'tags',
@@ -648,7 +663,16 @@ class ServiceAdmin(admin.ModelAdmin):
     (
       'Allgemeine Informationen',
       {
-        'fields': ['name', 'title', 'description', 'external', 'tags', 'publishers', 'maintainers']
+        'fields': [
+          'name',
+          'title',
+          'description',
+          'link',
+          'external',
+          'tags',
+          'publishers',
+          'maintainers',
+        ]
       },
     ),
     (
@@ -711,6 +735,7 @@ class TopicAdmin(admin.ModelAdmin):
     'modified',
     'name',
     'title',
+    'description',
   )
   filter_horizontal = (
     'tags',
@@ -754,6 +779,7 @@ class AppAdmin(admin.ModelAdmin):
     'modified',
     'name',
     'title',
+    'link',
     'legal',
     'topics_display',
     'services_display',
@@ -767,6 +793,8 @@ class AppAdmin(admin.ModelAdmin):
     'modified',
     'name',
     'title',
+    'link',
+    'description',
   )
   filter_horizontal = (
     'tags',
@@ -784,7 +812,16 @@ class AppAdmin(admin.ModelAdmin):
     (
       'Allgemeine Informationen',
       {
-        'fields': ['name', 'title', 'description', 'external', 'tags', 'publishers', 'maintainers']
+        'fields': [
+          'name',
+          'title',
+          'description',
+          'link',
+          'external',
+          'tags',
+          'publishers',
+          'maintainers',
+        ]
       },
     ),
     ('Rechtliche Informationen', {'fields': ['legal']}),
