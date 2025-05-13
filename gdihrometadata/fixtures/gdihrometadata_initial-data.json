@@ -609,6 +609,15 @@
       "title": "PDF"
     }
   }, {
+    "model": "gdihrometadata.Format",
+    "pk": 13,
+    "fields": {
+      "created": "1999-12-31T23:59:59Z",
+      "modified": "2000-01-01T00:00:00Z",
+      "code": "http://publications.europa.eu/resource/authority/file-type/SQL",
+      "title": "SQL"
+    }
+  }, {
     "model": "gdihrometadata.Frequency",
     "pk": 1,
     "fields": {
@@ -1317,6 +1326,15 @@
       "modified": "2000-01-01T00:00:00Z",
       "code": "https://www.iana.org/assignments/media-types/application/pdf",
       "title": "PDF"
+    }
+  }, {
+    "model": "gdihrometadata.MimeType",
+    "pk": 13,
+    "fields": {
+      "created": "1999-12-31T23:59:59Z",
+      "modified": "2000-01-01T00:00:00Z",
+      "code": "https://www.iana.org/assignments/media-types/application/sql",
+      "title": "SQL"
     }
   }, {
     "model": "gdihrometadata.PoliticalGeocoding",
@@ -50179,23 +50197,9 @@
     "fields": {
       "created": "1999-12-31T23:59:59Z",
       "modified": "2000-01-01T00:00:00Z",
-      "title": "PostgreSQL"
-    }
-  }, {
-    "model": "gdihrometadata.DataType",
-    "pk": 14,
-    "fields": {
-      "created": "1999-12-31T23:59:59Z",
-      "modified": "2000-01-01T00:00:00Z",
-      "title": "Oracle"
-    }
-  }, {
-    "model": "gdihrometadata.DataType",
-    "pk": 15,
-    "fields": {
-      "created": "1999-12-31T23:59:59Z",
-      "modified": "2000-01-01T00:00:00Z",
-      "title": "Microsoft SQL Server"
+      "title": "SQL",
+      "format": 13,
+      "mime_type": 13
     }
   }, {
     "model": "gdihrometadata.SpatialReference",
