@@ -618,6 +618,24 @@
       "title": "SQL"
     }
   }, {
+    "model": "gdihrometadata.Format",
+    "pk": 14,
+    "fields": {
+      "created": "1999-12-31T23:59:59Z",
+      "modified": "2000-01-01T00:00:00Z",
+      "code": "http://publications.europa.eu/resource/authority/file-type/WFS_SRVC",
+      "title": "WFS"
+    }
+  }, {
+    "model": "gdihrometadata.Format",
+    "pk": 15,
+    "fields": {
+      "created": "1999-12-31T23:59:59Z",
+      "modified": "2000-01-01T00:00:00Z",
+      "code": "http://publications.europa.eu/resource/authority/file-type/WMS_SRVC",
+      "title": "WMS"
+    }
+  }, {
     "model": "gdihrometadata.Frequency",
     "pk": 1,
     "fields": {
@@ -50200,6 +50218,26 @@
       "title": "SQL",
       "format": 13,
       "mime_type": 13
+    }
+  }, {
+    "model": "gdihrometadata.DataType",
+    "pk": 14,
+    "fields": {
+      "created": "1999-12-31T23:59:59Z",
+      "modified": "2000-01-01T00:00:00Z",
+      "title": "WFS",
+      "format": 14,
+      "mime_type": 1
+    }
+  }, {
+    "model": "gdihrometadata.DataType",
+    "pk": 15,
+    "fields": {
+      "created": "1999-12-31T23:59:59Z",
+      "modified": "2000-01-01T00:00:00Z",
+      "title": "WMS",
+      "format": 15,
+      "mime_type": 5
     }
   }, {
     "model": "gdihrometadata.SpatialReference",
