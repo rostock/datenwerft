@@ -19,13 +19,13 @@ class DatenmanagementViewSet(ModelViewSet):
     class CustomViewSet(cls):
       model = _model
       queryset = _model.objects.all()
-      filterset_class = _filterset_class # Weise die initialisierte Variable zu
+      filterset_class = _filterset_class  # Weise die initialisierte Variable zu
 
     return CustomViewSet
 
   def get_serializer_class(self):
     if self.serializer_class is not None:
-        return self.serializer_class
+      return self.serializer_class
 
     class DatenmanagementSerializer(HyperlinkedModelSerializer):
       class Meta:
