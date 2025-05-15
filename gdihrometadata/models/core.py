@@ -260,11 +260,18 @@ class Dataset(Base, BaseMetadata, CreationalMetadata, SpatioTemporalMetadata):
     verbose_name=_('INSPIRE-Raumbezug'),
   )
   language = models.ForeignKey(
-    Language, on_delete=models.PROTECT, related_name='dataset_languages', verbose_name=_('Sprache')
+    Language,
+    on_delete=models.PROTECT,
+    blank=True,
+    null=True,
+    related_name='dataset_languages',
+    verbose_name=_('Sprache'),
   )
   charset = models.ForeignKey(
     Charset,
     on_delete=models.PROTECT,
+    blank=True,
+    null=True,
     related_name='dataset_charsets',
     verbose_name=_('Zeichensatz'),
   )
@@ -291,11 +298,17 @@ class Dataset(Base, BaseMetadata, CreationalMetadata, SpatioTemporalMetadata):
   hash_type = models.ForeignKey(
     HashType,
     on_delete=models.PROTECT,
+    blank=True,
+    null=True,
     related_name='dataset_hash_types',
     verbose_name=_('Typ des Hashes'),
   )
-  hash = models.CharField(validators=standard_validators, verbose_name=_('Hash-Wert'))
-  byte_size = models.PositiveIntegerField(verbose_name=_('Größe in der Einheit Byte'))
+  hash = models.CharField(
+    blank=True, null=True, validators=standard_validators, verbose_name=_('Hash-Wert')
+  )
+  byte_size = models.PositiveIntegerField(
+    blank=True, null=True, verbose_name=_('Größe in der Einheit Byte')
+  )
   scale_factor = models.PositiveIntegerField(
     blank=True, null=True, verbose_name=_('Maßstabsfaktor')
   )
