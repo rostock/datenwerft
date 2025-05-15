@@ -41,9 +41,6 @@ class Source(Base, BaseMetadata):
   source (Datenquelle)
   """
 
-  tags = models.ManyToManyField(
-    Tag, blank=True, related_name='sources', verbose_name=_('Schlagwort/Schlagwörter')
-  )
   last_import = models.DateField(verbose_name=_('Datum des letzten Imports'))
   import_frequency = models.ForeignKey(
     Frequency,
@@ -97,9 +94,6 @@ class Repository(Base, BaseMetadata, CreationalMetadata):
   repository (Speicherort)
   """
 
-  tags = models.ManyToManyField(
-    Tag, blank=True, related_name='repositories', verbose_name=_('Schlagwort/Schlagwörter')
-  )
   update_frequency = models.ForeignKey(
     Frequency,
     on_delete=models.PROTECT,
@@ -172,9 +166,6 @@ class Assetset(Base, BaseMetadata, CreationalMetadata):
   title = models.CharField(
     blank=True, null=True, validators=standard_validators, verbose_name=_('Titel')
   )
-  tags = models.ManyToManyField(
-    Tag, blank=True, related_name='assetsets', verbose_name=_('Schlagwort/Schlagwörter')
-  )
   update_frequency = models.ForeignKey(
     Frequency,
     on_delete=models.PROTECT,
@@ -217,6 +208,7 @@ class Dataset(Base, BaseMetadata, CreationalMetadata, SpatioTemporalMetadata):
     verbose_name=_('Name'),
   )
   title = models.CharField(validators=standard_validators, verbose_name=_('Titel'))
+  link = models.URLField(verbose_name=_('Link (URL)'))
   tags = models.ManyToManyField(
     Tag, blank=True, related_name='datasets', verbose_name=_('Schlagwort/Schlagwörter')
   )
@@ -226,19 +218,13 @@ class Dataset(Base, BaseMetadata, CreationalMetadata, SpatioTemporalMetadata):
     related_name='dataset_update_frequencies',
     verbose_name=_('Aktualisierungshäufigkeit'),
   )
-  native_crs = models.ForeignKey(
+  crs = models.ForeignKey(
     Crs,
     on_delete=models.PROTECT,
     blank=True,
     null=True,
-    related_name='dataset_native_crs',
-    verbose_name=_('Natives Koordinatenreferenzsystem'),
-  )
-  additional_crs = models.ManyToManyField(
-    CrsSet,
-    blank=True,
-    related_name='datasets',
-    verbose_name=_('Zusätzliche(s) Koordinatenreferenzsystem(e)'),
+    related_name='dataset_crs',
+    verbose_name=_('Koordinatenreferenzsystem'),
   )
   spatial_reference = models.ForeignKey(
     SpatialReference,
@@ -274,11 +260,18 @@ class Dataset(Base, BaseMetadata, CreationalMetadata, SpatioTemporalMetadata):
     verbose_name=_('INSPIRE-Raumbezug'),
   )
   language = models.ForeignKey(
-    Language, on_delete=models.PROTECT, related_name='dataset_languages', verbose_name=_('Sprache')
+    Language,
+    on_delete=models.PROTECT,
+    blank=True,
+    null=True,
+    related_name='dataset_languages',
+    verbose_name=_('Sprache'),
   )
   charset = models.ForeignKey(
     Charset,
     on_delete=models.PROTECT,
+    blank=True,
+    null=True,
     related_name='dataset_charsets',
     verbose_name=_('Zeichensatz'),
   )
@@ -305,11 +298,17 @@ class Dataset(Base, BaseMetadata, CreationalMetadata, SpatioTemporalMetadata):
   hash_type = models.ForeignKey(
     HashType,
     on_delete=models.PROTECT,
+    blank=True,
+    null=True,
     related_name='dataset_hash_types',
     verbose_name=_('Typ des Hashes'),
   )
-  hash = models.CharField(validators=standard_validators, verbose_name=_('Hash-Wert'))
-  byte_size = models.PositiveIntegerField(verbose_name=_('Größe in der Einheit Byte'))
+  hash = models.CharField(
+    blank=True, null=True, validators=standard_validators, verbose_name=_('Hash-Wert')
+  )
+  byte_size = models.PositiveIntegerField(
+    blank=True, null=True, verbose_name=_('Größe in der Einheit Byte')
+  )
   scale_factor = models.PositiveIntegerField(
     blank=True, null=True, verbose_name=_('Maßstabsfaktor')
   )
@@ -349,6 +348,7 @@ class Service(Base, BaseMetadata, SpatioTemporalMetadata):
     verbose_name=_('Name'),
   )
   title = models.CharField(validators=standard_validators, verbose_name=_('Titel'))
+  link = models.URLField(verbose_name=_('Link (URL)'))
   tags = models.ManyToManyField(
     Tag, blank=True, related_name='services', verbose_name=_('Schlagwort/Schlagwörter')
   )
@@ -500,6 +500,7 @@ class App(Base, BaseMetadata):
     verbose_name=_('Name'),
   )
   title = models.CharField(validators=standard_validators, verbose_name=_('Titel'))
+  link = models.URLField(verbose_name=_('Link (URL)'))
   tags = models.ManyToManyField(
     Tag, blank=True, related_name='apps', verbose_name=_('Schlagwort/Schlagwörter')
   )

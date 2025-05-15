@@ -243,10 +243,11 @@ class Contact(Base):
   )
 
   class Meta(Base.Meta):
-    ordering = ['last_name', 'first_name', 'email']
+    ordering = ['last_name', 'first_name', 'email', 'organization']
     verbose_name = _('Hilfsobjekt → Kontakt')
     verbose_name_plural = _('Hilfsobjekte → Kontakte')
 
   def __str__(self):
+    organization = ' (' + self.organization.title + ')' if self.organization else ''
     name = f'{self.first_name or ""} {self.last_name or ""}'.strip()
-    return name or self.email
+    return name + organization if name else self.email + organization

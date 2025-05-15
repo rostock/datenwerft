@@ -1,5 +1,4 @@
 @startuml
-faadg
 skinparam linetype ortho
 
 enum GeometryType {
@@ -173,6 +172,7 @@ class Contact {
 class App {
   +name : TEXT {unique}
   +title : TEXT
+  +link : URL
   #publisher [1..*]
   #maintainer [1..*]
   ~legal <<FK>>
@@ -197,6 +197,7 @@ class Theme {
 class Service {
   +name : TEXT
   +title : TEXT
+  +link : URL
   #publisher [1..*]
   #maintainer [1..*]
   ~legal <<FK>>
@@ -218,19 +219,20 @@ end note
 class Dataset {
   +name : TEXT {unique}
   +title : TEXT
+  +link : URL
   #publisher [1..*]
   #maintainer [1..*]
   ~legal <<FK>>
   ~inspire_theme <<FK>> [0..1]
   ~inspire_spatial_scope <<FK>> [0..1]
-  ~language <<FK>>
-  ~charset <<FK>>
+  ~language <<FK>> [0..1]
+  ~charset <<FK>> [0..1]
   ~data_type <<FK>>
   ~spatial_representation_type <<FK>> [0..1]
   +geometry_type : GeometryType [0..1]
-  ~hash_type <<FK>>
-  +hash : TEXT
-  +byte_size : INTEGER
+  ~hash_type <<FK>> [0..1]
+  +hash : TEXT [0..1]
+  +byte_size : INTEGER [0..1]
   +scale_factor : INTEGER [0..1]
   +ground_resolution : NUMERIC [0..1]
   +ground_resolution_uom : UnitOfMeasurement [0..1]
