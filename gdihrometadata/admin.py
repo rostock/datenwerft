@@ -41,17 +41,79 @@ from .models import (
 #
 
 
-class DataTypeAdminForm(ModelForm):
-  def clean(self):
-    format = self.cleaned_data.get('format', None)
-    mime_type = self.cleaned_data.get('mime_type', None)
-    # format and mime_type must always be set together
-    if (mime_type and not format) or (format and not mime_type):
-      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
-        self._meta.model._meta.get_field('format').verbose_name,
-        self._meta.model._meta.get_field('mime_type').verbose_name,
+def field_one_mandatory_if_field_two(form, field_one_name, field_two_name):
+  """
+  checks if passed field one is set if passed field two is set
+  and raises a validation error if not
+
+  :param form: form
+  :param field_one_name: name of the first field
+  :param field_two_name: name of the second field
+  """
+  field_one_data = form.cleaned_data.get(field_one_name, None)
+  field_two_data = form.cleaned_data.get(field_two_name, None)
+  if field_two_data and not field_one_data:
+    text = 'Wenn {} gesetzt ist, muss auch {} gesetzt sein.'.format(
+      form._meta.model._meta.get_field(field_two_data).verbose_name,
+      form._meta.model._meta.get_field(field_one_data).verbose_name,
+    )
+    raise ValidationError(text)
+
+
+def field_two_later_than_field_one(form, field_one_name, field_two_name):
+  """
+  checks if passed field two is later (related to time) than field one
+  and raises a validation error if not
+
+  :param form: form
+  :param field_one_name: name of the first field
+  :param field_two_name: name of the second field
+  """
+  field_one_data = form.cleaned_data.get(field_one_name, None)
+  field_two_data = form.cleaned_data.get(field_two_name, None)
+  if field_one_data and field_two_data and field_one_data > field_two_data:
+    text = '{} muss zeitlich nach {} liegen.'.format(
+      form._meta.model._meta.get_field(field_two_name).verbose_name,
+      form._meta.model._meta.get_field(field_one_name).verbose_name,
+    )
+    raise ValidationError(text)
+
+
+def mandatory_field_pairs(form, field_one_name, field_two_name, field_three_name=None):
+  """
+  checks if passed fields are all set (or all not set)
+  and raises a validation error if not
+
+  :param form: form
+  :param field_one_name: name of the first field
+  :param field_two_name: name of the second field
+  :param field_three_name: optional name of a third field
+  """
+  field_one_data = form.cleaned_data.get(field_one_name, None)
+  field_two_data = form.cleaned_data.get(field_two_name, None)
+  field_three_data = form.cleaned_data.get(field_three_name, None)
+  if field_three_name:
+    if not (field_one_data is None and field_two_data is None and field_three_data is None) or (
+      field_one_data is not None and field_two_data is not None and field_three_data is not None
+    ):
+      text = '{}, {} und {} müssen immer gemeinsam gesetzt sein.'.format(
+        form._meta.model._meta.get_field(field_one_name).verbose_name,
+        form._meta.model._meta.get_field(field_two_name).verbose_name,
+        form._meta.model._meta.get_field(field_three_name).verbose_name,
       )
       raise ValidationError(text)
+  else:
+    if (field_two_data and not field_one_data) or (field_one_data and not field_two_data):
+      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
+        form._meta.model._meta.get_field(field_one_name).verbose_name,
+        form._meta.model._meta.get_field(field_two_name).verbose_name,
+      )
+      raise ValidationError(text)
+
+
+class DataTypeAdminForm(ModelForm):
+  def clean(self):
+    mandatory_field_pairs(form=self, field_one_name='format', field_two_name='mime_type')
     return self.cleaned_data
 
 
@@ -77,17 +139,9 @@ class SpatialReferenceAdminForm(ModelForm):
         self._meta.model._meta.get_field('extent_spatial_east').verbose_name,
       )
       raise ValidationError(text)
-    political_geocoding_level = self.cleaned_data.get('political_geocoding_level', None)
-    political_geocoding = self.cleaned_data.get('political_geocoding', None)
-    # political_geocoding_level and political_geocoding must always be set together
-    if (political_geocoding and not political_geocoding_level) or (
-      political_geocoding_level and not political_geocoding
-    ):
-      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
-        self._meta.model._meta.get_field('political_geocoding_level').verbose_name,
-        self._meta.model._meta.get_field('political_geocoding').verbose_name,
-      )
-      raise ValidationError(text)
+    mandatory_field_pairs(
+      form=self, field_one_name='political_geocoding_level', field_two_name='political_geocoding'
+    )
     return self.cleaned_data
 
 
@@ -119,148 +173,66 @@ class ContactAdminForm(ModelForm):
 
 class SourceAdminForm(ModelForm):
   def clean(self):
-    spatial_representation_type = self.cleaned_data.get('spatial_representation_type', None)
-    geometry_type = self.cleaned_data.get('geometry_type', None)
-    # spatial_representation_type must be set if geometry_type is set
-    if geometry_type and not spatial_representation_type:
-      text = 'Wenn {} gesetzt ist, muss auch {} gesetzt sein.'.format(
-        self._meta.model._meta.get_field('geometry_type').verbose_name,
-        self._meta.model._meta.get_field('spatial_representation_type').verbose_name,
-      )
-      raise ValidationError(text)
+    field_one_mandatory_if_field_two(
+      form=self,
+      field_one_name='spatial_representation_type',
+      field_two_name='geometry_type',
+    )
     return self.cleaned_data
 
 
 class RepositoryAdminForm(ModelForm):
   def clean(self):
-    spatial_representation_type = self.cleaned_data.get('spatial_representation_type', None)
-    geometry_type = self.cleaned_data.get('geometry_type', None)
-    # spatial_representation_type must be set if geometry_type is set
-    if geometry_type and not spatial_representation_type:
-      text = 'Wenn {} gesetzt ist, muss auch {} gesetzt sein.'.format(
-        self._meta.model._meta.get_field('geometry_type').verbose_name,
-        self._meta.model._meta.get_field('spatial_representation_type').verbose_name,
-      )
-      raise ValidationError(text)
+    field_one_mandatory_if_field_two(
+      form=self,
+      field_one_name='spatial_representation_type',
+      field_two_name='geometry_type',
+    )
     return self.cleaned_data
 
 
 class DatasetAdminForm(ModelForm):
   def clean(self):
-    extent_temporal_start = self.cleaned_data.get('extent_temporal_start', None)
-    extent_temporal_end = self.cleaned_data.get('extent_temporal_end', None)
-    # extent_temporal_start and extent_temporal_end must always be set together
-    if (extent_temporal_end and not extent_temporal_start) or (
-      extent_temporal_start and not extent_temporal_end
-    ):
-      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
-        self._meta.model._meta.get_field('extent_temporal_start').verbose_name,
-        self._meta.model._meta.get_field('extent_temporal_end').verbose_name,
-      )
-      raise ValidationError(text)
-    # extent_temporal_end must be later than extent_temporal_start
-    elif (
-      extent_temporal_start and extent_temporal_end and extent_temporal_start > extent_temporal_end
-    ):
-      text = '{} muss zeitlich nach {} liegen.'.format(
-        self._meta.model._meta.get_field('extent_temporal_end').verbose_name,
-        self._meta.model._meta.get_field('extent_temporal_start').verbose_name,
-      )
-      raise ValidationError(text)
-    inspire_theme = self.cleaned_data.get('inspire_theme', None)
-    inspire_spatial_scope = self.cleaned_data.get('inspire_spatial_scope', None)
-    # inspire_theme and inspire_spatial_scope must always be set together
-    if (inspire_spatial_scope and not inspire_theme) or (
-      inspire_theme and not inspire_spatial_scope
-    ):
-      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
-        self._meta.model._meta.get_field('inspire_theme').verbose_name,
-        self._meta.model._meta.get_field('inspire_spatial_scope').verbose_name,
-      )
-      raise ValidationError(text)
-    language = self.cleaned_data.get('language', None)
-    charset = self.cleaned_data.get('charset', None)
-    # language and charset must always be set together
-    if (charset and not language) or (language and not charset):
-      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
-        self._meta.model._meta.get_field('language').verbose_name,
-        self._meta.model._meta.get_field('charset').verbose_name,
-      )
-      raise ValidationError(text)
-    spatial_representation_type = self.cleaned_data.get('spatial_representation_type', None)
-    geometry_type = self.cleaned_data.get('geometry_type', None)
-    # spatial_representation_type must be set if geometry_type is set
-    if geometry_type and not spatial_representation_type:
-      text = 'Wenn {} gesetzt ist, muss auch {} gesetzt sein.'.format(
-        self._meta.model._meta.get_field('geometry_type').verbose_name,
-        self._meta.model._meta.get_field('spatial_representation_type').verbose_name,
-      )
-      raise ValidationError(text)
-    hash_type = self.cleaned_data.get('hash_type', None)
-    hash_value = self.cleaned_data.get('hash', None)
-    # hash_type and hash must always be set together
-    if (hash_value and not hash_type) or (hash_type and not hash_value):
-      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
-        self._meta.model._meta.get_field('hash_type').verbose_name,
-        self._meta.model._meta.get_field('hash').verbose_name,
-      )
-      raise ValidationError(text)
-    ground_resolution = self.cleaned_data.get('ground_resolution', None)
-    ground_resolution_uom = self.cleaned_data.get('ground_resolution_uom', None)
-    # ground_resolution and ground_resolution_uom must always be set together
-    if (ground_resolution_uom and not ground_resolution) or (
-      ground_resolution and not ground_resolution_uom
-    ):
-      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
-        self._meta.model._meta.get_field('ground_resolution').verbose_name,
-        self._meta.model._meta.get_field('ground_resolution_uom').verbose_name,
-      )
-      raise ValidationError(text)
+    mandatory_field_pairs(
+      form=self, field_one_name='extent_temporal_start', field_two_name='extent_temporal_end'
+    )
+    field_two_later_than_field_one(
+      form=self, field_one_name='extent_temporal_start', field_two_name='extent_temporal_end'
+    )
+    mandatory_field_pairs(
+      form=self, field_one_name='inspire_theme', field_two_name='inspire_spatial_scope'
+    )
+    mandatory_field_pairs(form=self, field_one_name='language', field_two_name='charset')
+    field_one_mandatory_if_field_two(
+      form=self,
+      field_one_name='spatial_representation_type',
+      field_two_name='geometry_type',
+    )
+    mandatory_field_pairs(form=self, field_one_name='hash_type', field_two_name='hash')
+    mandatory_field_pairs(
+      form=self, field_one_name='ground_resolution', field_two_name='ground_resolution_uom'
+    )
     return self.cleaned_data
 
 
 class ServiceAdminForm(ModelForm):
   def clean(self):
-    extent_temporal_start = self.cleaned_data.get('extent_temporal_start', None)
-    extent_temporal_end = self.cleaned_data.get('extent_temporal_end', None)
-    # extent_temporal_start and extent_temporal_end must always be set together
-    if (extent_temporal_end and not extent_temporal_start) or (
-      extent_temporal_start and not extent_temporal_end
-    ):
-      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
-        self._meta.model._meta.get_field('extent_temporal_start').verbose_name,
-        self._meta.model._meta.get_field('extent_temporal_end').verbose_name,
-      )
-      raise ValidationError(text)
-    # extent_temporal_end must be later than extent_temporal_start
-    elif (
-      extent_temporal_start and extent_temporal_end and extent_temporal_start > extent_temporal_end
-    ):
-      text = '{} muss zeitlich nach {} liegen.'.format(
-        self._meta.model._meta.get_field('extent_temporal_end').verbose_name,
-        self._meta.model._meta.get_field('extent_temporal_start').verbose_name,
-      )
-      raise ValidationError(text)
-    inspire_theme = self.cleaned_data.get('inspire_theme', None)
-    inspire_spatial_scope = self.cleaned_data.get('inspire_spatial_scope', None)
-    inspire_service_type = self.cleaned_data.get('inspire_service_type', None)
-    # inspire_theme, inspire_spatial_scope, and inspire_service_type must always be set together
-    if not (
-      inspire_theme is None and inspire_spatial_scope is None and inspire_service_type is None
-    ) or (
-      inspire_theme is not None
-      and inspire_spatial_scope is not None
-      and inspire_service_type is not None
-    ):
-      text = '{}, {} und {} müssen immer gemeinsam gesetzt sein.'.format(
-        self._meta.model._meta.get_field('inspire_theme').verbose_name,
-        self._meta.model._meta.get_field('inspire_spatial_scope').verbose_name,
-        self._meta.model._meta.get_field('inspire_service_type').verbose_name,
-      )
-      raise ValidationError(text)
+    mandatory_field_pairs(
+      form=self, field_one_name='extent_temporal_start', field_two_name='extent_temporal_end'
+    )
+    field_two_later_than_field_one(
+      form=self, field_one_name='extent_temporal_start', field_two_name='extent_temporal_end'
+    )
+    mandatory_field_pairs(
+      form=self,
+      field_one_name='inspire_theme',
+      field_two_name='inspire_spatial_scope',
+      field_three_name='inspire_service_type',
+    )
     datasets = self.cleaned_data.get('datasets', None)
     assetsets = self.cleaned_data.get('assetsets', None)
     repositories = self.cleaned_data.get('repositories', None)
+    # at least one dataset, one assetset, or one repository must be linked to the service
     if not datasets and not assetsets and not repositories:
       raise ValidationError(
         'Es muss mindestens ein Datensatz, eine Asset-Sammlung '

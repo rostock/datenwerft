@@ -2728,7 +2728,8 @@ CREATE TABLE fachdaten.parkscheinautomaten_parkscheinautomaten_hro (
     stellplaetze_bus smallint,
     haendlerkartennummer bigint,
     laufzeit_geldkarte date,
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    foto character varying(255)
 );
 
 
@@ -7291,6 +7292,13 @@ CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.geraetespiela
 
 
 --
+-- Name: parkscheinautomaten_parkscheinautomaten_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.parkscheinautomaten_parkscheinautomaten_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: sportanlagen_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
 --
 
@@ -7379,6 +7387,13 @@ CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten.conta
 --
 
 CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten.geraetespielanlagen_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: parkscheinautomaten_parkscheinautomaten_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten.parkscheinautomaten_parkscheinautomaten_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
 
 
 --
