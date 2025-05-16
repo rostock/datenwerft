@@ -232,7 +232,7 @@ class Dataset {
   +geometry_type : GeometryType [0..1]
   ~hash_type <<FK>> [0..1]
   +hash : TEXT [0..1]
-  +byte_size : INTEGER [0..1]
+  +byte_size : BIGINTEGER [0..1]
   +scale_factor : INTEGER [0..1]
   +ground_resolution : NUMERIC [0..1]
   +ground_resolution_uom : UnitOfMeasurement [0..1]

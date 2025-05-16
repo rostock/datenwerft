@@ -306,7 +306,7 @@ class Dataset(Base, BaseMetadata, CreationalMetadata, SpatioTemporalMetadata):
   hash = models.CharField(
     blank=True, null=True, validators=standard_validators, verbose_name=_('Hash-Wert')
   )
-  byte_size = models.PositiveIntegerField(
+  byte_size = models.PositiveBigIntegerField(
     blank=True, null=True, verbose_name=_('Größe in der Einheit Byte')
   )
   scale_factor = models.PositiveIntegerField(
