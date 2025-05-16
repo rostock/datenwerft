@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.urls import reverse
 from decimal import Decimal
 
 from gdihrometadata.models import (
@@ -19,21 +17,6 @@ from gdihrometadata.models import (
 )
 
 from ..base import DefaultModelTestCase
-from ..constants_vars import (
-  ACTION_CREATE,
-  ACTION_DELETE,
-  ACTION_UPDATE,
-  CONTENT_TYPE_HTML,
-  CONTENT_TYPE_JSON,
-  INVALID_STRING,
-  MSG_CREATE,
-  MSG_DELETE,
-  MSG_PERMISSION,
-  MSG_UPDATE,
-  STATUS_FORBIDDEN,
-  STATUS_OK,
-  STATUS_REDIRECT,
-)
 
 
 class CrsSetModelTest(DefaultModelTestCase):
