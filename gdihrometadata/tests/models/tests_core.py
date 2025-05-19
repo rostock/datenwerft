@@ -34,7 +34,7 @@ from ..base import DefaultModelTestCase
 
 class SourceModelTest(DefaultModelTestCase):
   """
-  tests for Source model
+  Tests for Source model
   """
 
   @classmethod

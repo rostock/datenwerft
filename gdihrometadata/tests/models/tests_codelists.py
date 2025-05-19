@@ -32,6 +32,8 @@ class AccessModelTest(DefaultCodelistTestCase):
   """
 
   model = Access
+
+  # set up the initial and updated values
   attributes_values_db_initial = {'code': 'https://example.org/access/test', 'title': 'TestAccess'}
   attributes_values_db_updated = {
     'code': 'https://example.org/access/updated',
@@ -72,6 +74,8 @@ class AssetTypeModelTest(DefaultCodelistTestCase):
   """
 
   model = AssetType
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/assettype/test',
     'title': 'TestAssetType',
@@ -115,6 +119,8 @@ class CharsetModelTest(DefaultCodelistTestCase):
   """
 
   model = Charset
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/charset/test',
     'title': 'TestCharset',
@@ -158,6 +164,8 @@ class CrsModelTest(DefaultCodelistTestCase):
   """
 
   model = Crs
+
+  # set up the initial and updated values
   attributes_values_db_initial = {'code': 'https://example.org/crs/test', 'title': 'TestCrs'}
   attributes_values_db_updated = {'code': 'https://example.org/crs/updated', 'title': 'UpdatedCrs'}
   attributes_values_view_initial = {'code': 'https://example.org/crs/test', 'title': 'TestCrs'}
@@ -192,6 +200,8 @@ class DatathemeCategoryModelTest(DefaultCodelistTestCase):
   """
 
   model = DatathemeCategory
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/datathemecategory/test',
     'title': 'TestDatathemeCategory',
@@ -235,6 +245,8 @@ class FormatModelTest(DefaultCodelistTestCase):
   """
 
   model = Format
+
+  # set up the initial and updated values
   attributes_values_db_initial = {'code': 'https://example.org/format/test', 'title': 'TestFormat'}
   attributes_values_db_updated = {
     'code': 'https://example.org/format/updated',
@@ -275,6 +287,8 @@ class FrequencyModelTest(DefaultCodelistTestCase):
   """
 
   model = Frequency
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/frequency/test',
     'title': 'TestFrequency',
@@ -318,6 +332,8 @@ class HashTypeModelTest(DefaultCodelistTestCase):
   """
 
   model = HashType
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/hashtype/test',
     'title': 'TestHashType',
@@ -361,6 +377,8 @@ class HvdCategoryModelTest(DefaultCodelistTestCase):
   """
 
   model = HvdCategory
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/hvdcategory/test',
     'title': 'TestHvdCategory',
@@ -404,6 +422,8 @@ class InspireServiceTypeModelTest(DefaultCodelistTestCase):
   """
 
   model = InspireServiceType
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/inspireservicetype/test',
     'title': 'TestInspireServiceType',
@@ -447,6 +467,8 @@ class InspireSpatialScopeModelTest(DefaultCodelistTestCase):
   """
 
   model = InspireSpatialScope
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/inspirespatialscope/test',
     'title': 'TestInspireSpatialScope',
@@ -490,6 +512,8 @@ class InspireThemeModelTest(DefaultCodelistTestCase):
   """
 
   model = InspireTheme
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/inspiretheme/test',
     'title': 'TestInspireTheme',
@@ -533,6 +557,8 @@ class LanguageModelTest(DefaultCodelistTestCase):
   """
 
   model = Language
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/language/test',
     'title': 'TestLanguage',
@@ -576,6 +602,8 @@ class LicenseModelTest(DefaultCodelistTestCase):
   """
 
   model = License
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/license/test',
     'title': 'TestLicense',
@@ -619,6 +647,8 @@ class MimeTypeModelTest(DefaultCodelistTestCase):
   """
 
   model = MimeType
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/mimetype/test',
     'title': 'TestMimeType',
@@ -662,6 +692,8 @@ class PoliticalGeocodingModelTest(DefaultCodelistTestCase):
   """
 
   model = PoliticalGeocoding
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/politicalgeocoding/test',
     'title': 'TestPoliticalGeocoding',
@@ -705,6 +737,8 @@ class PoliticalGeocodingLevelModelTest(DefaultCodelistTestCase):
   """
 
   model = PoliticalGeocodingLevel
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/politicalgecodinglevel/test',
     'title': 'TestPoliticalGeocodingLevel',
@@ -748,6 +782,8 @@ class SpatialRepresentationTypeModelTest(DefaultCodelistTestCase):
   """
 
   model = SpatialRepresentationType
+
+  # set up the initial and updated values
   attributes_values_db_initial = {
     'code': 'https://example.org/spatialrepresentationtype/test',
     'title': 'TestSpatialRepresentationType',
@@ -791,9 +827,20 @@ class TagModelTest(DefaultCodelistTestCase):
   """
 
   model = Tag
-  attributes_values_db_initial = {'code': 'https://example.org/tag/test', 'title': 'TestTag'}
-  attributes_values_db_updated = {'code': 'https://example.org/tag/updated', 'title': 'UpdatedTag'}
-  attributes_values_view_initial = {'code': 'https://example.org/tag/test', 'title': 'TestTag'}
+
+  # set up the initial and updated values
+  attributes_values_db_initial = {
+    'code': 'https://example.org/tag/test',
+    'title': 'TestTag',
+  }
+  attributes_values_db_updated = {
+    'code': 'https://example.org/tag/updated',
+    'title': 'UpdatedTag',
+  }
+  attributes_values_view_initial = {
+    'code': 'https://example.org/tag/test',
+    'title': 'TestTag',
+  }
   attributes_values_view_updated = {
     'code': 'https://example.org/tag/updated',
     'title': 'UpdatedTag',

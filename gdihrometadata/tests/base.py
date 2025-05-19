@@ -19,9 +19,9 @@ class DefaultTestCase(TestCase):
   databases = DATABASES
 
   def init(self):
-    self.test_gdihro_admin_group = Group.objects.create(name='gdihrometadata-admin')
-    self.test_gdihro_user_group = Group.objects.create(name='gdihrometadata-users')
-    self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
+    self.test_gdihro_admin_group: Group = Group.objects.create(name='gdihrometadata-admin')
+    self.test_gdihro_user_group: Group = Group.objects.create(name='gdihrometadata-users')
+    self.test_user: User = User.objects.create_user(username=USERNAME, password=PASSWORD)
 
 
 class DefaultModelTestCase(DefaultTestCase):
@@ -45,9 +45,8 @@ class DefaultModelTestCase(DefaultTestCase):
 
   def generic_existance_test(self, test_object):
     """
-    tests general existance of passed test object
+    Docstring for generic_existance_test
 
-    :param self
     :param test_object: test object
     """
     # actual number of objects equals expected number of objects?
@@ -59,8 +58,6 @@ class DefaultModelTestCase(DefaultTestCase):
   def generic_create_test(self):
     """
     tests creation of test object of passed model
-
-    :param self
     """
     # clean object filter
     object_filter = clean_object_filter(self.attributes_values_db_initial)
@@ -74,8 +71,6 @@ class DefaultModelTestCase(DefaultTestCase):
   def generic_update_test(self):
     """
     tests update of test object of passed model
-
-    :param self
     """
     for key in self.attributes_values_db_updated:
       setattr(self.test_object, key, self.attributes_values_db_updated[key])
@@ -92,8 +87,6 @@ class DefaultModelTestCase(DefaultTestCase):
   def generic_delete_test(self):
     """
     tests deletion of test object of passed model
-
-    :param self
     """
     # no more test objects left?
     self.test_object.delete()
@@ -117,7 +110,6 @@ class DefaultModelTestCase(DefaultTestCase):
     """
     tests a view for creating or updating an object via POST
 
-    :param self
     :param update_mode: update mode?
     :param metadata_user: assign standard rights to user?
     :param metadata_admin: assign admin rights to user?
@@ -173,8 +165,6 @@ class DefaultCodelistTestCase(DefaultModelTestCase):
   def generic_is_codelist_test(self):
     """
     tests if model is codelist
-
-    :param self
     """
     # model declared as codelist?
     self.assertTrue(issubclass(self.model, Codelist))
@@ -183,6 +173,15 @@ class DefaultCodelistTestCase(DefaultModelTestCase):
 class DefaultManyToManyTestCase(DefaultTestCase):
   """
   abstract test class for many-to-many-relationships
+
+  :attr model_from: model from
+  :attr model_to: model to
+  :attr model_from_attributes_values_db: initial values for test object from
+  :attr model_to_attributes_values_db: initial values for test object to
+  :attr test_object_from: test object from
+  :attr test_object_to: test object to
+  :attr relationship: many-to-many-relationship itself
+  :attr count: number of objects in model
   """
 
   model_from = None
@@ -200,7 +199,6 @@ class DefaultManyToManyTestCase(DefaultTestCase):
     """
     tests general existance of many-to-many-relationship of passed test objects
 
-    :param self
     :param test_object_from: test object (from)
     :param test_object_to: test object (to)
     :param relationship: many-to-many-relationship itself
@@ -215,8 +213,6 @@ class DefaultManyToManyTestCase(DefaultTestCase):
   def generic_create_test(self):
     """
     tests creation of many-to-many-relationship of test objects of passed models
-
-    :param self
     """
     # clean object filters
     object_filter_from = clean_object_filter(self.model_from_attributes_values_db)
@@ -233,8 +229,6 @@ class DefaultManyToManyTestCase(DefaultTestCase):
   def generic_delete_test(self):
     """
     tests deletion of many-to-many-relationship of test objects of passed models
-
-    :param self
     """
     # no more many-to-many-relationship left?
     self.test_object_to.delete()
@@ -256,7 +250,6 @@ class DefaultViewTestCase(DefaultTestCase):
     """
     tests a view via GET
 
-    :param self
     :param metadata_user: assign standard rights to user?
     :param metadata_admin: assign admin rights to user?
     :param view_name: name of the view

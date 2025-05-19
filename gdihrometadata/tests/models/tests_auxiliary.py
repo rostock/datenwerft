@@ -25,6 +25,8 @@ class CrsSetModelTest(DefaultModelTestCase):
   """
 
   model = CrsSet
+
+  # Set up attributes with required fields
   attributes_values_db_initial = {'title': 'TestCrsSet'}
   attributes_values_db_updated = {'title': 'UpdatedCrsSet'}
 
@@ -55,6 +57,8 @@ class DataTypeModelTest(DefaultModelTestCase):
   """
 
   model = DataType
+
+  # Set up attributes with required fields
   attributes_values_db_initial = {'title': 'TestDataType'}
   attributes_values_db_updated = {'title': 'UpdatedDataType'}
 
@@ -193,6 +197,8 @@ class OrganizationModelTest(DefaultModelTestCase):
   """
 
   model = Organization
+
+  # Set up attributes with required fields
   attributes_values_db_initial = {
     'name': 'test-organization',
     'title': 'TestOrganization',
@@ -227,6 +233,8 @@ class ContactModelTest(DefaultModelTestCase):
   """
 
   model = Contact
+
+  # Set up attributes with required fields
   attributes_values_db_initial = {
     'first_name': 'Test',
     'last_name': 'User',
