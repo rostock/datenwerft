@@ -261,12 +261,12 @@ class DefaultViewTestCase(DefaultTestCase):
     # log test user in
     login(self, gdihro_user, gdihro_admin)
     # prepare the GET
-    if view_args and type(view_args) is list:
+    if view_args and isinstance(view_args, list):
       url = reverse('gdihrometadata:' + view_name, args=view_args)
     else:
       url = reverse('gdihrometadata:' + view_name)
     # try GETting the view
-    if view_args and type(view_args) is dict:
+    if view_args and isinstance(view_args, dict):
       response = self.client.get(url, view_args)
     elif '_tabledata_subset' in view_name:
       response = self.client.get(url, TABLEDATA_VIEW_PARAMS)
