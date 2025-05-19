@@ -620,18 +620,6 @@ CREATE TABLE codelisten.arten_pflegeeinrichtungen (
 
 
 --
--- Name: arten_poller; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.arten_poller (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    art character varying(255) NOT NULL
-);
-
-
---
 -- Name: arten_reisebusparkplaetze_terminals; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1144,10 +1132,10 @@ CREATE TABLE codelisten.hersteller_fahrradabstellanlagen (
 
 
 --
--- Name: hersteller_poller; Type: TABLE; Schema: codelisten; Owner: -
+-- Name: hersteller_versenkpoller; Type: TABLE; Schema: codelisten; Owner: -
 --
 
-CREATE TABLE codelisten.hersteller_poller (
+CREATE TABLE codelisten.hersteller_versenkpoller (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -1431,18 +1419,6 @@ CREATE TABLE codelisten.schlagwoerter_vereine (
 
 
 --
--- Name: schliessungen_poller; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.schliessungen_poller (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    schliessung character varying(255) NOT NULL
-);
-
-
---
 -- Name: sitzbanktypen_haltestellenkataster; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1540,18 +1516,6 @@ CREATE TABLE codelisten.status_jagdkataster_skizzenebenen (
 
 
 --
--- Name: status_poller; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.status_poller (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    status character varying(255) NOT NULL
-);
-
-
---
 -- Name: themen_jagdkataster_skizzenebenen; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1636,10 +1600,10 @@ CREATE TABLE codelisten.typen_kleinklaeranlagen (
 
 
 --
--- Name: typen_poller; Type: TABLE; Schema: codelisten; Owner: -
+-- Name: typen_uvp_vorhaben; Type: TABLE; Schema: codelisten; Owner: -
 --
 
-CREATE TABLE codelisten.typen_poller (
+CREATE TABLE codelisten.typen_uvp_vorhaben (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -1648,10 +1612,10 @@ CREATE TABLE codelisten.typen_poller (
 
 
 --
--- Name: typen_uvp_vorhaben; Type: TABLE; Schema: codelisten; Owner: -
+-- Name: typen_versenkpoller; Type: TABLE; Schema: codelisten; Owner: -
 --
 
-CREATE TABLE codelisten.typen_uvp_vorhaben (
+CREATE TABLE codelisten.typen_versenkpoller (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -1704,6 +1668,18 @@ CREATE TABLE codelisten.vorgangsarten_uvp_vorhaben (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     vorgangsart character varying(255) NOT NULL
+);
+
+
+--
+-- Name: wartungsfirmen_versenkpoller; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.wartungsfirmen_versenkpoller (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -2766,32 +2742,6 @@ CREATE TABLE fachdaten.parkscheinautomaten_tarife_hro (
 
 
 --
--- Name: poller_hro; Type: TABLE; Schema: fachdaten; Owner: -
---
-
-CREATE TABLE fachdaten.poller_hro (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    id_fachsystem character varying(255),
-    id_zielsystem character varying(255),
-    aktiv boolean DEFAULT true NOT NULL,
-    deaktiviert date,
-    art uuid NOT NULL,
-    nummer character varying(3),
-    bezeichnung character varying(255) NOT NULL,
-    status uuid NOT NULL,
-    zeiten character varying(255),
-    hersteller uuid,
-    typ uuid,
-    anzahl smallint NOT NULL,
-    schliessungen character varying(255)[],
-    bemerkungen character varying(255),
-    geometrie public.geometry(Point,25833) NOT NULL
-);
-
-
---
 -- Name: punktwolken; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -3272,6 +3222,32 @@ CREATE TABLE fachdaten.uvp_vorpruefungen_hro (
     datum_bekanntmachung date,
     datum_veroeffentlichung date,
     pruefprotokoll character varying(255)
+);
+
+
+--
+-- Name: versenkpoller_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.versenkpoller_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    nummer smallint,
+    kurzbezeichnung character(3),
+    lagebeschreibung character varying(255),
+    statusinformation character varying(255),
+    zusatzbeschilderung character varying(255),
+    hersteller uuid,
+    typ uuid,
+    baujahr smallint,
+    wartungsfirma uuid,
+    foto character varying(255),
+    geometrie public.geometry(Point,25833)
 );
 
 
@@ -4702,22 +4678,6 @@ ALTER TABLE ONLY codelisten.arten_pflegeeinrichtungen
 
 
 --
--- Name: arten_poller arten_poller_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.arten_poller
-    ADD CONSTRAINT arten_poller_art_unique UNIQUE (art);
-
-
---
--- Name: arten_poller arten_poller_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.arten_poller
-    ADD CONSTRAINT arten_poller_pk PRIMARY KEY (uuid);
-
-
---
 -- Name: arten_reisebusparkplaetze_terminals arten_reisebusparkplaetze_terminals_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -5374,19 +5334,19 @@ ALTER TABLE ONLY codelisten.hersteller_fahrradabstellanlagen
 
 
 --
--- Name: hersteller_poller hersteller_poller_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+-- Name: hersteller_versenkpoller hersteller_versenkpoller_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
-ALTER TABLE ONLY codelisten.hersteller_poller
-    ADD CONSTRAINT hersteller_poller_bezeichnung_unique UNIQUE (bezeichnung);
+ALTER TABLE ONLY codelisten.hersteller_versenkpoller
+    ADD CONSTRAINT hersteller_versenkpoller_bezeichnung_unique UNIQUE (bezeichnung);
 
 
 --
--- Name: hersteller_poller hersteller_poller_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+-- Name: hersteller_versenkpoller hersteller_versenkpoller_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
-ALTER TABLE ONLY codelisten.hersteller_poller
-    ADD CONSTRAINT hersteller_poller_pk PRIMARY KEY (uuid);
+ALTER TABLE ONLY codelisten.hersteller_versenkpoller
+    ADD CONSTRAINT hersteller_versenkpoller_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5734,22 +5694,6 @@ ALTER TABLE ONLY codelisten.schlagwoerter_vereine
 
 
 --
--- Name: schliessungen_poller schliessungen_poller_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.schliessungen_poller
-    ADD CONSTRAINT schliessungen_poller_pk PRIMARY KEY (uuid);
-
-
---
--- Name: schliessungen_poller schliessungen_poller_schliessungen_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.schliessungen_poller
-    ADD CONSTRAINT schliessungen_poller_schliessungen_unique UNIQUE (schliessung);
-
-
---
 -- Name: sitzbanktypen_haltestellenkataster sitzbanktypen_haltestellenkataster_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -5878,22 +5822,6 @@ ALTER TABLE ONLY codelisten.status_jagdkataster_skizzenebenen
 
 
 --
--- Name: status_poller status_poller_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.status_poller
-    ADD CONSTRAINT status_poller_pk PRIMARY KEY (uuid);
-
-
---
--- Name: status_poller status_poller_status_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.status_poller
-    ADD CONSTRAINT status_poller_status_unique UNIQUE (status);
-
-
---
 -- Name: themen_jagdkataster_skizzenebenen themen_jagdkataster_skizzenebenen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -6006,22 +5934,6 @@ ALTER TABLE ONLY codelisten.typen_kleinklaeranlagen
 
 
 --
--- Name: typen_poller typen_poller_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.typen_poller
-    ADD CONSTRAINT typen_poller_pk PRIMARY KEY (uuid);
-
-
---
--- Name: typen_poller typen_poller_typ_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.typen_poller
-    ADD CONSTRAINT typen_poller_typ_unique UNIQUE (typ);
-
-
---
 -- Name: typen_uvp_vorhaben typen_uvp_vorhaben_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -6035,6 +5947,22 @@ ALTER TABLE ONLY codelisten.typen_uvp_vorhaben
 
 ALTER TABLE ONLY codelisten.typen_uvp_vorhaben
     ADD CONSTRAINT typen_uvp_vorhaben_typ_unique UNIQUE (typ);
+
+
+--
+-- Name: typen_versenkpoller typen_versenkpoller_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_versenkpoller
+    ADD CONSTRAINT typen_versenkpoller_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: typen_versenkpoller typen_versenkpoller_typ_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_versenkpoller
+    ADD CONSTRAINT typen_versenkpoller_typ_unique UNIQUE (typ);
 
 
 --
@@ -6099,6 +6027,22 @@ ALTER TABLE ONLY codelisten.vorgangsarten_uvp_vorhaben
 
 ALTER TABLE ONLY codelisten.vorgangsarten_uvp_vorhaben
     ADD CONSTRAINT vorgangsarten_uvp_vorhaben_vorgangsart_unique UNIQUE (vorgangsart);
+
+
+--
+-- Name: wartungsfirmen_versenkpoller wartungsfirmen_versenkpoller_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.wartungsfirmen_versenkpoller
+    ADD CONSTRAINT wartungsfirmen_versenkpoller_bezeichnung_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: wartungsfirmen_versenkpoller wartungsfirmen_versenkpoller_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.wartungsfirmen_versenkpoller
+    ADD CONSTRAINT wartungsfirmen_versenkpoller_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6654,14 +6598,6 @@ ALTER TABLE ONLY fachdaten.parkscheinautomaten_tarife_hro
 
 
 --
--- Name: poller_hro poller_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.poller_hro
-    ADD CONSTRAINT poller_hro_pk PRIMARY KEY (uuid);
-
-
---
 -- Name: punktwolken punktwolken_pkey; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6843,6 +6779,14 @@ ALTER TABLE ONLY fachdaten.uvp_vorhaben_hro
 
 ALTER TABLE ONLY fachdaten.uvp_vorpruefungen_hro
     ADD CONSTRAINT uvp_vorpruefungen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: versenkpoller_hro versenkpoller_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.versenkpoller_hro
+    ADD CONSTRAINT versenkpoller_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7306,6 +7250,13 @@ CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.sportanlagen_
 
 
 --
+-- Name: versenkpoller_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.versenkpoller_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: containerstellplaetze_hro tr_before_insert_10_id; Type: TRIGGER; Schema: fachdaten; Owner: -
 --
 
@@ -7401,6 +7352,13 @@ CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten.parks
 --
 
 CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten.sportanlagen_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: versenkpoller_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten.versenkpoller_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
 
 
 --
@@ -8212,38 +8170,6 @@ ALTER TABLE ONLY fachdaten.parkscheinautomaten_tarife_hro
 
 
 --
--- Name: poller_hro poller_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.poller_hro
-    ADD CONSTRAINT poller_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_poller(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: poller_hro poller_hro_hersteller_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.poller_hro
-    ADD CONSTRAINT poller_hro_hersteller_fk FOREIGN KEY (hersteller) REFERENCES codelisten.hersteller_poller(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: poller_hro poller_hro_status_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.poller_hro
-    ADD CONSTRAINT poller_hro_status_fk FOREIGN KEY (status) REFERENCES codelisten.status_poller(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: poller_hro poller_hro_typen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.poller_hro
-    ADD CONSTRAINT poller_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_poller(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
 -- Name: punktwolken punktwolken_punktwolken_projekte_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -8481,6 +8407,30 @@ ALTER TABLE ONLY fachdaten.uvp_vorpruefungen_hro
 
 ALTER TABLE ONLY fachdaten.uvp_vorpruefungen_hro
     ADD CONSTRAINT uvp_vorpruefungen_hro_uvp_vorhaben_fk FOREIGN KEY (uvp_vorhaben) REFERENCES fachdaten.uvp_vorhaben_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: versenkpoller_hro versenkpoller_hro_hersteller_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.versenkpoller_hro
+    ADD CONSTRAINT versenkpoller_hro_hersteller_fk FOREIGN KEY (hersteller) REFERENCES codelisten.hersteller_versenkpoller(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: versenkpoller_hro versenkpoller_hro_typen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.versenkpoller_hro
+    ADD CONSTRAINT versenkpoller_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_versenkpoller(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: versenkpoller_hro versenkpoller_hro_wartungsfirmen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.versenkpoller_hro
+    ADD CONSTRAINT versenkpoller_hro_wartungsfirmen_fk FOREIGN KEY (wartungsfirma) REFERENCES codelisten.wartungsfirmen_versenkpoller(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

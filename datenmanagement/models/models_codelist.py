@@ -543,20 +543,6 @@ class Arten_Pflegeeinrichtungen(Art):
     description = 'Arten von Pflegeeinrichtungen'
 
 
-class Arten_Poller(Art):
-  """
-  Arten von Pollern
-  """
-
-  class Meta(Art.Meta):
-    db_table = 'codelisten"."arten_poller'
-    verbose_name = 'Art eines Pollers'
-    verbose_name_plural = 'Arten von Pollern'
-
-  class BasemodelMeta(Art.BasemodelMeta):
-    description = 'Arten von Pollern'
-
-
 class Arten_Reisebusparkplaetze_Terminals(Art):
   """
   Arten von Reisebusparkplätzen und -terminals
@@ -1499,18 +1485,18 @@ class Hersteller_Fahrradabstellanlagen(Hersteller):
     description = 'Hersteller von Fahrradabstellanlagen'
 
 
-class Hersteller_Poller(Hersteller):
+class Hersteller_Versenkpoller(Hersteller):
   """
-  Hersteller von Pollern
+  Hersteller von Versenkpollern
   """
 
   class Meta(Hersteller.Meta):
-    db_table = 'codelisten"."hersteller_poller'
-    verbose_name = 'Hersteller eines Pollers'
-    verbose_name_plural = 'Hersteller von Pollern'
+    db_table = 'codelisten"."hersteller_versenkpoller'
+    verbose_name = 'Hersteller eines Versenkpollers'
+    verbose_name_plural = 'Hersteller von Versenkpollern'
 
   class BasemodelMeta(Hersteller.BasemodelMeta):
-    description = 'Hersteller von Pollern'
+    description = 'Hersteller von Versenkpollern'
 
 
 class Kabeltypen_Lichtwellenleiterinfrastruktur(Codelist):
@@ -2080,29 +2066,6 @@ class Schlagwoerter_Vereine(Schlagwort):
     description = 'Schlagwörter für Vereine'
 
 
-class Schliessungen_Poller(Codelist):
-  """
-  Schließungen von Pollern
-  """
-
-  schliessung = CharField(
-    verbose_name='Schließung', max_length=255, unique=True, validators=standard_validators
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten"."schliessungen_poller'
-    ordering = ['schliessung']
-    verbose_name = 'Schließung eines Pollers'
-    verbose_name_plural = 'Schließungen von Pollern'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Schließungen von Pollern'
-    list_fields = {'schliessung': 'Schließung'}
-
-  def __str__(self):
-    return self.schliessung
-
-
 class Sitzbanktypen_Haltestellenkataster(Codelist):
   """
   Sitzbanktypen innerhalb eines Haltestellenkatasters
@@ -2251,20 +2214,6 @@ class Status_Jagdkataster_Skizzenebenen(Status):
     description = 'Status von Skizzenebenen des Jagdkatasters'
 
 
-class Status_Poller(Status):
-  """
-  Status von Pollern
-  """
-
-  class Meta(Status.Meta):
-    db_table = 'codelisten"."status_poller'
-    verbose_name = 'Status eines Pollers'
-    verbose_name_plural = 'Status von Pollern'
-
-  class BasemodelMeta(Status.BasemodelMeta):
-    description = 'Status von Pollern'
-
-
 class Themen_Jagdkataster_Skizzenebenen(Codelist):
   """
   Themen von Skizzenebenen des Jagdkatasters
@@ -2381,18 +2330,18 @@ class Typen_Kleinklaeranlagen(Typ):
     description = 'Typen von Kleinkläranlagen'
 
 
-class Typen_Poller(Typ):
+class Typen_Versenkpoller(Typ):
   """
-  Typen von Pollern
+  Typen von Versenkpollern
   """
 
   class Meta(Typ.Meta):
-    db_table = 'codelisten"."typen_poller'
-    verbose_name = 'Typ eines Pollers'
-    verbose_name_plural = 'Typen von Pollern'
+    db_table = 'codelisten"."typen_versenkpoller'
+    verbose_name = 'Typ eines Versenkpollers'
+    verbose_name_plural = 'Typen von Versenkpollern'
 
   class BasemodelMeta(Typ.BasemodelMeta):
-    description = 'Typen von Pollern'
+    description = 'Typen von Versenkpollern'
 
 
 class Typen_UVP_Vorhaben(Typ):
@@ -2502,6 +2451,29 @@ class Vorgangsarten_UVP_Vorhaben(Codelist):
 
   def __str__(self):
     return self.vorgangsart
+
+
+class Wartungsfirmen_Versenkpoller(Codelist):
+  """
+  Wartungsfirmen von Versenkpollern
+  """
+
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten"."wartungsfirmen_versenkpoller'
+    ordering = ['bezeichnung']
+    verbose_name = 'Wartungsfirma eines Versenkpollers'
+    verbose_name_plural = 'Wartungsfirmen von Versenkpollern'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Wartungsfirmen von Versenkpollern'
+    list_fields = {'bezeichnung': 'Bezeichnung'}
+
+  def __str__(self):
+    return self.bezeichnung
 
 
 class Wegebreiten_Strassenreinigungssatzung_HRO(Codelist):

@@ -115,6 +115,7 @@ class PositiveSmallIntegerRangeField(PositiveSmallIntegerField):
 #
 
 point_field = PointField('Geometrie', srid=25833, default='POINT(0 0)')
+nullable_point_field = PointField('Geometrie', srid=25833, blank=True, null=True)
 line_field = LineStringField('Geometrie', srid=25833)
 multiline_field = MultiLineStringField('Geometrie', srid=25833)
 polygon_field = PolygonField('Geometrie', srid=25833)

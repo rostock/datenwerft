@@ -10002,231 +10002,6 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
     )
 
 
-class PollerTest(DefaultSimpleModelTestCase):
-  """
-  Poller
-  """
-
-  model = Poller
-  create_test_object_in_classmethod = False
-  create_test_subset_in_classmethod = False
-
-  @classmethod
-  def setUpTestData(cls):
-    super().setUpTestData()
-    art = Arten_Poller.objects.create(art='Art')
-    status1 = Status_Poller.objects.create(status='Status1')
-    status2 = Status_Poller.objects.create(status='Status2')
-    cls.status2 = status2
-    cls.attributes_values_db_initial = {
-      'art': art,
-      'bezeichnung': 'Bezeichnung1',
-      'status': status1,
-      'anzahl': 42,
-      'geometrie': VALID_POINT_DB,
-    }
-    cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2', 'status': status2}
-    cls.attributes_values_db_assigned = {'status': status2}
-    cls.attributes_values_view_initial = {
-      'aktiv': True,
-      'art': str(art.pk),
-      'bezeichnung': 'Bezeichnung3',
-      'status': str(status1.pk),
-      'anzahl': 23,
-      'geometrie': VALID_POINT_VIEW,
-    }
-    cls.attributes_values_view_updated = {
-      'aktiv': True,
-      'art': str(art.pk),
-      'bezeichnung': 'Bezeichnung4',
-      'status': str(status2.pk),
-      'anzahl': 4711,
-      'geometrie': VALID_POINT_VIEW,
-    }
-    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
-    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
-    cls.test_subset = create_test_subset(cls.model, cls.test_object)
-
-  def setUp(self):
-    self.init()
-
-  def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test()
-
-  def test_create(self):
-    self.generic_create_test(self.model, self.attributes_values_db_initial)
-
-  def test_update(self):
-    self.generic_update_test(self.model, self.attributes_values_db_updated)
-
-  def test_delete(self):
-    self.generic_delete_test(self.model)
-
-  def test_view_start(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_start',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      START_VIEW_STRING,
-    )
-
-  def test_view_list(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_list',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      LIST_VIEW_STRING,
-    )
-
-  def test_view_list_subset(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_list_subset',
-      {'subset_id': self.test_subset.pk},
-      200,
-      'text/html; charset=utf-8',
-      LIST_VIEW_STRING,
-    )
-
-  def test_view_data(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_data',
-      DATA_VIEW_PARAMS,
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-  def test_view_data_subset(self):
-    data_subset_view_params = DATA_VIEW_PARAMS.copy()
-    data_subset_view_params['subset_id'] = self.test_subset.pk
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_data_subset',
-      data_subset_view_params,
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-  def test_view_map(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_map',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      MAP_VIEW_STRING,
-    )
-
-  def test_view_map_subset(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_map_subset',
-      {'subset_id': self.test_subset.pk},
-      200,
-      'text/html; charset=utf-8',
-      MAP_VIEW_STRING,
-    )
-
-  def test_view_mapdata(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_mapdata',
-      {},
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-  def test_view_mapdata_subset(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_mapdata_subset',
-      {'subset_id': self.test_subset.pk},
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-  def test_view_add_success(self):
-    self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
-    )
-
-  def test_view_add_error(self):
-    self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
-    )
-
-  def test_view_change_success(self):
-    self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
-    )
-
-  def test_view_change_error(self):
-    self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
-    )
-
-  def test_view_delete(self):
-    self.generic_delete_view_test(
-      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
-    )
-
-  def test_view_assign(self):
-    self.generic_assign_view_test(
-      self.model,
-      self.attributes_values_db_initial,
-      self.attributes_values_db_assigned,
-      'status',
-      str(self.status2.pk),
-      204,
-      'text/html; charset=utf-8',
-      1,
-    )
-
-  def test_view_deleteimmediately(self):
-    self.generic_delete_view_test(
-      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
-    )
-
-  def test_view_geometry(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_geometry',
-      {},
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-  def test_view_geometry_pk(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_geometry',
-      {'pk': str(self.test_object.pk)},
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-  def test_view_geometry_lat_lng(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_geometry',
-      GEOMETRY_VIEW_PARAMS,
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-
 class ReinigungsreviereTest(DefaultSimpleModelTestCase):
   """
   Reinigungsreviere
@@ -13549,6 +13324,243 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
   def test_view_delete(self):
     self.generic_delete_view_test(
       False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+    )
+
+  def test_view_geometry(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_geometry_pk(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {'pk': str(self.test_object.pk)},
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_geometry_lat_lng(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      GEOMETRY_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+
+class VersenkpollerTest(DefaultSimpleModelTestCase):
+  """
+  Versenkpoller
+  """
+
+  model = Versenkpoller
+  create_test_object_in_classmethod = False
+  create_test_subset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    hersteller1 = Hersteller_Versenkpoller.objects.create(bezeichnung='Bezeichnung1')
+    hersteller2 = Hersteller_Versenkpoller.objects.create(bezeichnung='Bezeichnung2')
+    typ = Typen_Versenkpoller.objects.create(typ='Typ')
+    wartungsfirma1 = Wartungsfirmen_Versenkpoller.objects.create(bezeichnung='Bezeichnung1')
+    wartungsfirma2 = Wartungsfirmen_Versenkpoller.objects.create(bezeichnung='Bezeichnung2')
+    cls.hersteller2 = hersteller2
+    cls.wartungsfirma2 = wartungsfirma2
+    cls.attributes_values_db_initial = {
+      'hersteller': hersteller1,
+      'typ': typ,
+      'wartungsfirma': wartungsfirma1,
+      'geometrie': VALID_POINT_DB,
+    }
+    cls.attributes_values_db_updated = {'hersteller': hersteller2}
+    cls.attributes_values_db_assigned_hersteller = {'hersteller': hersteller2}
+    cls.attributes_values_db_assigned_wartungsfirma = {'wartungsfirma': wartungsfirma2}
+    cls.attributes_values_view_initial = {
+      'aktiv': True,
+      'hersteller': str(hersteller1.pk),
+      'typ': str(typ.pk),
+      'wartungsfirma': str(wartungsfirma1.pk),
+      'geometrie': VALID_POINT_VIEW,
+    }
+    cls.attributes_values_view_updated = {
+      'aktiv': True,
+      'hersteller': str(hersteller2.pk),
+      'wartungsfirma': str(wartungsfirma2.pk),
+      'geometrie': VALID_POINT_VIEW,
+    }
+    cls.attributes_values_view_invalid = {'baujahr': 1899}
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
+
+  def setUp(self):
+    self.init()
+
+  def test_is_simplemodel(self):
+    self.generic_is_simplemodel_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING,
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_list_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_data_subset(self):
+    data_subset_view_params = DATA_VIEW_PARAMS.copy()
+    data_subset_view_params['subset_id'] = self.test_subset.pk
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data_subset',
+      data_subset_view_params,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_map(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING,
+    )
+
+  def test_view_map_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING,
+    )
+
+  def test_view_mapdata(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_mapdata_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+    )
+
+  def test_view_assign_hersteller(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_hersteller,
+      'hersteller',
+      str(self.hersteller2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1,
+    )
+
+  def test_view_assign_wartungsfirma(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_wartungsfirma,
+      'wartungsfirma',
+      str(self.wartungsfirma2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1,
     )
 
   def test_view_deleteimmediately(self):
