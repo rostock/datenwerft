@@ -92,3 +92,5 @@ jobs:
         run: python manage.py test antragsmanagement
       - name: Run tests on app BEMAS
         run: python manage.py test bemas
+      - name: Run tests on app GDIHROMetadata
+        run: python manage.py test gdihrometadata
