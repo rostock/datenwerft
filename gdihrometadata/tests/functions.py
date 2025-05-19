@@ -40,7 +40,9 @@ def clean_object_filter(object_filter, model=None):
       continue
     # check type of model field to determine whether value should be checked against "icontains"
     if not isinstance(field, (BigIntegerField, BooleanField, DateField, FloatField, IntegerField)):
-      if isinstance(field, (CharField, TextField)) and field_name + '__icontains' not in dictionary:
+      if (
+        isinstance(field, (CharField, TextField)) and field_name + '__icontains' not in dictionary
+      ):
         # add key and value for "icontains" to dictionary
         dictionary[field_name + '__icontains'] = dictionary[field_name]
         # remove original key and value from dictionary
