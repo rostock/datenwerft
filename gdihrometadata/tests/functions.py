@@ -39,8 +39,8 @@ def clean_object_filter(object_filter, model=None):
       # this is needed to prevent failing tests when admin panel sends extra fields
       continue
     # check type of model field to determine whether value should be checked against "icontains"
-    if type(field) not in [BigIntegerField, BooleanField, DateField, FloatField, IntegerField]:
-      if type(field) in [CharField, TextField] and field_name + '__icontains' not in dictionary:
+    if not isinstance(field, (BigIntegerField, BooleanField, DateField, FloatField, IntegerField)):
+      if isinstance(field, (CharField, TextField)) and field_name + '__icontains' not in dictionary:
         # add key and value for "icontains" to dictionary
         dictionary[field_name + '__icontains'] = dictionary[field_name]
         # remove original key and value from dictionary
