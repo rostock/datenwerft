@@ -41,28 +41,79 @@ from .models import (
 #
 
 
-class SpatioTemporalMetadataAdminForm(ModelForm):
-  def clean(self):
-    extent_temporal_start = self.cleaned_data.get('extent_temporal_start', None)
-    extent_temporal_end = self.cleaned_data.get('extent_temporal_end', None)
-    # extent_temporal_start and extent_temporal_end must always be set together
-    if (extent_temporal_end and not extent_temporal_start) or (
-      extent_temporal_start and not extent_temporal_end
+def field_one_mandatory_if_field_two(form, field_one_name, field_two_name):
+  """
+  checks if passed field one is set if passed field two is set
+  and raises a validation error if not
+
+  :param form: form
+  :param field_one_name: name of the first field
+  :param field_two_name: name of the second field
+  """
+  field_one_data = form.cleaned_data.get(field_one_name, None)
+  field_two_data = form.cleaned_data.get(field_two_name, None)
+  if field_two_data and not field_one_data:
+    text = 'Wenn {} gesetzt ist, muss auch {} gesetzt sein.'.format(
+      form._meta.model._meta.get_field(field_two_data).verbose_name,
+      form._meta.model._meta.get_field(field_one_data).verbose_name,
+    )
+    raise ValidationError(text)
+
+
+def field_two_later_than_field_one(form, field_one_name, field_two_name):
+  """
+  checks if passed field two is later (related to time) than field one
+  and raises a validation error if not
+
+  :param form: form
+  :param field_one_name: name of the first field
+  :param field_two_name: name of the second field
+  """
+  field_one_data = form.cleaned_data.get(field_one_name, None)
+  field_two_data = form.cleaned_data.get(field_two_name, None)
+  if field_one_data and field_two_data and field_one_data > field_two_data:
+    text = '{} muss zeitlich nach {} liegen.'.format(
+      form._meta.model._meta.get_field(field_two_name).verbose_name,
+      form._meta.model._meta.get_field(field_one_name).verbose_name,
+    )
+    raise ValidationError(text)
+
+
+def mandatory_field_pairs(form, field_one_name, field_two_name, field_three_name=None):
+  """
+  checks if passed fields are all set (or all not set)
+  and raises a validation error if not
+
+  :param form: form
+  :param field_one_name: name of the first field
+  :param field_two_name: name of the second field
+  :param field_three_name: optional name of a third field
+  """
+  field_one_data = form.cleaned_data.get(field_one_name, None)
+  field_two_data = form.cleaned_data.get(field_two_name, None)
+  field_three_data = form.cleaned_data.get(field_three_name, None)
+  if field_three_name:
+    if not (field_one_data is None and field_two_data is None and field_three_data is None) or (
+      field_one_data is not None and field_two_data is not None and field_three_data is not None
     ):
+      text = '{}, {} und {} müssen immer gemeinsam gesetzt sein.'.format(
+        form._meta.model._meta.get_field(field_one_name).verbose_name,
+        form._meta.model._meta.get_field(field_two_name).verbose_name,
+        form._meta.model._meta.get_field(field_three_name).verbose_name,
+      )
+      raise ValidationError(text)
+  else:
+    if (field_two_data and not field_one_data) or (field_one_data and not field_two_data):
       text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
-        self._meta.model._meta.get_field('extent_temporal_start').verbose_name,
-        self._meta.model._meta.get_field('extent_temporal_end').verbose_name,
+        form._meta.model._meta.get_field(field_one_name).verbose_name,
+        form._meta.model._meta.get_field(field_two_name).verbose_name,
       )
       raise ValidationError(text)
-    # extent_temporal_end must be later than extent_temporal_start
-    elif (
-      extent_temporal_start and extent_temporal_end and extent_temporal_start > extent_temporal_end
-    ):
-      text = '{} muss zeitlich nach {} liegen.'.format(
-        self._meta.model._meta.get_field('extent_temporal_end').verbose_name,
-        self._meta.model._meta.get_field('extent_temporal_start').verbose_name,
-      )
-      raise ValidationError(text)
+
+
+class DataTypeAdminForm(ModelForm):
+  def clean(self):
+    mandatory_field_pairs(form=self, field_one_name='format', field_two_name='mime_type')
     return self.cleaned_data
 
 
@@ -88,6 +139,9 @@ class SpatialReferenceAdminForm(ModelForm):
         self._meta.model._meta.get_field('extent_spatial_east').verbose_name,
       )
       raise ValidationError(text)
+    mandatory_field_pairs(
+      form=self, field_one_name='political_geocoding_level', field_two_name='political_geocoding'
+    )
     return self.cleaned_data
 
 
@@ -117,31 +171,68 @@ class ContactAdminForm(ModelForm):
     return self.cleaned_data
 
 
+class SourceAdminForm(ModelForm):
+  def clean(self):
+    field_one_mandatory_if_field_two(
+      form=self,
+      field_one_name='spatial_representation_type',
+      field_two_name='geometry_type',
+    )
+    return self.cleaned_data
+
+
+class RepositoryAdminForm(ModelForm):
+  def clean(self):
+    field_one_mandatory_if_field_two(
+      form=self,
+      field_one_name='spatial_representation_type',
+      field_two_name='geometry_type',
+    )
+    return self.cleaned_data
+
+
+class DatasetAdminForm(ModelForm):
+  def clean(self):
+    mandatory_field_pairs(
+      form=self, field_one_name='extent_temporal_start', field_two_name='extent_temporal_end'
+    )
+    field_two_later_than_field_one(
+      form=self, field_one_name='extent_temporal_start', field_two_name='extent_temporal_end'
+    )
+    mandatory_field_pairs(
+      form=self, field_one_name='inspire_theme', field_two_name='inspire_spatial_scope'
+    )
+    mandatory_field_pairs(form=self, field_one_name='language', field_two_name='charset')
+    field_one_mandatory_if_field_two(
+      form=self,
+      field_one_name='spatial_representation_type',
+      field_two_name='geometry_type',
+    )
+    mandatory_field_pairs(form=self, field_one_name='hash_type', field_two_name='hash')
+    mandatory_field_pairs(
+      form=self, field_one_name='ground_resolution', field_two_name='ground_resolution_uom'
+    )
+    return self.cleaned_data
+
+
 class ServiceAdminForm(ModelForm):
   def clean(self):
-    extent_temporal_start = self.cleaned_data.get('extent_temporal_start', None)
-    extent_temporal_end = self.cleaned_data.get('extent_temporal_end', None)
-    # extent_temporal_start and extent_temporal_end must always be set together
-    if (extent_temporal_end and not extent_temporal_start) or (
-      extent_temporal_start and not extent_temporal_end
-    ):
-      text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(
-        self._meta.model._meta.get_field('extent_temporal_start').verbose_name,
-        self._meta.model._meta.get_field('extent_temporal_end').verbose_name,
-      )
-      raise ValidationError(text)
-    # extent_temporal_end must be later than extent_temporal_start
-    elif (
-      extent_temporal_start and extent_temporal_end and extent_temporal_start > extent_temporal_end
-    ):
-      text = '{} muss zeitlich nach {} liegen.'.format(
-        self._meta.model._meta.get_field('extent_temporal_end').verbose_name,
-        self._meta.model._meta.get_field('extent_temporal_start').verbose_name,
-      )
-      raise ValidationError(text)
+    mandatory_field_pairs(
+      form=self, field_one_name='extent_temporal_start', field_two_name='extent_temporal_end'
+    )
+    field_two_later_than_field_one(
+      form=self, field_one_name='extent_temporal_start', field_two_name='extent_temporal_end'
+    )
+    mandatory_field_pairs(
+      form=self,
+      field_one_name='inspire_theme',
+      field_two_name='inspire_spatial_scope',
+      field_three_name='inspire_service_type',
+    )
     datasets = self.cleaned_data.get('datasets', None)
     assetsets = self.cleaned_data.get('assetsets', None)
     repositories = self.cleaned_data.get('repositories', None)
+    # at least one dataset, one assetset, or one repository must be linked to the service
     if not datasets and not assetsets and not repositories:
       raise ValidationError(
         'Es muss mindestens ein Datensatz, eine Asset-Sammlung '
@@ -323,6 +414,7 @@ class CrsSetAdmin(admin.ModelAdmin):
 
 @admin.register(DataType)
 class DataTypeAdmin(admin.ModelAdmin):
+  form = DataTypeAdminForm
   list_display = ('title', 'format', 'mime_type')
   search_fields = ('title',)
   list_filter = ('format', 'mime_type')
@@ -373,6 +465,7 @@ class ContactAdmin(admin.ModelAdmin):
 
 @admin.register(Source)
 class SourceAdmin(admin.ModelAdmin):
+  form = SourceAdminForm
   list_display = (
     'uuid',
     'modified',
@@ -419,6 +512,7 @@ class SourceAdmin(admin.ModelAdmin):
 
 @admin.register(Repository)
 class RepositoryAdmin(admin.ModelAdmin):
+  form = RepositoryAdminForm
   list_display = (
     'uuid',
     'modified',
@@ -517,7 +611,7 @@ class AssetsetAdmin(admin.ModelAdmin):
 
 @admin.register(Dataset)
 class DatasetAdmin(admin.ModelAdmin):
-  form = SpatioTemporalMetadataAdminForm
+  form = DatasetAdminForm
   list_display = (
     'uuid',
     'modified',

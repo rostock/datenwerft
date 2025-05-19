@@ -2709,6 +2709,14 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     null=True,
   )
   laufzeit_geldkarte = DateField(verbose_name='Laufzeit der Geldkarte', blank=True, null=True)
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'parkscheinautomaten'),
+    max_length=255,
+    blank=True,
+    null=True,
+  )
   geometrie = point_field
 
   class Meta(ComplexModel.Meta):
@@ -2727,6 +2735,7 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
       'nummer': 'Nummer',
       'bezeichnung': 'Bezeichnung',
       'zone': 'Zone',
+      'foto': 'Foto',
     }
     list_fields_with_foreign_key = {'parkscheinautomaten_tarif': 'bezeichnung', 'zone': 'zone'}
     map_feature_tooltip_fields = ['bezeichnung']
@@ -2740,6 +2749,15 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
 
   def __str__(self):
     return self.bezeichnung
+
+
+pre_save.connect(set_pre_save_instance, sender=Parkscheinautomaten_Parkscheinautomaten)
+
+post_save.connect(photo_post_processing, sender=Parkscheinautomaten_Parkscheinautomaten)
+
+post_save.connect(delete_photo_after_emptied, sender=Parkscheinautomaten_Parkscheinautomaten)
+
+post_delete.connect(delete_photo, sender=Parkscheinautomaten_Parkscheinautomaten)
 
 
 #

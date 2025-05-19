@@ -4819,132 +4819,6 @@ class Pflegeeinrichtungen(SimpleModel):
     )
 
 
-class Poller(SimpleModel):
-  """
-  Poller
-  """
-
-  art = ForeignKey(
-    to=Arten_Poller,
-    verbose_name='Art',
-    on_delete=RESTRICT,
-    db_column='art',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten',
-  )
-  nummer = CharField(
-    verbose_name='Nummer',
-    max_length=3,
-    blank=True,
-    null=True,
-    validators=[RegexValidator(regex=poller_nummer_regex, message=poller_nummer_message)],
-  )
-  bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, validators=standard_validators
-  )
-  status = ForeignKey(
-    to=Status_Poller,
-    verbose_name='Status',
-    on_delete=RESTRICT,
-    db_column='status',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_status',
-  )
-  zeiten = CharField(verbose_name='Lieferzeiten', max_length=255, blank=True, null=True)
-  hersteller = ForeignKey(
-    to=Hersteller_Poller,
-    verbose_name='Hersteller',
-    on_delete=SET_NULL,
-    db_column='hersteller',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_hersteller',
-    blank=True,
-    null=True,
-  )
-  typ = ForeignKey(
-    to=Typen_Poller,
-    verbose_name='Typ',
-    on_delete=SET_NULL,
-    db_column='typ',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_typen',
-    blank=True,
-    null=True,
-  )
-  anzahl = PositiveSmallIntegerMinField(verbose_name='Anzahl', min_value=1)
-  schliessungen = ChoiceArrayField(
-    CharField(verbose_name='Schließungen', max_length=255, choices=()),
-    verbose_name='Schließungen',
-    blank=True,
-    null=True,
-  )
-  bemerkungen = CharField(
-    verbose_name='Bemerkungen',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators,
-  )
-  geometrie = point_field
-
-  class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten"."poller_hro'
-    verbose_name = 'Poller'
-    verbose_name_plural = 'Poller'
-
-  class BasemodelMeta(SimpleModel.BasemodelMeta):
-    description = 'Poller in der Hanse- und Universitätsstadt Rostock'
-    as_overlay = True
-    choices_models_for_choices_fields = {'schliessungen': 'Schliessungen_Poller'}
-    geometry_type = 'Point'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'art': 'Art',
-      'nummer': 'Nummer',
-      'bezeichnung': 'Bezeichnung',
-      'status': 'Status',
-      'hersteller': 'Hersteller',
-      'typ': 'Typ',
-      'anzahl': 'Anzahl',
-      'schliessungen': 'Schließungen',
-    }
-    list_fields_with_foreign_key = {
-      'art': 'art',
-      'status': 'status',
-      'hersteller': 'bezeichnung',
-      'typ': 'typ',
-    }
-    list_actions_assign = [
-      {
-        'action_name': 'poller-status',
-        'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
-        'field': 'status',
-        'type': 'foreignkey',
-      }
-    ]
-    map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {
-      'art': 'Art',
-      'nummer': 'Nummer',
-      'bezeichnung': 'Bezeichnung',
-      'status': 'Status',
-      'hersteller': 'Hersteller',
-      'typ': 'Typ',
-      'anzahl': 'Anzahl',
-      'schliessungen': 'Schließungen',
-    }
-    map_filter_fields_as_list = ['art', 'status', 'hersteller', 'typ']
-
-  def __str__(self):
-    return (
-      (self.nummer + ', ' if self.nummer else '')
-      + self.bezeichnung
-      + ' [Status: '
-      + str(self.status)
-      + ']'
-    )
-
-
 class Reinigungsreviere(SimpleModel):
   """
   Reinigungsreviere
@@ -6553,3 +6427,154 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
 
   def __str__(self):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+
+
+class Versenkpoller(SimpleModel):
+  """
+  Versenkpoller
+  """
+
+  nummer = PositiveSmallIntegerMinField(
+    verbose_name='Nummer',
+    min_value=1,
+    blank=True,
+    null=True,
+  )
+  kurzbezeichnung = CharField(
+    verbose_name='Kurzbezeichnung',
+    max_length=3,
+    blank=True,
+    null=True,
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+  )
+  statusinformation = CharField(
+    verbose_name='Statusinformation',
+    max_length=255,
+    blank=True,
+    null=True,
+  )
+  zusatzbeschilderung = CharField(
+    verbose_name='Zusatzbeschilderung',
+    max_length=255,
+    blank=True,
+    null=True,
+  )
+  hersteller = ForeignKey(
+    to=Hersteller_Versenkpoller,
+    verbose_name='Hersteller',
+    on_delete=SET_NULL,
+    db_column='hersteller',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_hersteller',
+    blank=True,
+    null=True,
+  )
+  typ = ForeignKey(
+    to=Typen_Versenkpoller,
+    verbose_name='Typ',
+    on_delete=SET_NULL,
+    db_column='typ',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_typen',
+    blank=True,
+    null=True,
+  )
+  baujahr = PositiveSmallIntegerRangeField(
+    verbose_name='Baujahr', min_value=1900, max_value=get_current_year(), blank=True, null=True
+  )
+  wartungsfirma = ForeignKey(
+    to=Wartungsfirmen_Versenkpoller,
+    verbose_name='Wartungsfirma',
+    on_delete=SET_NULL,
+    db_column='wartungsfirma',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_hersteller',
+    blank=True,
+    null=True,
+  )
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'versenkpoller'),
+    max_length=255,
+    blank=True,
+    null=True,
+  )
+  geometrie = nullable_point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten"."versenkpoller_hro'
+    verbose_name = 'Versenkpoller'
+    verbose_name_plural = 'Versenkpoller'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Versenkpoller in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = [
+      'nummer',
+      'kurzbezeichnung',
+      'lagebeschreibung',
+      'statusinformation',
+      'zusatzbeschilderung',
+    ]
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'nummer': 'Nummer',
+      'kurzbezeichnung': 'Kurzbezeichnung',
+      'statusinformation': 'Statusinformation',
+      'hersteller': 'Hersteller',
+      'typ': 'Typ',
+      'baujahr': 'Baujahr',
+      'wartungsfirma': 'Wartungsfirma',
+      'foto': 'Foto',
+    }
+    list_fields_with_foreign_key = {
+      'hersteller': 'bezeichnung',
+      'typ': 'typ',
+      'wartungsfirma': 'bezeichnung',
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'versenkpoller-hersteller',
+        'action_title': 'ausgewählten Datensätzen Hersteller direkt zuweisen',
+        'field': 'hersteller',
+        'type': 'foreignkey',
+      },
+      {
+        'action_name': 'versenkpoller-wartungsfirma',
+        'action_title': 'ausgewählten Datensätzen Wartungsfirma direkt zuweisen',
+        'field': 'wartungsfirma',
+        'type': 'foreignkey',
+      },
+    ]
+    map_feature_tooltip_fields = ['kurzbezeichnung']
+    map_filter_fields = {
+      'nummer': 'Nummer',
+      'kurzbezeichnung': 'Kurzbezeichnung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'statusinformation': 'Statusinformation',
+      'zusatzbeschilderung': 'Zusatzbeschilderung',
+      'hersteller': 'Hersteller',
+      'typ': 'Typ',
+      'baujahr': 'Baujahr',
+      'wartungsfirma': 'Wartungsfirma',
+    }
+    map_filter_fields_as_list = ['hersteller', 'typ', 'wartungsfirma']
+
+  def __str__(self):
+    return str(self.kurzbezeichnung) if self.kurzbezeichnung else str(self.uuid)
+
+
+pre_save.connect(set_pre_save_instance, sender=Versenkpoller)
+
+post_save.connect(photo_post_processing, sender=Versenkpoller)
+
+post_save.connect(delete_photo_after_emptied, sender=Versenkpoller)
+
+post_delete.connect(delete_photo, sender=Versenkpoller)

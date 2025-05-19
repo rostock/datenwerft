@@ -2105,95 +2105,6 @@ class ArtenPflegeeinrichtungenTest(DefaultCodelistTestCase):
     )
 
 
-class ArtenPollerTest(DefaultCodelistTestCase):
-  """
-  Arten von Pollern
-  """
-
-  model = Arten_Poller
-  create_test_subset_in_classmethod = False
-  attributes_values_db_initial = {'art': 'Art1'}
-  attributes_values_db_updated = {'art': 'Art2'}
-  attributes_values_view_initial = {'art': 'Art3'}
-  attributes_values_view_updated = {'art': 'Art4'}
-  attributes_values_view_invalid = {'art': INVALID_STRING}
-
-  def setUp(self):
-    self.init()
-
-  def test_is_codelist(self):
-    self.generic_is_codelist_test()
-
-  def test_create(self):
-    self.generic_create_test(self.model, self.attributes_values_db_initial)
-
-  def test_update(self):
-    self.generic_update_test(self.model, self.attributes_values_db_updated)
-
-  def test_delete(self):
-    self.generic_delete_test(self.model)
-
-  def test_view_start(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_start',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      START_VIEW_STRING,
-    )
-
-  def test_view_list(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_list',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      LIST_VIEW_STRING,
-    )
-
-  def test_view_data(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_data',
-      DATA_VIEW_PARAMS,
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-  def test_view_add_success(self):
-    self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
-    )
-
-  def test_view_add_error(self):
-    self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
-    )
-
-  def test_view_change_success(self):
-    self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
-    )
-
-  def test_view_change_error(self):
-    self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
-    )
-
-  def test_view_delete(self):
-    self.generic_delete_view_test(
-      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
-    )
-
-  def test_view_deleteimmediately(self):
-    self.generic_delete_view_test(
-      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
-    )
-
-
 class ArtenReisebusparkplaetzeTerminalsTest(DefaultCodelistTestCase):
   """
   Arten von Reisebusparkplätzen und -terminals
@@ -5878,12 +5789,12 @@ class HerstellerFahrradabstellanlagenTest(DefaultCodelistTestCase):
     )
 
 
-class HerstellerPollerTest(DefaultCodelistTestCase):
+class HerstellerVersenkpollerTest(DefaultCodelistTestCase):
   """
-  Hersteller von Pollern
+  Hersteller von Versenkpollern
   """
 
-  model = Hersteller_Poller
+  model = Hersteller_Versenkpoller
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {'bezeichnung': 'Bezeichnung1'}
   attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
@@ -7948,95 +7859,6 @@ class SchlagwoerterVereineTest(DefaultCodelistTestCase):
     )
 
 
-class SchliessungenPollerTest(DefaultCodelistTestCase):
-  """
-  Schließungen von Pollern
-  """
-
-  model = Schliessungen_Poller
-  create_test_subset_in_classmethod = False
-  attributes_values_db_initial = {'schliessung': 'Schließung1'}
-  attributes_values_db_updated = {'schliessung': 'Schließung2'}
-  attributes_values_view_initial = {'schliessung': 'Schließung3'}
-  attributes_values_view_updated = {'schliessung': 'Schließung4'}
-  attributes_values_view_invalid = {'schliessung': INVALID_STRING}
-
-  def setUp(self):
-    self.init()
-
-  def test_is_codelist(self):
-    self.generic_is_codelist_test()
-
-  def test_create(self):
-    self.generic_create_test(self.model, self.attributes_values_db_initial)
-
-  def test_update(self):
-    self.generic_update_test(self.model, self.attributes_values_db_updated)
-
-  def test_delete(self):
-    self.generic_delete_test(self.model)
-
-  def test_view_start(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_start',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      START_VIEW_STRING,
-    )
-
-  def test_view_list(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_list',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      LIST_VIEW_STRING,
-    )
-
-  def test_view_data(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_data',
-      DATA_VIEW_PARAMS,
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-  def test_view_add_success(self):
-    self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
-    )
-
-  def test_view_add_error(self):
-    self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
-    )
-
-  def test_view_change_success(self):
-    self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
-    )
-
-  def test_view_change_error(self):
-    self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
-    )
-
-  def test_view_delete(self):
-    self.generic_delete_view_test(
-      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
-    )
-
-  def test_view_deleteimmediately(self):
-    self.generic_delete_view_test(
-      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
-    )
-
-
 class SitzbanktypenHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
   Sitzbanktypen innerhalb eines Haltestellenkatasters
@@ -8749,95 +8571,6 @@ class StatusJagdkatasterSkizzenebenenTest(DefaultCodelistTestCase):
     )
 
 
-class StatusPollerTest(DefaultCodelistTestCase):
-  """
-  Status von Pollern
-  """
-
-  model = Status_Poller
-  create_test_subset_in_classmethod = False
-  attributes_values_db_initial = {'status': 'Status1'}
-  attributes_values_db_updated = {'status': 'Status2'}
-  attributes_values_view_initial = {'status': 'Status3'}
-  attributes_values_view_updated = {'status': 'Status4'}
-  attributes_values_view_invalid = {'status': INVALID_STRING}
-
-  def setUp(self):
-    self.init()
-
-  def test_is_codelist(self):
-    self.generic_is_codelist_test()
-
-  def test_create(self):
-    self.generic_create_test(self.model, self.attributes_values_db_initial)
-
-  def test_update(self):
-    self.generic_update_test(self.model, self.attributes_values_db_updated)
-
-  def test_delete(self):
-    self.generic_delete_test(self.model)
-
-  def test_view_start(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_start',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      START_VIEW_STRING,
-    )
-
-  def test_view_list(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_list',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      LIST_VIEW_STRING,
-    )
-
-  def test_view_data(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_data',
-      DATA_VIEW_PARAMS,
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-  def test_view_add_success(self):
-    self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
-    )
-
-  def test_view_add_error(self):
-    self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
-    )
-
-  def test_view_change_success(self):
-    self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
-    )
-
-  def test_view_change_error(self):
-    self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
-    )
-
-  def test_view_delete(self):
-    self.generic_delete_view_test(
-      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
-    )
-
-  def test_view_deleteimmediately(self):
-    self.generic_delete_view_test(
-      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
-    )
-
-
 class ThemenJagdkatasterSkizzenebenenTest(DefaultCodelistTestCase):
   """
   Themen von Skizzenebenen des Jagdkatasters
@@ -9461,12 +9194,12 @@ class TypenKleinklaeranlagenTest(DefaultCodelistTestCase):
     )
 
 
-class TypenPollerTest(DefaultCodelistTestCase):
+class TypenVersenkpollerTest(DefaultCodelistTestCase):
   """
-  Typen von Pollern
+  Typen von Versenkpollern
   """
 
-  model = Typen_Poller
+  model = Typen_Versenkpoller
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {'typ': 'Typ1'}
   attributes_values_db_updated = {'typ': 'Typ2'}
@@ -9918,6 +9651,95 @@ class VorgangsartenUVPVorhabenTest(DefaultCodelistTestCase):
   attributes_values_view_initial = {'vorgangsart': 'Vorgangsart3'}
   attributes_values_view_updated = {'vorgangsart': 'Vorgangsart4'}
   attributes_values_view_invalid = {'vorgangsart': INVALID_STRING}
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING,
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+    )
+
+
+class WartungsfirmenVersenkpollerTest(DefaultCodelistTestCase):
+  """
+  Wartungsfirmen von Versenkpollern
+  """
+
+  model = Wartungsfirmen_Versenkpoller
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {'bezeichnung': 'Bezeichnung1'}
+  attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
+  attributes_values_view_initial = {'bezeichnung': 'Bezeichnung3'}
+  attributes_values_view_updated = {'bezeichnung': 'Bezeichnung4'}
+  attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
 
   def setUp(self):
     self.init()

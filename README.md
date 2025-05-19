@@ -113,6 +113,7 @@ npm install
 source .venv/bin/activate
 python manage.py migrate --database=antragsmanagement antragsmanagement
 python manage.py migrate --database=bemas bemas
+python manage.py migrate --database=gdihrometadata gdihrometadata
 python manage.py migrate
 python manage.py antragsmanagement_roles_permissions
 python manage.py bemas_roles_permissions
@@ -122,6 +123,7 @@ python manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.
 # mit uv
 uv run manage.py migrate --database=antragsmanagement antragsmanagement
 uv run manage.py migrate --database=bemas bemas
+uv run manage.py migrate --database=gdihrometadata gdihrometadata
 uv run manage.py migrate
 uv run manage.py antragsmanagement_roles_permissions
 uv run manage.py bemas_roles_permissions

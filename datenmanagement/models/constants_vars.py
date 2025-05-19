@@ -151,12 +151,6 @@ parkscheinautomaten_zone_regex = r'^[A-Z]$'
 parkscheinautomaten_zone_message = (
   'Die <strong><em>Zone</em></strong> muss aus genau einem Großbuchstaben bestehen.'
 )
-poller_nummer_regex = r'^[A-Z][0-9]{0,2}$'
-poller_nummer_message = (
-  'Die <strong><em>Nummer</em></strong> muss aus '
-  'genau einem Großbuchstaben bestehen, der um eine '
-  'oder zwei Ziffer(n) ergänzt werden kann.'
-)
 quartiere_code_regex = r'^[0-9]{3}$'
 quartiere_code_message = 'Der <strong><em>Code</em></strong> muss aus genau drei Ziffern bestehen.'
 strassen_schluessel_regex = r'^[0-9]{5}$'
