@@ -31,7 +31,7 @@ def clean_object_filter(object_filter, model=None):
   if not model:
     return dictionary
   # model specified? -> check if value should be checked against "icontains"
-  for field_name in dictionary:
+  for field_name in list(dictionary.keys()):
     # check whether field exists for specified model
     try:
       field = model._meta.get_field(field_name)
