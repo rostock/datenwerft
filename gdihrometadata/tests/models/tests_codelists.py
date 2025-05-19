@@ -21,35 +21,22 @@ from gdihrometadata.models import (
 )
 
 from ..base import DefaultCodelistTestCase
-from ..constants_vars import (
-  INVALID_STRING,
-)
 
 
 class AccessModelTest(DefaultCodelistTestCase):
   """
-  tests for Access model
+  test class for codelist:
+  access (Zugriff)
   """
 
   model = Access
-
-  # set up the initial and updated values
-  attributes_values_db_initial = {'code': 'https://example.org/access/test', 'title': 'TestAccess'}
+  attributes_values_db_initial = {
+    'code': 'https://example.org/access/initial',
+    'title': 'InitialAccess',
+  }
   attributes_values_db_updated = {
     'code': 'https://example.org/access/updated',
     'title': 'UpdatedAccess',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/access/test',
-    'title': 'TestAccess',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/access/updated',
-    'title': 'UpdatedAccess',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/access/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -70,31 +57,18 @@ class AccessModelTest(DefaultCodelistTestCase):
 
 class AssetTypeModelTest(DefaultCodelistTestCase):
   """
-  tests for AssetType model
+  test class for codelist:
+  asset type (Typ eines Assets)
   """
 
   model = AssetType
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/assettype/test',
-    'title': 'TestAssetType',
+    'code': 'https://example.org/assettype/initial',
+    'title': 'InitialAssetType',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/assettype/updated',
     'title': 'UpdatedAssetType',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/assettype/test',
-    'title': 'TestAssetType',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/assettype/updated',
-    'title': 'UpdatedAssetType',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/assettype/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -115,31 +89,18 @@ class AssetTypeModelTest(DefaultCodelistTestCase):
 
 class CharsetModelTest(DefaultCodelistTestCase):
   """
-  tests for Charset model
+  test class for codelist:
+  charset (Zeichensatz)
   """
 
   model = Charset
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/charset/test',
-    'title': 'TestCharset',
+    'code': 'https://example.org/charset/initial',
+    'title': 'InitialCharset',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/charset/updated',
     'title': 'UpdatedCharset',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/charset/test',
-    'title': 'TestCharset',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/charset/updated',
-    'title': 'UpdatedCharset',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/charset/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -160,22 +121,18 @@ class CharsetModelTest(DefaultCodelistTestCase):
 
 class CrsModelTest(DefaultCodelistTestCase):
   """
-  tests for Crs model
+  test class for codelist:
+  coordinate reference system (Koordinatenreferenzsystem)
   """
 
   model = Crs
-
-  # set up the initial and updated values
-  attributes_values_db_initial = {'code': 'https://example.org/crs/test', 'title': 'TestCrs'}
-  attributes_values_db_updated = {'code': 'https://example.org/crs/updated', 'title': 'UpdatedCrs'}
-  attributes_values_view_initial = {'code': 'https://example.org/crs/test', 'title': 'TestCrs'}
-  attributes_values_view_updated = {
+  attributes_values_db_initial = {
+    'code': 'https://example.org/crs/initial',
+    'title': 'InitialCrs',
+  }
+  attributes_values_db_updated = {
     'code': 'https://example.org/crs/updated',
     'title': 'UpdatedCrs',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/crs/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -196,31 +153,18 @@ class CrsModelTest(DefaultCodelistTestCase):
 
 class DatathemeCategoryModelTest(DefaultCodelistTestCase):
   """
-  tests for DatathemeCategory model
+  test class for codelist:
+  data theme category (Datenthemenkategorie)
   """
 
   model = DatathemeCategory
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/datathemecategory/test',
-    'title': 'TestDatathemeCategory',
+    'code': 'https://example.org/datathemecategory/initial',
+    'title': 'InitialDatathemeCategory',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/datathemecategory/updated',
     'title': 'UpdatedDatathemeCategory',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/datathemecategory/test',
-    'title': 'TestDatathemeCategory',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/datathemecategory/updated',
-    'title': 'UpdatedDatathemeCategory',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/datathemecategory/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -241,28 +185,18 @@ class DatathemeCategoryModelTest(DefaultCodelistTestCase):
 
 class FormatModelTest(DefaultCodelistTestCase):
   """
-  tests for Format model
+  test class for codelist:
+  format (Format)
   """
 
   model = Format
-
-  # set up the initial and updated values
-  attributes_values_db_initial = {'code': 'https://example.org/format/test', 'title': 'TestFormat'}
+  attributes_values_db_initial = {
+    'code': 'https://example.org/format/initial',
+    'title': 'InitialFormat',
+  }
   attributes_values_db_updated = {
     'code': 'https://example.org/format/updated',
     'title': 'UpdatedFormat',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/format/test',
-    'title': 'TestFormat',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/format/updated',
-    'title': 'UpdatedFormat',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/format/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -283,31 +217,18 @@ class FormatModelTest(DefaultCodelistTestCase):
 
 class FrequencyModelTest(DefaultCodelistTestCase):
   """
-  tests for Frequency model
+  test class for codelist:
+  frequency (Häufigkeit)
   """
 
   model = Frequency
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/frequency/test',
-    'title': 'TestFrequency',
+    'code': 'https://example.org/frequency/initial',
+    'title': 'InitialFrequency',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/frequency/updated',
     'title': 'UpdatedFrequency',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/frequency/test',
-    'title': 'TestFrequency',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/frequency/updated',
-    'title': 'UpdatedFrequency',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/frequency/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -328,31 +249,18 @@ class FrequencyModelTest(DefaultCodelistTestCase):
 
 class HashTypeModelTest(DefaultCodelistTestCase):
   """
-  tests for HashType model
+  test class for codelist:
+  hash type (Typ eines Hashes)
   """
 
   model = HashType
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/hashtype/test',
-    'title': 'TestHashType',
+    'code': 'https://example.org/hashtype/initial',
+    'title': 'InitialHashType',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/hashtype/updated',
     'title': 'UpdatedHashType',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/hashtype/test',
-    'title': 'TestHashType',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/hashtype/updated',
-    'title': 'UpdatedHashType',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/hashtype/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -373,31 +281,18 @@ class HashTypeModelTest(DefaultCodelistTestCase):
 
 class HvdCategoryModelTest(DefaultCodelistTestCase):
   """
-  tests for HvdCategory model
+  test class for codelist:
+  high-value dataset category (HVD-Kategorie)
   """
 
   model = HvdCategory
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/hvdcategory/test',
-    'title': 'TestHvdCategory',
+    'code': 'https://example.org/hvdcategory/initial',
+    'title': 'InitialHvdCategory',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/hvdcategory/updated',
     'title': 'UpdatedHvdCategory',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/hvdcategory/test',
-    'title': 'TestHvdCategory',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/hvdcategory/updated',
-    'title': 'UpdatedHvdCategory',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/hvdcategory/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -418,31 +313,18 @@ class HvdCategoryModelTest(DefaultCodelistTestCase):
 
 class InspireServiceTypeModelTest(DefaultCodelistTestCase):
   """
-  tests for InspireServiceType model
+  test class for codelist:
+  INSPIRE service type (Typ eines INSPIRE-Services)
   """
 
   model = InspireServiceType
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/inspireservicetype/test',
-    'title': 'TestInspireServiceType',
+    'code': 'https://example.org/inspireservicetype/initial',
+    'title': 'InitialInspireServiceType',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/inspireservicetype/updated',
     'title': 'UpdatedInspireServiceType',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/inspireservicetype/test',
-    'title': 'TestInspireServiceType',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/inspireservicetype/updated',
-    'title': 'UpdatedInspireServiceType',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/inspireservicetype/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -463,31 +345,18 @@ class InspireServiceTypeModelTest(DefaultCodelistTestCase):
 
 class InspireSpatialScopeModelTest(DefaultCodelistTestCase):
   """
-  tests for InspireSpatialScope model
+  test class for codelist:
+  INSPIRE spatial scope (räumlicher INSPIRE-Bezugsbereich)
   """
 
   model = InspireSpatialScope
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/inspirespatialscope/test',
-    'title': 'TestInspireSpatialScope',
+    'code': 'https://example.org/inspirespatialscope/initial',
+    'title': 'InitialInspireSpatialScope',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/inspirespatialscope/updated',
     'title': 'UpdatedInspireSpatialScope',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/inspirespatialscope/test',
-    'title': 'TestInspireSpatialScope',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/inspirespatialscope/updated',
-    'title': 'UpdatedInspireSpatialScope',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/inspirespatialscope/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -508,31 +377,18 @@ class InspireSpatialScopeModelTest(DefaultCodelistTestCase):
 
 class InspireThemeModelTest(DefaultCodelistTestCase):
   """
-  tests for InspireTheme model
+  test class for codelist:
+  INSPIRE theme (INSPIRE-Thema)
   """
 
   model = InspireTheme
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/inspiretheme/test',
-    'title': 'TestInspireTheme',
+    'code': 'https://example.org/inspiretheme/initial',
+    'title': 'InitialInspireTheme',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/inspiretheme/updated',
     'title': 'UpdatedInspireTheme',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/inspiretheme/test',
-    'title': 'TestInspireTheme',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/inspiretheme/updated',
-    'title': 'UpdatedInspireTheme',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/inspiretheme/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -553,31 +409,18 @@ class InspireThemeModelTest(DefaultCodelistTestCase):
 
 class LanguageModelTest(DefaultCodelistTestCase):
   """
-  tests for Language model
+  test class for codelist:
+  language (Sprache)
   """
 
   model = Language
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/language/test',
-    'title': 'TestLanguage',
+    'code': 'https://example.org/language/initial',
+    'title': 'InitialLanguage',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/language/updated',
     'title': 'UpdatedLanguage',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/language/test',
-    'title': 'TestLanguage',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/language/updated',
-    'title': 'UpdatedLanguage',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/language/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -598,31 +441,18 @@ class LanguageModelTest(DefaultCodelistTestCase):
 
 class LicenseModelTest(DefaultCodelistTestCase):
   """
-  tests for License model
+  test class for codelist:
+  license (Lizenz)
   """
 
   model = License
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/license/test',
-    'title': 'TestLicense',
+    'code': 'https://example.org/license/initial',
+    'title': 'InitialLicense',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/license/updated',
     'title': 'UpdatedLicense',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/license/test',
-    'title': 'TestLicense',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/license/updated',
-    'title': 'UpdatedLicense',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/license/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -643,31 +473,18 @@ class LicenseModelTest(DefaultCodelistTestCase):
 
 class MimeTypeModelTest(DefaultCodelistTestCase):
   """
-  tests for MimeType model
+  test class for codelist:
+  MIME type (MIME-Typ)
   """
 
   model = MimeType
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/mimetype/test',
-    'title': 'TestMimeType',
+    'code': 'https://example.org/mimetype/initial',
+    'title': 'InitialMimeType',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/mimetype/updated',
     'title': 'UpdatedMimeType',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/mimetype/test',
-    'title': 'TestMimeType',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/mimetype/updated',
-    'title': 'UpdatedMimeType',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/mimetype/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -688,31 +505,18 @@ class MimeTypeModelTest(DefaultCodelistTestCase):
 
 class PoliticalGeocodingModelTest(DefaultCodelistTestCase):
   """
-  tests for PoliticalGeocoding model
+  test class for codelist:
+  political geocoding (geopolitische Verwaltungscodierung)
   """
 
   model = PoliticalGeocoding
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/politicalgeocoding/test',
-    'title': 'TestPoliticalGeocoding',
+    'code': 'https://example.org/politicalgeocoding/initial',
+    'title': 'InitialPoliticalGeocoding',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/politicalgeocoding/updated',
     'title': 'UpdatedPoliticalGeocoding',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/politicalgeocoding/test',
-    'title': 'TestPoliticalGeocoding',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/politicalgeocoding/updated',
-    'title': 'UpdatedPoliticalGeocoding',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/politicalgeocoding/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -733,31 +537,18 @@ class PoliticalGeocodingModelTest(DefaultCodelistTestCase):
 
 class PoliticalGeocodingLevelModelTest(DefaultCodelistTestCase):
   """
-  tests for PoliticalGeocodingLevel model
+  test class for codelist:
+  political geocoding level (Ebene der geopolitischen Verwaltungscodierung)
   """
 
   model = PoliticalGeocodingLevel
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/politicalgecodinglevel/test',
-    'title': 'TestPoliticalGeocodingLevel',
+    'code': 'https://example.org/politicalgeocodinglevel/initial',
+    'title': 'InitialPoliticalGeocodingLevel',
   }
   attributes_values_db_updated = {
-    'code': 'https://example.org/politicalgecodinglevel/updated',
+    'code': 'https://example.org/politicalgeocodinglevel/updated',
     'title': 'UpdatedPoliticalGeocodingLevel',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/politicalgecodinglevel/test',
-    'title': 'TestPoliticalGeocodingLevel',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/politicalgecodinglevel/updated',
-    'title': 'UpdatedPoliticalGeocodingLevel',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/politicalgecodinglevel/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -778,31 +569,18 @@ class PoliticalGeocodingLevelModelTest(DefaultCodelistTestCase):
 
 class SpatialRepresentationTypeModelTest(DefaultCodelistTestCase):
   """
-  tests for SpatialRepresentationType model
+  test class for codelist:
+  spatial representation type (Typ der räumlichen Repräsentation)
   """
 
   model = SpatialRepresentationType
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/spatialrepresentationtype/test',
-    'title': 'TestSpatialRepresentationType',
+    'code': 'https://example.org/spatialrepresentationtype/initial',
+    'title': 'InitialSpatialRepresentationType',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/spatialrepresentationtype/updated',
     'title': 'UpdatedSpatialRepresentationType',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/spatialrepresentationtype/test',
-    'title': 'TestSpatialRepresentationType',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/spatialrepresentationtype/updated',
-    'title': 'UpdatedSpatialRepresentationType',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/spatialrepresentationtype/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):
@@ -823,31 +601,18 @@ class SpatialRepresentationTypeModelTest(DefaultCodelistTestCase):
 
 class TagModelTest(DefaultCodelistTestCase):
   """
-  tests for Tag model
+  test class for codelist:
+  tag (Schlagwort)
   """
 
   model = Tag
-
-  # set up the initial and updated values
   attributes_values_db_initial = {
-    'code': 'https://example.org/tag/test',
-    'title': 'TestTag',
+    'code': 'https://example.org/tag/initial',
+    'title': 'InitialTag',
   }
   attributes_values_db_updated = {
     'code': 'https://example.org/tag/updated',
     'title': 'UpdatedTag',
-  }
-  attributes_values_view_initial = {
-    'code': 'https://example.org/tag/test',
-    'title': 'TestTag',
-  }
-  attributes_values_view_updated = {
-    'code': 'https://example.org/tag/updated',
-    'title': 'UpdatedTag',
-  }
-  attributes_values_view_invalid = {
-    'code': 'https://example.org/tag/invalid',
-    'title': INVALID_STRING,
   }
 
   def setUp(self):

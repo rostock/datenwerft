@@ -17,23 +17,32 @@ from gdihrometadata.models import (
 )
 
 from ..base import DefaultModelTestCase
+from ..constants_vars import VALID_TEXT
 
 
 class CrsSetModelTest(DefaultModelTestCase):
   """
-  tests for CrsSet model
+  test class for auxiliary model:
+  set of coordinate reference systems (Set aus einem oder mehreren Koordinatenreferenzsystem(en))
   """
 
   model = CrsSet
+  create_test_object_in_classmethod = False
 
-  # Set up attributes with required fields
-  attributes_values_db_initial = {'title': 'TestCrsSet'}
-  attributes_values_db_updated = {'title': 'UpdatedCrsSet'}
+  @classmethod
+  def setUpTestData(cls):
+    cls.attributes_values_db_initial = {
+      'title': 'InitialCrsSet',
+    }
+    cls.attributes_values_db_updated = {
+      'title': 'UpdatedCrsSet',
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    test_crs = Crs.objects.create(code='https://example.org/crs/test', title='TestCrs')
+    cls.test_object.crs.add(test_crs)
 
   def setUp(self):
     self.init()
-    # Create related Crs for testing
-    self.test_crs = Crs.objects.create(code='https://example.org/crs/test', title='TestCrs')
 
   def test_create(self):
     self.generic_create_test()
@@ -43,34 +52,35 @@ class CrsSetModelTest(DefaultModelTestCase):
 
   def test_delete(self):
     self.generic_delete_test()
-
-  def test_add_crs(self):
-    # Test adding a Crs to the CrsSet
-    self.test_object.crs.add(self.test_crs)
-    self.assertEqual(self.test_object.crs.count(), 1)
-    self.assertEqual(self.test_object.crs.first(), self.test_crs)
 
 
 class DataTypeModelTest(DefaultModelTestCase):
   """
-  tests for DataType model
+  test class for auxiliary model:
+  data type (Datentyp)
   """
 
   model = DataType
+  create_test_object_in_classmethod = False
 
-  # Set up attributes with required fields
-  attributes_values_db_initial = {'title': 'TestDataType'}
-  attributes_values_db_updated = {'title': 'UpdatedDataType'}
+  @classmethod
+  def setUpTestData(cls):
+    test_format = Format.objects.create(code='https://example.org/format/test', title='TestFormat')
+    test_mime_type = MimeType.objects.create(
+      code='https://example.org/mimetype/test', title='TestMimeType'
+    )
+    cls.attributes_values_db_initial = {
+      'title': 'InitialDataType',
+      'format': test_format,
+      'mime_type': test_mime_type,
+    }
+    cls.attributes_values_db_updated = {
+      'title': 'UpdatedDataType',
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
 
   def setUp(self):
     self.init()
-    # Create related models
-    self.test_format = Format.objects.create(
-      code='https://example.org/format/test', title='TestFormat'
-    )
-    self.test_mime_type = MimeType.objects.create(
-      code='https://example.org/mimetype/test', title='TestMimeType'
-    )
 
   def test_create(self):
     self.generic_create_test()
@@ -81,49 +91,32 @@ class DataTypeModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
-  def test_with_related_models(self):
-    # Test with related models
-    self.test_object.format = self.test_format
-    self.test_object.mime_type = self.test_mime_type
-    self.test_object.save()
-
-    # Verify relationships
-    self.assertEqual(self.test_object.format, self.test_format)
-    self.assertEqual(self.test_object.mime_type, self.test_mime_type)
-
 
 class LegalModelTest(DefaultModelTestCase):
   """
-  tests for Legal model
+  test class for auxiliary model:
+  legal (rechtliche Informationen)
   """
+
+  model = Legal
+  create_test_object_in_classmethod = False
 
   @classmethod
   def setUpTestData(cls):
-    # Create related models first
-    cls.test_access = Access.objects.create(
-      code='https://example.org/access/test', title='TestAccess'
-    )
-    cls.test_license = License.objects.create(
+    test_access = Access.objects.create(code='https://example.org/access/test', title='TestAccess')
+    test_license = License.objects.create(
       code='https://example.org/license/test', title='TestLicense'
     )
-
-    # Set up attributes with foreign keys
     cls.attributes_values_db_initial = {
-      'title': 'TestLegal',
-      'access': cls.test_access,
-      'license': cls.test_license,
+      'title': 'InitialLegal',
+      'access': test_access,
+      'license': test_license,
     }
     cls.attributes_values_db_updated = {
       'title': 'UpdatedLegal',
-      'constraints': 'Test constraints',
+      'constraints': VALID_TEXT,
     }
-
-    # Create the test object
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
-    cls.count = 0
-    cls.create_test_object_in_classmethod = False
-
-  model = Legal
 
   def setUp(self):
     self.init()

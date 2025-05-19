@@ -80,8 +80,6 @@ jobs:
         run: python manage.py collectstatic -c
       - name: Run migrations
         run: python manage.py migrate
-      - name: Load data
-        run: python manage.py loaddata gdihrometadata_initial-data.json
       - name: Run tests on app Accounts
         run: python manage.py test accounts
       - name: Run tests on app Toolbox
@@ -92,5 +90,5 @@ jobs:
         run: python manage.py test antragsmanagement
       - name: Run tests on app BEMAS
         run: python manage.py test bemas
-      - name: Run tests on app GDIHROMetadata
+      - name: Run tests on app GDI.HRO Metadata
         run: python manage.py test gdihrometadata
