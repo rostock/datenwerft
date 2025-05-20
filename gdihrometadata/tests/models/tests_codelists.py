@@ -20,7 +20,7 @@ from gdihrometadata.models import (
   Tag,
 )
 
-from ..base import DefaultCodelistTestCase
+from ..abstract import DefaultCodelistTestCase
 
 
 class AccessModelTest(DefaultCodelistTestCase):
@@ -54,6 +54,9 @@ class AccessModelTest(DefaultCodelistTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class AssetTypeModelTest(DefaultCodelistTestCase):
   """
@@ -85,6 +88,9 @@ class AssetTypeModelTest(DefaultCodelistTestCase):
 
   def test_delete(self):
     self.generic_delete_test()
+
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
 
 
 class CharsetModelTest(DefaultCodelistTestCase):
@@ -118,6 +124,9 @@ class CharsetModelTest(DefaultCodelistTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class CrsModelTest(DefaultCodelistTestCase):
   """
@@ -149,6 +158,9 @@ class CrsModelTest(DefaultCodelistTestCase):
 
   def test_delete(self):
     self.generic_delete_test()
+
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
 
 
 class DatathemeCategoryModelTest(DefaultCodelistTestCase):
@@ -182,6 +194,9 @@ class DatathemeCategoryModelTest(DefaultCodelistTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class FormatModelTest(DefaultCodelistTestCase):
   """
@@ -213,6 +228,9 @@ class FormatModelTest(DefaultCodelistTestCase):
 
   def test_delete(self):
     self.generic_delete_test()
+
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
 
 
 class FrequencyModelTest(DefaultCodelistTestCase):
@@ -246,6 +264,9 @@ class FrequencyModelTest(DefaultCodelistTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class HashTypeModelTest(DefaultCodelistTestCase):
   """
@@ -277,6 +298,9 @@ class HashTypeModelTest(DefaultCodelistTestCase):
 
   def test_delete(self):
     self.generic_delete_test()
+
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
 
 
 class HvdCategoryModelTest(DefaultCodelistTestCase):
@@ -310,6 +334,9 @@ class HvdCategoryModelTest(DefaultCodelistTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class InspireServiceTypeModelTest(DefaultCodelistTestCase):
   """
@@ -341,6 +368,9 @@ class InspireServiceTypeModelTest(DefaultCodelistTestCase):
 
   def test_delete(self):
     self.generic_delete_test()
+
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
 
 
 class InspireSpatialScopeModelTest(DefaultCodelistTestCase):
@@ -374,6 +404,9 @@ class InspireSpatialScopeModelTest(DefaultCodelistTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class InspireThemeModelTest(DefaultCodelistTestCase):
   """
@@ -405,6 +438,9 @@ class InspireThemeModelTest(DefaultCodelistTestCase):
 
   def test_delete(self):
     self.generic_delete_test()
+
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
 
 
 class LanguageModelTest(DefaultCodelistTestCase):
@@ -438,6 +474,9 @@ class LanguageModelTest(DefaultCodelistTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class LicenseModelTest(DefaultCodelistTestCase):
   """
@@ -469,6 +508,9 @@ class LicenseModelTest(DefaultCodelistTestCase):
 
   def test_delete(self):
     self.generic_delete_test()
+
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
 
 
 class MimeTypeModelTest(DefaultCodelistTestCase):
@@ -502,6 +544,9 @@ class MimeTypeModelTest(DefaultCodelistTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class PoliticalGeocodingModelTest(DefaultCodelistTestCase):
   """
@@ -533,6 +578,9 @@ class PoliticalGeocodingModelTest(DefaultCodelistTestCase):
 
   def test_delete(self):
     self.generic_delete_test()
+
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
 
 
 class PoliticalGeocodingLevelModelTest(DefaultCodelistTestCase):
@@ -566,6 +614,9 @@ class PoliticalGeocodingLevelModelTest(DefaultCodelistTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class SpatialRepresentationTypeModelTest(DefaultCodelistTestCase):
   """
@@ -598,6 +649,9 @@ class SpatialRepresentationTypeModelTest(DefaultCodelistTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class TagModelTest(DefaultCodelistTestCase):
   """
@@ -629,3 +683,6 @@ class TagModelTest(DefaultCodelistTestCase):
 
   def test_delete(self):
     self.generic_delete_test()
+
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)

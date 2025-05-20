@@ -16,8 +16,7 @@ from gdihrometadata.models import (
   SpatialReference,
 )
 
-from ..base import DefaultModelTestCase
-from ..constants_vars import VALID_TEXT
+from ..abstract import DefaultModelTestCase
 
 
 class CrsSetModelTest(DefaultModelTestCase):
@@ -52,6 +51,9 @@ class CrsSetModelTest(DefaultModelTestCase):
 
   def test_delete(self):
     self.generic_delete_test()
+
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
 
 
 class DataTypeModelTest(DefaultModelTestCase):
@@ -91,6 +93,9 @@ class DataTypeModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class LegalModelTest(DefaultModelTestCase):
   """
@@ -114,7 +119,7 @@ class LegalModelTest(DefaultModelTestCase):
     }
     cls.attributes_values_db_updated = {
       'title': 'UpdatedLegal',
-      'constraints': VALID_TEXT,
+      'constraints': 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam.',
     }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
 
@@ -130,31 +135,35 @@ class LegalModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class SpatialReferenceModelTest(DefaultModelTestCase):
   """
-  tests for SpatialReference model
+  test class for auxiliary model:
+  spatial reference (räumlicher Bezug)
   """
+
+  model = SpatialReference
+  create_test_object_in_classmethod = False
 
   @classmethod
   def setUpTestData(cls):
-    # Create related models first
-    cls.test_political_geocoding_level = PoliticalGeocodingLevel.objects.create(
+    test_political_geocoding_level = PoliticalGeocodingLevel.objects.create(
       code='https://example.org/politicalgecodinglevel/test', title='TestPoliticalGeocodingLevel'
     )
-    cls.test_political_geocoding = PoliticalGeocoding.objects.create(
+    test_political_geocoding = PoliticalGeocoding.objects.create(
       code='https://example.org/politicalgeocoding/test', title='TestPoliticalGeocoding'
     )
-
-    # Set up attributes with required fields and foreign keys
     cls.attributes_values_db_initial = {
-      'title': 'TestSpatialReference',
+      'title': 'InitialSpatialReference',
       'extent_spatial_south': Decimal('-10.12345'),
       'extent_spatial_east': Decimal('20.12345'),
       'extent_spatial_north': Decimal('30.12345'),
       'extent_spatial_west': Decimal('-40.12345'),
-      'political_geocoding_level': cls.test_political_geocoding_level,
-      'political_geocoding': cls.test_political_geocoding,
+      'political_geocoding_level': test_political_geocoding_level,
+      'political_geocoding': test_political_geocoding,
     }
     cls.attributes_values_db_updated = {
       'title': 'UpdatedSpatialReference',
@@ -163,13 +172,7 @@ class SpatialReferenceModelTest(DefaultModelTestCase):
       'extent_spatial_north': Decimal('35.12345'),
       'extent_spatial_west': Decimal('-45.12345'),
     }
-
-    # Create the test object
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
-    cls.count = 0
-    cls.create_test_object_in_classmethod = False
-
-  model = SpatialReference
 
   def setUp(self):
     self.init()
@@ -183,18 +186,20 @@ class SpatialReferenceModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
+
 
 class OrganizationModelTest(DefaultModelTestCase):
   """
-  tests for Organization model
+  test class for auxiliary model:
+  organization (Organisation)
   """
 
   model = Organization
-
-  # Set up attributes with required fields
   attributes_values_db_initial = {
-    'name': 'test-organization',
-    'title': 'TestOrganization',
+    'name': 'initial-organization',
+    'title': 'InitialOrganization',
     'image': 'https://example.org/images/org.png',
   }
   attributes_values_db_updated = {
@@ -215,36 +220,39 @@ class OrganizationModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
-  def test_str_method(self):
-    # Test the string representation
-    self.assertEqual(str(self.test_object), self.test_object.title)
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
 
 
 class ContactModelTest(DefaultModelTestCase):
   """
-  tests for Contact model
+  test class for auxiliary model:
+  contact (Kontakt)
   """
 
   model = Contact
+  create_test_object_in_classmethod = False
 
-  # Set up attributes with required fields
-  attributes_values_db_initial = {
-    'first_name': 'Test',
-    'last_name': 'User',
-    'email': 'test.user@example.org',
-  }
-  attributes_values_db_updated = {
-    'first_name': 'Updated',
-    'last_name': 'Person',
-    'email': 'updated.person@example.org',
-  }
+  @classmethod
+  def setUpTestData(cls):
+    test_organization = Organization.objects.create(
+      name='test-organization', title='TestOrganization'
+    )
+    cls.attributes_values_db_initial = {
+      'first_name': 'Test',
+      'last_name': 'User',
+      'email': 'test.user@example.org',
+      'organization': test_organization,
+    }
+    cls.attributes_values_db_updated = {
+      'first_name': 'Updated',
+      'last_name': 'Person',
+      'email': 'updated.person@example.org',
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
 
   def setUp(self):
     self.init()
-    # Create related organization
-    self.test_organization = Organization.objects.create(
-      name='test-organization', title='TestOrganization'
-    )
 
   def test_create(self):
     self.generic_create_test()
@@ -255,23 +263,12 @@ class ContactModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
-  def test_with_organization(self):
-    # Test with organization relationship
-    self.test_object.organization = self.test_organization
-    self.test_object.save()
+  def test_string_representation_with_name(self):
+    name = f'{self.test_object.first_name} {self.test_object.last_name}'
+    expected = name + f' ({self.test_object.organization})'
+    self.generic_string_representation_test(expected)
 
-    # Verify relationship
-    self.assertEqual(self.test_object.organization, self.test_organization)
-
-  def test_str_method_with_name(self):
-    # Test string representation with name
-    self.assertEqual(
-      str(self.test_object), f'{self.test_object.first_name} {self.test_object.last_name}'
-    )
-
-  def test_str_method_without_name(self):
-    # Test string representation without name
-    self.test_object.first_name = None
-    self.test_object.last_name = None
-    self.test_object.save()
-    self.assertEqual(str(self.test_object), self.test_object.email)
+  def test_string_representation_without_name(self):
+    self.test_object.first_name, self.test_object.last_name = None, None
+    expected = f'{self.test_object.email} ({self.test_object.organization})'
+    self.generic_string_representation_test(expected)

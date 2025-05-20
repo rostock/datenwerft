@@ -1,5 +1,6 @@
-from django.contrib.auth.models import Group, User
-from django.test import TestCase
+from django.contrib.auth.models import Group, Permission, User
+from django.test import TestCase, override_settings
+from django.urls import reverse
 
 from gdihrometadata.constants_vars import GROUP
 from gdihrometadata.models import Codelist
@@ -19,6 +20,15 @@ def get_object(model, object_filter):
   return query.first()
 
 
+def login(test):
+  """
+  logs test user in
+
+  :param test: current test case
+  """
+  test.client.login(username=USERNAME, password=PASSWORD)
+
+
 class DefaultTestCase(TestCase):
   """
   abstract test class
@@ -28,7 +38,14 @@ class DefaultTestCase(TestCase):
 
   def init(self):
     self.test_group: Group = Group.objects.create(name=GROUP)
+    # assign permissions to test group
+    permissions = Permission.objects.filter(content_type__app_label='gdihrometadata')
+    for permission in permissions:
+      self.test_group.permissions.add(permission)
     self.test_user: User = User.objects.create_user(username=USERNAME, password=PASSWORD)
+    # add test user to test group
+    self.test_user.is_staff = True
+    self.test_user.groups.add(self.test_group)
 
 
 class DefaultModelTestCase(DefaultTestCase):
@@ -106,6 +123,15 @@ class DefaultModelTestCase(DefaultTestCase):
     self.test_object.delete()
     self.assertEqual(self.model.objects.only('pk').all().count(), self.count)
 
+  def generic_string_representation_test(self, string_representation):
+    """
+    tests string representation of test object of passed model
+
+    :param self
+    :param string_representation: expected string representation
+    """
+    self.assertEqual(str(self.test_object), string_representation)
+
 
 class DefaultCodelistTestCase(DefaultModelTestCase):
   """
@@ -123,3 +149,33 @@ class DefaultCodelistTestCase(DefaultModelTestCase):
     """
     # model declared as codelist?
     self.assertTrue(issubclass(self.model, Codelist))
+
+
+class DefaultViewTestCase(DefaultTestCase):
+  """
+  abstract test class for views
+  """
+
+  def init(self):
+    super().init()
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  def generic_view_test(self, view_name, status_code, content_type):
+    """
+    tests a view via GET
+
+    :param self
+    :param view_name: name of the view
+    :param status_code: expected status code of response
+    :param content_type: expected content type of response
+    """
+    # log test user in
+    login(self)
+    # prepare the GET
+    url = reverse(f'admin:gdihrometadata_{view_name}')
+    # try GETting the view
+    response = self.client.get(url, follow=True)
+    # status code of response as expected?
+    self.assertEqual(response.status_code, status_code)
+    # content type of response as expected?
+    self.assertEqual(response['content-type'].lower(), content_type)

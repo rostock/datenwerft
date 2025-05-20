@@ -1,6 +1,19 @@
 from datetime import date
 
-from gdihrometadata.models import (
+from gdihrometadata.models.auxiliary import (
+  Contact,
+  DataType,
+  Organization,
+)
+from gdihrometadata.models.codelists import (
+  Access,
+  AssetType,
+  Charset,
+  DatathemeCategory,
+  Language,
+  License,
+)
+from gdihrometadata.models.core import (
   App,
   Assetset,
   Dataset,
@@ -11,68 +24,52 @@ from gdihrometadata.models import (
   Source,
   Topic,
 )
-from gdihrometadata.models.auxiliary import (
-  Contact,
-  DataType,
-  Organization,
-)
-from gdihrometadata.models.codelists import (
-  Access,
-  AssetType,
-  Charset,
-  Language,
-  License,
-)
 from gdihrometadata.models.enums import (
   ProcessingType,
   RepositoryType,
   ServiceType,
 )
 
-from ..base import DefaultModelTestCase
+from ..abstract import DefaultModelTestCase
 
 
 class SourceModelTest(DefaultModelTestCase):
   """
-  Tests for Source model
+  test class for core model:
+  source (Datenquelle)
   """
+
+  model = Source
+  create_test_object_in_classmethod = False
 
   @classmethod
   def setUpTestData(cls):
-    # Create related models
-    cls.test_organization = Organization.objects.create(
-      name='test-organization', title='TestOrganization'
-    )
-    cls.test_contact = Contact.objects.create(
-      first_name='Test',
-      last_name='Contact',
-      email='test.contact@example.org',
-      organization=cls.test_organization,
-    )
-    cls.test_frequency = Frequency.objects.create(
+    test_frequency = Frequency.objects.create(
       code='https://example.org/frequency/test', title='TestFrequency'
     )
-    cls.test_data_type = DataType.objects.create(title='TestDataType')
-
-    # Set up attributes
+    test_data_type = DataType.objects.create(title='TestDataType')
     cls.attributes_values_db_initial = {
-      'last_import': '2023-01-01',
-      'import_frequency': cls.test_frequency,
+      'last_import': date(2023, 1, 1),
+      'import_frequency': test_frequency,
       'processing_type': ProcessingType.MANUALLY,
       'type': RepositoryType.FILE,
       'connection_info': 'test-connection-info',
-      'data_type': cls.test_data_type,
+      'data_type': test_data_type,
     }
     cls.attributes_values_db_updated = {
-      'description': 'Description of the updated source',
+      'description': 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam.',
     }
-
-    # Create the test object
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
-    cls.count = 0
-    cls.create_test_object_in_classmethod = False
-
-  model = Source
+    test_organization = Organization.objects.create(
+      name='test-organization', title='TestOrganization'
+    )
+    test_contact = Contact.objects.create(
+      first_name='Test',
+      last_name='Contact',
+      email='test.contact@example.org',
+      organization=test_organization,
+    )
+    cls.test_object.authors.add(test_contact)
 
   def setUp(self):
     self.init()
@@ -86,62 +83,49 @@ class SourceModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
-  def test_str_method(self):
-    # Test the string representation
+  def test_string_representation(self):
     expected = f'{self.test_object.get_type_display()} ({self.test_object.connection_info})'
-    self.assertEqual(str(self.test_object), expected)
+    self.generic_string_representation_test(expected)
 
 
 class RepositoryModelTest(DefaultModelTestCase):
   """
-  tests for Repository model
+  test class for core model:
+  repository (Speicherort)
   """
+
+  model = Repository
+  create_test_object_in_classmethod = False
 
   @classmethod
   def setUpTestData(cls):
-    # Create related models
-    # Create a valid source first
-    cls.test_frequency = Frequency.objects.create(
+    test_frequency = Frequency.objects.create(
       code='https://example.org/frequency/test', title='TestFrequency'
     )
-    cls.test_data_type = DataType.objects.create(title='TestSourceDataType')
-    cls.test_source_type = RepositoryType.FILE
-    cls.test_source = Source.objects.create(
-      last_import=date(2023, 1, 1),
-      import_frequency=cls.test_frequency,
-      processing_type=ProcessingType.AUTOMATICALLY,
-      type=cls.test_source_type,  # Use created SourceType
-      connection_info='test-source-connection-info',
-      data_type=cls.test_data_type,
-    )
-
-    cls.test_update_frequency = Frequency.objects.create(code='CONTINUOUS', title='Continuous')
-
-    # Set up attributes
+    test_data_type = DataType.objects.create(title='TestDataType')
     cls.attributes_values_db_initial = {
-      # 'title': 'TestRepository', # Removed title
-      'connection_info': 'test-connection-info',
-      'type': RepositoryType.INTERFACE,
       'creation': date(2023, 1, 1),
       'last_update': date(2023, 2, 1),
+      'update_frequency': test_frequency,
+      'type': RepositoryType.INTERFACE,
+      'connection_info': 'test-connection-info',
+      'data_type': test_data_type,
     }
     cls.attributes_values_db_updated = {
-      'connection_info': 'test-connection-info-updated',
-      'type': RepositoryType.DATABASE,
-      'creation': date(2023, 1, 2),
-      'last_update': date(2023, 2, 2),
+      'description': 'At vero eos et accusam et justo duo dolores et ea rebum.',
     }
-
-    cls.attributes_values_db_initial['source'] = cls.test_source
-    cls.attributes_values_db_initial['data_type'] = cls.test_data_type
-    cls.attributes_values_db_initial['update_frequency'] = cls.test_update_frequency
-
-    # Create the object with initial attributes
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
-    cls.count = 0
-    cls.create_test_object_in_classmethod = False
-
-  model = Repository
+    test_organization = Organization.objects.create(
+      name='test-organization', title='TestOrganization'
+    )
+    test_contact = Contact.objects.create(
+      first_name='Test',
+      last_name='Contact',
+      email='test.contact@example.org',
+      organization=test_organization,
+    )
+    cls.test_object.maintainers.add(test_contact)
+    cls.test_object.authors.add(test_contact)
 
   def setUp(self):
     self.init()
@@ -155,67 +139,58 @@ class RepositoryModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
-  def test_str_method(self):
-    # Test the string representation
+  def test_string_representation(self):
     expected = f'{self.test_object.get_type_display()} ({self.test_object.connection_info})'
-    self.assertEqual(str(self.test_object), expected)
+    self.generic_string_representation_test(expected)
 
 
 class AssetsetModelTest(DefaultModelTestCase):
   """
-  tests for Assetset model
+  test class for core model:
+  asset-set (Asset-Sammlung)
   """
+
+  model = Assetset
+  create_test_object_in_classmethod = False
 
   @classmethod
   def setUpTestData(cls):
-    # Create related models
-    cls.test_access = Access.objects.create(
-      code='https://example.org/access/test', title='TestAccess'
+    test_frequency = Frequency.objects.create(
+      code='https://example.org/frequency/test', title='TestFrequency'
     )
-    cls.test_license = License.objects.create(
+    test_access = Access.objects.create(code='https://example.org/access/test', title='TestAccess')
+    test_license = License.objects.create(
       code='https://example.org/license/test', title='TestLicense'
     )
-
-    # Create related models needed for Assetset
-    cls.test_legal = Legal.objects.create(
-      title='TestLegal', access=cls.test_access, license=cls.test_license
-    )
-    cls.test_update_frequency = Frequency.objects.create(code='BIANNUALLY', title='Biannually')
-    cls.test_asset_type = AssetType.objects.create(
+    test_legal = Legal.objects.create(title='TestLegal', access=test_access, license=test_license)
+    test_asset_type = AssetType.objects.create(
       code='https://example.org/assettype/test', title='TestAssetType'
     )
-    cls.test_organization = Organization.objects.create(
+    cls.attributes_values_db_initial = {
+      'creation': date(2023, 1, 1),
+      'last_update': date(2023, 2, 1),
+      'name': 'initial-assetset',
+      'title': 'InitialAssetset',
+      'update_frequency': test_frequency,
+      'legal': test_legal,
+      'type': test_asset_type,
+    }
+    cls.attributes_values_db_updated = {
+      'name': 'updated-assetset',
+      'title': 'UpdatedAssetset',
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    test_organization = Organization.objects.create(
       name='test-organization', title='TestOrganization'
     )
-    cls.test_contact = Contact.objects.create(
+    test_contact = Contact.objects.create(
       first_name='Test',
       last_name='Contact',
       email='test.contact@example.org',
-      organization=cls.test_organization,
+      organization=test_organization,
     )
-
-    # Set up attributes
-    cls.attributes_values_db_initial = {
-      'name': 'test-assetset',
-      'title': 'TestAssetset',
-      'update_frequency': cls.test_update_frequency,
-      'legal': cls.test_legal,
-      'type': cls.test_asset_type,
-      'creation': date(2023, 1, 1),
-      'last_update': date(2023, 2, 1),
-    }
-    cls.attributes_values_db_updated = {
-      'name': 'test-assetset-updated',
-      'title': 'UpdatedAssetset',
-      'last_update': date(2023, 3, 1),
-    }
-
-    # Create the test object
-    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
-    cls.count = 0
-    cls.create_test_object_in_classmethod = False
-
-  model = Assetset
+    cls.test_object.publishers.add(test_contact)
+    cls.test_object.maintainers.add(test_contact)
 
   def setUp(self):
     self.init()
@@ -229,57 +204,60 @@ class AssetsetModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
-  def test_str_method(self):
-    # Test the string representation
-    self.assertEqual(str(self.test_object), self.test_object.title)
+  def test_string_representation_with_title(self):
+    self.generic_string_representation_test(self.test_object.title)
+
+  def test_string_representation_without_title(self):
+    self.test_object.title = None
+    self.generic_string_representation_test(self.test_object.name)
 
 
 class DatasetModelTest(DefaultModelTestCase):
   """
-  tests for Dataset model
+  test class for core model:
+  dataset (Datensatz)
   """
+
+  model = Dataset
+  create_test_object_in_classmethod = False
 
   @classmethod
   def setUpTestData(cls):
-    # Create related models
-    cls.test_data_type = DataType.objects.create(title='TestDatasetDataType')
-    cls.test_access = Access.objects.create(
-      code='https://example.org/access/test', title='TestAccess'
+    test_frequency = Frequency.objects.create(
+      code='https://example.org/frequency/test', title='TestFrequency'
     )
-    cls.test_license = License.objects.create(
+    test_access = Access.objects.create(code='https://example.org/access/test', title='TestAccess')
+    test_license = License.objects.create(
       code='https://example.org/license/test', title='TestLicense'
     )
-    cls.test_legal = Legal.objects.create(
-      title='TestLegal', access=cls.test_access, license=cls.test_license
-    )
-    cls.test_update_frequency = Frequency.objects.create(code='ANNUALLY', title='Annually')
-
-    # Set up attributes
+    test_legal = Legal.objects.create(title='TestLegal', access=test_access, license=test_license)
+    test_data_type = DataType.objects.create(title='TestDataType')
     cls.attributes_values_db_initial = {
-      'name': 'test-dataset',
-      'title': 'TestDataset',
-      'link': 'https://example.org/dataset/test',
       'creation': date(2023, 1, 1),
       'last_update': date(2023, 2, 1),
+      'name': 'initial-dataset',
+      'title': 'InitialDataset',
+      'link': 'https://example.org/dataset/test',
+      'update_frequency': test_frequency,
+      'legal': test_legal,
+      'data_type': test_data_type,
     }
     cls.attributes_values_db_updated = {
-      'name': 'test-dataset-updated',
-      'title': 'TestDatasetUpdated',
-      'link': 'https://example.org/dataset/test-updated',
-      'creation': date(2023, 1, 2),
-      'last_update': date(2023, 2, 2),
+      'name': 'updated-dataset',
+      'title': 'UpdatedDataset',
     }
-
-    cls.attributes_values_db_initial['data_type'] = cls.test_data_type
-    cls.attributes_values_db_initial['legal'] = cls.test_legal
-    cls.attributes_values_db_initial['update_frequency'] = cls.test_update_frequency
-
-    # Create the object with initial attributes
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
-    cls.count = 0
-    cls.create_test_object_in_classmethod = False
-
-  model = Dataset
+    test_organization = Organization.objects.create(
+      name='test-organization', title='TestOrganization'
+    )
+    test_contact = Contact.objects.create(
+      first_name='Test',
+      last_name='Contact',
+      email='test.contact@example.org',
+      organization=test_organization,
+    )
+    cls.test_object.publishers.add(test_contact)
+    cls.test_object.maintainers.add(test_contact)
 
   def setUp(self):
     self.init()
@@ -293,83 +271,57 @@ class DatasetModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
-  def test_str_method(self):
-    # Test the string representation
-    self.assertEqual(str(self.test_object), self.test_object.title)
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
 
 
 class ServiceModelTest(DefaultModelTestCase):
   """
-  tests for Service model
+  test class for core model:
+  service (Service)
   """
+
+  model = Service
+  create_test_object_in_classmethod = False
 
   @classmethod
   def setUpTestData(cls):
-    # Create related models
-    cls.test_organization = Organization.objects.create(
+    test_access = Access.objects.create(code='https://example.org/access/test', title='TestAccess')
+    test_license = License.objects.create(
+      code='https://example.org/license/test', title='TestLicense'
+    )
+    test_legal = Legal.objects.create(title='TestLegal', access=test_access, license=test_license)
+    test_language = Language.objects.create(
+      code='https://example.org/language/test', title='TestLanguage'
+    )
+    test_charset = Charset.objects.create(
+      code='https://example.org/charset/test', title='TestCharset'
+    )
+    cls.attributes_values_db_initial = {
+      'name': 'initial-service',
+      'title': 'InitialService',
+      'link': 'https://example.org/service/test',
+      'legal': test_legal,
+      'type': ServiceType.WMS,
+      'language': test_language,
+      'charset': test_charset,
+    }
+    cls.attributes_values_db_updated = {
+      'name': 'updated-service',
+      'title': 'UpdatedService',
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    test_organization = Organization.objects.create(
       name='test-organization', title='TestOrganization'
     )
-    cls.test_contact = Contact.objects.create(
+    test_contact = Contact.objects.create(
       first_name='Test',
       last_name='Contact',
       email='test.contact@example.org',
-      organization=cls.test_organization,
+      organization=test_organization,
     )
-    cls.test_frequency = Frequency.objects.create(
-      code='https://example.org/frequency/test', title='TestFrequency'
-    )
-    # Create necessary fields for Dataset
-    cls.test_data_type = DataType.objects.create(title='TestDatasetDataType')
-    cls.test_access = Access.objects.create(
-      code='https://example.org/access/test-service', title='TestServiceAccess'
-    )
-    cls.test_license = License.objects.create(
-      code='https://example.org/license/test-service', title='TestServiceLicense'
-    )
-    cls.test_legal = Legal.objects.create(
-      title='TestServiceLegal', access=cls.test_access, license=cls.test_license
-    )
-    cls.test_language = Language.objects.create(
-      code='https://www.loc.gov/standards/iso639-2#eng', title='English'
-    )
-    cls.test_charset = Charset.objects.create(
-      code='https://www.iana.org/assignments/character-sets/utf-8', title='UTF-8'
-    )
-
-    cls.test_dataset = Dataset.objects.create(
-      name='test-dataset',
-      title='TestDataset',
-      link='https://example.org/dataset/test',
-      update_frequency=cls.test_frequency,
-      legal=cls.test_legal,
-      data_type=cls.test_data_type,
-      creation=date(2023, 1, 1),
-      last_update=date(2023, 2, 1),
-    )
-
-    # Set up attributes
-    cls.attributes_values_db_initial = {
-      'name': 'test-service',
-      'title': 'TestService',
-      'link': 'https://example.org/service/test',
-      'legal': cls.test_legal,
-      'type': ServiceType.WMS,
-      'language': cls.test_language,
-      'charset': cls.test_charset,
-    }
-    cls.attributes_values_db_updated = {
-      'name': 'test-service-updated',
-      'title': 'UpdatedService',
-      'link': 'https://example.org/service/updated',
-      'description': 'Description of the updated service',
-    }
-
-    # Create the test object
-    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
-    cls.count = 0
-    cls.create_test_object_in_classmethod = False
-
-  model = Service
+    cls.test_object.publishers.add(test_contact)
+    cls.test_object.maintainers.add(test_contact)
 
   def setUp(self):
     self.init()
@@ -383,90 +335,35 @@ class ServiceModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
-  def test_str_method(self):
-    # Test the string representation
+  def test_string_representation(self):
     expected = f'{self.test_object.title} ({self.test_object.get_type_display()})'
-    self.assertEqual(str(self.test_object), expected)
-
-  def test_dataset_relation(self):
-    # Test adding a dataset to the service
-    self.test_object.datasets.add(self.test_dataset)
-    self.assertEqual(self.test_object.datasets.count(), 1)
-    self.assertEqual(self.test_object.datasets.first(), self.test_dataset)
+    self.generic_string_representation_test(expected)
 
 
 class TopicModelTest(DefaultModelTestCase):
   """
-  tests for Topic model
+  test class for core model:
+  topic (Datenthema)
   """
+
+  model = Topic
+  create_test_object_in_classmethod = False
 
   @classmethod
   def setUpTestData(cls):
-    # Create related models
-    cls.test_organization = Organization.objects.create(
-      name='test-organization', title='TestOrganization'
-    )
-    cls.test_contact = Contact.objects.create(
-      first_name='Test',
-      last_name='Contact',
-      email='test.contact@example.org',
-      organization=cls.test_organization,
-    )
-    # Create necessary fields for Dataset
-    cls.test_data_type = DataType.objects.create(title='TestTopicDataType')
-    cls.test_access = Access.objects.create(
-      code='https://example.org/access/test-topic', title='TestTopicAccess'
-    )
-    cls.test_license = License.objects.create(
-      code='https://example.org/license/test-topic', title='TestTopicLicense'
-    )
-    cls.test_legal = Legal.objects.create(
-      title='TestTopicLegal', access=cls.test_access, license=cls.test_license
-    )
-    cls.test_dataset = Dataset.objects.create(
-      name='test-dataset-for-topic',
-      title='TestDataset',
-      link='https://example.org/dataset/test',
-      update_frequency=Frequency.objects.create(
-        code='http://inspire.ec.europa.eu/metadata-codelist/MaintenanceFrequency/daily',
-        title='täglich',
-      ),
-      data_type=cls.test_data_type,
-      legal=cls.test_legal,
-      creation=date(2023, 1, 1),
-      last_update=date(2023, 2, 1),
-    )
-    cls.test_service = Service.objects.create(
-      name='test-service',
-      title='TestService',
-      link='https://example.org/service/test',
-      legal=cls.test_legal,
-      type=ServiceType.API_FEATURES,
-      language=Language.objects.create(
-        code='https://www.loc.gov/standards/iso639-2#ger', title='Deutsch'
-      ),
-      charset=Charset.objects.create(
-        code='https://www.iana.org/assignments/character-sets/utf-8', title='UTF-8'
-      ),
-    )
-
-    # Set up attributes
     cls.attributes_values_db_initial = {
-      'name': 'test-topic',
-      'title': 'TestTopic',
-      'description': 'Description of the test topic',
+      'name': 'initial-topic',
+      'title': 'InitialTopic',
     }
     cls.attributes_values_db_updated = {
+      'name': 'updated-topic',
       'title': 'UpdatedTopic',
-      'description': 'Description of the updated topic',
     }
-
-    # Create the test object
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
-    cls.count = 0
-    cls.create_test_object_in_classmethod = False
-
-  model = Topic
+    test_category = DatathemeCategory.objects.create(
+      code='https://example.org/datathemecategory/test', title='TestDatathemeCategory'
+    )
+    cls.test_object.categories.add(test_category)
 
   def setUp(self):
     self.init()
@@ -480,102 +377,52 @@ class TopicModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
-  def test_str_method(self):
-    # Test the string representation
-    self.assertEqual(str(self.test_object), self.test_object.title)
-
-  def test_dataset_relation(self):
-    # Test adding a dataset to the topic
-    self.test_object.datasets.add(self.test_dataset)
-    self.assertEqual(self.test_object.datasets.count(), 1)
-    self.assertEqual(self.test_object.datasets.first(), self.test_dataset)
-
-  def test_service_relation(self):
-    # Test adding a service to the topic
-    self.test_object.services.add(self.test_service)
-    self.assertEqual(self.test_object.services.count(), 1)
-    self.assertEqual(self.test_object.services.first(), self.test_service)
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
 
 
 class AppModelTest(DefaultModelTestCase):
   """
-  tests for App model
+  test class for core model:
+  app (App)
   """
+
+  model = App
+  create_test_object_in_classmethod = False
 
   @classmethod
   def setUpTestData(cls):
-    # Create related models
-    cls.test_organization = Organization.objects.create(
+    test_access = Access.objects.create(code='https://example.org/access/test', title='TestAccess')
+    test_license = License.objects.create(
+      code='https://example.org/license/test', title='TestLicense'
+    )
+    test_legal = Legal.objects.create(title='TestLegal', access=test_access, license=test_license)
+    cls.attributes_values_db_initial = {
+      'name': 'initial-app',
+      'title': 'InitialApp',
+      'link': 'https://example.org/app/test',
+      'legal': test_legal,
+    }
+    cls.attributes_values_db_updated = {
+      'name': 'updated-app',
+      'title': 'UpdatedApp',
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    test_organization = Organization.objects.create(
       name='test-organization', title='TestOrganization'
     )
-    cls.test_contact = Contact.objects.create(
+    test_contact = Contact.objects.create(
       first_name='Test',
       last_name='Contact',
       email='test.contact@example.org',
-      organization=cls.test_organization,
+      organization=test_organization,
     )
-    # Create necessary fields for Dataset
-    cls.test_data_type = DataType.objects.create(title='TestAppDatasetDataType')
-    cls.test_access = Access.objects.create(
-      code='https://example.org/access/test-app', title='TestAppAccess'
+    cls.test_object.publishers.add(test_contact)
+    cls.test_object.maintainers.add(test_contact)
+    test_language = Language.objects.create(
+      code='https://example.org/language/test', title='TestLanguage'
     )
-    cls.test_license = License.objects.create(
-      code='https://example.org/license/test-app', title='TestAppLicense'
-    )
-    cls.test_legal = Legal.objects.create(
-      title='TestAppLegal', access=cls.test_access, license=cls.test_license
-    )
-    cls.test_language = Language.objects.create(
-      code='https://www.loc.gov/standards/iso639-2#eng', title='English'
-    )
-    cls.test_charset = Charset.objects.create(
-      code='https://www.iana.org/assignments/character-sets/utf-8', title='UTF-8'
-    )
-    cls.test_frequency = Frequency.objects.create(
-      code='http://inspire.ec.europa.eu/metadata-codelist/MaintenanceFrequency/monthly',
-      title='monatlich',
-    )
-
-    cls.test_dataset = Dataset.objects.create(
-      name='test-dataset-for-app',
-      title='TestDataset',
-      link='https://example.org/dataset/test-app',
-      update_frequency=cls.test_frequency,
-      data_type=cls.test_data_type,
-      legal=cls.test_legal,
-      creation=date(2023, 1, 1),
-      last_update=date(2023, 2, 1),
-    )
-    cls.test_service = Service.objects.create(
-      name='test-service-for-app',
-      title='TestServiceForApp',
-      link='https://example.org/service/test-app',
-      legal=cls.test_legal,
-      type=ServiceType.WCS,
-      language=cls.test_language,
-      charset=cls.test_charset,
-    )
-
-    # Set up attributes
-    cls.attributes_values_db_initial = {
-      'name': 'test-app',
-      'title': 'TestApp',
-      'link': 'https://example.org/app/test',
-      'legal': cls.test_legal,
-    }
-    cls.attributes_values_db_updated = {
-      'name': 'test-app-updated',
-      'title': 'UpdatedApp',
-      'link': 'https://example.org/app/updated',
-      'description': 'Description of the updated app',
-    }
-
-    # Create the test object
-    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
-    cls.count = 0
-    cls.create_test_object_in_classmethod = False
-
-  model = App
+    cls.test_object.languages.add(test_language)
 
   def setUp(self):
     self.init()
@@ -589,18 +436,5 @@ class AppModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
-  def test_str_method(self):
-    # Test the string representation
-    self.assertEqual(str(self.test_object), self.test_object.title)
-
-  def test_dataset_relation(self):
-    # Test adding a dataset to the app
-    self.test_object.datasets.add(self.test_dataset)
-    self.assertEqual(self.test_object.datasets.count(), 1)
-    self.assertEqual(self.test_object.datasets.first(), self.test_dataset)
-
-  def test_service_relation(self):
-    # Test adding a service to the app
-    self.test_object.services.add(self.test_service)
-    self.assertEqual(self.test_object.services.count(), 1)
-    self.assertEqual(self.test_object.services.first(), self.test_service)
+  def test_string_representation(self):
+    self.generic_string_representation_test(self.test_object.title)
