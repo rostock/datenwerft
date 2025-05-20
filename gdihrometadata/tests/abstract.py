@@ -46,6 +46,7 @@ class DefaultTestCase(TestCase):
     # add test user to test group
     self.test_user.is_staff = True
     self.test_user.groups.add(self.test_group)
+    self.test_user.save()
 
 
 class DefaultModelTestCase(DefaultTestCase):
@@ -174,7 +175,7 @@ class DefaultViewTestCase(DefaultTestCase):
     # prepare the GET
     url = reverse(f'admin:gdihrometadata_{view_name}')
     # try GETting the view
-    response = self.client.get(url, follow=True)
+    response = self.client.get(url)
     # status code of response as expected?
     self.assertEqual(response.status_code, status_code)
     # content type of response as expected?
