@@ -366,19 +366,58 @@ uv run manage.py test toolbox
   ```
 
 - Tests der App _Antragsmanagement_ durchführen:
-```bash
-python manage.py test antragsmanagement
-```
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test antragsmanagement.tests.CleanupEventRequestCommentCreateViewTest.test_post_create_success
+
+  # mit uv
+  uv run manage.py test antragsmanagement.tests.CleanupEventRequestCommentCreateViewTest.test_post_create_success
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test antragsmanagement
+
+  # mit uv
+  uv run manage.py test antragsmanagement
 
 - Tests der App _BEMAS_ durchführen:
-```bash
-python manage.py test bemas
-```
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test bemas.tests.OriginatorModelTest.test_delete
+
+  # mit uv
+  uv run manage.py test bemas.tests.OriginatorModelTest.test_delete
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test bemas
+
+  # mit uv
+  uv run manage.py test bemas
 
 - Tests der App _GDI.HRO Metadata_ durchführen:
-```bash
-python manage.py test gdihrometadata
-```
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test gdihrometadata.tests.DataTypeModelTest.test_create
+
+  # mit uv
+  uv run manage.py test gdihrometadata.tests.DataTypeModelTest.test_create
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test gdihrometadata
+
+  # mit uv
+  uv run manage.py test gdihrometadata
 
 ## CI/CD
 

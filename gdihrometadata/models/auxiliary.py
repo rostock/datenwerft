@@ -248,6 +248,6 @@ class Contact(Base):
     verbose_name_plural = _('Hilfsobjekte → Kontakte')
 
   def __str__(self):
-    organization = ' (' + self.organization.title + ')' if self.organization else ''
+    organization = f' ({self.organization})' if self.organization else ''
     name = f'{self.first_name or ""} {self.last_name or ""}'.strip()
     return name + organization if name else self.email + organization
