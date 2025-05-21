@@ -49635,6 +49635,14 @@
       "title": "INSPIRE"
     }
   }, {
+    "model": "gdihrometadata.Crsset",
+    "pk": 3,
+    "fields": {
+      "created": "1999-12-31T23:59:59Z",
+      "modified": "2000-01-01T00:00:00Z",
+      "title": "Tile Services"
+    }
+  }, {
     "model": "gdihrometadata.crsset_crs",
     "pk": 1,
     "fields": {
@@ -50088,6 +50096,20 @@
     "fields": {
       "crsset": "2",
       "crs": "32"
+    }
+  }, {
+    "model": "gdihrometadata.crsset_crs",
+    "pk": 66,
+    "fields": {
+      "crsset": "3",
+      "crs": "1"
+    }
+  }, {
+    "model": "gdihrometadata.crsset_crs",
+    "pk": 67,
+    "fields": {
+      "crsset": "3",
+      "crs": "18"
     }
   }, {
     "model": "gdihrometadata.DataType",
