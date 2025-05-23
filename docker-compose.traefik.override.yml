@@ -1,0 +1,30 @@
+name: "datenwerft_hro"
+
+services:
+
+  server:
+    networks:
+      default:
+      gateway:
+    ports: []
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.datenwert_hro-server.rule=Host(`datenwerft.hro.localhost`)"
+      - "traefik.http.services.datenwert_hro-server.loadbalancer.server.port=8000"
+      - "traefik.docker.network=gateway"
+
+  smtp:
+    image: docker.brayn.io/docker/docker-hub/axllent/mailpit:v1.24
+    networks:
+      default:
+      gateway:
+    ports: []
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.datenwert_hro-server.loadbalancer.server.port=8025"
+      - "traefik.http.routers.datenwert_hro-server.rule=Host(`mail.datenwerft.hro.localhost`)"
+      - "traefik.docker.network=gateway"
+
+networks:
+  gateway:
+    external: true
