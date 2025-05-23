@@ -403,20 +403,6 @@ class Arten_Erdwaermesonden(Art):
     description = 'Arten von Erdwärmesonden'
 
 
-class Arten_FairTrade(Art):
-  """
-  Arten von Fair-Trade-Einrichtungen
-  """
-
-  class Meta(Art.Meta):
-    db_table = 'codelisten"."arten_fairtrade'
-    verbose_name = 'Art einer Fair-Trade-Einrichtung'
-    verbose_name_plural = 'Arten von Fair-Trade-Einrichtungen'
-
-  class BasemodelMeta(Art.BasemodelMeta):
-    description = 'Arten von Fair-Trade-Einrichtungen'
-
-
 class Arten_Fallwildsuchen_Kontrollen(Art):
   """
   Arten von Kontrollen im Rahmen von Fallwildsuchen

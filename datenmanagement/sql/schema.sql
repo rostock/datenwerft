@@ -500,18 +500,6 @@ CREATE TABLE codelisten.arten_erdwaermesonden (
 
 
 --
--- Name: arten_fairtrade; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.arten_fairtrade (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    art character varying(255) NOT NULL
-);
-
-
---
 -- Name: arten_fallwildsuchen_kontrollen; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -3446,32 +3434,6 @@ CREATE TABLE fachdaten_adressbezug.denksteine_hro (
 
 
 --
--- Name: fairtrade_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
---
-
-CREATE TABLE fachdaten_adressbezug.fairtrade_hro (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    id_fachsystem character varying(255),
-    id_zielsystem character varying(255),
-    aktiv boolean DEFAULT true NOT NULL,
-    adresse uuid,
-    art uuid NOT NULL,
-    bezeichnung character varying(255) NOT NULL,
-    betreiber character varying(255),
-    barrierefrei boolean,
-    zeiten character varying(255),
-    telefon_festnetz character varying(255),
-    telefon_mobil character varying(255),
-    email character varying(255),
-    website character varying(255),
-    geometrie public.geometry(Point,25833) NOT NULL,
-    deaktiviert date
-);
-
-
---
 -- Name: feuerwachen_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -4515,22 +4477,6 @@ ALTER TABLE ONLY codelisten.arten_erdwaermesonden
 
 ALTER TABLE ONLY codelisten.arten_erdwaermesonden
     ADD CONSTRAINT arten_erdwaermesonden_pk PRIMARY KEY (uuid);
-
-
---
--- Name: arten_fairtrade arten_fairtrade_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.arten_fairtrade
-    ADD CONSTRAINT arten_fairtrade_art_unique UNIQUE (art);
-
-
---
--- Name: arten_fairtrade arten_fairtrade_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.arten_fairtrade
-    ADD CONSTRAINT arten_fairtrade_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6862,14 +6808,6 @@ ALTER TABLE ONLY fachdaten_adressbezug.denksteine_hro
 
 
 --
--- Name: fairtrade_hro fairtrade_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
---
-
-ALTER TABLE ONLY fachdaten_adressbezug.fairtrade_hro
-    ADD CONSTRAINT fairtrade_hro_pk PRIMARY KEY (uuid);
-
-
---
 -- Name: feuerwachen_hro feuerwachen_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -8479,14 +8417,6 @@ ALTER TABLE ONLY fachdaten_adressbezug.denksteine_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.denksteine_hro
     ADD CONSTRAINT denksteine_hro_titel_fk FOREIGN KEY (titel) REFERENCES codelisten.personentitel(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: fairtrade_hro fairtrade_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
---
-
-ALTER TABLE ONLY fachdaten_adressbezug.fairtrade_hro
-    ADD CONSTRAINT fairtrade_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_fairtrade(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
