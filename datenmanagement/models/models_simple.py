@@ -4737,11 +4737,13 @@ class Reinigungsreviere(SimpleModel):
     blank=True,
     null=True,
   )
-  nummer = PositiveSmallIntegerMinField(
-    verbose_name='Nummer', min_value=1, unique=True, blank=True, null=True
-  )
+  nummer = PositiveSmallIntegerMinField(verbose_name='Nummer', min_value=1)
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    validators=standard_validators,
+    blank=True,
+    null=True,
   )
   geometrie = multipolygon_field
 

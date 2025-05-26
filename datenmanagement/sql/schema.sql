@@ -6984,14 +6984,6 @@ ALTER TABLE ONLY fachdaten_adressbezug.verkaufstellen_angelberechtigungen_hro
 
 
 --
--- Name: reinigungsreviere_hro reinigungsreviere_hro_nummer_unique; Type: CONSTRAINT; Schema: fachdaten_gemeindeteilbezug; Owner: -
---
-
-ALTER TABLE ONLY fachdaten_gemeindeteilbezug.reinigungsreviere_hro
-    ADD CONSTRAINT reinigungsreviere_hro_nummer_unique UNIQUE (nummer);
-
-
---
 -- Name: reinigungsreviere_hro reinigungsreviere_hro_pk; Type: CONSTRAINT; Schema: fachdaten_gemeindeteilbezug; Owner: -
 --
 
