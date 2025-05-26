@@ -383,7 +383,12 @@ class Service(Base, BaseMetadata, SpatioTemporalMetadata):
   legal = models.ForeignKey(
     Legal, on_delete=models.PROTECT, related_name='service_legals', verbose_name=_('Rechtsstatus')
   )
-  type = models.CharField(choices=ServiceType.choices, verbose_name=_('Typ'))
+  type = models.CharField(
+    choices=ServiceType.choices,
+    blank=True,
+    null=True,
+    verbose_name=_('Typ'),
+  )
   inspire_theme = models.ForeignKey(
     InspireTheme,
     on_delete=models.PROTECT,
