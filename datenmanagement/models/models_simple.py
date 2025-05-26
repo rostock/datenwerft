@@ -4737,7 +4737,7 @@ class Reinigungsreviere(SimpleModel):
     blank=True,
     null=True,
   )
-  nummer = PositiveSmallIntegerMinField(verbose_name='Nummer', min_value=1)
+  nummer = PositiveSmallIntegerMinField(verbose_name='Nummer', min_value=1, blank=True, null=True)
   bezeichnung = CharField(
     verbose_name='Bezeichnung',
     max_length=255,
