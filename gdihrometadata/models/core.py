@@ -56,7 +56,7 @@ class Source(Base, BaseMetadata):
   )
   type = models.CharField(choices=RepositoryType.choices, verbose_name=_('Typ'))
   connection_info = models.CharField(
-    validators=standard_validators, verbose_name=_('Verbindungsinformation')
+    unique=True, validators=standard_validators, verbose_name=_('Verbindungsinformation')
   )
   data_type = models.ForeignKey(
     DataType,
@@ -80,7 +80,7 @@ class Source(Base, BaseMetadata):
   )
 
   class Meta(Base.Meta):
-    ordering = ['connection_info']
+    ordering = ['type', 'connection_info']
     verbose_name = _('Entität → Datenquelle')
     verbose_name_plural = _('Entitätsklasse → Datenquellen')
 
@@ -108,7 +108,7 @@ class Repository(Base, BaseMetadata, CreationalMetadata):
   )
   type = models.CharField(choices=RepositoryType.choices, verbose_name=_('Typ'))
   connection_info = models.CharField(
-    validators=standard_validators, verbose_name=_('Verbindungsinformation')
+    unique=True, validators=standard_validators, verbose_name=_('Verbindungsinformation')
   )
   data_type = models.ForeignKey(
     DataType,
@@ -140,7 +140,7 @@ class Repository(Base, BaseMetadata, CreationalMetadata):
   )
 
   class Meta(Base.Meta):
-    ordering = ['connection_info']
+    ordering = ['type', 'connection_info']
     verbose_name = _('Entität → Speicherort')
     verbose_name_plural = _('Entitätsklasse → Speicherorte')
 
@@ -326,12 +326,12 @@ class Dataset(Base, BaseMetadata, CreationalMetadata, SpatioTemporalMetadata):
   )
 
   class Meta(Base.Meta):
-    ordering = ['title']
+    ordering = ['title', 'name']
     verbose_name = _('Entität → Datensatz')
     verbose_name_plural = _('Entitätsklasse → Datensätze')
 
   def __str__(self):
-    return self.title
+    return f'{self.title} ({self.name})'
 
 
 class Service(Base, BaseMetadata, SpatioTemporalMetadata):
@@ -433,13 +433,23 @@ class Service(Base, BaseMetadata, SpatioTemporalMetadata):
   )
 
   class Meta(Base.Meta):
-    unique_together = ('name', 'type')
-    ordering = ['title']
+    constraints = [
+      models.UniqueConstraint(fields=['name', 'type'], name='unique_name_type'),
+      models.UniqueConstraint(
+        fields=['name'],
+        condition=~models.Q(type=None),
+        name='unique_name_when_type_not_null',
+      ),
+    ]
+    ordering = ['type', 'title', 'name']
     verbose_name = _('Entität → Service')
     verbose_name_plural = _('Entitätsklasse → Services')
 
   def __str__(self):
-    return f'{self.title} ({self.get_type_display()})'
+    type_display = ''
+    if self.type and hasattr(self, 'get_type_display'):
+      type_display = f'{self.get_type_display()} – '
+    return f'{type_display}{self.title} ({self.name})'
 
 
 class Topic(Base, BaseMetadata):
@@ -482,12 +492,12 @@ class Topic(Base, BaseMetadata):
   )
 
   class Meta(Base.Meta):
-    ordering = ['title']
+    ordering = ['title', 'name']
     verbose_name = _('Entität → Datenthema')
     verbose_name_plural = _('Entitätsklasse → Datenthemen')
 
   def __str__(self):
-    return self.title
+    return f'{self.title} ({self.name})'
 
 
 class App(Base, BaseMetadata):
@@ -536,9 +546,9 @@ class App(Base, BaseMetadata):
   )
 
   class Meta(Base.Meta):
-    ordering = ['title']
+    ordering = ['title', 'name']
     verbose_name = _('Entität → App')
     verbose_name_plural = _('Entitätsklasse → Apps')
 
   def __str__(self):
-    return self.title
+    return f'{self.title} ({self.name})'

@@ -120,9 +120,9 @@ class DataTypeAdminForm(ModelForm):
 class SpatialReferenceAdminForm(ModelForm):
   def clean(self):
     extent_spatial_south = self.cleaned_data.get('extent_spatial_south', None)
-    extent_spatial_east = self.cleaned_data.get('extent_spatial_east', None)
-    extent_spatial_north = self.cleaned_data.get('extent_spatial_north', None)
     extent_spatial_west = self.cleaned_data.get('extent_spatial_west', None)
+    extent_spatial_north = self.cleaned_data.get('extent_spatial_north', None)
+    extent_spatial_east = self.cleaned_data.get('extent_spatial_east', None)
     # extent_spatial_south must be smaller than extent_spatial_north
     if (
       extent_spatial_south and extent_spatial_north and extent_spatial_south > extent_spatial_north
@@ -132,11 +132,11 @@ class SpatialReferenceAdminForm(ModelForm):
         self._meta.model._meta.get_field('extent_spatial_south').verbose_name,
       )
       raise ValidationError(text)
-    # extent_spatial_east must be smaller than extent_spatial_west
-    if extent_spatial_east and extent_spatial_west and extent_spatial_south > extent_spatial_west:
+    # extent_spatial_west must be smaller than extent_spatial_east
+    if extent_spatial_west and extent_spatial_east and extent_spatial_west > extent_spatial_east:
       text = '{} muss größer sein als {}.'.format(
-        self._meta.model._meta.get_field('extent_spatial_west').verbose_name,
         self._meta.model._meta.get_field('extent_spatial_east').verbose_name,
+        self._meta.model._meta.get_field('extent_spatial_west').verbose_name,
       )
       raise ValidationError(text)
     mandatory_field_pairs(
@@ -467,13 +467,12 @@ class ContactAdmin(admin.ModelAdmin):
 class SourceAdmin(admin.ModelAdmin):
   form = SourceAdminForm
   list_display = (
-    'uuid',
+    'connection_info',
     'modified',
     'last_import',
     'import_frequency',
     'processing_type',
     'type',
-    'connection_info',
     'data_type',
   )
   list_filter = (
@@ -514,13 +513,12 @@ class SourceAdmin(admin.ModelAdmin):
 class RepositoryAdmin(admin.ModelAdmin):
   form = RepositoryAdminForm
   list_display = (
-    'uuid',
+    'connection_info',
     'modified',
     'creation',
     'last_update',
     'update_frequency',
     'type',
-    'connection_info',
     'data_type',
     'source',
   )
@@ -565,16 +563,14 @@ class RepositoryAdmin(admin.ModelAdmin):
 @admin.register(Assetset)
 class AssetsetAdmin(admin.ModelAdmin):
   list_display = (
-    'uuid',
-    'modified',
     'name',
+    'modified',
     'title',
     'creation',
     'last_update',
     'update_frequency',
     'legal',
     'type',
-    'repositories_display',
   )
   list_filter = (
     'update_frequency',
@@ -603,42 +599,27 @@ class AssetsetAdmin(admin.ModelAdmin):
     ('Verknüpfungen', {'fields': ['repositories']}),
   ]
 
-  def repositories_display(self, obj):
-    return ', '.join([str(repository) for repository in obj.repositories.all()])
-
-  repositories_display.short_description = 'Speicherort(e)'
-
 
 @admin.register(Dataset)
 class DatasetAdmin(admin.ModelAdmin):
   form = DatasetAdminForm
   list_display = (
-    'uuid',
-    'modified',
     'name',
+    'modified',
     'title',
     'link',
     'creation',
     'last_update',
     'update_frequency',
     'legal',
+    'inspire_theme',
     'data_type',
-    'repositories_display',
   )
   list_filter = (
     'update_frequency',
-    'crs',
-    'spatial_reference',
     'legal',
     'inspire_theme',
-    'inspire_spatial_scope',
-    'language',
-    'charset',
     'data_type',
-    'spatial_representation_type',
-    'geometry_type',
-    'hash_type',
-    'ground_resolution_uom',
   )
   search_fields = (
     'uuid',
@@ -703,37 +684,23 @@ class DatasetAdmin(admin.ModelAdmin):
     ('Verknüpfungen', {'fields': ['repositories']}),
   ]
 
-  def repositories_display(self, obj):
-    return ', '.join([str(repository) for repository in obj.repositories.all()])
-
-  repositories_display.short_description = 'Speicherort(e)'
-
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
   form = ServiceAdminForm
   list_display = (
-    'uuid',
-    'modified',
     'name',
+    'modified',
     'title',
     'link',
     'legal',
     'type',
-    'datasets_display',
-    'assetsets_display',
-    'repositories_display',
+    'inspire_theme',
   )
   list_filter = (
-    'native_crs',
-    'spatial_reference',
     'legal',
     'type',
     'inspire_theme',
-    'inspire_spatial_scope',
-    'inspire_service_type',
-    'language',
-    'charset',
   )
   search_fields = (
     'uuid',
@@ -796,32 +763,15 @@ class ServiceAdmin(admin.ModelAdmin):
     ('Verknüpfungen', {'fields': ['datasets', 'assetsets', 'repositories']}),
   ]
 
-  def datasets_display(self, obj):
-    return ', '.join([str(dataset) for dataset in obj.datasets.all()])
-
-  def assetsets_display(self, obj):
-    return ', '.join([str(assetset) for assetset in obj.assetsets.all()])
-
-  def repositories_display(self, obj):
-    return ', '.join([str(repository) for repository in obj.repositories.all()])
-
-  datasets_display.short_description = 'Datensatz/Datensätze'
-  assetsets_display.short_description = 'Asset-Sammlung(en)'
-  repositories_display.short_description = 'Speicherort(e)'
-
 
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
   list_display = (
-    'uuid',
-    'modified',
     'name',
+    'modified',
     'title',
     'categories_display',
     'hvd_category',
-    'services_display',
-    'datasets_display',
-    'assetsets_display',
   )
   list_filter = ('hvd_category',)
   search_fields = (
@@ -851,35 +801,17 @@ class TopicAdmin(admin.ModelAdmin):
   def categories_display(self, obj):
     return ', '.join([str(category) for category in obj.categories.all()])
 
-  def services_display(self, obj):
-    return ', '.join([str(service) for service in obj.services.all()])
-
-  def datasets_display(self, obj):
-    return ', '.join([str(dataset) for dataset in obj.datasets.all()])
-
-  def assetsets_display(self, obj):
-    return ', '.join([str(assetset) for assetset in obj.assetsets.all()])
-
   categories_display.short_description = 'Kategorie(n)'
-  services_display.short_description = 'Service(s)'
-  datasets_display.short_description = 'Datensatz/Datensätze'
-  assetsets_display.short_description = 'Asset-Sammlung(en)'
 
 
 @admin.register(App)
 class AppAdmin(admin.ModelAdmin):
   list_display = (
-    'uuid',
-    'modified',
     'name',
+    'modified',
     'title',
     'link',
     'legal',
-    'topics_display',
-    'services_display',
-    'datasets_display',
-    'assetsets_display',
-    'repositories_display',
   )
   list_filter = ('legal',)
   search_fields = (
@@ -922,24 +854,3 @@ class AppAdmin(admin.ModelAdmin):
     ('Technische Informationen', {'fields': ['languages']}),
     ('Verknüpfungen', {'fields': ['topics', 'services', 'datasets', 'assetsets', 'repositories']}),
   ]
-
-  def topics_display(self, obj):
-    return ', '.join([str(topic) for topic in obj.topics.all()])
-
-  def services_display(self, obj):
-    return ', '.join([str(service) for service in obj.services.all()])
-
-  def datasets_display(self, obj):
-    return ', '.join([str(dataset) for dataset in obj.datasets.all()])
-
-  def assetsets_display(self, obj):
-    return ', '.join([str(assetset) for assetset in obj.assetsets.all()])
-
-  def repositories_display(self, obj):
-    return ', '.join([str(repository) for repository in obj.repositories.all()])
-
-  topics_display.short_description = 'Datenthema/-themen'
-  services_display.short_description = 'Service(s)'
-  datasets_display.short_description = 'Datensatz/Datensätze'
-  assetsets_display.short_description = 'Asset-Sammlung(en)'
-  repositories_display.short_description = 'Speicherort(e)'

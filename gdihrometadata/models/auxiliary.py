@@ -123,20 +123,20 @@ class SpatialReference(Base):
     ],
     verbose_name=_('Süden (räumliche Ausdehnung)'),
   )
-  extent_spatial_east = models.DecimalField(
+  extent_spatial_west = models.DecimalField(
     max_digits=8,
     decimal_places=5,
     validators=[
       MinValueValidator(
         Decimal('-180'),
-        'Der Wert für Osten (räumliche Ausdehnung) muss mindestens -180 sein.',
+        'Der Wert für Westen (räumliche Ausdehnung) muss mindestens -180 sein.',
       ),
       MaxValueValidator(
         Decimal('180'),
-        'Der Wert für Osten (räumliche Ausdehnung) darf höchstens 180 sein.',
+        'Der Wert für Westen (räumliche Ausdehnung) darf höchstens 180 sein.',
       ),
     ],
-    verbose_name=_('Osten (räumliche Ausdehnung)'),
+    verbose_name=_('Westen (räumliche Ausdehnung)'),
   )
   extent_spatial_north = models.DecimalField(
     max_digits=8,
@@ -153,20 +153,20 @@ class SpatialReference(Base):
     ],
     verbose_name=_('Norden (räumliche Ausdehnung)'),
   )
-  extent_spatial_west = models.DecimalField(
+  extent_spatial_east = models.DecimalField(
     max_digits=8,
     decimal_places=5,
     validators=[
       MinValueValidator(
         Decimal('-180'),
-        'Der Wert für Westen (räumliche Ausdehnung) muss mindestens -180 sein.',
+        'Der Wert für Osten (räumliche Ausdehnung) muss mindestens -180 sein.',
       ),
       MaxValueValidator(
         Decimal('180'),
-        'Der Wert für Westen (räumliche Ausdehnung) darf höchstens 180 sein.',
+        'Der Wert für Osten (räumliche Ausdehnung) darf höchstens 180 sein.',
       ),
     ],
-    verbose_name=_('Westen (räumliche Ausdehnung)'),
+    verbose_name=_('Osten (räumliche Ausdehnung)'),
   )
   political_geocoding_level = models.ForeignKey(
     PoliticalGeocodingLevel,
