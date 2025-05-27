@@ -159,18 +159,18 @@ class SpatialReferenceModelTest(DefaultModelTestCase):
     cls.attributes_values_db_initial = {
       'title': 'InitialSpatialReference',
       'extent_spatial_south': Decimal('-10.12345'),
-      'extent_spatial_east': Decimal('20.12345'),
-      'extent_spatial_north': Decimal('30.12345'),
       'extent_spatial_west': Decimal('-40.12345'),
+      'extent_spatial_north': Decimal('30.12345'),
+      'extent_spatial_east': Decimal('20.12345'),
       'political_geocoding_level': test_political_geocoding_level,
       'political_geocoding': test_political_geocoding,
     }
     cls.attributes_values_db_updated = {
       'title': 'UpdatedSpatialReference',
       'extent_spatial_south': Decimal('-15.12345'),
-      'extent_spatial_east': Decimal('25.12345'),
-      'extent_spatial_north': Decimal('35.12345'),
       'extent_spatial_west': Decimal('-45.12345'),
+      'extent_spatial_north': Decimal('35.12345'),
+      'extent_spatial_east': Decimal('25.12345'),
     }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
 

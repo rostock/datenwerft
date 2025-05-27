@@ -272,7 +272,8 @@ class DatasetModelTest(DefaultModelTestCase):
     self.generic_delete_test()
 
   def test_string_representation(self):
-    self.generic_string_representation_test(self.test_object.title)
+    expected = f'{self.test_object.title} ({self.test_object.name})'
+    self.generic_string_representation_test(expected)
 
 
 class ServiceModelTest(DefaultModelTestCase):
@@ -336,7 +337,9 @@ class ServiceModelTest(DefaultModelTestCase):
     self.generic_delete_test()
 
   def test_string_representation(self):
-    expected = f'{self.test_object.title} ({self.test_object.get_type_display()})'
+    expected = (
+      f'{self.test_object.get_type_display()} – {self.test_object.title} ({self.test_object.name})'
+    )
     self.generic_string_representation_test(expected)
 
 
@@ -378,7 +381,8 @@ class TopicModelTest(DefaultModelTestCase):
     self.generic_delete_test()
 
   def test_string_representation(self):
-    self.generic_string_representation_test(self.test_object.title)
+    expected = f'{self.test_object.title} ({self.test_object.name})'
+    self.generic_string_representation_test(expected)
 
 
 class AppModelTest(DefaultModelTestCase):
@@ -437,4 +441,5 @@ class AppModelTest(DefaultModelTestCase):
     self.generic_delete_test()
 
   def test_string_representation(self):
-    self.generic_string_representation_test(self.test_object.title)
+    expected = f'{self.test_object.title} ({self.test_object.name})'
+    self.generic_string_representation_test(expected)

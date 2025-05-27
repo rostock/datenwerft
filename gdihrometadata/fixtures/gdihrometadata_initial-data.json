@@ -50259,7 +50259,7 @@
       "modified": "2000-01-01T00:00:00Z",
       "title": "WMS",
       "format": 15,
-      "mime_type": 5
+      "mime_type": 10
     }
   }, {
     "model": "gdihrometadata.SpatialReference",
@@ -50269,9 +50269,9 @@
       "modified": "2000-01-01T00:00:00Z",
       "title": "Mecklenburg-Vorpommern",
       "extent_spatial_south": 53.06885,
-      "extent_spatial_east": 10.59604,
+      "extent_spatial_west": 10.59604,
       "extent_spatial_north": 54.70388,
-      "extent_spatial_west": 14.41029,
+      "extent_spatial_east": 14.41029,
       "political_geocoding_level": 1,
       "political_geocoding": 1
     }
@@ -50283,9 +50283,9 @@
       "modified": "2000-01-01T00:00:00Z",
       "title": "Rostock",
       "extent_spatial_south": 54.03856,
-      "extent_spatial_east": 11.99143,
+      "extent_spatial_west": 11.99143,
       "extent_spatial_north": 54.26196,
-      "extent_spatial_west": 12.31306,
+      "extent_spatial_east": 12.31306,
       "political_geocoding_level": 2,
       "political_geocoding": 2
     }
@@ -50297,9 +50297,9 @@
       "modified": "2000-01-01T00:00:00Z",
       "title": "Landkreis Rostock",
       "extent_spatial_south": 53.53147,
-      "extent_spatial_east": 11.52943,
+      "extent_spatial_west": 11.52943,
       "extent_spatial_north": 54.29913,
-      "extent_spatial_west": 12.81786,
+      "extent_spatial_east": 12.81786,
       "political_geocoding_level": 2,
       "political_geocoding": 3
     }
@@ -50311,9 +50311,9 @@
       "modified": "2000-01-01T00:00:00Z",
       "title": "Rostock und Umgebung",
       "extent_spatial_south": 53.53147,
-      "extent_spatial_east": 11.52943,
+      "extent_spatial_west": 11.52943,
       "extent_spatial_north": 54.29913,
-      "extent_spatial_west": 12.81786,
+      "extent_spatial_east": 12.81786,
       "political_geocoding_level": 2,
       "political_geocoding": 2
     }
@@ -50325,11 +50325,11 @@
       "modified": "2000-01-01T00:00:00Z",
       "title": "Mecklenburg-Vorpommern und Umgebung",
       "extent_spatial_south": 52.5,
-      "extent_spatial_east": 10,
+      "extent_spatial_west": 10,
       "extent_spatial_north": 55,
-      "extent_spatial_west": 15,
-      "political_geocoding_level": 2,
-      "political_geocoding": 2
+      "extent_spatial_east": 15,
+      "political_geocoding_level": 1,
+      "political_geocoding": 1
     }
   }
 ]
