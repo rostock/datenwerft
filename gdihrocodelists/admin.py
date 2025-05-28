@@ -5,6 +5,7 @@ from .models import (
   CodelistValue,
 )
 
+
 @admin.register(Codelist)
 class CodelistAdmin(admin.ModelAdmin):
   list_display = (

@@ -1,7 +1,7 @@
 from uuid import uuid4
 
-from django.db import models
 from django.core.validators import RegexValidator
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from toolbox.constants_vars import (
@@ -80,18 +80,14 @@ class CodelistValue(Base):
     related_name='codelistvalue_codelistvalues',
     verbose_name=_('Elternelement'),
   )
-  ordinal = models.PositiveSmallIntegerField(
-    blank=True, null=True, verbose_name=_('Ordinalzahl')
-  )
+  ordinal = models.PositiveSmallIntegerField(blank=True, null=True, verbose_name=_('Ordinalzahl'))
   title = models.CharField(
     blank=True, null=True, validators=standard_validators, verbose_name=_('Titel')
   )
   description = NullTextField(
     blank=True, null=True, validators=standard_validators, verbose_name=_('Beschreibung')
   )
-  details = models.JSONField(
-    blank=True, null=True, verbose_name=_('Details')
-  )
+  details = models.JSONField(blank=True, null=True, verbose_name=_('Details'))
 
   class Meta(Base.Meta):
     unique_together = ['codelist', 'value']
