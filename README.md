@@ -71,6 +71,7 @@ uv sync
 ### Datenbanken
 
 1. leere _PostgreSQL_-Datenbank für die Anwendungsadministration anlegen
+2. leere _PostgreSQL_-Datenbank für die App _GDI.HRO Codelists_ anlegen
 2. leere _PostgreSQL_-Datenbank für die App _GDI.HRO Metadata_ anlegen
 3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Antragsmanagement_ anlegen
 4. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _BEMAS_ anlegen
@@ -113,20 +114,24 @@ npm install
 source .venv/bin/activate
 python manage.py migrate --database=antragsmanagement antragsmanagement
 python manage.py migrate --database=bemas bemas
+python manage.py migrate --database=gdihrocodelists gdihrocodelists
 python manage.py migrate --database=gdihrometadata gdihrometadata
 python manage.py migrate
 python manage.py antragsmanagement_roles_permissions
 python manage.py bemas_roles_permissions
+python manage.py gdihrocodelists_roles_permissions
 python manage.py gdihrometadata_roles_permissions
 python manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 
 # mit uv
 uv run manage.py migrate --database=antragsmanagement antragsmanagement
 uv run manage.py migrate --database=bemas bemas
+uv run manage.py migrate --database=gdihrocodelists gdihrocodelists
 uv run manage.py migrate --database=gdihrometadata gdihrometadata
 uv run manage.py migrate
 uv run manage.py antragsmanagement_roles_permissions
 uv run manage.py bemas_roles_permissions
+uv run manage.py gdihrocodelists_roles_permissions
 uv run manage.py gdihrometadata_roles_permissions
 uv run manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 ```
@@ -232,6 +237,10 @@ Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](antragsmanagement/models
 ### App _BEMAS_
 
 Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](bemas/models/class-structure.puml)
+
+### App _GDI.HRO Codelists_
+
+Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](gdihrocodelists/models/class-structure.puml)
 
 ### App _GDI.HRO Metadata_
 
@@ -400,6 +409,24 @@ uv run manage.py test toolbox
 
   # mit uv
   uv run manage.py test bemas
+
+- Tests der App _GDI.HRO Codelists_ durchführen:
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test gdihrocodelists.tests.CodelistValueModelTest.test_create
+
+  # mit uv
+  uv run manage.py test gdihrocodelists.tests.CodelistValueModelTest.test_create
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test gdihrocodelists
+
+  # mit uv
+  uv run manage.py test gdihrocodelists
 
 - Tests der App _GDI.HRO Metadata_ durchführen:
   - Einzeltest (Beispiel):

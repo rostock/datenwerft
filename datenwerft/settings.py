@@ -32,6 +32,7 @@ LOCAL_APPS = [
   'datenmanagement',
   'antragsmanagement',
   'bemas',
+  'gdihrocodelists',
   'gdihrometadata',
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

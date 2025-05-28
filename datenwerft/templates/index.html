@@ -43,6 +43,19 @@
         <div class="col">
           <div class="card h-100 text-white bg-primary">
             <div class="card-body">
+              <h5 class="card-title"><em>GDI.HRO Codelists</em></h5>
+              <p class="card-text">System zur Administration von Codelisten im Rahmen der GDI.HRO</p>
+              <a class="btn btn-lg btn-warning" role="button" href="{% url 'admin:index' %}gdihrocodelists">
+                {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}<em>GDI.HRO Codelists</em> {% endif %}öffnen
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      {% if user.is_staff %}
+        <div class="col">
+          <div class="card h-100 text-white bg-primary">
+            <div class="card-body">
               <h5 class="card-title"><em>GDI.HRO Metadata</em></h5>
               <p class="card-text">System zur Administration von Metadaten im Rahmen der GDI.HRO</p>
               <a class="btn btn-lg btn-warning" role="button" href="{% url 'admin:index' %}gdihrometadata">

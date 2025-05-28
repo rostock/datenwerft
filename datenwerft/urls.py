@@ -7,6 +7,7 @@ from accounts import urls as accounts_urls
 from antragsmanagement import urls as antragsmanagement_urls
 from bemas import urls as bemas_urls
 from datenmanagement import urls as datenmanagement_urls
+from gdihrocodelists import urls as gdihrocodelists_urls
 from gdihrometadata import urls as gdihrometadata_urls
 from toolbox import urls as toolbox_urls
 
@@ -39,6 +40,7 @@ api_urlpatterns += toolbox_urls.api_urlpatterns
 api_urlpatterns += datenmanagement_urls.api_urlpatterns
 api_urlpatterns += antragsmanagement_urls.api_urlpatterns
 api_urlpatterns += bemas_urls.api_urlpatterns
+api_urlpatterns += gdihrocodelists_urls.api_urlpatterns
 api_urlpatterns += gdihrometadata_urls.api_urlpatterns
 
 # routing...
@@ -59,6 +61,8 @@ urlpatterns = [
   path('antragsmanagement/', view=include('antragsmanagement.urls')),
   # ...BEMAS app
   path('bemas/', view=include('bemas.urls')),
+  # ...GDI.HRO Codelists app
+  path('gdihrocodelists/', view=include('gdihrocodelists.urls')),
   # ...GDI.HRO Metadata app
   path('gdihrometadata/', view=include('gdihrometadata.urls')),
   # ...Django-RQ
