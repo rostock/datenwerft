@@ -1,0 +1,26 @@
+@startuml
+
+skinparam linetype ortho
+
+abstract class Base {
+  +id : IDENTITY <<PK>>
+  +created : DATETIME
+  +modified : DATETIME
+  +uuid : UUID {unique}
+}
+
+class Stammpaket {
+  +bezeichnung : TEXT {unique}
+  +geometrie : GEOMETRY
+}
+
+class InformationspaketUmwelt {
+  ~stammpaket <<FK>>
+  +trinkwassernotbrunnen : BOOLEAN
+}
+
+Base <|-- Stammpaket
+Base <|-- InformationspaketUmwelt
+InformationspaketUmwelt --> Stammpaket : stammpaket
+
+@enduml

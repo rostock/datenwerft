@@ -22,7 +22,7 @@ THIRD_PARTY_APPS = [
   'leaflet',
   'requests',
   'rest_framework',
-  'django_filters',  # Add django-filter
+  'django_filters',
   'jsonview',
   'django_rq',
 ]
@@ -32,6 +32,7 @@ LOCAL_APPS = [
   'datenmanagement',
   'antragsmanagement',
   'bemas',
+  'fmm',
   'gdihrocodelists',
   'gdihrometadata',
 ]
