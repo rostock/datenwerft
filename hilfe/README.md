@@ -88,6 +88,14 @@ wie etwa zu Müllsammelaktionen.
 
 ### [Benachrichtigungen](antragsmanagement/usage/notifications.md)
 
+## *GDI.HRO Codelists*
+
+Hier finden Sie Hilfestellungen zum System zur Administration von Codelisten im Rahmen der GDI.HRO.
+
+### [Administration](gdihrocodelists/admin.md)
+
+### [Berechtigungen](gdihrocodelists/permissions.md)
+
 ## *GDI.HRO Metadata*
 
 Hier finden Sie Hilfestellungen zum System zur Administration von Metadaten im Rahmen der GDI.HRO.

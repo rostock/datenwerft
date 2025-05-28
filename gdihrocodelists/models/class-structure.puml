@@ -1,0 +1,36 @@
+@startuml
+
+skinparam linetype ortho
+
+abstract class Base {
+  +id : IDENTITY <<PK>>
+  +created : DATETIME
+  +modified : DATETIME
+  +uuid : UUID {unique}
+}
+
+class Codelist {
+  +name : TEXT {unique}
+  +title : TEXT
+}
+
+class CodelistValue {
+  ~codelist <<FK>>
+  +value : TEXT
+  ~parent <<FK>> [0..1]
+  +ordinal : INTEGER [0..1]
+  +title : TEXT [0..1]
+  +description : TEXT [0..1]
+  +details : JSONB [0..1]
+}
+
+note right of CodelistValue
+  Unique constraint on (codelist, value)
+end note
+
+Base <|-- Codelist
+Base <|-- CodelistValue
+CodelistValue --> Codelist : codelist
+CodelistValue --> CodelistValue : parent
+
+@enduml

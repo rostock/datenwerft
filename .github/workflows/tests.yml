@@ -90,5 +90,7 @@ jobs:
         run: python manage.py test antragsmanagement
       - name: Run tests on app BEMAS
         run: python manage.py test bemas
+      - name: Run tests on app GDI.HRO Codelists
+        run: python manage.py test gdihrocodelists
       - name: Run tests on app GDI.HRO Metadata
         run: python manage.py test gdihrometadata
