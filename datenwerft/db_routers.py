@@ -8,6 +8,7 @@ class DatabaseRouter:
     'antragsmanagement',
     'bemas',
     'datenmanagement',
+    'fmm',
     'gdihrocodelists',
     'gdihrometadata',
   }
@@ -24,6 +25,8 @@ class DatabaseRouter:
         return 'bemas'
       elif model._meta.app_label == 'datenmanagement':
         return 'datenmanagement'
+      elif model._meta.app_label == 'fmm':
+        return 'fmm'
       elif model._meta.app_label == 'gdihrocodelists':
         return 'gdihrocodelists'
       elif model._meta.app_label == 'gdihrometadata':
@@ -42,6 +45,8 @@ class DatabaseRouter:
         return 'bemas'
       elif model._meta.app_label == 'datenmanagement':
         return 'datenmanagement'
+      elif model._meta.app_label == 'fmm':
+        return 'fmm'
       elif model._meta.app_label == 'gdihrocodelists':
         return 'gdihrocodelists'
       elif model._meta.app_label == 'gdihrometadata':

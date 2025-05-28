@@ -88,6 +88,14 @@ wie etwa zu Müllsammelaktionen.
 
 ### [Benachrichtigungen](antragsmanagement/usage/notifications.md)
 
+## *FMM*
+
+Hier finden Sie Hilfestellungen zum Flächenmanagementsystem *FMM.*
+
+### [Administration](fmm/admin.md)
+
+### [Berechtigungen](fmm/permissions.md)
+
 ## *GDI.HRO Codelists*
 
 Hier finden Sie Hilfestellungen zum System zur Administration von Codelisten im Rahmen der GDI.HRO.
