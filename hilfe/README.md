@@ -96,6 +96,18 @@ Hier finden Sie Hilfestellungen zum Flächenmanagementsystem *FMM.*
 
 ### [Berechtigungen](fmm/permissions.md)
 
+### [Startseite (Dashboard)](fmm/usage/dashboard.md)
+
+### Bereiche und Aktionen
+
+#### [Karte](fmm/usage/map.md)
+
+#### [Tabelle](fmm/usage/table.md)
+
+#### [FMF-Übersichtsseite](fmm/usage/fmf.md)
+
+#### [neue FMF erstellen](fmm/usage/stammpaket-add.md)
+
 ## *GDI.HRO Codelists*
 
 Hier finden Sie Hilfestellungen zum System zur Administration von Codelisten im Rahmen der GDI.HRO.

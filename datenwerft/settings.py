@@ -324,7 +324,7 @@ BEMAS_COLORS = {'complaint': '#b85814', 'originator': '#3d8f8f'}
 
 FMM_ICONS = {
   'activity': 'bell',
-  'create': 'circle-plus',
+  'add': 'circle-plus',
   'fmf': 'draw-polygon',
   'map': 'map-location-dot',
   'table': 'table',
