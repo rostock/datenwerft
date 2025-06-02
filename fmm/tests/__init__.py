@@ -1,1 +1,2 @@
-from .models.tests_core import *
+from .models.tests import *
+from .views.tests import *
