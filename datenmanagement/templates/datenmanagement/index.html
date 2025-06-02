@@ -13,18 +13,18 @@
   {% if models_meta or models_codelist or models_complex or models_simple %}
     <h2>Datenthemen, die Ihnen zur Verfügung stehen:</h2>
     <nav>
-      <div class="nav nav-tabs" id="nav-tabs" role="tablist">
+      <div class="nav nav-pills" id="nav-tabs" role="tablist">
         {% if models_meta %}
-          <button class="nav-link active" id="nav-meta-themen-tab" data-bs-toggle="tab" data-bs-target="#nav-meta-themen" type="button" role="tab" aria-controls="nav-meta-themen" aria-selected="true">Meta-Datenthemen</button>
+          <button class="nav-link active fs-5 py-3 px-4" id="nav-meta-themen-tab" data-bs-toggle="tab" data-bs-target="#nav-meta-themen" type="button" role="tab" aria-controls="nav-meta-themen" aria-selected="true">Meta-Datenthemen</button>
         {% endif %}
         {% if models_codelist %}
-          <button class="nav-link" id="nav-codelisten-tab" data-bs-toggle="tab" data-bs-target="#nav-codelisten" type="button" role="tab" aria-controls="nav-codelisten" aria-selected="false">Codelisten</button>
+          <button class="nav-link fs-5 py-3 px-4" id="nav-codelisten-tab" data-bs-toggle="tab" data-bs-target="#nav-codelisten" type="button" role="tab" aria-controls="nav-codelisten" aria-selected="false">Codelisten</button>
         {% endif %}
         {% if models_simple %}
-          <button class="nav-link" id="nav-einfache-themen-tab" data-bs-toggle="tab" data-bs-target="#nav-einfache-themen" type="button" role="tab" aria-controls="nav-einfache-themen" aria-selected="false">einfache Datenthemen</button>
+          <button class="nav-link fs-5 py-3 px-4" id="nav-einfache-themen-tab" data-bs-toggle="tab" data-bs-target="#nav-einfache-themen" type="button" role="tab" aria-controls="nav-einfache-themen" aria-selected="false">einfache Datenthemen</button>
         {% endif %}
         {% if models_complex %}
-          <button class="nav-link" id="nav-komplexe-themen-tab" data-bs-toggle="tab" data-bs-target="#nav-komplexe-themen" type="button" role="tab" aria-controls="nav-komplexe-themen" aria-selected="false">komplexe Datenthemen</button>
+          <button class="nav-link fs-5 py-3 px-4" id="nav-komplexe-themen-tab" data-bs-toggle="tab" data-bs-target="#nav-komplexe-themen" type="button" role="tab" aria-controls="nav-komplexe-themen" aria-selected="false">komplexe Datenthemen</button>
         {% endif %}
       </div>
     </nav>
@@ -35,7 +35,7 @@
           <div class="list-group mb-3">
             {% for model in models_meta %}
               {% if not model.not_listed %}
-                <a class="list-group-item list-group-item-action list-group-item-info pt-2 pb-3" href="{{ model.url_start }}">
+                <a class="list-group-item list-group-item-action list-group-item-info pt-3 pb-3" href="{{ model.url_start }}">
                   <h4>{{ model.verbose_name_plural }}</h4>
                   <small>{% if model.description %}{{ model.description }}{% endif %}</small>
                 </a>
@@ -50,7 +50,7 @@
           <div class="list-group mb-3">
             {% for model in models_codelist %}
               {% if not model.not_listed %}
-                <a class="list-group-item list-group-item-action list-group-item-secondary pt-2 pb-3" href="{{ model.url_start }}">
+                <a class="list-group-item list-group-item-action list-group-item-secondary pt-3 pb-3" href="{{ model.url_start }}">
                   <h4>{{ model.verbose_name_plural }}</h4>
                   <small>{% if model.description %}{{ model.description }}{% endif %}</small>
                 </a>
@@ -65,7 +65,7 @@
           <div class="list-group mb-3">
             {% for model in models_simple %}
               {% if not model.not_listed %}
-                <a class="list-group-item list-group-item-action list-group-item-primary pt-2 pb-3" href="{{ model.url_start }}">
+                <a class="list-group-item list-group-item-action list-group-item-primary pt-3 pb-3" href="{{ model.url_start }}">
                   <h4>{{ model.verbose_name_plural }}</h4>
                   <small>{% if model.description %}{{ model.description }}{% endif %}</small>
                 </a>
@@ -80,7 +80,7 @@
           <div class="list-group mb-3">
             {% for model in models_complex %}
               {% if not model.not_listed %}
-                <a class="list-group-item list-group-item-action list-group-item-primary pt-2 pb-3" href="{{ model.url_start }}">
+                <a class="list-group-item list-group-item-action list-group-item-primary pt-3 pb-3" href="{{ model.url_start }}">
                   <h4>{{ model.verbose_name_plural }}</h4>
                   <small>{% if model.description %}{{ model.description }}{% endif %}</small>
                 </a>
