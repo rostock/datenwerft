@@ -1,6 +1,6 @@
 from fmm.models import (
-  InformationspaketUmwelt,
-  Stammpaket,
+  Fmf,
+  PaketUmwelt,
 )
 
 from ..abstract import DefaultModelTestCase
@@ -12,13 +12,13 @@ from ..constants_vars import (
 )
 
 
-class StammpaketModelTest(DefaultModelTestCase):
+class FmfModelTest(DefaultModelTestCase):
   """
   test class for model:
-  Stammpaket
+  FMF
   """
 
-  model = Stammpaket
+  model = Fmf
   attributes_values_db_initial = {
     'bezeichnung': VALID_STRING_A,
     'geometrie': VALID_MULTIPOLYGON_DB_A,
@@ -45,31 +45,31 @@ class StammpaketModelTest(DefaultModelTestCase):
     self.generic_string_representation_test(expected)
 
 
-class InformationspaketUmweltModelTest(DefaultModelTestCase):
+class PaketUmweltModelTest(DefaultModelTestCase):
   """
   test class for model:
-  Informationspaket Umwelt
+  Paket Umwelt
   """
 
-  model = InformationspaketUmwelt
+  model = PaketUmwelt
   create_test_object_in_classmethod = False
 
   @classmethod
   def setUpTestData(cls):
-    test_stammpaket_a = Stammpaket.objects.create(
+    test_fmf_a = Fmf.objects.create(
       bezeichnung=VALID_STRING_A,
       geometrie=VALID_MULTIPOLYGON_DB_A,
     )
     cls.attributes_values_db_initial = {
-      'stammpaket': test_stammpaket_a,
+      'fmf': test_fmf_a,
       'trinkwassernotbrunnen': False,
     }
-    test_stammpaket_b = Stammpaket.objects.create(
+    test_fmf_b = Fmf.objects.create(
       bezeichnung=VALID_STRING_B,
       geometrie=VALID_MULTIPOLYGON_DB_B,
     )
     cls.attributes_values_db_updated = {
-      'stammpaket': test_stammpaket_b,
+      'fmf': test_fmf_b,
       'trinkwassernotbrunnen': True,
     }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
@@ -87,8 +87,8 @@ class InformationspaketUmweltModelTest(DefaultModelTestCase):
     self.generic_delete_test()
 
   def test_string_representation(self):
-    stammpaket_bezeichnung = f'{self.test_object.stammpaket.bezeichnung}'
+    fmf_bezeichnung = f'{self.test_object.fmf.bezeichnung}'
     created = f'erstellt am {self.test_object.created.strftime("%d.%m.%Y")}'
     modified = f'geändert am {self.test_object.modified.strftime("%d.%m.%Y")}'
-    expected = f'{stammpaket_bezeichnung} → Informationspaket Umwelt ({created}, {modified})'
+    expected = f'{fmf_bezeichnung} → Paket Umwelt ({created}, {modified})'
     self.generic_string_representation_test(expected)

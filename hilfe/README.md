@@ -106,7 +106,7 @@ Hier finden Sie Hilfestellungen zum Flächenmanagementsystem *FMM.*
 
 #### [FMF-Übersichtsseite](fmm/usage/fmf.md)
 
-#### [neue FMF erstellen](fmm/usage/stammpaket-add.md)
+#### [neue FMF erstellen](fmm/usage/fmf-add.md)
 
 ## *GDI.HRO Codelists*
 

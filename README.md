@@ -423,10 +423,10 @@ uv run manage.py test toolbox
   - Einzeltest (Beispiel):
   ```bash
   # ohne uv
-  python manage.py test fmm.tests.StammpaketModelTest.test_create
+  python manage.py test fmm.tests.FmfModelTest.test_create
 
   # mit uv
-  uv run manage.py test fmm.tests.StammpaketModelTest.test_create
+  uv run manage.py test fmm.tests.FmfModelTest.test_create
   ```
 
   - alle Tests:

@@ -7,9 +7,9 @@ from toolbox.constants_vars import standard_validators
 from .abstract import Base
 
 
-class Stammpaket(Base):
+class Fmf(Base):
   """
-  Stammpaket
+  FMF
   """
 
   bezeichnung = models.CharField(
@@ -19,32 +19,32 @@ class Stammpaket(Base):
 
   class Meta(Base.Meta):
     ordering = ['bezeichnung']
-    verbose_name = _('Stammpaket')
-    verbose_name_plural = _('Stammpakete')
+    verbose_name = _('FMF')
+    verbose_name_plural = _('FMF')
 
   def __str__(self):
     return f'{self.bezeichnung}'
 
 
-class InformationspaketUmwelt(Base):
+class PaketUmwelt(Base):
   """
-  Informationspaket Umwelt
+  Paket Umwelt
   """
 
-  stammpaket = models.ForeignKey(
-    Stammpaket,
+  fmf = models.ForeignKey(
+    Fmf,
     on_delete=models.CASCADE,
-    related_name='informationspaketumwelt_stammpakete',
-    verbose_name=_('Stammpaket'),
+    related_name='informationspaketumwelt_fmf',
+    verbose_name=_('FMF'),
   )
   trinkwassernotbrunnen = models.BooleanField(verbose_name=_('Trinkwassernotbrunnen'))
 
   class Meta(Base.Meta):
-    ordering = ['stammpaket', '-modified']
-    verbose_name = _('Informationspaket Umwelt')
-    verbose_name_plural = _('Informationspakete Umwelt')
+    ordering = ['fmf', '-modified']
+    verbose_name = _('Paket Umwelt')
+    verbose_name_plural = _('Pakete Umwelt')
 
   def __str__(self):
     created = f'erstellt am {self.created.strftime("%d.%m.%Y")}'
     modified = f'geändert am {self.modified.strftime("%d.%m.%Y")}'
-    return f'{self.stammpaket.bezeichnung} → Informationspaket Umwelt ({created}, {modified})'
+    return f'{self.fmf.bezeichnung} → Paket Umwelt ({created}, {modified})'

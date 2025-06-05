@@ -9,18 +9,18 @@ abstract class Base {
   +uuid : UUID {unique}
 }
 
-class Stammpaket {
+class FMF {
   +bezeichnung : TEXT {unique}
   +geometrie : GEOMETRY
 }
 
-class InformationspaketUmwelt {
-  ~stammpaket <<FK>>
+class PaketUmwelt {
+  ~fmf <<FK>>
   +trinkwassernotbrunnen : BOOLEAN
 }
 
-Base <|-- Stammpaket
-Base <|-- InformationspaketUmwelt
-InformationspaketUmwelt --> Stammpaket : stammpaket
+Base <|-- FMF
+Base <|-- PaketUmwelt
+PaketUmwelt --> FMF : fmf
 
 @enduml
