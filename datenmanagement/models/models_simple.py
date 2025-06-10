@@ -31,7 +31,6 @@ class Abfallbehaelter(SimpleModel):
 
   deaktiviert = DateField(verbose_name='Außerbetriebstellung', blank=True, null=True)
   id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   typ = ForeignKey(
     to=Typen_Abfallbehaelter,
     verbose_name='Typ',
@@ -126,13 +125,12 @@ class Abfallbehaelter(SimpleModel):
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Abfallbehälter in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
-    readonly_fields = ['deaktiviert', 'id', 'd3_referenz']
+    readonly_fields = ['deaktiviert', 'id']
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'deaktiviert': 'Außerbetriebstellung',
       'id': 'ID',
-      'd3_referenz': 'd3-Referenz',
       'typ': 'Typ',
       'eigentuemer': 'Eigentümer',
       'bewirtschafter': 'Bewirtschafter',
@@ -179,7 +177,6 @@ class Abfallbehaelter(SimpleModel):
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
-      'd3_referenz': 'd3-Referenz',
       'typ': 'Typ',
       'eigentuemer': 'Eigentümer',
       'bewirtschafter': 'Bewirtschafter',
@@ -215,14 +212,13 @@ class Abstellflaechen_E_Tretroller(SimpleModel):
     null=True,
   )
   id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   lagebeschreibung = CharField(
-      verbose_name='Lagebeschreibung',
-      max_length=255,
-      blank=True,
-      null=True,
-      validators=standard_validators,
-    )
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
   erstmarkierung = PositiveSmallIntegerMinField(verbose_name='Erstmarkierung', min_value=1)
   breite = DecimalField(
     verbose_name='Breite (in m)',
@@ -267,7 +263,6 @@ class Abstellflaechen_E_Tretroller(SimpleModel):
     list_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
-      'd3_referenz': 'd3-Referenz',
       'strasse': 'Straße',
       'lagebeschreibung': 'Lagebeschreibung',
       'erstmarkierung': 'Erstmarkierung',
@@ -280,7 +275,6 @@ class Abstellflaechen_E_Tretroller(SimpleModel):
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
-      'd3_referenz': 'd3-Referenz',
       'strasse': 'Straße',
       'lagebeschreibung': 'Lagebeschreibung',
       'erstmarkierung': 'Erstmarkierung',
@@ -375,7 +369,7 @@ class Angelverbotsbereiche(SimpleModel):
   """
   Angelverbotsbereiche
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   bezeichnung = CharField(
     verbose_name='Bezeichnung',
     max_length=255,
@@ -401,7 +395,7 @@ class Angelverbotsbereiche(SimpleModel):
     description = 'Angelverbotsbereiche der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     geometry_type = 'LineString'
-    list_fields = {'aktiv': 'aktiv?', 'bezeichnung': 'Bezeichnung', 'beschreibung': 'Beschreibung', 'd3_referenz': 'd3-Referenz'}
+    list_fields = {'aktiv': 'aktiv?', 'bezeichnung': 'Bezeichnung', 'beschreibung': 'Beschreibung'}
     map_feature_tooltip_fields = ['bezeichnung']
 
   def __str__(self):
@@ -414,7 +408,7 @@ class Arrondierungsflaechen(SimpleModel):
   """
   Arrondierungsflächen
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   registriernummer = CharField(
     verbose_name='Registriernummer',
     max_length=6,
@@ -439,9 +433,9 @@ class Arrondierungsflaechen(SimpleModel):
     description = 'Arrondierungsflächen in der Hanse- und Universitätsstadt Rostock'
     forms_in_high_zoom_mode = True
     geometry_type = 'Polygon'
-    list_fields = {'aktiv': 'aktiv?', 'registriernummer': 'Registriernummer', 'jahr': 'Jahr', 'd3_referenz': 'd3-Referenz'}
+    list_fields = {'aktiv': 'aktiv?', 'registriernummer': 'Registriernummer', 'jahr': 'Jahr'}
     map_feature_tooltip_fields = ['registriernummer']
-    map_filter_fields = {'aktiv': 'aktiv?', 'registriernummer': 'Registriernummer', 'jahr': 'Jahr', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'aktiv': 'aktiv?', 'registriernummer': 'Registriernummer', 'jahr': 'Jahr'}
     additional_wfs_featuretypes = [
       {
         'name': 'flurstuecke',
@@ -556,240 +550,6 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
 
 post_delete.connect(delete_pdf, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
 
-
-class Baudenkmale(SimpleModel):
-  """
-  Baudenkmale
-  """
-
-  id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
-  status = ForeignKey(
-      to=Status_Baudenkmale_Denkmalbereiche,
-      verbose_name='Status',
-      on_delete=RESTRICT,
-      db_column='status',
-      to_field='uuid',
-      related_name='%(app_label)s_%(class)s_status',
-  )
-  adresse = ForeignKey(
-    to=Adressen,
-    verbose_name='Adresse',
-    on_delete=SET_NULL,
-    db_column='adresse',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_adressen',
-    blank=True,
-    null=True,
-  )
-  beschreibung = CharField(
-    verbose_name='Beschreibung', max_length=255, validators=standard_validators
-  )
-  vorherige_beschreibung = CharField(
-    verbose_name=' vorherige Beschreibung',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators,
-  )
-  lage = CharField(
-    verbose_name='Lage', max_length=255, blank=True, null=True, validators=standard_validators
-  )
-  unterschutzstellungen = ArrayField(
-    DateField(verbose_name='Unterschutzstellungen', blank=True, null=True),
-    verbose_name='Unterschutzstellungen',
-    blank=True,
-    null=True,
-  )
-  veroeffentlichungen = ArrayField(
-    DateField(verbose_name='Veröffentlichungen', blank=True, null=True),
-    verbose_name='Veröffentlichungen',
-    blank=True,
-    null=True,
-  )
-  denkmalnummern = ArrayField(
-    CharField(
-      verbose_name='Denkmalnummern',
-      max_length=255,
-      blank=True,
-      null=True,
-      validators=standard_validators,
-    ),
-    verbose_name='Denkmalnummern',
-    blank=True,
-    null=True,
-  )
-  gartendenkmal = BooleanField(verbose_name='Gartendenkmal?')
-  hinweise = NullTextField(
-    verbose_name='Hinweise', max_length=500, blank=True, null=True, validators=standard_validators
-  )
-  aenderungen = NullTextField(
-    verbose_name='Änderungen',
-    max_length=500,
-    blank=True,
-    null=True,
-    validators=standard_validators,
-  )
-  geometrie = nullable_multipolygon_field
-
-  class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten_adressbezug"."baudenkmale_hro'
-    verbose_name = 'Baudenkmal'
-    verbose_name_plural = 'Baudenkmale'
-
-  class BasemodelMeta(SimpleModel.BasemodelMeta):
-    description = 'Baudenkmale der Hanse- und Universitätsstadt Rostock'
-    as_overlay = True
-    readonly_fields = ['id']
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'MultiPolygon'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'id': 'ID',
-      'd3_referenz': 'd3-Referenz',
-      'status': 'Status',
-      'adresse': 'Adresse',
-      'lage': 'Lage',
-      'beschreibung': 'Beschreibung',
-    }
-    list_fields_with_foreign_key = {'status': 'status', 'adresse': 'adresse'}
-    list_actions_assign = [
-      {
-        'action_name': 'baudenkmale-status',
-        'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
-        'field': 'status',
-        'type': 'foreignkey',
-      }
-    ]
-    map_feature_tooltip_fields = ['id']
-    map_filter_fields = {
-      'aktiv': 'aktiv?',
-      'id': 'ID',
-      'd3_referenz': 'd3-Referenz',
-      'status': 'Status',
-      'lage': 'Lage',
-      'beschreibung': 'Beschreibung',
-      'gartendenkmal': 'Gartendenkmal?',
-    }
-    map_filter_fields_as_list = ['status']
-    additional_wfs_featuretypes = [
-      {
-        'name': 'flurstuecke',
-        'title': 'Flurstücke',
-        'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wfs',
-        'featuretypes': 'hro.flurstuecke.flurstuecke',
-      },
-      {
-        'name': 'gebaeude',
-        'title': 'Gebäude',
-        'url': 'https://geo.sv.rostock.de/geodienste/gebaeude/wfs',
-        'featuretypes': 'hro.gebaeude.gebaeude',
-      },
-    ]
-
-  def __str__(self):
-    return self.beschreibung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
-
-
-class Behinderteneinrichtungen(SimpleModel):
-  """
-  Behinderteneinrichtungen
-  """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
-  adresse = ForeignKey(
-    to=Adressen,
-    verbose_name='Adresse',
-    on_delete=SET_NULL,
-    db_column='adresse',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_adressen',
-    blank=True,
-    null=True,
-  )
-  bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, validators=standard_validators
-  )
-  traeger = ForeignKey(
-    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
-    verbose_name='Träger',
-    on_delete=RESTRICT,
-    db_column='traeger',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_traeger',
-  )
-  plaetze = PositiveSmallIntegerMinField(verbose_name='Plätze', min_value=1, blank=True, null=True)
-  telefon_festnetz = CharField(
-    verbose_name='Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)],
-  )
-  telefon_mobil = CharField(
-    verbose_name='Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)],
-  )
-  email = CharField(
-    verbose_name='E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[EmailValidator(message=email_message)],
-  )
-  website = CharField(
-    verbose_name='Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[URLValidator(message=url_message)],
-  )
-  geometrie = point_field
-
-  class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten_adressbezug"."behinderteneinrichtungen_hro'
-    verbose_name = 'Behinderteneinrichtung'
-    verbose_name_plural = 'Behinderteneinrichtungen'
-
-  class BasemodelMeta(SimpleModel.BasemodelMeta):
-    description = 'Behinderteneinrichtungen in der Hanse- und Universitätsstadt Rostock'
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
-    list_fields = {
-      'd3_referenz': 'd.3-Referenz',
-      'aktiv': 'aktiv?',
-      'adresse': 'Adresse',
-      'bezeichnung': 'Bezeichnung',
-      'traeger': 'Träger',
-    }
-    list_fields_with_foreign_key = {'adresse': 'adresse', 'traeger': 'bezeichnung'}
-    list_actions_assign = [
-      {
-        'action_name': 'behinderteneinrichtungen-traeger',
-        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
-        'field': 'traeger',
-        'type': 'foreignkey',
-      }
-    ]
-    map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'traeger': 'Träger', 'd3_referenz': 'd.3-Referenz'}
-    map_filter_fields_as_list = ['traeger']
-
-  def __str__(self):
-    return (
-      self.bezeichnung
-      + ' ['
-      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
-      + 'Träger: '
-      + str(self.traeger)
-      + ']'
-    )
-
-
 class Beschluesse_Bau_Planungsausschuss(SimpleModel):
   """
   Beschlüsse des Bau- und Planungsausschusses
@@ -864,15 +624,110 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
       + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
     )
 
-
 post_delete.connect(delete_pdf, sender=Beschluesse_Bau_Planungsausschuss)
+
+class Behinderteneinrichtungen(SimpleModel):
+  """
+  Behinderteneinrichtungen
+  """
+
+  adresse = ForeignKey(
+    to=Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True,
+  )
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung', max_length=255, validators=standard_validators
+  )
+  traeger = ForeignKey(
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    verbose_name='Träger',
+    on_delete=RESTRICT,
+    db_column='traeger',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_traeger',
+  )
+  plaetze = PositiveSmallIntegerMinField(verbose_name='Plätze', min_value=1, blank=True, null=True)
+  telefon_festnetz = CharField(
+    verbose_name='Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)],
+  )
+  telefon_mobil = CharField(
+    verbose_name='Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)],
+  )
+  email = CharField(
+    verbose_name='E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[EmailValidator(message=email_message)],
+  )
+  website = CharField(
+    verbose_name='Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[URLValidator(message=url_message)],
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_adressbezug"."behinderteneinrichtungen_hro'
+    verbose_name = 'Behinderteneinrichtung'
+    verbose_name_plural = 'Behinderteneinrichtungen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Behinderteneinrichtungen in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger',
+    }
+    list_fields_with_foreign_key = {'adresse': 'adresse', 'traeger': 'bezeichnung'}
+    list_actions_assign = [
+      {
+        'action_name': 'behinderteneinrichtungen-traeger',
+        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
+        'field': 'traeger',
+        'type': 'foreignkey',
+      }
+    ]
+    map_feature_tooltip_fields = ['bezeichnung']
+    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'traeger': 'Träger'}
+    map_filter_fields_as_list = ['traeger']
+
+  def __str__(self):
+    return (
+      self.bezeichnung
+      + ' ['
+      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
+      + 'Träger: '
+      + str(self.traeger)
+      + ']'
+    )
 
 
 class Bildungstraeger(SimpleModel):
   """
   Bildungsträger
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -940,11 +795,10 @@ class Bildungstraeger(SimpleModel):
       'adresse': 'Adresse',
       'bezeichnung': 'Bezeichnung',
       'schlagwoerter': 'Schlagwörter',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse'}
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'schlagwoerter': 'Schlagwörter', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'schlagwoerter': 'Schlagwörter'}
 
   def __str__(self):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
@@ -955,7 +809,13 @@ class Brunnen(SimpleModel):
   Brunnen
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+  d3 = CharField(
+    verbose_name=' d.3',
+    max_length=16,
+    blank=True,
+    null=True,
+    validators=[RegexValidator(regex=brunnen_d3_regex, message=brunnen_d3_message)],
+  )
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
     max_length=255,
@@ -1015,7 +875,7 @@ class Brunnen(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3_referenz': 'd3-Referenz',
+      'd3': 'd.3',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'datum_bescheid': 'Datum des Bescheids',
@@ -1031,7 +891,7 @@ class Brunnen(SimpleModel):
     map_feature_tooltip_fields = ['lagebeschreibung']
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'd3_referenz': 'd3-Referenz',
+      'd3': 'd.3',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'datum_bescheid': 'Datum des Bescheids',
@@ -1052,7 +912,7 @@ class Carsharing_Stationen(SimpleModel):
   """
   Carsharing-Stationen
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -1130,7 +990,6 @@ class Carsharing_Stationen(SimpleModel):
       'bezeichnung': 'Bezeichnung',
       'anbieter': 'Anbieter',
       'anzahl_fahrzeuge': 'Anzahl der Fahrzeuge',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse', 'anbieter': 'anbieter'}
     list_actions_assign = [
@@ -1163,7 +1022,6 @@ class Containerstellplaetze(SimpleModel):
 
   deaktiviert = DateField(verbose_name='Außerbetriebstellung', blank=True, null=True)
   id = CharField(verbose_name='ID', max_length=5, unique=True, default='00-00')
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   privat = BooleanField(verbose_name=' privat?')
   bezeichnung = CharField(
     verbose_name='Bezeichnung', max_length=255, validators=standard_validators
@@ -1340,11 +1198,10 @@ class Containerstellplaetze(SimpleModel):
       'privat': 'privat?',
       'bezeichnung': 'Bezeichnung',
       'foto': 'Foto',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_date = ['deaktiviert']
     map_feature_tooltip_fields = ['id']
-    map_filter_fields = {'id': 'ID', 'privat': 'privat?', 'bezeichnung': 'Bezeichnung', 'd3_referenz': 'd3-Referenz',}
+    map_filter_fields = {'id': 'ID', 'privat': 'privat?', 'bezeichnung': 'Bezeichnung'}
 
   def __str__(self):
     return self.bezeichnung
@@ -1359,110 +1216,11 @@ post_save.connect(delete_photo_after_emptied, sender=Containerstellplaetze)
 post_delete.connect(delete_photo, sender=Containerstellplaetze)
 
 
-class Denkmalbereiche(SimpleModel):
-  """
-  Denkmalbereiche
-  """
-
-  id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
-  status = ForeignKey(
-    to=Status_Baudenkmale_Denkmalbereiche,
-    verbose_name='Status',
-    on_delete=RESTRICT,
-    db_column='status',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_status',
-  )
-  bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, validators=standard_validators
-  )
-  beschreibung = CharField(
-    verbose_name='Beschreibung', max_length=255, validators=standard_validators
-  )
-  unterschutzstellungen = ArrayField(
-    DateField(verbose_name='Unterschutzstellungen', blank=True, null=True),
-    verbose_name='Unterschutzstellungen',
-    blank=True,
-    null=True,
-  )
-  veroeffentlichungen = ArrayField(
-    DateField(verbose_name='Veröffentlichungen', blank=True, null=True),
-    verbose_name='Veröffentlichungen',
-    blank=True,
-    null=True,
-  )
-  denkmalnummern = ArrayField(
-    CharField(
-      verbose_name='Denkmalnummern',
-      max_length=255,
-      blank=True,
-      null=True,
-      validators=standard_validators,
-    ),
-    verbose_name='Denkmalnummern',
-    blank=True,
-    null=True,
-  )
-  hinweise = NullTextField(
-    verbose_name='Hinweise', max_length=500, blank=True, null=True, validators=standard_validators
-  )
-  aenderungen = NullTextField(
-    verbose_name='Änderungen',
-    max_length=500,
-    blank=True,
-    null=True,
-    validators=standard_validators,
-  )
-  geometrie = multipolygon_field
-
-  class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten"."denkmalbereiche_hro'
-    verbose_name = 'Denkmalbereich'
-    verbose_name_plural = 'Denkmalbereiche'
-
-  class BasemodelMeta(SimpleModel.BasemodelMeta):
-    description = 'Denkmalbereiche der Hanse- und Universitätsstadt Rostock'
-    as_overlay = True
-    readonly_fields = ['id']
-    geometry_type = 'MultiPolygon'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'id': 'ID',
-      'status': 'Status',
-      'bezeichnung': 'Bezeichnung',
-      'beschreibung': 'Beschreibung',
-      'd3_referenz': 'd3-Referenz',
-    }
-    list_fields_with_foreign_key = {'status': 'status'}
-    list_actions_assign = [
-      {
-        'action_name': 'denkmalbereiche-status',
-        'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
-        'field': 'status',
-        'type': 'foreignkey',
-      }
-    ]
-    map_feature_tooltip_fields = ['id']
-    map_filter_fields = {
-      'aktiv': 'aktiv?',
-      'id': 'ID',
-      'status': 'Status',
-      'bezeichnung': 'Bezeichnung',
-      'beschreibung': 'Beschreibung',
-      'd3_referenz': 'd3-Referenz',
-    }
-    map_filter_fields_as_list = ['status']
-
-  def __str__(self):
-    return self.bezeichnung + ' [Beschreibung: ' + str(self.beschreibung) + ']'
-
-
 class Denksteine(SimpleModel):
   """
   Denksteine
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -1543,7 +1301,6 @@ class Denksteine(SimpleModel):
       'nachname': 'Nachname',
       'geburtsjahr': 'Geburtsjahr',
       'sterbejahr': 'Sterbejahr',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse', 'titel': 'bezeichnung'}
     map_feature_tooltip_fields = ['titel', 'vorname', 'nachname']
@@ -1554,7 +1311,6 @@ class Denksteine(SimpleModel):
       'nachname': 'Nachname',
       'geburtsjahr': 'Geburtsjahr',
       'sterbejahr': 'Sterbejahr',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['titel']
 
@@ -1577,7 +1333,6 @@ class Erdwaermesonden(SimpleModel):
   Erdwärmesonden
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
     max_length=18,
@@ -1644,7 +1399,6 @@ class Erdwaermesonden(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'typ': 'Typ',
@@ -1653,14 +1407,12 @@ class Erdwaermesonden(SimpleModel):
       'sondenfeldgroesse': 'Sondenfeldgröße (in m²)',
       'endteufe': 'Endteufe (in m)',
       'hinweis': 'Hinweis',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_decimal = ['endteufe']
     list_fields_with_foreign_key = {'art': 'art', 'typ': 'typ'}
     map_feature_tooltip_fields = ['aktenzeichen']
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'typ': 'Typ',
@@ -1669,7 +1421,6 @@ class Erdwaermesonden(SimpleModel):
       'sondenfeldgroesse': 'Sondenfeldgröße (in m²)',
       'endteufe': 'Endteufe (in m)',
       'hinweis': 'Hinweis',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['art', 'typ']
 
@@ -1693,7 +1444,6 @@ class Fahrradabstellanlagen(SimpleModel):
     null=True,
   )
   id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   hersteller = ForeignKey(
     to=Hersteller_Fahrradabstellanlagen,
     verbose_name='Hersteller',
@@ -1777,7 +1527,6 @@ class Fahrradabstellanlagen(SimpleModel):
       'baujahr': 'Baujahr',
       'eigentuemer': 'Eigentümer',
       'foto': 'Foto',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {
       'strasse': 'strasse',
@@ -1824,7 +1573,6 @@ class Fahrradabstellanlagen(SimpleModel):
       'ausfuehrung_stellplaetze': 'Ausführung Stellplätze',
       'baujahr': 'Baujahr',
       'eigentuemer': 'Eigentümer',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = [
       'strasse',
@@ -1863,7 +1611,6 @@ class Fahrradboxen(SimpleModel):
     null=True,
   )
   id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   ausfuehrung = ForeignKey(
     to=Ausfuehrungen_Fahrradboxen,
     verbose_name='Ausführung',
@@ -1921,7 +1668,6 @@ class Fahrradboxen(SimpleModel):
       'anzahl_stellplaetze': 'Anzahl Stellplätze',
       'eigentuemer': 'Eigentümer',
       'foto': 'Foto',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {
       'strasse': 'strasse',
@@ -1951,7 +1697,6 @@ class Fahrradboxen(SimpleModel):
       'lagebeschreibung': 'Lagebeschreibung',
       'anzahl_stellplaetze': 'Anzahl Stellplätze',
       'eigentuemer': 'Eigentümer',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['strasse', 'ausfuehrung', 'eigentuemer']
 
@@ -1984,7 +1729,6 @@ class Fahrradreparatursets(SimpleModel):
     null=True,
   )
   id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   ausfuehrung = ForeignKey(
     to=Ausfuehrungen_Fahrradreparatursets,
     verbose_name='Ausführung',
@@ -2033,7 +1777,6 @@ class Fahrradreparatursets(SimpleModel):
       'lagebeschreibung': 'Lagebeschreibung',
       'baujahr': 'Baujahr',
       'eigentuemer': 'Eigentümer',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {
       'strasse': 'strasse',
@@ -2063,7 +1806,6 @@ class Fahrradreparatursets(SimpleModel):
       'lagebeschreibung': 'Lagebeschreibung',
       'baujahr': 'Baujahr',
       'eigentuemer': 'Eigentümer',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['strasse', 'ausfuehrung', 'eigentuemer']
 
@@ -2087,7 +1829,6 @@ class Fahrradstaender(SimpleModel):
     null=True,
   )
   id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   ausfuehrung = ForeignKey(
     to=Ausfuehrungen_Fahrradstaender,
     verbose_name='Ausführung',
@@ -2149,7 +1890,6 @@ class Fahrradstaender(SimpleModel):
       'anzahl_fahrradstaender': 'Anzahl Fahrradständer',
       'eigentuemer': 'Eigentümer',
       'foto': 'Foto',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {
       'strasse': 'strasse',
@@ -2180,7 +1920,6 @@ class Fahrradstaender(SimpleModel):
       'anzahl_stellplaetze': 'Anzahl Stellplätze',
       'anzahl_fahrradstaender': 'Anzahl Fahrradständer',
       'eigentuemer': 'Eigentümer',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['strasse', 'ausfuehrung', 'eigentuemer']
 
@@ -2202,7 +1941,6 @@ class FairTrade(SimpleModel):
   Fair Trade
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -2278,11 +2016,10 @@ class FairTrade(SimpleModel):
       'adresse': 'Adresse',
       'art': 'Art',
       'bezeichnung': 'Bezeichnung',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse', 'art': 'art'}
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'art': 'Art', 'bezeichnung': 'Bezeichnung', 'd3_referenz': 'd3-Referenz',}
+    map_filter_fields = {'art': 'Art', 'bezeichnung': 'Bezeichnung'}
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
@@ -2300,7 +2037,7 @@ class Feuerwachen(SimpleModel):
   """
   Feuerwachen
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -2367,11 +2104,10 @@ class Feuerwachen(SimpleModel):
       'adresse': 'Adresse',
       'art': 'Art',
       'bezeichnung': 'Bezeichnung',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse', 'art': 'art'}
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'art': 'Art', 'bezeichnung': 'Bezeichnung', 'd3_referenz': 'd3-Referenz',}
+    map_filter_fields = {'art': 'Art', 'bezeichnung': 'Bezeichnung'}
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
@@ -2390,7 +2126,6 @@ class Fliessgewaesser(SimpleModel):
   Fließgewässer
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   nummer = CharField(verbose_name='Nummer', max_length=255, validators=standard_validators)
   art = ForeignKey(
     to=Arten_Fliessgewaesser,
@@ -2444,7 +2179,6 @@ class Fliessgewaesser(SimpleModel):
       'bezeichnung': 'Bezeichnung',
       'laenge': 'Länge (in m)',
       'laenge_in_hro': 'Länge innerhalb Rostocks (in m)',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'art': 'art', 'ordnung': 'ordnung'}
     map_heavy_load_limit = 500
@@ -2454,7 +2188,6 @@ class Fliessgewaesser(SimpleModel):
       'art': 'Art',
       'ordnung': 'Ordnung',
       'bezeichnung': 'Bezeichnung',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['art', 'ordnung']
 
@@ -2484,7 +2217,6 @@ class Fussgaengerueberwege(SimpleModel):
     null=True,
   )
   id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   breite = DecimalField(
     verbose_name='Breite (in m)',
     max_digits=3,
@@ -2556,7 +2288,6 @@ class Fussgaengerueberwege(SimpleModel):
       'lagebeschreibung': 'Lagebeschreibung',
       'baujahr': 'Baujahr',
       'kreisverkehr': 'Kreisverkehr?',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_decimal = ['breite', 'laenge']
     list_fields_with_foreign_key = {'strasse': 'strasse', 'beleuchtungsart': 'bezeichnung'}
@@ -2586,7 +2317,6 @@ class Fussgaengerueberwege(SimpleModel):
       'lagebeschreibung': 'Lagebeschreibung',
       'baujahr': 'Baujahr',
       'kreisverkehr': 'Kreisverkehr?',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['strasse', 'beleuchtungsart']
 
@@ -2599,7 +2329,6 @@ class Gemeinbedarfsflaechen(SimpleModel):
   Gemeinbedarfsflächen
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   registriernummer = CharField(
     verbose_name='Registriernummer',
     max_length=6,
@@ -2624,9 +2353,9 @@ class Gemeinbedarfsflaechen(SimpleModel):
     description = 'Gemeinbedarfsflächen in der Hanse- und Universitätsstadt Rostock'
     forms_in_high_zoom_mode = True
     geometry_type = 'Polygon'
-    list_fields = {'aktiv': 'aktiv?', 'registriernummer': 'Registriernummer', 'jahr': 'Jahr', 'd3_referenz': 'd3-Referenz'}
+    list_fields = {'aktiv': 'aktiv?', 'registriernummer': 'Registriernummer', 'jahr': 'Jahr'}
     map_feature_tooltip_fields = ['registriernummer']
-    map_filter_fields = {'aktiv': 'aktiv?', 'registriernummer': 'Registriernummer', 'jahr': 'Jahr', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'aktiv': 'aktiv?', 'registriernummer': 'Registriernummer', 'jahr': 'Jahr'}
     additional_wfs_featuretypes = [
       {
         'name': 'flurstuecke',
@@ -2645,7 +2374,6 @@ class Gutachterfotos(SimpleModel):
   Gutachterfotos
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -2693,7 +2421,6 @@ class Gutachterfotos(SimpleModel):
       'datum': 'Datum',
       'aufnahmedatum': 'Aufnahmedatum',
       'foto': 'Foto',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_date = ['datum', 'aufnahmedatum']
     list_fields_with_foreign_key = {'adresse': 'adresse'}
@@ -2715,7 +2442,7 @@ class Gutachterfotos(SimpleModel):
     ]
     map_heavy_load_limit = 800
     map_feature_tooltip_fields = ['datum']
-    map_filter_fields = {'datum': 'Datum', 'aufnahmedatum': 'Aufnahmedatum', 'd3_referenz': 'd3-Referenz',}
+    map_filter_fields = {'datum': 'Datum', 'aufnahmedatum': 'Aufnahmedatum'}
 
   def __str__(self):
     return (
@@ -2734,7 +2461,7 @@ class Hausnummern(SimpleModel):
   """
   Hausnummern
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   strasse = ForeignKey(
     to=Strassen,
     verbose_name='Straße',
@@ -2864,7 +2591,6 @@ class Hausnummern(SimpleModel):
       'antragsnummer': 'Antragsnummer',
       'gebaeude_bauweise': 'Bauweise des Gebäudes',
       'gebaeude_funktion': 'Funktion des Gebäudes',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_date = ['deaktiviert', 'vergabe_datum']
     list_fields_with_foreign_key = {
@@ -2894,7 +2620,6 @@ class Hausnummern(SimpleModel):
       'antragsnummer': 'Antragsnummer',
       'gebaeude_bauweise': 'Bauweise des Gebäudes',
       'gebaeude_funktion': 'Funktion des Gebäudes',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['strasse', 'gebaeude_bauweise', 'gebaeude_funktion']
 
@@ -2914,7 +2639,7 @@ class Hospize(SimpleModel):
   """
   Hospize
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -2982,7 +2707,6 @@ class Hospize(SimpleModel):
       'adresse': 'Adresse',
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse', 'traeger': 'bezeichnung'}
     list_actions_assign = [
@@ -2994,7 +2718,7 @@ class Hospize(SimpleModel):
       }
     ]
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'traeger': 'Träger', 'd3_referenz': 'd3-Referenz',}
+    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'traeger': 'Träger'}
     map_filter_fields_as_list = ['traeger']
 
   def __str__(self):
@@ -3015,7 +2739,6 @@ class Hundetoiletten(SimpleModel):
 
   deaktiviert = DateField(verbose_name='Außerbetriebstellung', blank=True, null=True)
   id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   art = ForeignKey(
     to=Arten_Hundetoiletten,
     verbose_name='Art',
@@ -3088,7 +2811,6 @@ class Hundetoiletten(SimpleModel):
       'art': 'Art',
       'bewirtschafter': 'Bewirtschafter',
       'pflegeobjekt': 'Pflegeobjekt',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_date = ['deaktiviert']
     list_fields_with_foreign_key = {'art': 'art', 'bewirtschafter': 'bezeichnung'}
@@ -3099,7 +2821,6 @@ class Hundetoiletten(SimpleModel):
       'art': 'Art',
       'bewirtschafter': 'Bewirtschafter',
       'pflegeobjekt': 'Pflegeobjekt',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['art', 'bewirtschafter']
 
@@ -3111,7 +2832,7 @@ class Hydranten(SimpleModel):
   """
   Hydranten
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   bezeichnung = CharField(
     verbose_name='Bezeichnung',
     max_length=255,
@@ -3175,7 +2896,6 @@ class Hydranten(SimpleModel):
       'betriebszeit': 'Betriebszeit',
       'entnahme': 'Entnahme',
       'hauptwasserzaehler': 'Hauptwasserzähler',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {
       'eigentuemer': 'bezeichnung',
@@ -3218,7 +2938,6 @@ class Hydranten(SimpleModel):
       'betriebszeit': 'Betriebszeit',
       'entnahme': 'Entnahme',
       'hauptwasserzaehler': 'Hauptwasserzähler',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['eigentuemer', 'bewirtschafter', 'betriebszeit']
 
@@ -3231,7 +2950,6 @@ class Ingenieurbauwerke(SimpleModel):
   Ingenieurbauwerke
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   strasse = ForeignKey(
     to=Strassen,
     verbose_name='Straße',
@@ -3414,7 +3132,6 @@ class Ingenieurbauwerke(SimpleModel):
       'durchfahrtshoehe': 'Durchfahrtshöhe (in m)',
       'nennweite': 'Nennweite',
       'schwerlast': 'Schwerlast',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_decimal = ['flaeche', 'laenge', 'lichte_weite', 'durchfahrtshoehe']
     list_fields_with_foreign_key = {
@@ -3455,7 +3172,6 @@ class Ingenieurbauwerke(SimpleModel):
       'oben': 'Verkehrsweg oben',
       'unten': 'Verkehrsweg unten',
       'schwerlast': 'Schwerlast',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['art', 'strasse', 'ausfuehrung']
 
@@ -3468,7 +3184,6 @@ class Jagdkataster_Skizzenebenen(SimpleModel):
   Skizzenebenen des Jagdkatasters
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   antragsteller = ForeignKey(
     to=Antragsteller_Jagdkataster_Skizzenebenen,
     verbose_name='Antragsteller:in',
@@ -3517,7 +3232,6 @@ class Jagdkataster_Skizzenebenen(SimpleModel):
       'thema': 'Thema',
       'status': 'Status',
       'bemerkungen': 'Bemerkungen',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {
       'antragsteller': 'bezeichnung',
@@ -3555,7 +3269,6 @@ class Jagdkataster_Skizzenebenen(SimpleModel):
       'thema': 'Thema',
       'status': 'Status',
       'bemerkungen': 'Bemerkungen',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['antragsteller', 'thema', 'status']
 
@@ -3572,7 +3285,6 @@ class Kadaverfunde(SimpleModel):
   Kadaverfunde
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   zeitpunkt = DateTimeField('Zeitpunkt')
   tierseuche = ForeignKey(
     to=Tierseuchen,
@@ -3651,7 +3363,6 @@ class Kadaverfunde(SimpleModel):
       'zustand': 'Zustand',
       'art_auffinden': 'Art des Auffindens',
       'zeitpunkt': 'Zeitpunkt',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_datetime = ['zeitpunkt']
     list_fields_with_foreign_key = {
@@ -3676,7 +3387,6 @@ class Kadaverfunde(SimpleModel):
       'altersklasse',
       'zustand',
       'art_auffinden',
-      'd3_referenz',
     ]
 
   def __str__(self):
@@ -3696,7 +3406,6 @@ class Kehrbezirke(SimpleModel):
   Kehrbezirke
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = OneToOneField(
     to=Adressen,
     verbose_name='Adresse',
@@ -3736,7 +3445,6 @@ class Kehrbezirke(SimpleModel):
       'adresse': 'Adresse',
       'bevollmaechtigter_bezirksschornsteinfeger': 'bevollmächtigter Bezirksschornsteinfeger',
       'vergabedatum': 'Vergabedatum der Adresse',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_date = ['vergabedatum']
     list_fields_with_foreign_key = {
@@ -3763,7 +3471,7 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
   """
   Kindertagespflegeeinrichtungen
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -3830,11 +3538,10 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
       'nachname': 'Nachname',
       'plaetze': 'Plätze',
       'zeiten': 'Betreuungszeiten',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse'}
     map_feature_tooltip_fields = ['vorname', 'nachname']
-    map_filter_fields = {'vorname': 'Vorname', 'nachname': 'Nachname', 'plaetze': 'Plätze', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'vorname': 'Vorname', 'nachname': 'Nachname', 'plaetze': 'Plätze'}
 
   def __str__(self):
     return (
@@ -3850,7 +3557,6 @@ class Kinder_Jugendbetreuung(SimpleModel):
   Kinder- und Jugendbetreuung
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -3917,7 +3623,6 @@ class Kinder_Jugendbetreuung(SimpleModel):
       'adresse': 'Adresse',
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse', 'traeger': 'bezeichnung'}
     list_actions_assign = [
@@ -3929,7 +3634,7 @@ class Kinder_Jugendbetreuung(SimpleModel):
       }
     ]
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'traeger': 'Träger', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'traeger': 'Träger'}
     map_filter_fields_as_list = ['traeger']
 
   def __str__(self):
@@ -3948,7 +3653,6 @@ class Kleinklaeranlagen(SimpleModel):
   Kleinkläranlagen
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -3958,6 +3662,11 @@ class Kleinklaeranlagen(SimpleModel):
     related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
     null=True,
+  )
+  d3 = CharField(
+    verbose_name=' d.3',
+    max_length=16,
+    validators=[RegexValidator(regex=d3_regex, message=d3_message)],
   )
   we_datum = DateField(verbose_name='Datum der wasserrechtlichen Erlaubnis', default=date.today)
   we_aktenzeichen = CharField(
@@ -4043,6 +3752,7 @@ class Kleinklaeranlagen(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
+      'd3': 'd.3',
       'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
       'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
       'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
@@ -4053,7 +3763,6 @@ class Kleinklaeranlagen(SimpleModel):
       'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
       'einwohnerwert': 'Einwohnerwert',
       'zulassung': 'Zulassung',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_date = ['we_datum', 'we_befristung']
     list_fields_with_decimal = ['umfang_einleitung', 'einwohnerwert']
@@ -4061,6 +3770,7 @@ class Kleinklaeranlagen(SimpleModel):
     map_feature_tooltip_fields = ['d3']
     map_filter_fields = {
       'aktiv': 'aktiv?',
+      'd3': 'd.3',
       'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
       'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
       'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
@@ -4070,7 +3780,6 @@ class Kleinklaeranlagen(SimpleModel):
       'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
       'einwohnerwert': 'Einwohnerwert',
       'zulassung': 'Zulassung',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['typ']
 
@@ -4082,7 +3791,7 @@ class Kunst_im_oeffentlichen_Raum(SimpleModel):
   """
   Kunst im öffentlichen Raum
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   bezeichnung = CharField(
     verbose_name='Bezeichnung', max_length=255, validators=standard_validators
   )
@@ -4115,7 +3824,6 @@ class Kunst_im_oeffentlichen_Raum(SimpleModel):
       'ausfuehrung': 'Ausführung',
       'schoepfer': 'Schöpfer',
       'entstehungsjahr': 'Entstehungsjahr',
-      'd3_referenz': 'd3-Referenz',
     }
     map_feature_tooltip_fields = ['bezeichnung']
 
@@ -4128,7 +3836,6 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
   Ladestationen für Elektrofahrzeuge
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -4221,7 +3928,6 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
       'betriebsart': 'Betriebsart',
       'anzahl_ladepunkte': 'Anzahl an Ladepunkten',
       'ladekarten': 'Ladekarten',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {
       'adresse': 'adresse',
@@ -4264,7 +3970,6 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
       'betriebsart': 'Betriebsart',
       'anzahl_ladepunkte': 'Anzahl an Ladepunkten',
       'ladekarten': 'Ladekarten',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['betreiber', 'verbund', 'betriebsart']
 
@@ -4277,7 +3982,6 @@ class Meldedienst_flaechenhaft(SimpleModel):
   Meldedienst (flächenhaft)
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   art = ForeignKey(
     to=Arten_Meldedienst_flaechenhaft,
     verbose_name='Art',
@@ -4322,7 +4026,6 @@ class Meldedienst_flaechenhaft(SimpleModel):
       'bemerkungen': 'Bemerkungen',
       'bearbeiter': 'Bearbeiter:in',
       'bearbeitungsbeginn': 'Bearbeitungsbeginn',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_date = ['erfassungsdatum', 'bearbeitungsbeginn']
     list_fields_with_foreign_key = {'art': 'art'}
@@ -4335,7 +4038,6 @@ class Meldedienst_flaechenhaft(SimpleModel):
       'bemerkungen': 'Bemerkungen',
       'bearbeiter': 'Bearbeiter:in',
       'bearbeitungsbeginn': 'Bearbeitungsbeginn',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['art']
 
@@ -4353,7 +4055,6 @@ class Meldedienst_punkthaft(SimpleModel):
   Meldedienst (punkthaft)
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   deaktiviert = DateField(verbose_name='Zurückstellung', blank=True, null=True)
   adresse = ForeignKey(
     to=Adressen,
@@ -4434,7 +4135,6 @@ class Meldedienst_punkthaft(SimpleModel):
       'flaeche': 'Fläche (in m²)',
       'bemerkungen': 'Bemerkungen',
       'datum': 'Datum',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_date = ['deaktiviert', 'datum']
     list_fields_with_decimal = ['flaeche']
@@ -4467,7 +4167,6 @@ class Meldedienst_punkthaft(SimpleModel):
       'gebaeudeart': 'Gebäudeart',
       'bemerkungen': 'Bemerkungen',
       'datum': 'Datum',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['art', 'gebaeudeart']
 
@@ -4486,7 +4185,6 @@ class Mobilfunkantennen(SimpleModel):
   Mobilfunkantennen
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -4573,7 +4271,6 @@ class Mobilfunkantennen(SimpleModel):
       'anzahl_umts': 'Anzahl UMTS-Einheiten',
       'anzahl_lte': 'Anzahl LTE-Einheiten',
       'anzahl_sonstige': 'Anzahl sonstige Einheiten',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_date = ['erteilungsdatum']
     list_fields_with_foreign_key = {'adresse': 'adresse'}
@@ -4589,7 +4286,6 @@ class Mobilfunkantennen(SimpleModel):
       'anzahl_umts': 'Anzahl UMTS-Einheiten',
       'anzahl_lte': 'Anzahl LTE-Einheiten',
       'anzahl_sonstige': 'Anzahl sonstige Einheiten',
-      'd3_referenz': 'd3-Referenz',
     }
 
   def __str__(self):
@@ -4600,7 +4296,7 @@ class Mobilpunkte(SimpleModel):
   """
   Mobilpunkte
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   bezeichnung = CharField(
     verbose_name='Bezeichnung', max_length=255, validators=standard_validators
   )
@@ -4630,7 +4326,6 @@ class Mobilpunkte(SimpleModel):
       'bezeichnung': 'Bezeichnung',
       'angebote': 'Angebote',
       'website': 'Website',
-      'd3_referenz': 'd3-Referenz',
     }
     map_feature_tooltip_fields = ['bezeichnung']
 
@@ -4643,7 +4338,6 @@ class Parkmoeglichkeiten(SimpleModel):
   Parkmöglichkeiten
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -4775,11 +4469,10 @@ class Parkmoeglichkeiten(SimpleModel):
       'art': 'Art',
       'standort': 'Standort',
       'betreiber': 'Betreiber',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse', 'art': 'art', 'betreiber': 'bezeichnung'}
     map_feature_tooltip_fields = ['art', 'standort']
-    map_filter_fields = {'art': 'Art', 'standort': 'Standort', 'betreiber': 'Betreiber', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'art': 'Art', 'standort': 'Standort', 'betreiber': 'Betreiber'}
     map_filter_fields_as_list = ['art', 'betreiber']
 
   def __str__(self):
@@ -4796,7 +4489,6 @@ class Pflegeeinrichtungen(SimpleModel):
   Pflegeeinrichtungen
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -4868,11 +4560,10 @@ class Pflegeeinrichtungen(SimpleModel):
       'art': 'Art',
       'bezeichnung': 'Bezeichnung',
       'betreiber': 'Betreiber:in',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse', 'art': 'art'}
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'art': 'Art', 'bezeichnung': 'Bezeichnung', 'betreiber': 'Betreiber:in', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'art': 'Art', 'bezeichnung': 'Bezeichnung', 'betreiber': 'Betreiber:in'}
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
@@ -4890,7 +4581,7 @@ class Reinigungsreviere(SimpleModel):
   """
   Reinigungsreviere
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   gemeindeteil = ForeignKey(
     to=Gemeindeteile,
     verbose_name='Gemeindeteil',
@@ -4925,7 +4616,6 @@ class Reinigungsreviere(SimpleModel):
       'gemeindeteil': 'Gemeindeteil',
       'nummer': 'Nummer',
       'bezeichnung': 'Bezeichnung',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'gemeindeteil': 'gemeindeteil'}
     map_feature_tooltip_fields = ['bezeichnung']
@@ -4933,7 +4623,6 @@ class Reinigungsreviere(SimpleModel):
       'gemeindeteil': 'Gemeindeteil',
       'nummer': 'Nummer',
       'bezeichnung': 'Bezeichnung',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['gemeindeteil']
     additional_wms_layers = [
@@ -4964,7 +4653,6 @@ class Reisebusparkplaetze_Terminals(SimpleModel):
   Reisebusparkplätze und -terminals
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   art = ForeignKey(
     to=Arten_Reisebusparkplaetze_Terminals,
     verbose_name='Art',
@@ -5002,7 +4690,6 @@ class Reisebusparkplaetze_Terminals(SimpleModel):
       'stellplaetze': 'Stellplätze',
       'gebuehren': 'Gebühren',
       'einschraenkungen': 'Einschränkungen',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'art': 'art'}
     map_feature_tooltip_fields = ['bezeichnung']
@@ -5012,7 +4699,6 @@ class Reisebusparkplaetze_Terminals(SimpleModel):
       'stellplaetze': 'Stellplätze',
       'gebuehren': 'Gebühren',
       'einschraenkungen': 'Einschränkungen',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['art']
 
@@ -5024,7 +4710,7 @@ class Rettungswachen(SimpleModel):
   """
   Rettungswachen
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -5091,7 +4777,6 @@ class Rettungswachen(SimpleModel):
       'adresse': 'Adresse',
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse', 'traeger': 'bezeichnung'}
     list_actions_assign = [
@@ -5103,7 +4788,7 @@ class Rettungswachen(SimpleModel):
       }
     ]
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'traeger': 'Träger', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'traeger': 'Träger'}
     map_filter_fields_as_list = ['traeger']
 
   def __str__(self):
@@ -5121,7 +4806,7 @@ class Schiffsliegeplaetze(SimpleModel):
   """
   Schiffsliegeplätze
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   hafen = ForeignKey(
     to=Haefen,
     verbose_name='Hafen',
@@ -5236,7 +4921,6 @@ class Schiffsliegeplaetze(SimpleModel):
       'liegeplatznummer': 'Liegeplatz',
       'bezeichnung': 'Bezeichnung',
       'zulaessiger_tiefgang': 'zulässiger Tiefgang (in m)',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_decimal = ['zulaessiger_tiefgang']
     list_fields_with_foreign_key = {'hafen': 'bezeichnung'}
@@ -5246,7 +4930,6 @@ class Schiffsliegeplaetze(SimpleModel):
       'liegeplatznummer': 'Liegeplatz',
       'bezeichnung': 'Bezeichnung',
       'zulaessiger_tiefgang': 'zulässiger Tiefgang (in m)',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['hafen']
 
@@ -5259,7 +4942,6 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
   Schutzzäune gegen Tierseuchen
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   tierseuche = ForeignKey(
     to=Tierseuchen,
     verbose_name='Tierseuche',
@@ -5294,7 +4976,6 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
       'tierseuche': 'Tierseuche',
       'laenge': 'Länge (in m)',
       'zustand': 'Zustand',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'tierseuche': 'bezeichnung', 'zustand': 'zustand'}
     list_actions_assign = [
@@ -5306,7 +4987,7 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
       }
     ]
     map_feature_tooltip_fields = ['zustand']
-    map_filter_fields = {'tierseuche': 'Tierseuche', 'zustand': 'Zustand', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'tierseuche': 'Tierseuche', 'zustand': 'Zustand'}
     map_filter_fields_as_list = ['tierseuche', 'zustand']
 
   def __str__(self):
@@ -5318,7 +4999,6 @@ class Sportanlagen(SimpleModel):
   Sportanlagen
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   art = ForeignKey(
     to=Arten_Sportanlagen,
     verbose_name='Art',
@@ -5362,7 +5042,6 @@ class Sportanlagen(SimpleModel):
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger',
       'foto': 'Foto',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'art': 'art', 'traeger': 'bezeichnung'}
     list_actions_assign = [
@@ -5374,7 +5053,7 @@ class Sportanlagen(SimpleModel):
       }
     ]
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'art': 'Art', 'bezeichnung': 'Bezeichnung', 'traeger': 'Träger', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'art': 'Art', 'bezeichnung': 'Bezeichnung', 'traeger': 'Träger'}
     map_filter_fields_as_list = ['art', 'traeger']
 
   def __str__(self):
@@ -5395,7 +5074,6 @@ class Sporthallen(SimpleModel):
   Sporthallen
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -5454,7 +5132,6 @@ class Sporthallen(SimpleModel):
       'traeger': 'Träger',
       'sportart': 'Sportart',
       'foto': 'Foto',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {
       'adresse': 'adresse',
@@ -5476,7 +5153,7 @@ class Sporthallen(SimpleModel):
       },
     ]
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'traeger': 'Träger', 'sportart': 'Sportart', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'traeger': 'Träger', 'sportart': 'Sportart'}
     map_filter_fields_as_list = ['traeger', 'sportart']
 
   def __str__(self):
@@ -5506,7 +5183,6 @@ class Stadtteil_Begegnungszentren(SimpleModel):
   Stadtteil- und Begegnungszentren
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -5575,7 +5251,6 @@ class Stadtteil_Begegnungszentren(SimpleModel):
       'adresse': 'Adresse',
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse', 'traeger': 'bezeichnung'}
     list_actions_assign = [
@@ -5587,7 +5262,7 @@ class Stadtteil_Begegnungszentren(SimpleModel):
       }
     ]
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'traeger': 'Träger', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'traeger': 'Träger'}
     map_filter_fields_as_list = ['traeger']
 
   def __str__(self):
@@ -5606,7 +5281,6 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
   Standortqualitäten von Geschäftslagen im Sanierungsgebiet
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -5817,7 +5491,6 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
       'beeintraechtigung_endwert': 'Beeinträchtigung (Endwert)',
       'standortnutzung_anfangswert': 'Standortnutzung (Anfangswert)',
       'standortnutzung_endwert': 'Standortnutzung (Endwert)',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_decimal = [
       'kundschaftskontakte_anfangswert',
@@ -5837,7 +5510,6 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
       'adresse': 'Adresse',
       'bewertungsjahr': 'Bewertungsjahr',
       'quartier': 'Quartier',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['quartier']
 
@@ -5850,7 +5522,6 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
   Standortqualitäten von Wohnlagen im Sanierungsgebiet
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -6061,7 +5732,6 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
       'beeintraechtigung_endwert': 'Beeinträchtigung (Endwert)',
       'standortnutzung_anfangswert': 'Standortnutzung (Anfangswert)',
       'standortnutzung_endwert': 'Standortnutzung (Endwert)',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_decimal = [
       'gesellschaftslage_anfangswert',
@@ -6081,7 +5751,6 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
       'adresse': 'Adresse',
       'bewertungsjahr': 'Bewertungsjahr',
       'quartier': 'Quartier',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['quartier']
 
@@ -6094,7 +5763,6 @@ class Thalasso_Kurwege(SimpleModel):
   Thalasso-Kurwege
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   bezeichnung = CharField(
     verbose_name='Bezeichnung', max_length=255, validators=standard_validators
   )
@@ -6134,7 +5802,6 @@ class Thalasso_Kurwege(SimpleModel):
       'farbe': 'Farbe',
       'beschriftung': 'Beschriftung',
       'laenge': 'Länge (in m)',
-      'd3_referenz': 'd3-Referenz',
     }
     list_actions_assign = [
       {
@@ -6149,7 +5816,6 @@ class Thalasso_Kurwege(SimpleModel):
       'bezeichnung': 'Bezeichnung',
       'streckenbeschreibung': 'Streckenbeschreibung',
       'barrierefrei': 'barrierefrei?',
-      'd3_referenz': 'd3-Referenz',
     }
 
   def __str__(self):
@@ -6161,7 +5827,6 @@ class Toiletten(SimpleModel):
   Toiletten
   """
 
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
   art = ForeignKey(
     to=Arten_Toiletten,
     verbose_name='Art',
@@ -6203,7 +5868,6 @@ class Toiletten(SimpleModel):
       'duschmoeglichkeit': 'Duschmöglichkeit vorhanden?',
       'wickelmoeglichkeit': 'Wickelmöglichkeit?',
       'zeiten': 'Öffnungszeiten',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'art': 'art', 'bewirtschafter': 'bezeichnung'}
     list_actions_assign = [
@@ -6221,7 +5885,6 @@ class Toiletten(SimpleModel):
       'behindertengerecht': 'behindertengerecht?',
       'duschmoeglichkeit': 'Duschmöglichkeit vorhanden?',
       'wickelmoeglichkeit': 'Wickelmöglichkeit?',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['art', 'bewirtschafter']
 
@@ -6237,7 +5900,7 @@ class Trinkwassernotbrunnen(SimpleModel):
   """
   Trinkwassernotbrunnen
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   nummer = CharField(
     verbose_name='Nummer',
     max_length=12,
@@ -6317,7 +5980,6 @@ class Trinkwassernotbrunnen(SimpleModel):
       'betriebsbereit': 'betriebsbereit?',
       'bohrtiefe': 'Bohrtiefe (in m)',
       'ausbautiefe': 'Ausbautiefe (in m)',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_decimal = ['bohrtiefe', 'ausbautiefe']
     list_fields_with_foreign_key = {'eigentuemer': 'bezeichnung', 'betreiber': 'bezeichnung'}
@@ -6350,7 +6012,6 @@ class Trinkwassernotbrunnen(SimpleModel):
       'betriebsbereit': 'betriebsbereit?',
       'bohrtiefe': 'Bohrtiefe (in m)',
       'ausbautiefe': 'Ausbautiefe (in m)',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['eigentuemer', 'betreiber']
 
@@ -6362,7 +6023,7 @@ class Vereine(SimpleModel):
   """
   Vereine
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -6431,11 +6092,10 @@ class Vereine(SimpleModel):
       'adresse': 'Adresse',
       'bezeichnung': 'Bezeichnung',
       'schlagwoerter': 'Schlagwörter',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse'}
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'schlagwoerter': 'Schlagwörter', 'd3_referenz': 'd3-Referenz'}
+    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'schlagwoerter': 'Schlagwörter'}
 
   def __str__(self):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
@@ -6445,7 +6105,7 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
   """
   Verkaufstellen für Angelberechtigungen
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -6515,14 +6175,12 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
       'adresse': 'Adresse',
       'bezeichnung': 'Bezeichnung',
       'berechtigungen': 'verkaufte Berechtigung(en)',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse'}
     map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'berechtigungen': 'verkaufte Berechtigung(en)',
-      'd3_referenz': 'd3-Referenz',
     }
 
   def __str__(self):
@@ -6533,7 +6191,7 @@ class Versenkpoller(SimpleModel):
   """
   Versenkpoller
   """
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+
   nummer = PositiveSmallIntegerMinField(
     verbose_name='Nummer',
     min_value=1,
@@ -6633,7 +6291,6 @@ class Versenkpoller(SimpleModel):
       'baujahr': 'Baujahr',
       'wartungsfirma': 'Wartungsfirma',
       'foto': 'Foto',
-      'd3_referenz': 'd3-Referenz',
     }
     list_fields_with_foreign_key = {
       'hersteller': 'bezeichnung',
@@ -6665,7 +6322,6 @@ class Versenkpoller(SimpleModel):
       'typ': 'Typ',
       'baujahr': 'Baujahr',
       'wartungsfirma': 'Wartungsfirma',
-      'd3_referenz': 'd3-Referenz',
     }
     map_filter_fields_as_list = ['hersteller', 'typ', 'wartungsfirma']
 
