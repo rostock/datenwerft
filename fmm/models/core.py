@@ -1,4 +1,4 @@
-from django.contrib.gis.db.models.fields import MultiPolygonField
+from django.contrib.gis.db.models.fields import PolygonField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -15,7 +15,7 @@ class Fmf(Base):
   bezeichnung = models.CharField(
     unique=True, validators=standard_validators, verbose_name=_('Bezeichnung')
   )
-  geometrie = MultiPolygonField(verbose_name=_('Flächengeometrie'))
+  geometrie = PolygonField(verbose_name=_('Flächengeometrie'))
 
   class Meta(Base.Meta):
     ordering = ['bezeichnung']
@@ -24,7 +24,7 @@ class Fmf(Base):
 
   class BaseMeta(Base.BaseMeta):
     geometry_field = 'geometrie'
-    geometry_type = 'MultiPolygon'
+    geometry_type = 'Polygon'
 
   def __str__(self):
     return f'{self.bezeichnung}'

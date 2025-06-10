@@ -160,3 +160,17 @@ class FmfUpdateView(ObjectUpdateView):
   """
 
   model = Fmf
+
+  def form_invalid(self, form, **kwargs):
+    """
+    re-opens passed form if it is not valid
+    (purpose: keep geometry)
+
+    :param form: form
+    :return: passed form if it is not valid
+    """
+    context_data = self.get_context_data(form=form)
+    form.data = form.data.copy()
+    context_data = geometry_keeper(form.data, context_data)
+    context_data['form'] = form
+    return self.render_to_response(context_data)

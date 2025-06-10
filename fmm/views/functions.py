@@ -109,6 +109,6 @@ def geometry_keeper(form_data, context_data):
   """
   # keep geometry (otherwise it would be lost on re-rendering)
   geometry = form_data.get(context_data['geometry_field'], None)
-  if geometry and '[]' not in geometry:
+  if geometry and '0,0' not in geometry and '[]' not in geometry:
     context_data['geometry'] = geometry
   return context_data

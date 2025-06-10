@@ -5,8 +5,8 @@ from fmm.models import (
 
 from ..abstract import DefaultModelTestCase
 from ..constants_vars import (
-  VALID_MULTIPOLYGON_DB_A,
-  VALID_MULTIPOLYGON_DB_B,
+  VALID_POLYGON_DB_A,
+  VALID_POLYGON_DB_B,
   VALID_STRING_A,
   VALID_STRING_B,
 )
@@ -21,11 +21,11 @@ class FmfModelTest(DefaultModelTestCase):
   model = Fmf
   attributes_values_db_initial = {
     'bezeichnung': VALID_STRING_A,
-    'geometrie': VALID_MULTIPOLYGON_DB_A,
+    'geometrie': VALID_POLYGON_DB_A,
   }
   attributes_values_db_updated = {
     'bezeichnung': VALID_STRING_B,
-    'geometrie': VALID_MULTIPOLYGON_DB_B,
+    'geometrie': VALID_POLYGON_DB_B,
   }
 
   def setUp(self):
@@ -58,7 +58,7 @@ class PaketUmweltModelTest(DefaultModelTestCase):
   def setUpTestData(cls):
     test_fmf_a = Fmf.objects.create(
       bezeichnung=VALID_STRING_A,
-      geometrie=VALID_MULTIPOLYGON_DB_A,
+      geometrie=VALID_POLYGON_DB_A,
     )
     cls.attributes_values_db_initial = {
       'fmf': test_fmf_a,
@@ -66,7 +66,7 @@ class PaketUmweltModelTest(DefaultModelTestCase):
     }
     test_fmf_b = Fmf.objects.create(
       bezeichnung=VALID_STRING_B,
-      geometrie=VALID_MULTIPOLYGON_DB_B,
+      geometrie=VALID_POLYGON_DB_B,
     )
     cls.attributes_values_db_updated = {
       'fmf': test_fmf_b,
