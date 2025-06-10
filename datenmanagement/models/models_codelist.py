@@ -2779,31 +2779,6 @@ class Zustandsbewertungen(Codelist):
     return str(self.zustandsbewertung)
 
 
-class Typen_Metadaten(Codelist):
-    """
-    Typen für verschiedene Kategorien wie Vorgang, Dokument, etc.
-    """
-    typ = CharField(
-        verbose_name='Typ',
-        max_length=50,
-        unique=True,
-        validators=standard_validators
-    )
-
-    class Meta(Codelist.Meta):
-        db_table = 'codelisten"."typ'
-        ordering = ['typ']
-        verbose_name = 'Typ'
-        verbose_name_plural = 'Typen'
-
-    class BasemodelMeta(Codelist.BasemodelMeta):
-        description = 'Typen für verschiedene Kategorien wie Vorgang, Dokument, etc.'
-        list_fields = {'typ': 'Typ'}
-
-    def __str__(self):
-        return self.typ
-
-
 class Verfahren(Codelist):
   """
   Verfahren
@@ -2829,7 +2804,7 @@ class Verfahren(Codelist):
     return self.verfahren
 
 
-class Maßnahme(Codelist):
+class Massnahme(Codelist):
   """
   Maßnahme
   """

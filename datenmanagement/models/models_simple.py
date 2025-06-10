@@ -550,11 +550,22 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
 
 post_delete.connect(delete_pdf, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
 
-class Beschluesse_Bau_Planungsausschuss(SimpleModel):
+
+class Baudenkmale(SimpleModel):
   """
-  Beschlüsse des Bau- und Planungsausschusses
+  Baudenkmale
   """
 
+  id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
+  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+  status = ForeignKey(
+    to=Status_Baudenkmale_Denkmalbereiche,
+    verbose_name='Status',
+    on_delete=RESTRICT,
+    db_column='status',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_status',
+  )
   adresse = ForeignKey(
     to=Adressen,
     verbose_name='Adresse',
@@ -565,66 +576,115 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
     blank=True,
     null=True,
   )
-  beschlussjahr = PositiveSmallIntegerRangeField(
-    verbose_name='Beschlussjahr',
-    min_value=1990,
-    max_value=get_current_year(),
-    default=get_current_year(),
+  beschreibung = CharField(
+    verbose_name='Beschreibung', max_length=255, validators=standard_validators
   )
-  vorhabenbezeichnung = CharField(
-    verbose_name='Bezeichnung des Vorhabens', max_length=255, validators=standard_validators
-  )
-  bearbeiter = CharField(
-    verbose_name='Bearbeiter:in', max_length=255, validators=standard_validators
-  )
-  pdf = FileField(
-    verbose_name='PDF',
-    storage=OverwriteStorage(),
-    upload_to=path_and_rename(
-      settings.PDF_PATH_PREFIX_PRIVATE + 'beschluesse_bau_planungsausschuss'
-    ),
+  vorherige_beschreibung = CharField(
+    verbose_name=' vorherige Beschreibung',
     max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
-  geometrie = point_field
+  lage = CharField(
+    verbose_name='Lage', max_length=255, blank=True, null=True, validators=standard_validators
+  )
+  unterschutzstellungen = ArrayField(
+    DateField(verbose_name='Unterschutzstellungen', blank=True, null=True),
+    verbose_name='Unterschutzstellungen',
+    blank=True,
+    null=True,
+  )
+  veroeffentlichungen = ArrayField(
+    DateField(verbose_name='Veröffentlichungen', blank=True, null=True),
+    verbose_name='Veröffentlichungen',
+    blank=True,
+    null=True,
+  )
+  denkmalnummern = ArrayField(
+    CharField(
+      verbose_name='Denkmalnummern',
+      max_length=255,
+      blank=True,
+      null=True,
+      validators=standard_validators,
+    ),
+    verbose_name='Denkmalnummern',
+    blank=True,
+    null=True,
+  )
+  gartendenkmal = BooleanField(verbose_name='Gartendenkmal?')
+  hinweise = NullTextField(
+    verbose_name='Hinweise', max_length=500, blank=True, null=True, validators=standard_validators
+  )
+  aenderungen = NullTextField(
+    verbose_name='Änderungen',
+    max_length=500,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  geometrie = nullable_multipolygon_field
 
   class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten_adressbezug"."beschluesse_bau_planungsausschuss_hro'
-    verbose_name = 'Beschluss des Bau- und Planungsausschusses'
-    verbose_name_plural = 'Beschlüsse des Bau- und Planungsausschusses'
+    db_table = 'fachdaten_adressbezug"."baudenkmale_hro'
+    verbose_name = 'Baudenkmal'
+    verbose_name_plural = 'Baudenkmale'
 
   class BasemodelMeta(SimpleModel.BasemodelMeta):
-    description = (
-      'Beschlüsse des Bau- und Planungsausschusses der Bürgerschaft '
-      'der Hanse- und Universitätsstadt Rostock'
-    )
+    description = 'Baudenkmale der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['id']
     address_type = 'Adresse'
     address_mandatory = False
-    geometry_type = 'Point'
+    geometry_type = 'MultiPolygon'
     list_fields = {
       'aktiv': 'aktiv?',
+      'id': 'ID',
+      'd3_referenz': 'd3-Referenz',
+      'status': 'Status',
       'adresse': 'Adresse',
-      'beschlussjahr': 'Beschlussjahr',
-      'vorhabenbezeichnung': 'Bezeichnung des Vorhabens',
-      'bearbeiter': 'Bearbeiter:in',
-      'pdf': 'PDF',
+      'lage': 'Lage',
+      'beschreibung': 'Beschreibung',
     }
-    list_fields_with_foreign_key = {'adresse': 'adresse'}
-    map_feature_tooltip_fields = ['vorhabenbezeichnung']
+    list_fields_with_foreign_key = {'status': 'status', 'adresse': 'adresse'}
+    list_actions_assign = [
+      {
+        'action_name': 'baudenkmale-status',
+        'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
+        'field': 'status',
+        'type': 'foreignkey',
+      }
+    ]
+    map_feature_tooltip_fields = ['id']
     map_filter_fields = {
-      'beschlussjahr': 'Beschlussjahr',
-      'vorhabenbezeichnung': 'Bezeichnung des Vorhabens',
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'd3_referenz': 'd3-Referenz',
+      'status': 'Status',
+      'lage': 'Lage',
+      'beschreibung': 'Beschreibung',
+      'gartendenkmal': 'Gartendenkmal?',
     }
+    map_filter_fields_as_list = ['status']
+    additional_wfs_featuretypes = [
+      {
+        'name': 'flurstuecke',
+        'title': 'Flurstücke',
+        'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wfs',
+        'featuretypes': 'hro.flurstuecke.flurstuecke',
+      },
+      {
+        'name': 'gebaeude',
+        'title': 'Gebäude',
+        'url': 'https://geo.sv.rostock.de/geodienste/gebaeude/wfs',
+        'featuretypes': 'hro.gebaeude.gebaeude',
+      },
+    ]
 
   def __str__(self):
-    return (
-      self.vorhabenbezeichnung
-      + ' (Beschlussjahr '
-      + str(self.beschlussjahr)
-      + ')'
-      + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
-    )
+    return self.beschreibung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-post_delete.connect(delete_pdf, sender=Beschluesse_Bau_Planungsausschuss)
 
 class Behinderteneinrichtungen(SimpleModel):
   """
@@ -721,6 +781,84 @@ class Behinderteneinrichtungen(SimpleModel):
       + str(self.traeger)
       + ']'
     )
+
+
+class Beschluesse_Bau_Planungsausschuss(SimpleModel):
+  """
+  Beschlüsse des Bau- und Planungsausschusses
+  """
+
+  adresse = ForeignKey(
+    to=Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True,
+  )
+  beschlussjahr = PositiveSmallIntegerRangeField(
+    verbose_name='Beschlussjahr',
+    min_value=1990,
+    max_value=get_current_year(),
+    default=get_current_year(),
+  )
+  vorhabenbezeichnung = CharField(
+    verbose_name='Bezeichnung des Vorhabens', max_length=255, validators=standard_validators
+  )
+  bearbeiter = CharField(
+    verbose_name='Bearbeiter:in', max_length=255, validators=standard_validators
+  )
+  pdf = FileField(
+    verbose_name='PDF',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PDF_PATH_PREFIX_PRIVATE + 'beschluesse_bau_planungsausschuss'
+    ),
+    max_length=255,
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_adressbezug"."beschluesse_bau_planungsausschuss_hro'
+    verbose_name = 'Beschluss des Bau- und Planungsausschusses'
+    verbose_name_plural = 'Beschlüsse des Bau- und Planungsausschusses'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = (
+      'Beschlüsse des Bau- und Planungsausschusses der Bürgerschaft '
+      'der Hanse- und Universitätsstadt Rostock'
+    )
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'beschlussjahr': 'Beschlussjahr',
+      'vorhabenbezeichnung': 'Bezeichnung des Vorhabens',
+      'bearbeiter': 'Bearbeiter:in',
+      'pdf': 'PDF',
+    }
+    list_fields_with_foreign_key = {'adresse': 'adresse'}
+    map_feature_tooltip_fields = ['vorhabenbezeichnung']
+    map_filter_fields = {
+      'beschlussjahr': 'Beschlussjahr',
+      'vorhabenbezeichnung': 'Bezeichnung des Vorhabens',
+    }
+
+  def __str__(self):
+    return (
+      self.vorhabenbezeichnung
+      + ' (Beschlussjahr '
+      + str(self.beschlussjahr)
+      + ')'
+      + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    )
+
+
+post_delete.connect(delete_pdf, sender=Beschluesse_Bau_Planungsausschuss)
 
 
 class Bildungstraeger(SimpleModel):
@@ -1214,6 +1352,105 @@ post_save.connect(photo_post_processing, sender=Containerstellplaetze)
 post_save.connect(delete_photo_after_emptied, sender=Containerstellplaetze)
 
 post_delete.connect(delete_photo, sender=Containerstellplaetze)
+
+
+class Denkmalbereiche(SimpleModel):
+  """
+  Denkmalbereiche
+  """
+
+  id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
+  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
+  status = ForeignKey(
+    to=Status_Baudenkmale_Denkmalbereiche,
+    verbose_name='Status',
+    on_delete=RESTRICT,
+    db_column='status',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_status',
+  )
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung', max_length=255, validators=standard_validators
+  )
+  beschreibung = CharField(
+    verbose_name='Beschreibung', max_length=255, validators=standard_validators
+  )
+  unterschutzstellungen = ArrayField(
+    DateField(verbose_name='Unterschutzstellungen', blank=True, null=True),
+    verbose_name='Unterschutzstellungen',
+    blank=True,
+    null=True,
+  )
+  veroeffentlichungen = ArrayField(
+    DateField(verbose_name='Veröffentlichungen', blank=True, null=True),
+    verbose_name='Veröffentlichungen',
+    blank=True,
+    null=True,
+  )
+  denkmalnummern = ArrayField(
+    CharField(
+      verbose_name='Denkmalnummern',
+      max_length=255,
+      blank=True,
+      null=True,
+      validators=standard_validators,
+    ),
+    verbose_name='Denkmalnummern',
+    blank=True,
+    null=True,
+  )
+  hinweise = NullTextField(
+    verbose_name='Hinweise', max_length=500, blank=True, null=True, validators=standard_validators
+  )
+  aenderungen = NullTextField(
+    verbose_name='Änderungen',
+    max_length=500,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  geometrie = multipolygon_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten"."denkmalbereiche_hro'
+    verbose_name = 'Denkmalbereich'
+    verbose_name_plural = 'Denkmalbereiche'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Denkmalbereiche der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['id']
+    geometry_type = 'MultiPolygon'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'status': 'Status',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung',
+      'd3_referenz': 'd3-Referenz',
+    }
+    list_fields_with_foreign_key = {'status': 'status'}
+    list_actions_assign = [
+      {
+        'action_name': 'denkmalbereiche-status',
+        'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
+        'field': 'status',
+        'type': 'foreignkey',
+      }
+    ]
+    map_feature_tooltip_fields = ['id']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'status': 'Status',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung',
+      'd3_referenz': 'd3-Referenz',
+    }
+    map_filter_fields_as_list = ['status']
+
+  def __str__(self):
+    return self.bezeichnung + ' [Beschreibung: ' + str(self.beschreibung) + ']'
 
 
 class Denksteine(SimpleModel):

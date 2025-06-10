@@ -4,6 +4,7 @@ from re import sub
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.validators import FileExtensionValidator, URLValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, IntegerField, UUIDField
 from django.db.models.fields import DateTimeField
@@ -156,255 +157,6 @@ post_save.connect(photo_post_processing, sender=Adressunsicherheiten_Fotos)
 
 post_delete.connect(delete_photo, sender=Adressunsicherheiten_Fotos)
 
-
-#
-# Baudenkmale
-#
-
-
-class Baudenkmale(ComplexModel):
-  """
-  Baudenkmale
-  """
-
-  id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
-  status = ForeignKey(
-    to=Status_Baudenkmale_Denkmalbereiche,
-    verbose_name='Status',
-    on_delete=RESTRICT,
-    db_column='status',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_status',
-  )
-  adresse = ForeignKey(
-    to=Adressen,
-    verbose_name='Adresse',
-    on_delete=SET_NULL,
-    db_column='adresse',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_adressen',
-    blank=True,
-    null=True,
-  )
-  beschreibung = CharField(
-    verbose_name='Beschreibung', max_length=255, validators=standard_validators
-  )
-  vorherige_beschreibung = CharField(
-    verbose_name=' vorherige Beschreibung',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators,
-  )
-  lage = CharField(
-    verbose_name='Lage', max_length=255, blank=True, null=True, validators=standard_validators
-  )
-  unterschutzstellungen = ArrayField(
-    DateField(verbose_name='Unterschutzstellungen', blank=True, null=True),
-    verbose_name='Unterschutzstellungen',
-    blank=True,
-    null=True,
-  )
-  veroeffentlichungen = ArrayField(
-    DateField(verbose_name='Veröffentlichungen', blank=True, null=True),
-    verbose_name='Veröffentlichungen',
-    blank=True,
-    null=True,
-  )
-  denkmalnummern = ArrayField(
-    CharField(
-      verbose_name='Denkmalnummern',
-      max_length=255,
-      blank=True,
-      null=True,
-      validators=standard_validators,
-    ),
-    verbose_name='Denkmalnummern',
-    blank=True,
-    null=True,
-  )
-  gartendenkmal = BooleanField(verbose_name='Gartendenkmal?')
-  hinweise = NullTextField(
-    verbose_name='Hinweise', max_length=500, blank=True, null=True, validators=standard_validators
-  )
-  aenderungen = NullTextField(
-    verbose_name='Änderungen',
-    max_length=500,
-    blank=True,
-    null=True,
-    validators=standard_validators,
-  )
-  geometrie = nullable_multipolygon_field
-
-  class Meta(ComplexModel.Meta):
-    db_table = 'fachdaten_adressbezug"."baudenkmale_hro'
-    verbose_name = 'Baudenkmal'
-    verbose_name_plural = 'Baudenkmale'
-
-  class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Baudenkmale der Hanse- und Universitätsstadt Rostock'
-    as_overlay = True
-    readonly_fields = ['id']
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'MultiPolygon'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'id': 'ID',
-      'd3_referenz': 'd3-Referenz',
-      'status': 'Status',
-      'adresse': 'Adresse',
-      'lage': 'Lage',
-      'beschreibung': 'Beschreibung',
-    }
-    list_fields_with_foreign_key = {'status': 'status', 'adresse': 'adresse'}
-    list_actions_assign = [
-      {
-        'action_name': 'baudenkmale-status',
-        'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
-        'field': 'status',
-        'type': 'foreignkey',
-      }
-    ]
-    map_feature_tooltip_fields = ['id']
-    map_filter_fields = {
-      'aktiv': 'aktiv?',
-      'id': 'ID',
-      'd3_referenz': 'd3-Referenz',
-      'status': 'Status',
-      'lage': 'Lage',
-      'beschreibung': 'Beschreibung',
-      'gartendenkmal': 'Gartendenkmal?',
-    }
-    map_filter_fields_as_list = ['status']
-    additional_wfs_featuretypes = [
-      {
-        'name': 'flurstuecke',
-        'title': 'Flurstücke',
-        'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wfs',
-        'featuretypes': 'hro.flurstuecke.flurstuecke',
-      },
-      {
-        'name': 'gebaeude',
-        'title': 'Gebäude',
-        'url': 'https://geo.sv.rostock.de/geodienste/gebaeude/wfs',
-        'featuretypes': 'hro.gebaeude.gebaeude',
-      },
-    ]
-
-  def __str__(self):
-    return self.beschreibung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
-
-class BaudenkmalVorgang(ComplexModel):
-    """
-    BaudenkmalVorgang
-    """
-    id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
-    objekt_id = ForeignKey(
-      to=Baudenkmale,
-      verbose_name='Objekt ID',
-      on_delete=CASCADE,
-      db_column='objekt_id',
-      to_field='uuid',
-    )
-    d3_vorgangs_referenz = CharField(verbose_name='d.3-Vorgangs-Referenz', max_length=15, default='000000000000000')
-
-    class Meta(ComplexModel.Meta):
-      db_table = 'fachdaten_adressbezug"."baudenkmale_vorgaenge_hro'
-      verbose_name = 'Baudenkmal-Vorgang'
-      verbose_name_plural = 'Baudenkmal-Vorgänge'
-
-    class BasemodelMeta(ComplexModel.BasemodelMeta):
-      description = 'Baudenkmal-Vorgänge in der Hanse- und Universitätsstadt Rostock'
-      as_overlay = True
-      short_name = 'Baudenkmal-Vorgänge'
-      fields_with_foreign_key_to_linkify = ['objektID']
-      geometry_type = 'Point'
-      list_fields = {
-        'id': 'ID',
-        'objekt_id': 'Objekt ID',
-        'd3_vorgangs_referenz': 'd3-Vorgangs-Referenz',
-      }
-      list_fields_with_foreign_key = {'objekt_id': 'Baudenkmal ID'}
-      map_feature_tooltip_fields = ['d3_vorgangs_referenz']
-      map_filter_fields = {'d3_vorgangs_referenz': 'd3 Vorgangs Referenz', 'id': 'ID', 'objekt_id': 'Objekt ID'}
-      map_filter_fields_as_list = ['d3_vorgangs_referenz']
-
-    def __str__(self):
-      return self.d3_vorgangs_referenz
-
-class BaudenmalVorgangMetadaten(ComplexModel):
-      """
-      BaudenkmalVorgangMetdaten
-      """
-
-      id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
-      objekt_vorgang_id = ForeignKey(
-        to=BaudenkmalVorgang,
-        verbose_name='Objekt-Vorgang-ID',
-        on_delete=CASCADE,
-        db_column='objekt_vorgang_id',
-        to_field='ID',
-      )
-      metadaten_id = ForeignKey(
-        to='Metadaten',
-        verbose_name='Metadaten-ID',
-        on_delete=CASCADE,
-        db_column='metadaten_id',
-        to_field='uuid',
-      )
-      wert = CharField(
-        verbose_name='Wert',
-        max_length=255,
-        blank=True,
-        null=True,
-      )
-      erstellt_am = DateField(verbose_name='Erstellt Am', default=date.today)
-      aktualisiert_am = DateField(verbose_name='Aktualisiert Am', default=date.today)
-      erstellt_durch = ForeignKey(
-        to=User,
-        verbose_name='User-ID',
-        on_delete=SET_NULL,
-        db_column='erstellt_durch',
-        to_field='id',
-      )
-
-      class Meta(ComplexModel.Meta):
-        db_table = 'fachdaten_adressbezug"."baudenkmale_vorgaenge_metadaten_hro'
-        verbose_name = 'Baudenkmal-Vorgang-Metadaten'
-        verbose_name_plural = 'Baudenkmal-Vorgänge-Metadaten'
-
-      class BasemodelMeta(ComplexModel.BasemodelMeta):
-        description = 'Baudenkmal-Vorgang-Metadaten in der Hanse- und Universitätsstadt Rostock'
-        as_overlay = True
-        short_name = 'Baudenkmal-Vorgang-Metadaten'
-        fields_with_foreign_key_to_linkify = ['objeobjekt_vorgang_id', 'metadaten_id', 'erstellt_durch']
-        geometry_type = 'Point'
-        list_fields = {
-          'id': 'ID',
-          'objekt_vorgang_id': 'Objekt-Vorgang-ID',
-          'metadaten_id': 'Metadaten',
-          'wert': 'Wert',
-          'erstellt_am': 'Erstellt Am',
-          'aktualisiert_am': 'Aktualisiert Am',
-          'erstellt_durch': 'Erstellt Durch',
-        }
-        list_fields_with_foreign_key = {'objeobjekt_vorgang_id', 'metadaten_id', 'erstellt_durch'}
-        map_feature_tooltip_fields = []
-        map_filter_fields = {
-          'id': 'ID',
-          'objekt_vorgang_id': 'Objekt-Vorgang-ID',
-          'metadaten_id': 'Metadaten',
-          'wert': 'Wert',
-          'erstellt_am': 'Erstellt Am',
-          'aktualisiert_am': 'Aktualisiert Am',
-          'erstellt_durch': 'Erstellt Durch',
-        }
-        map_filter_fields_as_list = []
-
-      def __str__(self):
-        return self.wert + ' (' + str(self.objekt_vorgang_id) + ')'
 
 #
 # Baugrunduntersuchungen
@@ -1041,118 +793,16 @@ class Baustellen_geplant_Links(ComplexModel):
   def __str__(self):
     return str(self.baustelle_geplant) + ' mit Bezeichnung ' + self.bezeichnung
 
-class Denkmalbereiche(ComplexModel):
-  """
-  Denkmalbereiche
-  """
 
-  id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
-  d3_referenz = CharField(verbose_name='d.3-Akten-Referenz', max_length=15, default='000000000000000')
-  status = ForeignKey(
-    to=Status_Baudenkmale_Denkmalbereiche,
-    verbose_name='Status',
-    on_delete=RESTRICT,
-    db_column='status',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_status',
-  )
-  bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, validators=standard_validators
-  )
-  beschreibung = CharField(
-    verbose_name='Beschreibung', max_length=255, validators=standard_validators
-  )
-  unterschutzstellungen = ArrayField(
-    DateField(verbose_name='Unterschutzstellungen', blank=True, null=True),
-    verbose_name='Unterschutzstellungen',
-    blank=True,
-    null=True,
-  )
-  veroeffentlichungen = ArrayField(
-    DateField(verbose_name='Veröffentlichungen', blank=True, null=True),
-    verbose_name='Veröffentlichungen',
-    blank=True,
-    null=True,
-  )
-  denkmalnummern = ArrayField(
-    CharField(
-      verbose_name='Denkmalnummern',
-      max_length=255,
-      blank=True,
-      null=True,
-      validators=standard_validators,
-    ),
-    verbose_name='Denkmalnummern',
-    blank=True,
-    null=True,
-  )
-  hinweise = NullTextField(
-    verbose_name='Hinweise', max_length=500, blank=True, null=True, validators=standard_validators
-  )
-  aenderungen = NullTextField(
-    verbose_name='Änderungen',
-    max_length=500,
-    blank=True,
-    null=True,
-    validators=standard_validators,
-  )
-  geometrie = multipolygon_field
-
-  class Meta(ComplexModel.Meta):
-    db_table = 'fachdaten"."denkmalbereiche_hro'
-    verbose_name = 'Denkmalbereich'
-    verbose_name_plural = 'Denkmalbereiche'
-
-  class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Denkmalbereiche der Hanse- und Universitätsstadt Rostock'
-    as_overlay = True
-    readonly_fields = ['id']
-    geometry_type = 'MultiPolygon'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'id': 'ID',
-      'status': 'Status',
-      'bezeichnung': 'Bezeichnung',
-      'beschreibung': 'Beschreibung',
-      'd3_referenz': 'd3-Referenz',
-    }
-    list_fields_with_foreign_key = {'status': 'status'}
-    list_actions_assign = [
-      {
-        'action_name': 'denkmalbereiche-status',
-        'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
-        'field': 'status',
-        'type': 'foreignkey',
-      }
-    ]
-    map_feature_tooltip_fields = ['id']
-    map_filter_fields = {
-      'aktiv': 'aktiv?',
-      'id': 'ID',
-      'status': 'Status',
-      'bezeichnung': 'Bezeichnung',
-      'beschreibung': 'Beschreibung',
-      'd3_referenz': 'd3-Referenz',
-    }
-    map_filter_fields_as_list = ['status']
-
-  def __str__(self):
-    return self.bezeichnung + ' [Beschreibung: ' + str(self.beschreibung) + ']'
-
-class DenkmalbereichVorgang(ComplexModel):
+class Objekt_Vorgang(ComplexModel):
     """
-    DenkmalVorgang
+    Objektvorgang
     """
 
     id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
-    objekt_id = ForeignKey(
-      to=Denkmalbereiche,
-      verbose_name='Objekt ID',
-      on_delete=SET_NULL,
-      db_column='objekt_id',
-      to_field='uuid',
-    )
+    objekt_id = CharField(verbose_name='Objekt ID')
     d3_vorgangs_referenz = CharField(verbose_name='d.3-Vorgangs-Referenz', max_length=15, default='000000000000000')
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     class Meta(ComplexModel.Meta):
       db_table = 'fachdaten_adressbezug"."denkmalbereich_vorgang_hro'
@@ -1168,24 +818,26 @@ class DenkmalbereichVorgang(ComplexModel):
       list_fields = {
         'objekt_id': 'Objekt ID',
         'd3_vorgangs_referenz': 'd3-Vorgangs-Referenz',
-        'id': 'ID'
+        'id': 'ID',
+        'objekt_klasse': 'Objekt Klasse'
       }
       list_fields_with_foreign_key = {'objekt_id': 'Denkmalbereich ID'}
       map_feature_tooltip_fields = ['d3_vorgangs_referenz']
-      map_filter_fields = {'d3_vorgangs_referenz': 'd3 Vorgangs Referenz', 'id': 'ID', 'objekt_id': 'Objekt ID'}
+      map_filter_fields = {'d3_vorgangs_referenz': 'd3 Vorgangs Referenz', 'id': 'ID', 'objekt_id': 'Objekt ID', 'objekt_klasse': 'Objekt Klasse'}
       map_filter_fields_as_list = ['d3_vorgangs_referenz']
 
     def __str__(self):
       return self.d3_vorgangs_referenz
 
-class DenkmalbereichVorgangMetadaten(ComplexModel):
+
+class Objekt_Vorgang_Metadaten(ComplexModel):
   """
-  DenkmalbereichVorgangMetadaten
+  Objekt Vorgang Metadaten
   """
 
   id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
   objekt_vorgang_id = ForeignKey(
-    to=DenkmalbereichVorgang,
+    to=Objekt_Vorgang,
     verbose_name='Objekt-Vorgang-ID',
     on_delete=CASCADE,
     db_column='objekt_vorgang_id',
@@ -1250,10 +902,79 @@ class DenkmalbereichVorgangMetadaten(ComplexModel):
   def __str__(self):
     return self.wert + ' (' + str(self.objekt_vorgang_id) + ')'
 
+#
+# Dokument
+#
+class Dokument(ComplexModel):
+  """
+  Dokument
+  """
+
+  id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
+  objekt_vorgang_id = ForeignKey(
+    to=Objekt_Vorgang,
+    verbose_name='Objekt-Vorgang-ID',
+    on_delete=CASCADE,
+    db_column='objekt_vorgang_id',
+    to_field='ID',
+  )
+  name = CharField(verbose_name='Name', max_length=255, unique=True, default='')
+  d3_referenz = CharField(verbose_name='d.3-Referenz', max_length=15, default='000000000000000')
+  erstellt_am = DateField(verbose_name='Erstellt Am', default=date.today)
+  aktualisiert_am = DateField(verbose_name='Aktualisiert Am', default=date.today)
+  erstellt_durch = ForeignKey(
+    to=User,
+    verbose_name='User-ID',
+    on_delete=SET_NULL,
+    db_column='erstellt_durch',
+    to_field='id',
+  )
+  status = CharField(
+    verbose_name='Status',
+    max_length=50,
+    choices=DOKUMENT_STATUS
+  )
+
+  class Meta:
+    db_table = 'fachdaten_adressbezug"."dokument_hro'
+    verbose_name = 'Dokument'
+    verbose_name_plural = 'Dokumente'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Dokumente in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'Point'
+    list_fields = {
+      'id': 'ID',
+      'objekt_vorgang_id': 'Objekt-Vorgang-ID',
+      'name': 'Name',
+      'd3_referenz': 'd3-Referenz',
+      'erstellt_am': 'Erstellt Am',
+      'aktualisiert_am': 'Aktualisiert Am',
+      'erstellt_durch': 'Erstellt Durch',
+      'status': 'Status'
+    }
+    list_fields_with_foreign_key = {'objekt_vorgang_id', 'erstellt_durch'}
+    map_feature_tooltip_fields = []
+    map_filter_fields = {
+      'id': 'ID',
+      'objekt_vorgang_id': 'Objekt-Vorgang-ID',
+      'name': 'Name',
+      'd3_referenz': 'd3-Referenz',
+      'erstellt_am': 'Erstellt Am',
+      'aktualisiert_am': 'Aktualisiert Am',
+      'erstellt_durch': 'Erstellt Durch',
+      'status': 'Status'
+    }
+    map_filter_fields_as_list = []
+
+  def __str__(self):
+    return self.name
 
 #
 # Durchlässe
 #
+
 
 class Durchlaesse_Durchlaesse(ComplexModel):
   """
@@ -2929,56 +2650,53 @@ class Lichtwellenleiterinfrastruktur(ComplexModel):
 # Metadaten
 #
 class Metadaten(ComplexModel):
-    """
-    Metadaten:
-    Metadaten
-    """
+  """
+  Metadaten:
+  Metadaten
+  """
 
-    titel = CharField(
-        verbose_name='Titel', max_length=255, unique=True, validators=standard_validators
-    )
-    gui_element = CharField(
+  titel = CharField(
+    verbose_name='Titel', max_length=255, unique=True, validators=standard_validators
+  )
+  gui_element = CharField(
     verbose_name='GUI Element',
     max_length=255,
     choices=GUI_ELEMENTE,
-    )
-    eingabe_erforderlich = BooleanField(
-        verbose_name='Eingabe erforderlich?', default=False, blank=False, null=True
-    )
-    validierung_regex = CharField(
-        verbose_name='Validierung über Regex',
-        max_length=255,
-        blank=True,
-        null=True,
-    )
-    verknuepfung_d3 = CharField(
-         verbose_name='Verknüpfung zu d.3 (Feld-Name in d.3, optional)',
-         max_length=255,
-         blank=True,
-         null=True,
-    )
-    typ= ForeignKey(
-        to=Typen_Metadaten,
-        verbose_name='Typ',
-        on_delete=RESTRICT,
-        db_column='typ',
-        to_field='uuid',
-    )
+  )
+  eingabe_erforderlich = BooleanField(
+    verbose_name='Eingabe erforderlich?', default=False, blank=False, null=True
+  )
+  validierung_regex = CharField(
+    verbose_name='Validierung über Regex',
+    max_length=255,
+    blank=True,
+    null=True,
+  )
+  verknuepfung_d3 = CharField(
+    verbose_name='Verknüpfung zu d.3 (Feld-Name in d.3, optional)',
+    max_length=255,
+    blank=True,
+    null=True,
+  )
+  typ = CharField(
+    verbose_name='Typ',
+    max_length=50,
+    choices=METADATEN_TYPEN
+  )
 
-    class Meta(ComplexModel.Meta):
-        db_table = 'fachdaten"."metadaten_hro'
-        ordering = ['titel']
-        verbose_name = 'Metadatum'
-        verbose_name_plural = 'Metadaten'
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten"."metadaten_hro'
+    ordering = ['titel']
+    verbose_name = 'Metadatum'
+    verbose_name_plural = 'Metadaten'
 
-    class BasemodelMeta(ComplexModel.BasemodelMeta):
-        description = 'Metadaten der Hanse- und Universitätsstadt Rostock'
-        short_name = 'Metadatum'
-        list_fields = {}
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Metadaten der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Metadatum'
+    list_fields = {}
 
-    def __str__(self):
-        return self.titel
-
+  def __str__(self):
+    return self.titel
 
 #
 # Parkscheinautomaten
