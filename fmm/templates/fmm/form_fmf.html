@@ -1,0 +1,187 @@
+{% extends "fmm/form.html" %}
+{% load toolbox_tags %}
+{% load fmm_tags %}
+{% load leaflet_tags %}
+{% load static %}
+
+{% block style %}
+  {{ block.super }}
+  {% leaflet_css plugins="geoman,locatecontrol" %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/form-map.css' %}">
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% leaflet_js plugins="geoman,locatecontrol" %}
+  <script src="{% static 'proj4/proj4.js' %}"></script>
+  <script src="{% static 'wicket/wicket.js' %}"></script>
+  <script src="{% static 'wicket/wicket-leaflet.js' %}"></script>
+  <script src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+  <script type="module" src="{% static 'datenmanagement/js/leafletHelpers.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  {% if is_fmm_user %}
+    {% block errors %}
+      {% if messages %}
+        {% include "fmm/container_messages.html" %}
+      {% endif %}
+      {{ block.super }}
+    {% endblock %}
+    <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → <i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF</h2>
+    <form class="form mt-4 flex-container-row" method="post" action="" id="form">
+      {% csrf_token %}
+      <input type="hidden" name="original_referer" value="{{ cancel_url }}">
+      <div class="flex-item flex-container-column" id="flex-left">
+        <div class="flex-item" id="flex-list">
+          {% block list %}
+            {{ block.super }}
+          {% endblock %}
+        </div>
+        <div class="flex-item" id="flex-action-buttons">
+          <div id="form-control-buttons" class="mt-3 mb-3">
+            <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
+            <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+          </div>
+        </div>
+      </div>
+      <div class="flex-item flex-container-column" id="flex-right">
+        <div class="flex-item" id="flex-map">
+          <div id="map-addresssearch-container-form">
+            <label for="id_{{ geometry_field }}" class="form-label required">{{ geometry_field_label }}</label>
+            <textarea hidden id="id_{{ geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ geometry_field }}" cols="150" rows="4">{% if geometry %}{{ geometry }}{% endif %}</textarea>
+            {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
+          </div>
+        </div>
+        <div class="flex-item" id="flex-address-search">
+          <div class="mt-5">
+            <label for="address-search" class="form-label">Suche nach Adressen, Straßen und/oder Gemeindeteilen zur Orientierung:</label>
+            <div class="form-floating">
+              <input id="address-search" type="text" class="form-control" name="address_search" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+              <label for="address-search">Adresse, Straße oder Gemeindeteil eingeben…</label>
+            </div>
+            <div id="results-container" class="results"></div>
+          </div>
+        </div>
+      </div>
+    </form>
+      <!-- eslint-disable-next-script -->
+      <script>
+        /* eslint no-unexpected-multiline: "off" */
+        // run orderFormItems on page load
+        orderFormItems();
+
+        // run orderFormItems on resize event
+        window.addEventListener('resize', orderFormItems);
+
+        function orderFormItems() {
+          const list = document.getElementById('flex-list');
+          const action_buttons = document.getElementById('flex-action-buttons');
+          const map = document.getElementById('flex-map');
+          const address_search = document.getElementById('flex-address-search');
+          const flex_container = document.getElementById('form')
+          const left_column = document.getElementById('flex-left')
+          const right_column = document.getElementById('flex-right')
+
+          if (window.innerWidth <= 768) {
+            // on small screens use just one flex column
+            flex_container.classList.add("flex-container-column")
+            flex_container.classList.remove("flex-container-row")
+
+            flex_container.appendChild(list);
+            flex_container.appendChild(action_buttons);
+            flex_container.appendChild(map);
+            flex_container.appendChild(address_search);
+          } else {
+            // on bigger screens use two column view
+            flex_container.classList.add("flex-container-row")
+            flex_container.classList.remove("flex-container-column")
+
+            left_column.appendChild(list);
+            left_column.appendChild(action_buttons);
+            right_column.appendChild(map);
+            right_column.appendChild(address_search);
+          }
+        }
+        setTimeout(function () {
+          $('.alert-success').alert('close');
+        }, 1000);
+
+        /**
+         * @function
+         * @name mapCallbackFunction
+         *
+         * handles (as a callback function) passed map
+         *
+         * @param {Object} map - map
+         */
+        function mapCallbackFunction(map) {
+          setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
+          configureMap(map, '{% url "toolbox:owsproxy" %}');
+
+          // make map globally available
+          window.currMap = map;
+
+          {% if is_mobile %}
+            enableMapLocate(map)
+          {% endif %}
+
+          // configure globally available markers for Leaflet
+          window.redMarker = new L.Icon({
+            shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
+            iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+          });
+
+          // define several globally available variables
+          window.geometryType = '{{ geometry_type }}';
+          window.featureGeometry = [];
+
+          configureLeafletGeoman(map, window.geometryType);
+
+          // if geometry already exists...
+          {% if geometry %}
+            // show existing geometry on map
+            map.loadGeometryFromField('#id_{{ geometry_field }}')
+          {% endif %}
+
+          /**
+           * @function
+           *
+           * checks (on starting "sketching" mode) if a Leaflet-Geoman layer already exists
+           * and deletes it if necessary
+           */
+          map.on('pm:drawstart', function () {
+            if (map.pm.getGeomanLayers().length > 0) {
+              map.pm.getGeomanLayers().forEach((item) => {
+                if ('_drawnByGeoman' in item && item._drawnByGeoman === true)
+                  map.removeLayer(item);
+              })
+            }
+          });
+        }
+
+        /**
+         * @function
+         *
+         * main function
+         */
+        $(document).ready(function () {
+          keepDjangoRequiredMessages();
+
+          // initialize address search (and make its results globally available)
+          window.results = $('div.results');
+          window.addressType = '';
+          window.searchField = $('#address-search');
+          initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType)
+        });
+      </script>
+  {% else %}
+    {% include "fmm/notice_no-permissions.html" %}
+  {% endif %}
+{% endblock %}

@@ -22,6 +22,10 @@ class Fmf(Base):
     verbose_name = _('FMF')
     verbose_name_plural = _('FMF')
 
+  class BaseMeta(Base.BaseMeta):
+    geometry_field = 'geometrie'
+    geometry_type = 'MultiPolygon'
+
   def __str__(self):
     return f'{self.bezeichnung}'
 

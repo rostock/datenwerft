@@ -1,0 +1,26 @@
+{% load toolbox_tags %}
+{% load fmm_tags %}
+{% for field in form %}
+  {% if field.errors|is_linebreak_error %}
+    <div class="alert alert-danger" role="alert">
+      <i class="fa-solid fa-{{ 'error'|get_icon }}"></i> Texte dürfen keine Zeilenumbrüche enthalten.
+    </div>
+  {% else %}
+    {% for error in field.errors %}
+      <div class="alert alert-danger" role="alert">
+        <i class="fa-solid fa-{{ 'error'|get_icon }}"></i>
+        {% autoescape off %}
+          {{ error }}
+        {% endautoescape %}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endfor %}
+{% for error in form.non_field_errors %}
+  <div class="alert alert-danger" role="alert">
+    <i class="fa-solid fa-{{ 'error'|get_icon }}"></i>
+    {% autoescape off %}
+      {{ error }}
+    {% endautoescape %}
+  </div>
+{% endfor %}

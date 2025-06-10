@@ -18,3 +18,7 @@ class Base(models.Model):
     abstract = True
     ordering = ['-created']
     get_latest_by = 'modified'
+
+  class BaseMeta:
+    geometry_field = None
+    geometry_type = None

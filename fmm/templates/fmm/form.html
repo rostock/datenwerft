@@ -1,0 +1,40 @@
+{% extends "form.html" %}
+{% load toolbox_tags %}
+{% load fmm_tags %}
+{% load static %}
+
+{% block title %}{{ model_verbose_name }} – Formular | {% endblock %}
+
+{% block scripts %}
+  <!-- inherit from form.html -->
+  {{ block.super }}
+  <!-- add scripts for fmm -->
+  <script src="{% static "js/form.js" %}"></script>
+{% endblock %}
+
+{% block errors %}
+  {% if form.errors %}
+    {% include "fmm/container_errors.html" %}
+  {% endif %}
+{% endblock %}
+
+{% block list %}
+  <div {% if is_geometry_model %}id="custom-form"{% endif %}>
+    <table class="table">
+      {% for field in form %}
+        {% if not field|is_field_geometry_field %}
+          <tr{% if hidden_fields and field.name in hidden_fields %} style="display: none;"{% endif %}>
+            <td class="cell-label">
+              {{ field.label_tag }}
+            </td>
+            {% autoescape off %}
+              <td class="cell-field">
+                {{ field }}
+              </td>
+            {% endautoescape %}
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </table>
+  </div>
+{% endblock %}
