@@ -30,7 +30,7 @@
       {% endif %}
       {{ block.super }}
     {% endblock %}
-    <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → <i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF</h2>
+    <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → <i class="me-2 fas fa-{{ model_icon|get_icon }}"></i>{{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
     <form class="form mt-4 flex-container-row" method="post" action="" id="form">
       {% csrf_token %}
       <input type="hidden" name="original_referer" value="{{ cancel_url }}">

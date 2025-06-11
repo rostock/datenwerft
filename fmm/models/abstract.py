@@ -20,5 +20,6 @@ class Base(models.Model):
     get_latest_by = 'modified'
 
   class BaseMeta:
+    icon = 'paket'
     geometry_field = None
     geometry_type = None

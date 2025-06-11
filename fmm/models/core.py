@@ -23,6 +23,7 @@ class Fmf(Base):
     verbose_name_plural = _('FMF')
 
   class BaseMeta(Base.BaseMeta):
+    icon = 'fmf'
     geometry_field = 'geometrie'
     geometry_type = 'Polygon'
 

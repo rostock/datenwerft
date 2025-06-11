@@ -3,7 +3,7 @@ from django.contrib.messages import success
 from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from ..models import Fmf
 from .forms import ObjectForm
@@ -13,6 +13,8 @@ from .functions import (
   add_useragent_context_elements,
   assign_widget,
   geometry_keeper,
+  get_referer,
+  get_referer_url,
 )
 
 
@@ -40,6 +42,32 @@ class IndexView(TemplateView):
     return context
 
 
+class TableView(TemplateView):
+  """
+  view for table page
+
+  :param template_name: template name
+  """
+
+  template_name = 'fmm/dummy.html'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add user agent related context elements
+    context = add_useragent_context_elements(context, self.request)
+    # add permissions related context elements
+    context = add_permissions_context_elements(context, self.request.user)
+    # add to context: URLs
+    context['cancel_url'] = reverse('fmm:index')
+    return context
+
+
 class ObjectMixin:
   """
   generic mixin for form page for creating or updating an instance of an object
@@ -52,7 +80,7 @@ class ObjectMixin:
   """
 
   model = None
-  template_name = 'fmm/form_fmf.html'
+  template_name = None
   form = ObjectForm
   success_message = ''
   cancel_url = None
@@ -78,6 +106,21 @@ class ObjectMixin:
       self.request, self.success_message.format(self.model._meta.verbose_name, str(form.instance))
     )
     return super().form_valid(form)
+
+  def form_invalid(self, form, **kwargs):
+    """
+    re-opens passed form if it is not valid
+    (purpose: keep original referer and geometry, if necessary)
+
+    :param form: form
+    :return: passed form if it is not valid
+    """
+    context_data = self.get_context_data(form=form)
+    form.data = form.data.copy()
+    context_data = geometry_keeper(form.data, context_data)
+    context_data['form'] = form
+    context_data['cancel_url'] = form.data.get('original_referer', None)
+    return self.render_to_response(context_data)
 
   def get_context_data(self, **kwargs):
     """
@@ -107,6 +150,21 @@ class ObjectMixin:
       context['cancel_url'] = reverse('fmm:index')
     return context
 
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    referer = self.request.POST.get('original_referer', '')
+    if 'table' in referer:
+      return reverse('fmm:table')
+    elif 'map' in referer:
+      return reverse('fmm:map')
+    elif 'show' in referer:
+      return reverse('fmm:show')
+    return reverse('fmm:index')
+
 
 class ObjectCreateView(ObjectMixin, CreateView):
   """
@@ -128,28 +186,77 @@ class ObjectUpdateView(ObjectMixin, UpdateView):
   success_message = '{} <strong><em>{}</em></strong> erfolgreich aktualisiert!'
 
 
+class ObjectDeleteView(DeleteView):
+  """
+  generic view for form page for deleting an instance of an object
+
+  :param model: model
+  :param template_name: template name
+  :param success_message: custom success message
+  """
+
+  model = None
+  template_name = 'fmm/delete.html'
+  success_message = '{} <strong><em>{}</em></strong> erfolgreich gelöscht!'
+
+  def form_valid(self, form):
+    """
+    sends HTTP response if passed form is valid
+
+    :param form: form
+    :return: HTTP response if passed form is valid
+    """
+    success(
+      self.request, self.success_message.format(self.model._meta.verbose_name, str(self.object))
+    )
+    return super().form_valid(form)
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add user agent related context elements
+    context = add_useragent_context_elements(context, self.request)
+    # add permissions related context elements
+    context = add_permissions_context_elements(context, self.request.user)
+    # add model related context elements
+    context = add_model_context_elements(context, self.model)
+    # add to context: URLs
+    context['cancel_url'] = get_referer_url(
+      referer=get_referer(self.request), fallback='fmm:index'
+    )
+    return context
+
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    referer = self.request.POST.get('original_referer', '')
+    if 'table' in referer:
+      return reverse('fmm:table')
+    elif 'map' in referer:
+      return reverse('fmm:map')
+    elif 'show' in referer:
+      return reverse('fmm:show')
+    return reverse('fmm:index')
+
+
 class FmfCreateView(ObjectCreateView):
   """
   view for form page for creating a FMF instance
 
   :param model: model
+  :param template_name: template name
   """
 
   model = Fmf
-
-  def form_invalid(self, form, **kwargs):
-    """
-    re-opens passed form if it is not valid
-    (purpose: keep geometry)
-
-    :param form: form
-    :return: passed form if it is not valid
-    """
-    context_data = self.get_context_data(form=form)
-    form.data = form.data.copy()
-    context_data = geometry_keeper(form.data, context_data)
-    context_data['form'] = form
-    return self.render_to_response(context_data)
+  template_name = 'fmm/form_fmf.html'
 
 
 class FmfUpdateView(ObjectUpdateView):
@@ -157,20 +264,18 @@ class FmfUpdateView(ObjectUpdateView):
   view for form page for updating a FMF instance
 
   :param model: model
+  :param template_name: template name
   """
 
   model = Fmf
+  template_name = 'fmm/form_fmf.html'
 
-  def form_invalid(self, form, **kwargs):
-    """
-    re-opens passed form if it is not valid
-    (purpose: keep geometry)
 
-    :param form: form
-    :return: passed form if it is not valid
-    """
-    context_data = self.get_context_data(form=form)
-    form.data = form.data.copy()
-    context_data = geometry_keeper(form.data, context_data)
-    context_data['form'] = form
-    return self.render_to_response(context_data)
+class FmfDeleteView(ObjectDeleteView):
+  """
+  view for form page for deleting a FMF instance
+
+  :param model: model
+  """
+
+  model = Fmf

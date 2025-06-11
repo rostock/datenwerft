@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.forms import CheckboxSelectMultiple, Textarea
+from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
 
@@ -19,6 +20,7 @@ def add_model_context_elements(context, model):
   """
   context['model_verbose_name'] = model._meta.verbose_name
   context['model_verbose_name_plural'] = model._meta.verbose_name_plural
+  context['model_icon'] = model.BaseMeta.icon
   # add geometry related information to context, if necessary
   if issubclass(model, Fmf):
     geometry_field_name = model.BaseMeta.geometry_field
@@ -112,3 +114,27 @@ def geometry_keeper(form_data, context_data):
   if geometry and '0,0' not in geometry and '[]' not in geometry:
     context_data['geometry'] = geometry
   return context_data
+
+
+def get_referer(request):
+  """
+  returns referer for passed request
+
+  :param request: request
+  :return: referer for passed request
+  """
+  return request.META['HTTP_REFERER'] if 'HTTP_REFERER' in request.META else None
+
+
+def get_referer_url(referer, fallback, lazy=False):
+  """
+  returns URL used for "cancel" buttons and/or used in case of successfully submitted forms
+
+  :param referer: referer URL
+  :param fallback: fallback URL
+  :param lazy: lazy?
+  :return: URL used for "cancel" buttons and/or used in case of successfully submitted forms
+  """
+  if referer:
+    return reverse_lazy(referer) if lazy else referer
+  return reverse_lazy(fallback) if lazy else reverse(fallback)

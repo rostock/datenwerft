@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load fmm_tags %}
+{% load static %}
+
+{% block title %}{{ model_verbose_name }} – Löschung | {% endblock %}
+
+{% block content %}
+  {% if is_fmm_user %}
+    {% if form.errors %}
+      {% include "fmm/container_errors.html" %}
+    {% endif %}
+    <h2>löschen → <i class="me-2 fas fa-{{ model_icon|get_icon }}"></i>{{ model_verbose_name }} <em>{{ object }}</em></h2>
+    <form class="form mt-4" method="post" action="">
+      {% csrf_token %}
+      <input type="hidden" name="original_referer" value="{{ cancel_url }}">
+      <h4>Möchten Sie diesen Datensatz wirklich löschen?</h4>
+      <div class="d-grid mt-5 mb-3 gap-2">
+        <button class="btn btn-danger" type="submit"><i class="fas fa-{{ 'delete'|get_icon }}"></i> löschen</button>
+        <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+      </div>
+    </form>
+  {% else %}
+    {% include "fmm/notice_no-permissions.html" %}
+  {% endif %}
+{% endblock %}
