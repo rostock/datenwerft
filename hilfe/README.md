@@ -100,13 +100,13 @@ Hier finden Sie Hilfestellungen zum Flächenmanagementsystem *FMM.*
 
 ### Bereiche und Aktionen
 
-#### [Karte](fmm/usage/map.md)
+#### [neue FMF erstellen](fmm/usage/fmf-create.md)
 
 #### [Tabelle](fmm/usage/table.md)
 
-#### [FMF-Übersichtsseite](fmm/usage/fmf.md)
+#### [Karte](fmm/usage/map.md)
 
-#### [neue FMF erstellen](fmm/usage/fmf-add.md)
+#### [FMF-Übersichtsseite](fmm/usage/show.md)
 
 ## *GDI.HRO Codelists*
 

@@ -24,7 +24,7 @@ class DefaultTestCase(TestCase):
     self.test_user: User = User.objects.create_user(username=USERNAME, password=PASSWORD)
 
 
-class DefaultModelTestCase(DefaultTestCase):
+class ModelTestCase(DefaultTestCase):
   """
   abstract test class for models
   """
@@ -109,7 +109,7 @@ class DefaultModelTestCase(DefaultTestCase):
     self.assertEqual(str(self.test_object), string_representation)
 
 
-class DefaultViewTestCase(DefaultTestCase):
+class ViewTestCase(DefaultTestCase):
   """
   abstract test class for views
   """
@@ -118,7 +118,7 @@ class DefaultViewTestCase(DefaultTestCase):
     super().init()
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  def generic_view_test(self, assign_permissions, view_name, status_code, content_type, string):
+  def generic_get_test(self, assign_permissions, view_name, status_code, content_type, string):
     """
     tests a view via GET
 
@@ -141,3 +141,89 @@ class DefaultViewTestCase(DefaultTestCase):
     self.assertEqual(response['content-type'].lower(), content_type)
     # specific string contained in response?
     self.assertIn(string, str(response.content))
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
+  def generic_post_test(
+    self, assign_permissions, view_name, form_data, status_code
+  ):
+    """
+    tests a form view via POST
+
+    :param self
+    :param assign_permissions: assign permissions to test user?
+    :param view_name: name of the view
+    :param form_data: form data (POST payload)
+    :param status_code: expected status code of response
+    """
+    # log test user in
+    login(self, assign_permissions)
+    # prepare the POST
+    url = reverse(f'fmm:{view_name}')
+    # try POSTing the view
+    response = self.client.post(url, form_data)
+    # status code of response as expected?
+    self.assertEqual(response.status_code, status_code)
+
+
+class FormViewTestCase(ModelTestCase):
+  """
+  abstract test class for form views
+  """
+
+  def init(self):
+    super().init()
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  def generic_form_get_test(
+      self, assign_permissions, view_name, status_code, content_type, string
+  ):
+    """
+    tests a form view via GET
+
+    :param self
+    :param assign_permissions: assign permissions to test user?
+    :param view_name: name of the view
+    :param status_code: expected status code of response
+    :param content_type: expected content type of response
+    :param string: specific string that should be contained in response
+    """
+    # log test user in
+    login(self, assign_permissions)
+    # get primary key of last object
+    last_pk = self.model.objects.only('pk').last().pk
+    # prepare the GET
+    url = reverse(viewname=f'fmm:{view_name}', kwargs={'pk': last_pk})
+    # try GETting the view
+    response = self.client.get(url)
+    # status code of response as expected?
+    self.assertEqual(response.status_code, status_code)
+    # content type of response as expected?
+    self.assertEqual(response['content-type'].lower(), content_type)
+    # specific string contained in response?
+    self.assertIn(string, str(response.content))
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
+  def generic_form_post_test(
+    self, assign_permissions, view_name, form_data, status_code
+  ):
+    """
+    tests a form view via POST
+
+    :param self
+    :param assign_permissions: assign permissions to test user?
+    :param view_name: name of the view
+    :param form_data: form data (POST payload)
+    :param status_code: expected status code of response
+    """
+    # log test user in
+    login(self, assign_permissions)
+    # get primary key of last object
+    last_pk = self.model.objects.only('pk').last().pk
+    # prepare the POST
+    url = reverse(viewname=f'fmm:{view_name}', kwargs={'pk': last_pk})
+    # try POSTing the view
+    response = self.client.post(url, form_data)
+    # status code of response as expected?
+    self.assertEqual(response.status_code, status_code)

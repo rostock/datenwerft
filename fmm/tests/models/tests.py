@@ -3,7 +3,7 @@ from fmm.models import (
   PaketUmwelt,
 )
 
-from ..abstract import DefaultModelTestCase
+from ..abstract import ModelTestCase
 from ..constants_vars import (
   VALID_POLYGON_DB_A,
   VALID_POLYGON_DB_B,
@@ -12,7 +12,7 @@ from ..constants_vars import (
 )
 
 
-class FmfModelTest(DefaultModelTestCase):
+class FmfModelTest(ModelTestCase):
   """
   test class for model:
   FMF
@@ -45,7 +45,7 @@ class FmfModelTest(DefaultModelTestCase):
     self.generic_string_representation_test(expected)
 
 
-class PaketUmweltModelTest(DefaultModelTestCase):
+class PaketUmweltModelTest(ModelTestCase):
   """
   test class for model:
   Paket Umwelt
