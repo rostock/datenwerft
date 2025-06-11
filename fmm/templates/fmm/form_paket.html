@@ -1,0 +1,47 @@
+{% extends "fmm/form.html" %}
+{% load fmm_tags %}
+{% load static %}
+
+{% block content %}
+  {% if is_fmm_user %}
+    {% block errors %}
+      {{ block.super }}
+    {% endblock %}
+    <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → <i class="me-2 fas fa-{{ model_icon|get_icon }}"></i>{{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
+    <form class="form mt-4 flex-container-column" method="post" action="" id="form">
+      {% csrf_token %}
+      <input type="hidden" name="original_referer" value="{{ cancel_url }}">
+      {% block list %}
+        {{ block.super }}
+      {% endblock %}
+      <div class="d-grid mt-3 mb-3 gap-2">
+        <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
+        <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+      </div>
+    </form>
+    <script>
+      /**
+       * @function
+       *
+       * main function
+       */
+      $(document).ready(function () {
+        keepDjangoRequiredMessages();
+
+        let field;
+        // disable fields which are to disable
+        {% for field in disabled_fields %}
+          field = $('#id_' + '{{ field }}');
+          field.prop('disabled', true);
+        {% endfor %}
+        // ensure fields are enabled again on submitting the form
+        // (since otherwise, they would not be included in the form data)
+        $('form').bind('submit', function () {
+          $(this).find(':input').prop('disabled', false);
+        });
+      });
+    </script>
+  {% else %}
+    {% include "fmm/notice_no-permissions.html" %}
+  {% endif %}
+{% endblock %}

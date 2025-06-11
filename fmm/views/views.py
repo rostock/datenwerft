@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
-from ..models import Fmf
+from ..models import Fmf, PaketUmwelt
 from .forms import ObjectForm
 from .functions import (
   add_model_context_elements,
@@ -102,8 +102,9 @@ class ObjectMixin:
     :param form: form
     :return: HTTP response if passed form is valid
     """
+    self.object = form.save()
     success(
-      self.request, self.success_message.format(self.model._meta.verbose_name, str(form.instance))
+      self.request, self.success_message.format(self.model._meta.verbose_name, str(self.object))
     )
     return super().form_valid(form)
 
@@ -143,6 +144,9 @@ class ObjectMixin:
         geometry = getattr(self.object, self.model.BaseMeta.geometry_field)
         if geometry:
           context['geometry'] = GEOSGeometry(geometry).geojson
+    # add disabled fields to context, if necessary
+    else:
+      context['disabled_fields'] = ['fmf']
     # add to context: URLs
     if self.cancel_url:
       context['cancel_url'] = reverse(self.cancel_url)
@@ -279,3 +283,37 @@ class FmfDeleteView(ObjectDeleteView):
   """
 
   model = Fmf
+
+
+class PaketUmweltCreateView(ObjectCreateView):
+  """
+  view for form page for creating a Paket Umwelt instance
+
+  :param model: model
+  :param template_name: template name
+  """
+
+  model = PaketUmwelt
+  template_name = 'fmm/form_paket.html'
+
+
+class PaketUmweltUpdateView(ObjectUpdateView):
+  """
+  view for form page for updating a Paket Umwelt instance
+
+  :param model: model
+  :param template_name: template name
+  """
+
+  model = PaketUmwelt
+  template_name = 'fmm/form_paket.html'
+
+
+class PaketUmweltDeleteView(ObjectDeleteView):
+  """
+  view for form page for deleting a Paket Umwelt instance
+
+  :param model: model
+  """
+
+  model = PaketUmwelt

@@ -102,11 +102,11 @@ Hier finden Sie Hilfestellungen zum Flächenmanagementsystem *FMM.*
 
 #### [neue FMF erstellen](fmm/usage/fmf-create.md)
 
+#### [FMF-Übersichtsseite](fmm/usage/fmf-show.md)
+
 #### [Tabelle](fmm/usage/table.md)
 
 #### [Karte](fmm/usage/map.md)
-
-#### [FMF-Übersichtsseite](fmm/usage/show.md)
 
 ## *GDI.HRO Codelists*
 

@@ -2,7 +2,16 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 from rest_framework import routers
 
-from .views import FmfCreateView, FmfDeleteView, FmfUpdateView, IndexView, TableView
+from .views import (
+  FmfCreateView,
+  FmfDeleteView,
+  FmfUpdateView,
+  IndexView,
+  PaketUmweltCreateView,
+  PaketUmweltDeleteView,
+  PaketUmweltUpdateView,
+  TableView,
+)
 
 router = routers.DefaultRouter()
 
@@ -19,7 +28,7 @@ urlpatterns = [
   ),
   # table page
   path(
-    'fmf/table',
+    'table',
     view=login_required(TableView.as_view()),
     name='table',
   ),
@@ -40,5 +49,23 @@ urlpatterns = [
     'fmf/delete/<pk>',
     view=login_required(FmfDeleteView.as_view()),
     name='fmf_delete',
+  ),
+  # form page for creating a Paket Umwelt instance
+  path(
+    'paketumwelt/create',
+    view=login_required(PaketUmweltCreateView.as_view()),
+    name='paketumwelt_create',
+  ),
+  # form page for updating a Paket Umwelt instance
+  path(
+    'paketumwelt/update/<pk>',
+    view=login_required(PaketUmweltUpdateView.as_view()),
+    name='paketumwelt_update',
+  ),
+  # form page for deleting a Paket Umwelt instance
+  path(
+    'paketumwelt/delete/<pk>',
+    view=login_required(PaketUmweltDeleteView.as_view()),
+    name='paketumwelt_delete',
   ),
 ]

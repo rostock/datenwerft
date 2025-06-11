@@ -67,120 +67,120 @@
         </div>
       </div>
     </form>
-      <!-- eslint-disable-next-script -->
-      <script>
-        /* eslint no-unexpected-multiline: "off" */
-        // run orderFormItems on page load
-        orderFormItems();
+    <!-- eslint-disable-next-script -->
+    <script>
+      /* eslint no-unexpected-multiline: "off" */
+      // run orderFormItems on page load
+      orderFormItems();
 
-        // run orderFormItems on resize event
-        window.addEventListener('resize', orderFormItems);
+      // run orderFormItems on resize event
+      window.addEventListener('resize', orderFormItems);
 
-        function orderFormItems() {
-          const list = document.getElementById('flex-list');
-          const action_buttons = document.getElementById('flex-action-buttons');
-          const map = document.getElementById('flex-map');
-          const address_search = document.getElementById('flex-address-search');
-          const flex_container = document.getElementById('form')
-          const left_column = document.getElementById('flex-left')
-          const right_column = document.getElementById('flex-right')
+      function orderFormItems() {
+        const list = document.getElementById('flex-list');
+        const action_buttons = document.getElementById('flex-action-buttons');
+        const map = document.getElementById('flex-map');
+        const address_search = document.getElementById('flex-address-search');
+        const flex_container = document.getElementById('form')
+        const left_column = document.getElementById('flex-left')
+        const right_column = document.getElementById('flex-right')
 
-          if (window.innerWidth <= 768) {
-            // on small screens use just one flex column
-            flex_container.classList.add("flex-container-column")
-            flex_container.classList.remove("flex-container-row")
+        if (window.innerWidth <= 768) {
+          // on small screens use just one flex column
+          flex_container.classList.add("flex-container-column")
+          flex_container.classList.remove("flex-container-row")
 
-            flex_container.appendChild(list);
-            flex_container.appendChild(action_buttons);
-            flex_container.appendChild(map);
-            flex_container.appendChild(address_search);
-          } else {
-            // on bigger screens use two column view
-            flex_container.classList.add("flex-container-row")
-            flex_container.classList.remove("flex-container-column")
+          flex_container.appendChild(list);
+          flex_container.appendChild(action_buttons);
+          flex_container.appendChild(map);
+          flex_container.appendChild(address_search);
+        } else {
+          // on bigger screens use two column view
+          flex_container.classList.add("flex-container-row")
+          flex_container.classList.remove("flex-container-column")
 
-            left_column.appendChild(list);
-            left_column.appendChild(action_buttons);
-            right_column.appendChild(map);
-            right_column.appendChild(address_search);
-          }
+          left_column.appendChild(list);
+          left_column.appendChild(action_buttons);
+          right_column.appendChild(map);
+          right_column.appendChild(address_search);
         }
-        setTimeout(function () {
-          $('.alert-success').alert('close');
-        }, 1000);
+      }
+      setTimeout(function () {
+        $('.alert-success').alert('close');
+      }, 1000);
 
-        /**
-         * @function
-         * @name mapCallbackFunction
-         *
-         * handles (as a callback function) passed map
-         *
-         * @param {Object} map - map
-         */
-        function mapCallbackFunction(map) {
-          setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
-          configureMap(map, '{% url "toolbox:owsproxy" %}');
+      /**
+       * @function
+       * @name mapCallbackFunction
+       *
+       * handles (as a callback function) passed map
+       *
+       * @param {Object} map - map
+       */
+      function mapCallbackFunction(map) {
+        setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
+        configureMap(map, '{% url "toolbox:owsproxy" %}');
 
-          // make map globally available
-          window.currMap = map;
+        // make map globally available
+        window.currMap = map;
 
-          {% if is_mobile %}
-            enableMapLocate(map)
-          {% endif %}
+        {% if is_mobile %}
+          enableMapLocate(map)
+        {% endif %}
 
-          // configure globally available markers for Leaflet
-          window.redMarker = new L.Icon({
-            shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
-            iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41]
-          });
-
-          // define several globally available variables
-          window.geometryType = '{{ geometry_type }}';
-          window.featureGeometry = [];
-
-          configureLeafletGeoman(map, window.geometryType);
-
-          // if geometry already exists...
-          {% if geometry %}
-            // show existing geometry on map
-            map.loadGeometryFromField('#id_{{ geometry_field }}')
-          {% endif %}
-
-          /**
-           * @function
-           *
-           * checks (on starting "sketching" mode) if a Leaflet-Geoman layer already exists
-           * and deletes it if necessary
-           */
-          map.on('pm:drawstart', function () {
-            if (map.pm.getGeomanLayers().length > 0) {
-              map.pm.getGeomanLayers().forEach((item) => {
-                if ('_drawnByGeoman' in item && item._drawnByGeoman === true)
-                  map.removeLayer(item);
-              })
-            }
-          });
-        }
-
-        /**
-         * @function
-         *
-         * main function
-         */
-        $(document).ready(function () {
-          keepDjangoRequiredMessages();
-
-          // initialize address search (and make its results globally available)
-          window.results = $('div.results');
-          window.addressType = '';
-          window.searchField = $('#address-search');
-          initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType)
+        // configure globally available markers for Leaflet
+        window.redMarker = new L.Icon({
+          shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
+          iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
         });
-      </script>
+
+        // define several globally available variables
+        window.geometryType = '{{ geometry_type }}';
+        window.featureGeometry = [];
+
+        configureLeafletGeoman(map, window.geometryType);
+
+        // if geometry already exists...
+        {% if geometry %}
+          // show existing geometry on map
+          map.loadGeometryFromField('#id_{{ geometry_field }}')
+        {% endif %}
+
+        /**
+         * @function
+         *
+         * checks (on starting "sketching" mode) if a Leaflet-Geoman layer already exists
+         * and deletes it if necessary
+         */
+        map.on('pm:drawstart', function () {
+          if (map.pm.getGeomanLayers().length > 0) {
+            map.pm.getGeomanLayers().forEach((item) => {
+              if ('_drawnByGeoman' in item && item._drawnByGeoman === true)
+                map.removeLayer(item);
+            })
+          }
+        });
+      }
+
+      /**
+       * @function
+       *
+       * main function
+       */
+      $(document).ready(function () {
+        keepDjangoRequiredMessages();
+
+        // initialize address search (and make its results globally available)
+        window.results = $('div.results');
+        window.addressType = '';
+        window.searchField = $('#address-search');
+        initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType)
+      });
+    </script>
   {% else %}
     {% include "fmm/notice_no-permissions.html" %}
   {% endif %}

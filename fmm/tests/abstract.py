@@ -144,9 +144,7 @@ class ViewTestCase(DefaultTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
-  def generic_post_test(
-    self, assign_permissions, view_name, form_data, status_code
-  ):
+  def generic_post_test(self, assign_permissions, view_name, form_data, status_code):
     """
     tests a form view via POST
 
@@ -176,7 +174,7 @@ class FormViewTestCase(ModelTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_form_get_test(
-      self, assign_permissions, view_name, status_code, content_type, string
+    self, assign_permissions, view_name, status_code, content_type, string
   ):
     """
     tests a form view via GET
@@ -205,9 +203,7 @@ class FormViewTestCase(ModelTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
-  def generic_form_post_test(
-    self, assign_permissions, view_name, form_data, status_code
-  ):
+  def generic_form_post_test(self, assign_permissions, view_name, form_data, status_code):
     """
     tests a form view via POST
 

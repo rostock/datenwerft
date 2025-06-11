@@ -87,8 +87,7 @@ class PaketUmweltModelTest(ModelTestCase):
     self.generic_delete_test()
 
   def test_string_representation(self):
-    fmf_bezeichnung = f'{self.test_object.fmf.bezeichnung}'
-    created = f'erstellt am {self.test_object.created.strftime("%d.%m.%Y")}'
-    modified = f'geändert am {self.test_object.modified.strftime("%d.%m.%Y")}'
-    expected = f'{fmf_bezeichnung} → Paket Umwelt ({created}, {modified})'
+    expected = (
+      f'mit Erstellungszeitpunkt {self.test_object.created.strftime("%d.%m.%Y, %H:%M Uhr")}'
+    )
     self.generic_string_representation_test(expected)

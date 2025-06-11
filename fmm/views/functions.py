@@ -110,7 +110,8 @@ def geometry_keeper(form_data, context_data):
   :return: passed context data with geometry kept in passed form data
   """
   # keep geometry (otherwise it would be lost on re-rendering)
-  geometry = form_data.get(context_data['geometry_field'], None)
+  geometry_field = context_data.get('geometry_field')
+  geometry = form_data.get(geometry_field) if geometry_field else None
   if geometry and '0,0' not in geometry and '[]' not in geometry:
     context_data['geometry'] = geometry
   return context_data

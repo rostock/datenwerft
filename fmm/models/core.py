@@ -50,6 +50,8 @@ class PaketUmwelt(Base):
     verbose_name_plural = _('Pakete Umwelt')
 
   def __str__(self):
-    created = f'erstellt am {self.created.strftime("%d.%m.%Y")}'
-    modified = f'geändert am {self.modified.strftime("%d.%m.%Y")}'
-    return f'{self.fmf.bezeichnung} → Paket Umwelt ({created}, {modified})'
+    return (
+      f'mit Erstellungszeitpunkt {self.created.strftime("%d.%m.%Y, %H:%M Uhr")}'
+      if self.created
+      else 'ohne Erstellungszeitpunkt'
+    )
