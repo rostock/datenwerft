@@ -22,7 +22,7 @@ def is_fmm_user(user, only_fmm_user_check=False):
   :param only_fmm_user_check: check if user is a FMM user only?
   :return: passed user is a FMM user (only)?
   """
-  if user.groups.filter(name=GROUP).exists():
+  if user.is_superuser or user.groups.filter(name=GROUP).exists():
     if only_fmm_user_check:
       # if user is a FMM user only, he is not a member of any other group
       return user.groups.filter(name=GROUP).count() == user.groups.all().count()

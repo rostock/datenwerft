@@ -1,12 +1,12 @@
+from django.contrib.gis.forms.fields import PolygonField
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.messages import success
+from django.forms import ModelForm, ValidationError
 from django.forms.models import modelform_factory
 from django.urls import reverse
-from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from ..models import Fmf, PaketUmwelt
-from .forms import ObjectForm
 from .functions import (
   add_model_context_elements,
   add_permissions_context_elements,
@@ -18,54 +18,56 @@ from .functions import (
 )
 
 
-class IndexView(TemplateView):
+class ObjectForm(ModelForm):
   """
-  view for main page
+  form for instances of an object
 
-  :param template_name: template name
-  """
-
-  template_name = 'fmm/index.html'
-
-  def get_context_data(self, **kwargs):
-    """
-    returns a dictionary with all context elements for this view
-
-    :param kwargs:
-    :return: dictionary with all context elements for this view
-    """
-    context = super().get_context_data(**kwargs)
-    # add user agent related context elements
-    context = add_useragent_context_elements(context, self.request)
-    # add permissions related context elements
-    context = add_permissions_context_elements(context, self.request.user)
-    return context
-
-
-class TableView(TemplateView):
-  """
-  view for table page
-
-  :param template_name: template name
+  :param required_css_class: CSS class for required field
   """
 
-  template_name = 'fmm/dummy.html'
+  required_css_class = 'required'
 
-  def get_context_data(self, **kwargs):
-    """
-    returns a dictionary with all context elements for this view
+  def __init__(self, *args, **kwargs):
+    kwargs.setdefault('label_suffix', '')
+    super().__init__(*args, **kwargs)
+    # customize messages
+    for field in self.fields.values():
+      required_message = 'Das Attribut <strong><em>{}</em></strong> ist Pflicht!'.format(
+        field.label
+      )
+      unique_message = '{} mit angegebenem Wert im Attribut <strong><em>{}</em></strong>'.format(
+        self._meta.model._meta.verbose_name, field.label
+      )
+      unique_message += ' existiert bereits!'
+      field.error_messages = {'required': required_message, 'unique': unique_message}
+      if issubclass(field.__class__, PolygonField):
+        required_message = '<strong><em>{}</em></strong> muss in Karte gezeichnet werden!'.format(
+          field.label
+        )
+        field.error_messages = {
+          'required': '',
+          'invalid_geom': required_message,
+          'invalid_geom_type': required_message,
+        }
 
-    :param kwargs:
-    :return: dictionary with all context elements for this view
+  def clean(self):
     """
-    context = super().get_context_data(**kwargs)
-    # add user agent related context elements
-    context = add_useragent_context_elements(context, self.request)
-    # add permissions related context elements
-    context = add_permissions_context_elements(context, self.request.user)
-    # add custom referer URL to context
-    context['referer_url'] = reverse('fmm:index')
-    return context
+    cleans fields
+    """
+    cleaned_data = super().clean()
+    # clean geometry field, if necessary
+    if self._meta.model.BaseMeta.geometry_field is not None:
+      geometry_field_name = self._meta.model.BaseMeta.geometry_field
+      geometry = cleaned_data.get(geometry_field_name)
+      if 'EMPTY' in str(geometry):
+        geometry_field = self.fields[geometry_field_name]
+        raise ValidationError(
+          '<strong><em>{}</em></strong> muss in Karte gezeichnet werden!'.format(
+            geometry_field.label
+          )
+        )
+      cleaned_data[geometry_field_name] = geometry
+    return cleaned_data
 
 
 class ObjectMixin:

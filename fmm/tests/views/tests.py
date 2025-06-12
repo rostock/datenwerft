@@ -41,6 +41,60 @@ class IndexViewTest(ViewTestCase):
     )
 
 
+class TableDataViewTest(ViewTestCase):
+  """
+  test class for composing table data
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_get_with_permissions(self):
+    self.generic_get_test(
+      assign_permissions=True,
+      view_name='tabledata',
+      status_code=200,
+      content_type='application/json',
+      string='ok',
+    )
+
+  def test_get_without_permissions(self):
+    self.generic_get_test(
+      assign_permissions=False,
+      view_name='tabledata',
+      status_code=200,
+      content_type='application/json',
+      string='has_necessary_permissions',
+    )
+
+
+class TableViewTest(ViewTestCase):
+  """
+  test class for table page
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_get_with_permissions(self):
+    self.generic_get_test(
+      assign_permissions=True,
+      view_name='table',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='FMF',
+    )
+
+  def test_get_without_permissions(self):
+    self.generic_get_test(
+      assign_permissions=False,
+      view_name='table',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
+    )
+
+
 class FmfCreateViewTest(ViewTestCase):
   """
   test class for form page for creating a FMF instance

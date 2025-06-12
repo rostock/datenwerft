@@ -10,6 +10,7 @@ from .views import (
   PaketUmweltCreateView,
   PaketUmweltDeleteView,
   PaketUmweltUpdateView,
+  TableDataView,
   TableView,
 )
 
@@ -25,6 +26,12 @@ urlpatterns = [
     '',
     view=login_required(IndexView.as_view()),
     name='index',
+  ),
+  # composing table data
+  path(
+    'tabledata',
+    view=login_required(TableDataView.as_view()),
+    name='tabledata',
   ),
   # table page
   path(

@@ -42,9 +42,9 @@
         </div>
         <div class="flex-item" id="flex-action-buttons">
           <div id="form-control-buttons" class="mt-3 mb-3">
-            <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
-            <a class="btn btn-warning" role="button" href="{{ referer_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
-            <a class="btn btn-warning" role="button" href="{% url 'fmm:index' %}"><i class="fas fa-{{ 'index'|get_icon }}"></i> Startseite</a>
+            <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');"><i class="me-2 fas fa-{{ 'save'|get_icon }}"></i>speichern</button>
+            <a class="btn btn-warning" role="button" href="{{ referer_url }}"><i class="me-2 fas fa-{{ 'cancel'|get_icon }}"></i>abbrechen</a>
+            <a class="btn btn-warning" role="button" href="{% url 'fmm:index' %}"><i class="me-2 fas fa-{{ 'index'|get_icon }}"></i>Startseite</a>
           </div>
         </div>
       </div>

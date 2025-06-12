@@ -325,6 +325,7 @@ BEMAS_COLORS = {'complaint': '#b85814', 'originator': '#3d8f8f'}
 FMM_ICONS = {
   'activity': 'bell',
   'add': 'circle-plus',
+  'back': 'backward-step',
   'cancel': 'hand',
   'delete': 'trash',
   'error': 'circle-exclamation',
@@ -335,6 +336,7 @@ FMM_ICONS = {
   'ok': 'circle-check',
   'paket': 'database',
   'save': 'floppy-disk',
+  'show': 'pen',
   'table': 'table',
   'warning': 'triangle-exclamation',
 }

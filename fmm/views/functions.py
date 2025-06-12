@@ -44,8 +44,6 @@ def add_permissions_context_elements(context, user):
   permissions = {
     'is_fmm_user': is_fmm_user(user),
   }
-  if user.is_superuser:
-    permissions = {key: True for key in permissions}
   context.update(permissions)
   return context
 
@@ -115,6 +113,21 @@ def geometry_keeper(form_data, context_data):
   if geometry and '0,0' not in geometry and '[]' not in geometry:
     context_data['geometry'] = geometry
   return context_data
+
+
+def get_fmf_queryset():
+  """
+  gets all FMF objects and returns them
+
+  :return: all FMF objects
+  """
+  queryset = Fmf.objects.values(
+    'id',
+    'created',
+    'modified',
+    'bezeichnung',
+  )
+  return queryset
 
 
 def get_referer(request):
