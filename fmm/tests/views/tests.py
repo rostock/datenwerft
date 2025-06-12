@@ -189,6 +189,66 @@ class FmfDeleteViewTest(FormViewTestCase):
     )
 
 
+class PaketUmweltCreateViewTest(ViewTestCase):
+  """
+  test class for form page for creating a Paket Umwelt instance
+  """
+
+  model = PaketUmwelt
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    test_fmf = Fmf.objects.create(
+      bezeichnung=VALID_STRING_A,
+      geometrie=VALID_POLYGON_DB_A,
+    )
+    cls.form_data_valid = {
+      'fmf': str(test_fmf.pk),
+      'trinkwassernotbrunnen': True,
+    }
+    cls.form_data_invalid = {
+      'trinkwassernotbrunnen': False,
+    }
+
+  def setUp(self):
+    self.init()
+
+  def test_get_with_permissions(self):
+    self.generic_get_test(
+      assign_permissions=True,
+      view_name='paketumwelt_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='neu ',
+    )
+
+  def test_get_without_permissions(self):
+    self.generic_get_test(
+      assign_permissions=False,
+      view_name='paketumwelt_create',
+      status_code=200,
+      content_type='text/html; charset=utf-8',
+      string='keine Rechte',
+    )
+
+  def test_post_success(self):
+    self.generic_post_test(
+      assign_permissions=True,
+      view_name='paketumwelt_create',
+      form_data=self.form_data_valid,
+      status_code=302,
+    )
+
+  def test_post_error(self):
+    self.generic_post_test(
+      assign_permissions=True,
+      view_name='paketumwelt_create',
+      form_data=self.form_data_invalid,
+      status_code=200,
+    )
+
+
 class PaketUmweltUpdateViewTest(FormViewTestCase):
   """
   test class for form page for updating a Paket Umwelt instance

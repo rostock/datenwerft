@@ -33,7 +33,7 @@
     <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → <i class="me-2 fas fa-{{ model_icon|get_icon }}"></i>{{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
     <form class="form mt-4 flex-container-row" method="post" action="" id="form">
       {% csrf_token %}
-      <input type="hidden" name="original_referer" value="{{ cancel_url }}">
+      <input type="hidden" name="original_referer_url" value="{{ referer_url }}">
       <div class="flex-item flex-container-column" id="flex-left">
         <div class="flex-item" id="flex-list">
           {% block list %}
@@ -43,7 +43,8 @@
         <div class="flex-item" id="flex-action-buttons">
           <div id="form-control-buttons" class="mt-3 mb-3">
             <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
-            <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+            <a class="btn btn-warning" role="button" href="{{ referer_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+            <a class="btn btn-warning" role="button" href="{% url 'fmm:index' %}"><i class="fas fa-{{ 'index'|get_icon }}"></i> Startseite</a>
           </div>
         </div>
       </div>

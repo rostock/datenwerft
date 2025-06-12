@@ -11,7 +11,7 @@
     {% endif %}
     DUMMY
     <a class="btn btn-lg btn-primary" role="button" href="{% url 'fmm:fmf_create' %}"><i class="fas fa-{{ 'add'|get_icon }}"></i></a>
-    <input type="hidden" name="original_referer" value="{{ cancel_url }}">
+    <input type="hidden" name="original_referer_url" value="{{ referer_url }}">
     <script>
       setTimeout(function () {
         $('.alert-success').alert('close');

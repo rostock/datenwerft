@@ -79,8 +79,8 @@
     {% else %}
       <div class="row">
         <div class="d-grid gap-2">
-          <a class="btn btn-lg btn-primary" role="button" href="#"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fas fa-{{ 'add'|get_icon }}"></i></a>
-          <a class="btn btn-lg btn-primary" role="button" href="#"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fas fa-{{ 'table'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'fmm:fmf_create' %}"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fas fa-{{ 'add'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'fmm:table' %}"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fas fa-{{ 'table'|get_icon }}"></i></a>
           <a class="btn btn-lg btn-primary" role="button" href="#"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fas fa-{{ 'map'|get_icon }}"></i></a>
         </div>
       </div>

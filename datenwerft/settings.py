@@ -329,6 +329,7 @@ FMM_ICONS = {
   'delete': 'trash',
   'error': 'circle-exclamation',
   'fmf': 'draw-polygon',
+  'index': 'backward-fast',
   'info': 'circle-info',
   'map': 'map-location-dot',
   'ok': 'circle-check',

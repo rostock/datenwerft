@@ -63,8 +63,8 @@ class TableView(TemplateView):
     context = add_useragent_context_elements(context, self.request)
     # add permissions related context elements
     context = add_permissions_context_elements(context, self.request.user)
-    # add to context: URLs
-    context['cancel_url'] = reverse('fmm:index')
+    # add custom referer URL to context
+    context['referer_url'] = reverse('fmm:index')
     return context
 
 
@@ -76,14 +76,14 @@ class ObjectMixin:
   :param template_name: template name
   :param form: form
   :param success_message: custom success message
-  :param cancel_url: custom cancel URL
+  :param referer_url: custom referer URL
   """
 
   model = None
   template_name = None
   form = ObjectForm
   success_message = ''
-  cancel_url = None
+  referer_url = 'fmm:index'
 
   def get_form_class(self):
     # ensure the model is set before creating the form class
@@ -111,7 +111,7 @@ class ObjectMixin:
   def form_invalid(self, form, **kwargs):
     """
     re-opens passed form if it is not valid
-    (purpose: keep original referer and geometry, if necessary)
+    (purpose: keep original referer URL and geometry, if necessary)
 
     :param form: form
     :return: passed form if it is not valid
@@ -120,7 +120,7 @@ class ObjectMixin:
     form.data = form.data.copy()
     context_data = geometry_keeper(form.data, context_data)
     context_data['form'] = form
-    context_data['cancel_url'] = form.data.get('original_referer', None)
+    context_data['referer_url'] = form.data.get('original_referer_url', None)
     return self.render_to_response(context_data)
 
   def get_context_data(self, **kwargs):
@@ -147,11 +147,10 @@ class ObjectMixin:
     # add disabled fields to context, if necessary
     else:
       context['disabled_fields'] = ['fmf']
-    # add to context: URLs
-    if self.cancel_url:
-      context['cancel_url'] = reverse(self.cancel_url)
-    else:
-      context['cancel_url'] = reverse('fmm:index')
+    # add custom referer URL to context
+    context['referer_url'] = get_referer_url(
+      referer=get_referer(self.request), fallback=self.referer_url
+    )
     return context
 
   def get_success_url(self):
@@ -160,14 +159,8 @@ class ObjectMixin:
 
     :return: URL called in case of successful request
     """
-    referer = self.request.POST.get('original_referer', '')
-    if 'table' in referer:
-      return reverse('fmm:table')
-    elif 'map' in referer:
-      return reverse('fmm:map')
-    elif 'show' in referer:
-      return reverse('fmm:show')
-    return reverse('fmm:index')
+    referer_url = self.request.POST.get('original_referer_url', '')
+    return referer_url if referer_url else reverse(self.referer_url)
 
 
 class ObjectCreateView(ObjectMixin, CreateView):
@@ -197,11 +190,13 @@ class ObjectDeleteView(DeleteView):
   :param model: model
   :param template_name: template name
   :param success_message: custom success message
+  :param referer_url: custom referer URL
   """
 
   model = None
   template_name = 'fmm/delete.html'
   success_message = '{} <strong><em>{}</em></strong> erfolgreich gelöscht!'
+  referer_url = 'fmm:index'
 
   def form_valid(self, form):
     """
@@ -229,9 +224,9 @@ class ObjectDeleteView(DeleteView):
     context = add_permissions_context_elements(context, self.request.user)
     # add model related context elements
     context = add_model_context_elements(context, self.model)
-    # add to context: URLs
-    context['cancel_url'] = get_referer_url(
-      referer=get_referer(self.request), fallback='fmm:index'
+    # add custom referer URL to context
+    context['referer_url'] = get_referer_url(
+      referer=get_referer(self.request), fallback=self.referer_url
     )
     return context
 
@@ -241,14 +236,8 @@ class ObjectDeleteView(DeleteView):
 
     :return: URL called in case of successful request
     """
-    referer = self.request.POST.get('original_referer', '')
-    if 'table' in referer:
-      return reverse('fmm:table')
-    elif 'map' in referer:
-      return reverse('fmm:map')
-    elif 'show' in referer:
-      return reverse('fmm:show')
-    return reverse('fmm:index')
+    referer_url = self.request.POST.get('original_referer_url', '')
+    return referer_url if referer_url else reverse(self.referer_url)
 
 
 class FmfCreateView(ObjectCreateView):

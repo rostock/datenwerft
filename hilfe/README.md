@@ -90,7 +90,8 @@ wie etwa zu Müllsammelaktionen.
 
 ## *FMM*
 
-Hier finden Sie Hilfestellungen zum Flächenmanagementsystem *FMM.*
+Hier finden Sie Hilfestellungen zu *FMM,* dem Managementsystem
+für potenziell zu entwickelnde Flächen für Wohnraum, Gewerbe etc. (*FMF)*.
 
 ### [Administration](fmm/admin.md)
 
