@@ -4,7 +4,9 @@ from re import sub
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
+from django.conf.global_settings import AUTH_USER_MODEL
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import FileExtensionValidator, URLValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, IntegerField, UUIDField
 from django.db.models.fields import DateTimeField
@@ -799,35 +801,36 @@ class Objekt_Vorgang(ComplexModel):
     Objektvorgang
     """
 
-    id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
+    id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
     objekt_id = CharField(verbose_name='Objekt ID')
-    d3_vorgangs_referenz = CharField(verbose_name='d.3-Vorgangs-Referenz', max_length=15, default='000000000000000')
-    content_object = GenericForeignKey('content_type', 'object_id')
+    d3_vorgang = CharField(verbose_name='d3-Vorgang', max_length=15, default='000000000000000')
+    content_type_id = ForeignKey(ContentType, on_delete=CASCADE)
+    content_object = GenericForeignKey('model', 'objekt_id')
+
 
     class Meta(ComplexModel.Meta):
-      db_table = 'fachdaten_adressbezug"."denkmalbereich_vorgang_hro'
-      verbose_name = 'Denkmalbereich-Vorgang'
-      verbose_name_plural = 'Denkmalbereich-Vorgänge'
+      db_table = 'fachdaten_d3"."objekt_vorgang_hro'
+      verbose_name = 'Objekt-Vorgang'
+      verbose_name_plural = 'Objekt-Vorgänge'
 
     class BasemodelMeta(ComplexModel.BasemodelMeta):
-      description = 'Denkmalbereich-Vorgänge in der Hanse- und Universitätsstadt Rostock'
+      description = 'Objekt-Vorgänge in der Hanse- und Universitätsstadt Rostock'
       as_overlay = True
-      short_name = 'Denkmalbereich-Vorgänge'
+      short_name = 'Objekt-Vorgänge'
       fields_with_foreign_key_to_linkify = ['objekt_id']
       geometry_type = 'Point'
       list_fields = {
         'objekt_id': 'Objekt ID',
-        'd3_vorgangs_referenz': 'd3-Vorgangs-Referenz',
+        'd3_vorgang': 'd3-Vorgang',
         'id': 'ID',
-        'objekt_klasse': 'Objekt Klasse'
       }
-      list_fields_with_foreign_key = {'objekt_id': 'Denkmalbereich ID'}
-      map_feature_tooltip_fields = ['d3_vorgangs_referenz']
-      map_filter_fields = {'d3_vorgangs_referenz': 'd3 Vorgangs Referenz', 'id': 'ID', 'objekt_id': 'Objekt ID', 'objekt_klasse': 'Objekt Klasse'}
-      map_filter_fields_as_list = ['d3_vorgangs_referenz']
+      list_fields_with_foreign_key = {'objekt_id': 'Objekt ID'}
+      map_feature_tooltip_fields = ['d3_vorgang']
+      map_filter_fields = {'d3_vorgang': 'd3-Vorgang', 'id': 'ID', 'objekt_id': 'Objekt ID'}
+      map_filter_fields_as_list = ['d3_vorgang']
 
     def __str__(self):
-      return self.d3_vorgangs_referenz
+      return self.d3_vorgang
 
 
 class Objekt_Vorgang_Metadaten(ComplexModel):
@@ -835,20 +838,20 @@ class Objekt_Vorgang_Metadaten(ComplexModel):
   Objekt Vorgang Metadaten
   """
 
-  id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
+  id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
   objekt_vorgang_id = ForeignKey(
     to=Objekt_Vorgang,
     verbose_name='Objekt-Vorgang-ID',
     on_delete=CASCADE,
     db_column='objekt_vorgang_id',
-    to_field='ID',
+    to_field='id',
   )
   metadaten_id = ForeignKey(
     to='Metadaten',
     verbose_name='Metadaten-ID',
     on_delete=CASCADE,
     db_column='metadaten_id',
-    to_field='uuid',
+    to_field='id',
   )
   wert = CharField(
     verbose_name='Wert',
@@ -856,25 +859,26 @@ class Objekt_Vorgang_Metadaten(ComplexModel):
     blank=True,
     null=True,
   )
-  erstellt_am = DateField(verbose_name='Erstellt Am', default=date.today)
-  aktualisiert_am = DateField(verbose_name='Aktualisiert Am', default=date.today)
+  erstellt= DateField(verbose_name='Erstellt', default=date.today)
+  aktualisiert = DateField(verbose_name='Aktualisiert', default=date.today)
   erstellt_durch = ForeignKey(
-    to=User,
+    to=AUTH_USER_MODEL,
     verbose_name='User-ID',
     on_delete=SET_NULL,
     db_column='erstellt_durch',
     to_field='id',
+    null=True,
   )
 
   class Meta(ComplexModel.Meta):
-    db_table = 'fachdaten_adressbezug"."denkmalbereich_vorgaenge_metadaten_hro'
-    verbose_name = 'Denkmalbereich-Vorgang-Metadaten'
-    verbose_name_plural = 'Denkmalbereich-Vorgänge-Metadaten'
+    db_table = 'fachdaten_d3"."objekt_vorgang_metadaten_hro'
+    verbose_name = 'Objekt-Vorgang-Metadaten'
+    verbose_name_plural = 'Objekt-Vorgang-Metadaten'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Denkmalbereich-Vorgang-Metadaten in der Hanse- und Universitätsstadt Rostock'
+    description = 'Objekt-Vorgang-Metadaten in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
-    short_name = 'Denkmalbereich-Vorgang-Metadaten'
+    short_name = 'Objekt-Vorgang-Metadaten'
     fields_with_foreign_key_to_linkify = ['objeobjekt_vorgang_id', 'metadaten_id', 'erstellt_durch']
     geometry_type = 'Point'
     list_fields = {
@@ -882,8 +886,8 @@ class Objekt_Vorgang_Metadaten(ComplexModel):
       'objekt_vorgang_id': 'Objekt-Vorgang-ID',
       'metadaten_id': 'Metadaten',
       'wert': 'Wert',
-      'erstellt_am': 'Erstellt Am',
-      'aktualisiert_am': 'Aktualisiert Am',
+      'erstellt': 'Erstellt',
+      'aktualisiert': 'Aktualisiert',
       'erstellt_durch': 'Erstellt Durch',
     }
     list_fields_with_foreign_key = {'objeobjekt_vorgang_id', 'metadaten_id', 'erstellt_durch'}
@@ -893,83 +897,14 @@ class Objekt_Vorgang_Metadaten(ComplexModel):
       'objekt_vorgang_id': 'Objekt-Vorgang-ID',
       'metadaten_id': 'Metadaten',
       'wert': 'Wert',
-      'erstellt_am': 'Erstellt Am',
-      'aktualisiert_am': 'Aktualisiert Am',
+      'erstellt': 'Erstellt',
+      'aktualisiert': 'Aktualisiert',
       'erstellt_durch': 'Erstellt Durch',
     }
     map_filter_fields_as_list = []
 
   def __str__(self):
     return self.wert + ' (' + str(self.objekt_vorgang_id) + ')'
-
-#
-# Dokument
-#
-class Dokument(ComplexModel):
-  """
-  Dokument
-  """
-
-  id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
-  objekt_vorgang_id = ForeignKey(
-    to=Objekt_Vorgang,
-    verbose_name='Objekt-Vorgang-ID',
-    on_delete=CASCADE,
-    db_column='objekt_vorgang_id',
-    to_field='ID',
-  )
-  name = CharField(verbose_name='Name', max_length=255, unique=True, default='')
-  d3_referenz = CharField(verbose_name='d.3-Referenz', max_length=15, default='000000000000000')
-  erstellt_am = DateField(verbose_name='Erstellt Am', default=date.today)
-  aktualisiert_am = DateField(verbose_name='Aktualisiert Am', default=date.today)
-  erstellt_durch = ForeignKey(
-    to=User,
-    verbose_name='User-ID',
-    on_delete=SET_NULL,
-    db_column='erstellt_durch',
-    to_field='id',
-  )
-  status = CharField(
-    verbose_name='Status',
-    max_length=50,
-    choices=DOKUMENT_STATUS
-  )
-
-  class Meta:
-    db_table = 'fachdaten_adressbezug"."dokument_hro'
-    verbose_name = 'Dokument'
-    verbose_name_plural = 'Dokumente'
-
-  class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Dokumente in der Hanse- und Universitätsstadt Rostock'
-    as_overlay = True
-    geometry_type = 'Point'
-    list_fields = {
-      'id': 'ID',
-      'objekt_vorgang_id': 'Objekt-Vorgang-ID',
-      'name': 'Name',
-      'd3_referenz': 'd3-Referenz',
-      'erstellt_am': 'Erstellt Am',
-      'aktualisiert_am': 'Aktualisiert Am',
-      'erstellt_durch': 'Erstellt Durch',
-      'status': 'Status'
-    }
-    list_fields_with_foreign_key = {'objekt_vorgang_id', 'erstellt_durch'}
-    map_feature_tooltip_fields = []
-    map_filter_fields = {
-      'id': 'ID',
-      'objekt_vorgang_id': 'Objekt-Vorgang-ID',
-      'name': 'Name',
-      'd3_referenz': 'd3-Referenz',
-      'erstellt_am': 'Erstellt Am',
-      'aktualisiert_am': 'Aktualisiert Am',
-      'erstellt_durch': 'Erstellt Durch',
-      'status': 'Status'
-    }
-    map_filter_fields_as_list = []
-
-  def __str__(self):
-    return self.name
 
 #
 # Durchlässe
@@ -2655,6 +2590,7 @@ class Metadaten(ComplexModel):
   Metadaten
   """
 
+  id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
   titel = CharField(
     verbose_name='Titel', max_length=255, unique=True, validators=standard_validators
   )
@@ -2666,37 +2602,80 @@ class Metadaten(ComplexModel):
   eingabe_erforderlich = BooleanField(
     verbose_name='Eingabe erforderlich?', default=False, blank=False, null=True
   )
-  validierung_regex = CharField(
+  regex_validierung = CharField(
     verbose_name='Validierung über Regex',
     max_length=255,
     blank=True,
     null=True,
   )
-  verknuepfung_d3 = CharField(
-    verbose_name='Verknüpfung zu d.3 (Feld-Name in d.3, optional)',
+  d3_feld_name = CharField(
+    verbose_name='d3-Feld-Name',
     max_length=255,
     blank=True,
     null=True,
   )
-  typ = CharField(
-    verbose_name='Typ',
-    max_length=50,
-    choices=METADATEN_TYPEN
-  )
 
   class Meta(ComplexModel.Meta):
-    db_table = 'fachdaten"."metadaten_hro'
+    db_table = 'fachdaten_d3"."metadaten_hro'
     ordering = ['titel']
-    verbose_name = 'Metadatum'
+    verbose_name = 'Metadaten'
     verbose_name_plural = 'Metadaten'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Metadaten der Hanse- und Universitätsstadt Rostock'
-    short_name = 'Metadatum'
-    list_fields = {}
+    short_name = 'Metadaten'
+    list_fields = {
+      'id': 'ID',
+      'titel': 'Titel',
+      'gui_element': 'GUI Element',
+      'eingabe_erforderlich': 'Eingabe erforderlich?',
+      'regex_validierung': 'Validierung über Regex',
+      'd3_feld_name': 'd3-Feld-Name',
+
+    }
 
   def __str__(self):
     return self.titel
+
+
+
+class Metadaten_Optionen(ComplexModel):
+    """
+    Metadaten:
+    Optionen
+    """
+
+    id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
+    metadaten_id = ForeignKey(
+        to=Metadaten,
+        verbose_name='Metadaten',
+        on_delete=CASCADE,
+        db_column='metadaten_id',
+        to_field='id',
+    )
+    name = CharField(
+        verbose_name='Name des Verfahrens oder der Massnahme',
+        max_length=255,
+        validators=standard_validators,
+    )
+
+    class Meta(ComplexModel.Meta):
+      db_table = 'fachdaten_d3"."metadaten_optionen_hro'
+      ordering = ['name']
+      verbose_name = 'Metaden Optionen'
+      verbose_name_plural = 'Metaden Optionen'
+
+    class BasemodelMeta(ComplexModel.BasemodelMeta):
+      description = 'Metadaten Optionender Hanse- und Universitätsstadt Rostock'
+      short_name = 'Metaden Optionen'
+      list_fields = {
+        'id': 'ID',
+        'metadaten_id': 'Metadaten ID',
+        'name': 'Name des Verfahrens oder der Massnahme',
+      }
+
+    def __str__(self):
+      return self.name
 
 #
 # Parkscheinautomaten

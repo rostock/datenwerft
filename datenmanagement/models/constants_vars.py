@@ -188,11 +188,6 @@ ANERKENNUNGSGEBUEHREN_HERRSCHEND_GRUNDBUCHEINTRAG = (
   ('prüfen', 'prüfen'),
 )
 
-METADATEN_TYPEN = (
-  ('vorgang', 'Vorgang'),
-  ('dokument', 'Dokument'),
-)
-
 DOKUMENT_STATUS = (
   ('in_bearbeitung', 'In Bearbeitung'),
   ('abgelegt', 'Abgelegt'),
