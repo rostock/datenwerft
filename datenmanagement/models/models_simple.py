@@ -557,6 +557,7 @@ class Baudenkmale(SimpleModel):
   """
 
   id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
+  d3_akte = CharField(verbose_name='d.3-Akte', max_length=15, default='000000000000000', null=True)
   status = ForeignKey(
     to=Status_Baudenkmale_Denkmalbereiche,
     verbose_name='Status',
@@ -640,6 +641,7 @@ class Baudenkmale(SimpleModel):
     list_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
+      'd3_akte': 'd3 Akte',
       'status': 'Status',
       'adresse': 'Adresse',
       'lage': 'Lage',
@@ -658,6 +660,7 @@ class Baudenkmale(SimpleModel):
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
+      'd3_akte': 'd3 Akte',
       'status': 'Status',
       'lage': 'Lage',
       'beschreibung': 'Beschreibung',
@@ -1357,6 +1360,7 @@ class Denkmalbereiche(SimpleModel):
   """
 
   id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
+  d3_akte = CharField(verbose_name='d.3-Akte', max_length=15, default='000000000000000', null=True)
   status = ForeignKey(
     to=Status_Baudenkmale_Denkmalbereiche,
     verbose_name='Status',
@@ -1423,6 +1427,7 @@ class Denkmalbereiche(SimpleModel):
       'status': 'Status',
       'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung',
+      'd3_akte': 'd3 Akte',
     }
     list_fields_with_foreign_key = {'status': 'status'}
     list_actions_assign = [
@@ -1440,6 +1445,7 @@ class Denkmalbereiche(SimpleModel):
       'status': 'Status',
       'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung',
+      'd3_akte': 'd3 Akte',
     }
     map_filter_fields_as_list = ['status']
 
@@ -1564,15 +1570,6 @@ class Erdwaermesonden(SimpleModel):
   Erdwärmesonden
   """
 
-  d3 = CharField(
-    verbose_name=' d.3',
-    max_length=16,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(regex=erdwaermesonden_d3_regex, message=erdwaermesonden_d3_message)
-    ],
-  )
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
     max_length=18,
@@ -1639,7 +1636,6 @@ class Erdwaermesonden(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'typ': 'Typ',
@@ -1654,7 +1650,6 @@ class Erdwaermesonden(SimpleModel):
     map_feature_tooltip_fields = ['aktenzeichen']
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'typ': 'Typ',

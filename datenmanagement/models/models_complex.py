@@ -4,6 +4,9 @@ from re import sub
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
+from django.conf.global_settings import AUTH_USER_MODEL
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import FileExtensionValidator, URLValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, IntegerField, UUIDField
 from django.db.models.fields import DateTimeField
@@ -792,6 +795,116 @@ class Baustellen_geplant_Links(ComplexModel):
   def __str__(self):
     return str(self.baustelle_geplant) + ' mit Bezeichnung ' + self.bezeichnung
 
+
+class Objekt_Vorgang(ComplexModel):
+    """
+    Objektvorgang
+    """
+
+    id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
+    objekt_id = CharField(verbose_name='Objekt ID')
+    d3_vorgang = CharField(verbose_name='d3-Vorgang', max_length=15, default='000000000000000')
+    content_type_id = ForeignKey(ContentType, on_delete=CASCADE)
+    content_object = GenericForeignKey('content_type_id', 'objekt_id')
+
+
+    class Meta(ComplexModel.Meta):
+      db_table = 'fachdaten_d3"."objekt_vorgang_hro'
+      verbose_name = 'Objekt-Vorgang'
+      verbose_name_plural = 'Objekt-Vorgänge'
+
+    class BasemodelMeta(ComplexModel.BasemodelMeta):
+      description = 'Objekt-Vorgänge in der Hanse- und Universitätsstadt Rostock'
+      as_overlay = True
+      short_name = 'Objekt-Vorgänge'
+      fields_with_foreign_key_to_linkify = ['objekt_id']
+      geometry_type = 'Point'
+      list_fields = {
+        'objekt_id': 'Objekt ID',
+        'd3_vorgang': 'd3-Vorgang',
+        'id': 'ID',
+      }
+      list_fields_with_foreign_key = {'objekt_id': 'Objekt ID'}
+      map_feature_tooltip_fields = ['d3_vorgang']
+      map_filter_fields = {'d3_vorgang': 'd3-Vorgang', 'id': 'ID', 'objekt_id': 'Objekt ID'}
+      map_filter_fields_as_list = ['d3_vorgang']
+
+    def __str__(self):
+      return self.d3_vorgang
+
+
+class Objekt_Vorgang_Metadaten(ComplexModel):
+  """
+  Objekt Vorgang Metadaten
+  """
+
+  id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
+  objekt_vorgang_id = ForeignKey(
+    to=Objekt_Vorgang,
+    verbose_name='Objekt-Vorgang-ID',
+    on_delete=CASCADE,
+    db_column='objekt_vorgang_id',
+    to_field='id',
+  )
+  metadaten_id = ForeignKey(
+    to='Metadaten',
+    verbose_name='Metadaten-ID',
+    on_delete=CASCADE,
+    db_column='metadaten_id',
+    to_field='id',
+  )
+  wert = CharField(
+    verbose_name='Wert',
+    max_length=255,
+    blank=True,
+    null=True,
+  )
+  erstellt= DateField(verbose_name='Erstellt', default=date.today)
+  aktualisiert = DateField(verbose_name='Aktualisiert', default=date.today)
+  erstellt_durch = ForeignKey(
+    to=AUTH_USER_MODEL,
+    verbose_name='User-ID',
+    on_delete=SET_NULL,
+    db_column='erstellt_durch',
+    to_field='id',
+    null=True,
+  )
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten_d3"."objekt_vorgang_metadaten_hro'
+    verbose_name = 'Objekt-Vorgang-Metadaten'
+    verbose_name_plural = 'Objekt-Vorgang-Metadaten'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Objekt-Vorgang-Metadaten in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    short_name = 'Objekt-Vorgang-Metadaten'
+    fields_with_foreign_key_to_linkify = ['objeobjekt_vorgang_id', 'metadaten_id', 'erstellt_durch']
+    geometry_type = 'Point'
+    list_fields = {
+      'id': 'ID',
+      'objekt_vorgang_id': 'Objekt-Vorgang-ID',
+      'metadaten_id': 'Metadaten',
+      'wert': 'Wert',
+      'erstellt': 'Erstellt',
+      'aktualisiert': 'Aktualisiert',
+      'erstellt_durch': 'Erstellt Durch',
+    }
+    list_fields_with_foreign_key = {'objeobjekt_vorgang_id', 'metadaten_id', 'erstellt_durch'}
+    map_feature_tooltip_fields = []
+    map_filter_fields = {
+      'id': 'ID',
+      'objekt_vorgang_id': 'Objekt-Vorgang-ID',
+      'metadaten_id': 'Metadaten',
+      'wert': 'Wert',
+      'erstellt': 'Erstellt',
+      'aktualisiert': 'Aktualisiert',
+      'erstellt_durch': 'Erstellt Durch',
+    }
+    map_filter_fields_as_list = []
+
+  def __str__(self):
+    return self.wert + ' (' + str(self.objekt_vorgang_id) + ')'
 
 #
 # Durchlässe
@@ -2468,6 +2581,101 @@ class Lichtwellenleiterinfrastruktur(ComplexModel):
   def __str__(self):
     return str(self.objektart) + ' ' + str(self.pk)
 
+#
+# Metadaten
+#
+class Metadaten(ComplexModel):
+  """
+  Metadaten:
+  Metadaten
+  """
+
+  id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
+  titel = CharField(
+    verbose_name='Titel', max_length=255, unique=True, validators=standard_validators
+  )
+  gui_element = CharField(
+    verbose_name='GUI Element',
+    max_length=255,
+    choices=GUI_ELEMENTE,
+  )
+  eingabe_erforderlich = BooleanField(
+    verbose_name='Eingabe erforderlich?', default=False, blank=False, null=True
+  )
+  regex_validierung = CharField(
+    verbose_name='Validierung über Regex',
+    max_length=255,
+    blank=True,
+    null=True,
+  )
+  d3_feld_name = CharField(
+    verbose_name='d3-Feld-Name',
+    max_length=255,
+    blank=True,
+    null=True,
+  )
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten_d3"."metadaten_hro'
+    ordering = ['titel']
+    verbose_name = 'Metadaten'
+    verbose_name_plural = 'Metadaten'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Metadaten der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Metadaten'
+    list_fields = {
+      'id': 'ID',
+      'titel': 'Titel',
+      'gui_element': 'GUI Element',
+      'eingabe_erforderlich': 'Eingabe erforderlich?',
+      'regex_validierung': 'Validierung über Regex',
+      'd3_feld_name': 'd3-Feld-Name',
+
+    }
+
+  def __str__(self):
+    return self.titel
+
+
+
+class Metadaten_Optionen(ComplexModel):
+    """
+    Metadaten:
+    Optionen
+    """
+
+    id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
+    metadaten_id = ForeignKey(
+        to=Metadaten,
+        verbose_name='Metadaten',
+        on_delete=CASCADE,
+        db_column='metadaten_id',
+        to_field='id',
+    )
+    name = CharField(
+        verbose_name='Name des Verfahrens oder der Massnahme',
+        max_length=255,
+        validators=standard_validators,
+    )
+
+    class Meta(ComplexModel.Meta):
+      db_table = 'fachdaten_d3"."metadaten_optionen_hro'
+      ordering = ['name']
+      verbose_name = 'Metaden Optionen'
+      verbose_name_plural = 'Metaden Optionen'
+
+    class BasemodelMeta(ComplexModel.BasemodelMeta):
+      description = 'Metadaten Optionender Hanse- und Universitätsstadt Rostock'
+      short_name = 'Metaden Optionen'
+      list_fields = {
+        'id': 'ID',
+        'metadaten_id': 'Metadaten ID',
+        'name': 'Name des Verfahrens oder der Massnahme',
+      }
+
+    def __str__(self):
+      return self.name
 
 #
 # Parkscheinautomaten

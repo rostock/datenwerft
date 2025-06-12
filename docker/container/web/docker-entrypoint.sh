@@ -26,7 +26,7 @@ python manage.py gdihrometadata_roles_permissions
 python manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 
 python manage.py createsuperuser --noinput || true
-rm -fR static
+rm -Rf static
 python manage.py collectstatic -c
 
 exec "$@"
