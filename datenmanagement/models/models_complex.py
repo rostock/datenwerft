@@ -805,7 +805,7 @@ class Objekt_Vorgang(ComplexModel):
     objekt_id = CharField(verbose_name='Objekt ID')
     d3_vorgang = CharField(verbose_name='d3-Vorgang', max_length=15, default='000000000000000')
     content_type_id = ForeignKey(ContentType, on_delete=CASCADE)
-    content_object = GenericForeignKey('model', 'objekt_id')
+    content_object = GenericForeignKey('content_type_id', 'objekt_id')
 
 
     class Meta(ComplexModel.Meta):
