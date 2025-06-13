@@ -324,9 +324,9 @@ BEMAS_COLORS = {'complaint': '#b85814', 'originator': '#3d8f8f'}
 
 FMM_ICONS = {
   'activity': 'bell',
-  'add': 'circle-plus',
   'back': 'backward-step',
   'cancel': 'hand',
+  'create': 'circle-plus',
   'delete': 'trash',
   'error': 'circle-exclamation',
   'fmf': 'draw-polygon',
@@ -334,10 +334,11 @@ FMM_ICONS = {
   'info': 'circle-info',
   'map': 'map-location-dot',
   'ok': 'circle-check',
+  'overview': 'eye',
   'paket': 'database',
   'save': 'floppy-disk',
-  'show': 'pen',
   'table': 'table',
+  'update': 'pen',
   'warning': 'triangle-exclamation',
 }
 

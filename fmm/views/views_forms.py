@@ -175,6 +175,39 @@ class ObjectCreateView(ObjectMixin, CreateView):
   success_message = '{} <strong><em>{}</em></strong> erfolgreich gespeichert!'
 
 
+class PaketCreateView(ObjectCreateView):
+  """
+  generic view for form page for creating a "Paket" instance
+  """
+
+  def form_invalid(self, form, **kwargs):
+    """
+    re-opens passed form if it is not valid
+    (purpose: keep original initial field values)
+
+    :param form: form
+    :return: passed form if it is not valid
+    """
+    initial_fmf = self.get_initial().get('fmf')
+    if not form.data.get('fmf') and initial_fmf:
+      data = form.data.copy()
+      data['fmf'] = str(initial_fmf.pk)
+      form.data = data
+    return self.render_to_response(self.get_context_data(form=form))
+
+  def get_initial(self):
+    """
+    conditionally sets initial field values
+
+    :return: dictionary with initial field values
+    """
+    # get corresponding FMF object via primary key passed as URL parameter
+    # and set corresponding initial field value
+    if self.kwargs.get('fmf_pk', None):
+      return {'fmf': Fmf.objects.get(pk=self.kwargs.get('fmf_pk'))}
+    return {}
+
+
 class ObjectUpdateView(ObjectMixin, UpdateView):
   """
   generic view for form page for updating an instance of an object
@@ -182,7 +215,7 @@ class ObjectUpdateView(ObjectMixin, UpdateView):
   :param success_message: custom success message
   """
 
-  success_message = '{} <strong><em>{}</em></strong> erfolgreich aktualisiert!'
+  success_message = '{} <strong><em>{}</em></strong> erfolgreich bearbeitet!'
 
 
 class ObjectDeleteView(DeleteView):
@@ -276,7 +309,7 @@ class FmfDeleteView(ObjectDeleteView):
   model = Fmf
 
 
-class PaketUmweltCreateView(ObjectCreateView):
+class PaketUmweltCreateView(PaketCreateView):
   """
   view for form page for creating a Paket Umwelt instance
 

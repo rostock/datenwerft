@@ -1,0 +1,9 @@
+{% load fmm_tags %}
+<table class="mt-4 table table-hover">
+  {% for item in items %}
+    <tr>
+      <th scope="row">{{ item.label }}</th>
+      <td>{{ item.value }}</td>
+    </tr>
+  {% endfor %}
+</table>

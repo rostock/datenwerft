@@ -23,7 +23,7 @@
     <table class="table">
       {% for field in form %}
         {% if not field|is_field_geometry_field %}
-          <tr{% if hidden_fields and field.name in hidden_fields %} style="display: none;"{% endif %}>
+          <tr>
             <td class="cell-label">
               {{ field.label_tag }}
             </td>

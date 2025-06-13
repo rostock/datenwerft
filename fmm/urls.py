@@ -7,6 +7,7 @@ from .views import (
   FmfDeleteView,
   FmfUpdateView,
   IndexView,
+  OverviewView,
   PaketUmweltCreateView,
   PaketUmweltDeleteView,
   PaketUmweltUpdateView,
@@ -39,6 +40,12 @@ urlpatterns = [
     view=login_required(TableView.as_view()),
     name='table',
   ),
+  # overview page
+  path(
+    'overview/<pk>',
+    view=login_required(OverviewView.as_view()),
+    name='overview',
+  ),
   # form page for creating a FMF instance
   path(
     'fmf/create',
@@ -59,7 +66,7 @@ urlpatterns = [
   ),
   # form page for creating a Paket Umwelt instance
   path(
-    'paketumwelt/create',
+    'paketumwelt/create/<fmf_pk>',
     view=login_required(PaketUmweltCreateView.as_view()),
     name='paketumwelt_create',
   ),

@@ -4,18 +4,18 @@ from django.urls import reverse
 from django.views.generic.base import TemplateView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
-from toolbox.utils import format_date_datetime
+from toolbox.utils import format_boolean, format_date_datetime
 
-from ..models import Fmf
+from ..models import Fmf, PaketUmwelt
 from ..utils import get_icon_from_settings, is_fmm_user
 from .functions import (
-  add_model_context_elements,
   add_permissions_context_elements,
   add_useragent_context_elements,
   get_fmf_queryset,
   get_referer,
   get_referer_url,
 )
+from .views_forms import ObjectUpdateView
 
 
 class IndexView(TemplateView):
@@ -46,11 +46,9 @@ class TableDataView(BaseDatatableView):
   """
   view for composing table data
 
-  :param model: model
   :param columns: table columns with names (as keys) and titles/headers (as values)
   """
 
-  model = Fmf
   columns = {
     'id': 'ID',
     'created': 'Erstellungszeitpunkt',
@@ -63,7 +61,7 @@ class TableDataView(BaseDatatableView):
     returns a JSON response containing passed context as payload
     or an empty dictionary if no context is provided
     """
-    if is_fmm_user(self.request.user):
+    if self.request.user.is_superuser or is_fmm_user(self.request.user):
       return self.get_json_response(context)
     return self.get_json_response('{"has_necessary_permissions": false}')
 
@@ -71,9 +69,9 @@ class TableDataView(BaseDatatableView):
     """
     loads initial queryset
     """
-    if is_fmm_user(self.request.user):
+    if self.request.user.is_superuser or is_fmm_user(self.request.user):
       return get_fmf_queryset()
-    return self.model.objects.none()
+    return Fmf.objects.none()
 
   def count_records(self, qs):
     """
@@ -89,7 +87,7 @@ class TableDataView(BaseDatatableView):
     :return: cleaned-up JSON representation of the queryset
     """
     json_data = []
-    if is_fmm_user(self.request.user):
+    if self.request.user.is_superuser or is_fmm_user(self.request.user):
       for item in qs:
         item_data = []
         for column in item.keys():
@@ -103,8 +101,8 @@ class TableDataView(BaseDatatableView):
           item_data.append(data)
         # append links
         links = '<a class="btn btn-sm btn-outline-warning" role="button" href="'
-        links += reverse(viewname='fmm:fmf_update', kwargs={'pk': item['id']})
-        links += '"><i class="fas fa-' + get_icon_from_settings('show')
+        links += reverse(viewname='fmm:overview', kwargs={'pk': item['id']})
+        links += '"><i class="fas fa-' + get_icon_from_settings('overview')
         links += '" title="Übersichtsseite öffnen"></i></a>'
         links += '<a class="ms-1 btn btn-sm btn-outline-danger" role="button" href="'
         links += reverse(viewname='fmm:fmf_delete', kwargs={'pk': item['id']})
@@ -171,12 +169,10 @@ class TableView(TemplateView):
   """
   view for table page
 
-  :param model: model
   :param template_name: template name
   :param referer_url: custom referer URL
   """
 
-  model = Fmf
   template_name = 'fmm/table.html'
   referer_url = 'fmm:index'
 
@@ -192,10 +188,8 @@ class TableView(TemplateView):
     context = add_useragent_context_elements(context, self.request)
     # add permissions related context elements
     context = add_permissions_context_elements(context, self.request.user)
-    # add model related context elements
-    context = add_model_context_elements(context, self.model)
     # add table related context elements
-    context['objects_count'] = self.model.objects.count()
+    context['objects_count'] = Fmf.objects.count()
     context['column_titles'] = list(TableDataView.columns.values())
     context['initial_order'] = [0, 'desc']
     context['tabledata_url'] = reverse('fmm:tabledata')
@@ -203,4 +197,53 @@ class TableView(TemplateView):
     context['referer_url'] = get_referer_url(
       referer=get_referer(self.request), fallback=self.referer_url
     )
+    return context
+
+
+class OverviewView(ObjectUpdateView):
+  """
+  view for overview page
+
+  :param model: model
+  :param template_name: template name
+  """
+
+  model = Fmf
+  template_name = 'fmm/overview.html'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    fmf = self.object
+    # compile the master data of the FMF and add it to context
+    context['master_data'] = [
+      {'label': 'ID', 'value': fmf.id},
+      {'label': 'Erstellungszeitpunkt', 'value': format_date_datetime(fmf.created)},
+      {'label': 'Änderungszeitpunkt', 'value': format_date_datetime(fmf.modified)},
+      {'label': 'Bezeichnung', 'value': fmf.bezeichnung},
+    ]
+    # compile all Paket Umwelt data related to the FMF and add it to context
+    if PaketUmwelt.objects.filter(fmf=fmf).exists():
+      data_packages = []
+      for package in PaketUmwelt.objects.filter(fmf=fmf).all():
+        data_package = {
+          'id': package.id,
+          'created': format_date_datetime(package.created),
+          'modified': format_date_datetime(package.modified),
+          'update_url': reverse(viewname='fmm:paketumwelt_update', kwargs={'pk': package.id}),
+          'delete_url': reverse(viewname='fmm:paketumwelt_delete', kwargs={'pk': package.id}),
+          'items': [
+            {
+              'label': 'Trinkwassernotbrunnen',
+              'value': format_boolean(package.trinkwassernotbrunnen),
+            },
+          ],
+        }
+        data_packages.append(data_package)
+      context['data_packages_umwelt'] = data_packages
     return context

@@ -1,7 +1,7 @@
 # *FMM* → Bereiche und Aktionen → neue FMF erstellen
 
-Das Erstellen einer neuen FMF geschieht über ein Formular
-mit mehreren Formularfeldern (links) und einer Karte (rechts).
+Das Erstellen einer neuen FMF – genauer gesagt das Erstellen der entsprechenden **Stammdaten** –
+geschieht über ein Formular mit mehreren Formularfeldern (links) und einer Karte (rechts).
 
 ## Muss ich alle Formularfelder ausfüllen?
 

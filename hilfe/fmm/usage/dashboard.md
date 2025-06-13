@@ -14,6 +14,6 @@ das Dashboard wie folgt:
   3. dem *Zeitpunkt,* zu dem die Aktion stattgefunden hat, und
   4. der/dem *Benutzer:in,* der/die Aktion durchgeführt hat.
 
-  Ein Klick auf die Bezeichnung einer FMF öffnet deren [Übersichtsseite](fmf-show.md).
+  Ein Klick auf die Bezeichnung einer FMF öffnet deren [Übersichtsseite](overview.md).
 - Link auf die [Tabelle](table.md) mit allen vorhandenen FMF
 - Link auf die [Karte](map.md) mit allen vorhandenen FMF

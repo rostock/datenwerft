@@ -7,7 +7,7 @@
     {% block errors %}
       {{ block.super }}
     {% endblock %}
-    <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → <i class="me-2 fas fa-{{ model_icon|get_icon }}"></i>{{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
+    <h2>{% if object %}bearbeiten{% else %}neu{% endif %} → <i class="me-2 fas fa-{{ model_icon|get_icon }}"></i>{{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
     <form class="form mt-4 flex-container-column" method="post" action="" id="form">
       {% csrf_token %}
       <input type="hidden" name="original_referer_url" value="{{ referer_url }}">

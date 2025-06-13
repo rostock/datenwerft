@@ -44,6 +44,8 @@ def add_permissions_context_elements(context, user):
   permissions = {
     'is_fmm_user': is_fmm_user(user),
   }
+  if user.is_superuser:
+    permissions = {key: True for key in permissions}
   context.update(permissions)
   return context
 

@@ -174,7 +174,7 @@ class FormViewTestCase(ModelTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_form_get_test(
-    self, assign_permissions, view_name, status_code, content_type, string
+    self, assign_permissions, view_name, view_args, status_code, content_type, string
   ):
     """
     tests a form view via GET
@@ -182,16 +182,18 @@ class FormViewTestCase(ModelTestCase):
     :param self
     :param assign_permissions: assign permissions to test user?
     :param view_name: name of the view
+    :param view_args: arguments (i.e. URL parameters) for the view
     :param status_code: expected status code of response
     :param content_type: expected content type of response
     :param string: specific string that should be contained in response
     """
     # log test user in
     login(self, assign_permissions)
-    # get primary key of last object
-    last_pk = self.model.objects.only('pk').last().pk
     # prepare the GET
-    url = reverse(viewname=f'fmm:{view_name}', kwargs={'pk': last_pk})
+    if view_args:
+      url = reverse(viewname=f'fmm:{view_name}', kwargs=view_args)
+    else:
+      url = reverse(viewname=f'fmm:{view_name}')
     # try GETting the view
     response = self.client.get(url)
     # status code of response as expected?
@@ -203,22 +205,26 @@ class FormViewTestCase(ModelTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
-  def generic_form_post_test(self, assign_permissions, view_name, form_data, status_code):
+  def generic_form_post_test(
+    self, assign_permissions, view_name, view_args, form_data, status_code
+  ):
     """
     tests a form view via POST
 
     :param self
     :param assign_permissions: assign permissions to test user?
     :param view_name: name of the view
+    :param view_args: arguments (i.e. URL parameters) for the view
     :param form_data: form data (POST payload)
     :param status_code: expected status code of response
     """
     # log test user in
     login(self, assign_permissions)
-    # get primary key of last object
-    last_pk = self.model.objects.only('pk').last().pk
     # prepare the POST
-    url = reverse(viewname=f'fmm:{view_name}', kwargs={'pk': last_pk})
+    if view_args:
+      url = reverse(viewname=f'fmm:{view_name}', kwargs=view_args)
+    else:
+      url = reverse(viewname=f'fmm:{view_name}')
     # try POSTing the view
     response = self.client.post(url, form_data)
     # status code of response as expected?

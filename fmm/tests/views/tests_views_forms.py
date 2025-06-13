@@ -14,87 +14,6 @@ from ..constants_vars import (
 )
 
 
-class IndexViewTest(ViewTestCase):
-  """
-  test class for main page
-  """
-
-  def setUp(self):
-    self.init()
-
-  def test_get_with_permissions(self):
-    self.generic_get_test(
-      assign_permissions=True,
-      view_name='index',
-      status_code=200,
-      content_type='text/html; charset=utf-8',
-      string='FMF',
-    )
-
-  def test_get_without_permissions(self):
-    self.generic_get_test(
-      assign_permissions=False,
-      view_name='index',
-      status_code=200,
-      content_type='text/html; charset=utf-8',
-      string='keine Rechte',
-    )
-
-
-class TableDataViewTest(ViewTestCase):
-  """
-  test class for composing table data
-  """
-
-  def setUp(self):
-    self.init()
-
-  def test_get_with_permissions(self):
-    self.generic_get_test(
-      assign_permissions=True,
-      view_name='tabledata',
-      status_code=200,
-      content_type='application/json',
-      string='ok',
-    )
-
-  def test_get_without_permissions(self):
-    self.generic_get_test(
-      assign_permissions=False,
-      view_name='tabledata',
-      status_code=200,
-      content_type='application/json',
-      string='has_necessary_permissions',
-    )
-
-
-class TableViewTest(ViewTestCase):
-  """
-  test class for table page
-  """
-
-  def setUp(self):
-    self.init()
-
-  def test_get_with_permissions(self):
-    self.generic_get_test(
-      assign_permissions=True,
-      view_name='table',
-      status_code=200,
-      content_type='text/html; charset=utf-8',
-      string='FMF',
-    )
-
-  def test_get_without_permissions(self):
-    self.generic_get_test(
-      assign_permissions=False,
-      view_name='table',
-      status_code=200,
-      content_type='text/html; charset=utf-8',
-      string='keine Rechte',
-    )
-
-
 class FmfCreateViewTest(ViewTestCase):
   """
   test class for form page for creating a FMF instance
@@ -171,15 +90,17 @@ class FmfUpdateViewTest(FormViewTestCase):
     self.generic_form_get_test(
       assign_permissions=True,
       view_name='fmf_update',
+      view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='text/html; charset=utf-8',
-      string='aktualisieren ',
+      string='bearbeiten ',
     )
 
   def test_get_without_permissions(self):
     self.generic_form_get_test(
       assign_permissions=False,
       view_name='fmf_update',
+      view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='keine Rechte',
@@ -189,6 +110,7 @@ class FmfUpdateViewTest(FormViewTestCase):
     self.generic_form_post_test(
       assign_permissions=True,
       view_name='fmf_update',
+      view_args={'pk': self.test_object.pk},
       form_data=self.form_data_valid,
       status_code=302,
     )
@@ -197,6 +119,7 @@ class FmfUpdateViewTest(FormViewTestCase):
     self.generic_form_post_test(
       assign_permissions=True,
       view_name='fmf_update',
+      view_args={'pk': self.test_object.pk},
       form_data=self.form_data_invalid,
       status_code=200,
     )
@@ -220,6 +143,7 @@ class FmfDeleteViewTest(FormViewTestCase):
     self.generic_form_get_test(
       assign_permissions=True,
       view_name='fmf_delete',
+      view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='schen ',
@@ -229,6 +153,7 @@ class FmfDeleteViewTest(FormViewTestCase):
     self.generic_form_get_test(
       assign_permissions=False,
       view_name='fmf_delete',
+      view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='keine Rechte',
@@ -238,12 +163,13 @@ class FmfDeleteViewTest(FormViewTestCase):
     self.generic_form_post_test(
       assign_permissions=True,
       view_name='fmf_delete',
+      view_args={'pk': self.test_object.pk},
       form_data={},
       status_code=302,
     )
 
 
-class PaketUmweltCreateViewTest(ViewTestCase):
+class PaketUmweltCreateViewTest(FormViewTestCase):
   """
   test class for form page for creating a Paket Umwelt instance
   """
@@ -257,6 +183,7 @@ class PaketUmweltCreateViewTest(ViewTestCase):
       bezeichnung=VALID_STRING_A,
       geometrie=VALID_POLYGON_DB_A,
     )
+    cls.test_fmf = test_fmf
     cls.form_data_valid = {
       'fmf': str(test_fmf.pk),
       'trinkwassernotbrunnen': True,
@@ -269,35 +196,39 @@ class PaketUmweltCreateViewTest(ViewTestCase):
     self.init()
 
   def test_get_with_permissions(self):
-    self.generic_get_test(
+    self.generic_form_get_test(
       assign_permissions=True,
       view_name='paketumwelt_create',
+      view_args={'fmf_pk': self.test_fmf.pk},
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='neu ',
     )
 
   def test_get_without_permissions(self):
-    self.generic_get_test(
+    self.generic_form_get_test(
       assign_permissions=False,
       view_name='paketumwelt_create',
+      view_args={'fmf_pk': self.test_fmf.pk},
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='keine Rechte',
     )
 
   def test_post_success(self):
-    self.generic_post_test(
+    self.generic_form_post_test(
       assign_permissions=True,
       view_name='paketumwelt_create',
+      view_args={'fmf_pk': self.test_fmf.pk},
       form_data=self.form_data_valid,
       status_code=302,
     )
 
   def test_post_error(self):
-    self.generic_post_test(
+    self.generic_form_post_test(
       assign_permissions=True,
       view_name='paketumwelt_create',
+      view_args={'fmf_pk': self.test_fmf.pk},
       form_data=self.form_data_invalid,
       status_code=200,
     )
@@ -342,15 +273,17 @@ class PaketUmweltUpdateViewTest(FormViewTestCase):
     self.generic_form_get_test(
       assign_permissions=True,
       view_name='paketumwelt_update',
+      view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='text/html; charset=utf-8',
-      string='aktualisieren ',
+      string='bearbeiten ',
     )
 
   def test_get_without_permissions(self):
     self.generic_form_get_test(
       assign_permissions=False,
       view_name='paketumwelt_update',
+      view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='keine Rechte',
@@ -360,6 +293,7 @@ class PaketUmweltUpdateViewTest(FormViewTestCase):
     self.generic_form_post_test(
       assign_permissions=True,
       view_name='paketumwelt_update',
+      view_args={'pk': self.test_object.pk},
       form_data=self.form_data_valid,
       status_code=302,
     )
@@ -368,6 +302,7 @@ class PaketUmweltUpdateViewTest(FormViewTestCase):
     self.generic_form_post_test(
       assign_permissions=True,
       view_name='paketumwelt_update',
+      view_args={'pk': self.test_object.pk},
       form_data=self.form_data_invalid,
       status_code=200,
     )
@@ -400,6 +335,7 @@ class PaketUmweltDeleteViewTest(FormViewTestCase):
     self.generic_form_get_test(
       assign_permissions=True,
       view_name='paketumwelt_delete',
+      view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='schen ',
@@ -409,6 +345,7 @@ class PaketUmweltDeleteViewTest(FormViewTestCase):
     self.generic_form_get_test(
       assign_permissions=False,
       view_name='paketumwelt_delete',
+      view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='keine Rechte',
@@ -418,6 +355,7 @@ class PaketUmweltDeleteViewTest(FormViewTestCase):
     self.generic_form_post_test(
       assign_permissions=True,
       view_name='paketumwelt_delete',
+      view_args={'pk': self.test_object.pk},
       form_data={},
       status_code=302,
     )
