@@ -237,9 +237,8 @@ class GenericForm(ModelForm):
     )
     if (
       not self.model._meta.get_field('geometrie').blank
-      and not self.model._meta.get_field('geometrie').null
-      and ('EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data))
-    ):
+      or not self.model._meta.get_field('geometrie').null
+    ) and ('EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data)):
       raise ValidationError(error_text)
     elif (
       self.model._meta.get_field('geometrie').blank

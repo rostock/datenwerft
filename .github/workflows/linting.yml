@@ -28,7 +28,7 @@ jobs:
       - name: Check Python rules via ruff
         run: ruff check
       - name: Check Django rules via djLint
-        run: djlint datenwerft/templates/*.html accounts/templates/accounts/log*.html accounts/templates/accounts/test.html antragsmanagement/templates/antragsmanagement/*.html bemas/templates/bemas/*.html datenmanagement/templates/datenmanagement/*.html
+        run: djlint datenwerft/templates/*.html accounts/templates/accounts/log*.html accounts/templates/accounts/test.html antragsmanagement/templates/antragsmanagement/*.html bemas/templates/bemas/*.html datenmanagement/templates/datenmanagement/*.html fmm/templates/fmm/*.html
   linting_js_css:
     name: Linting JavaScript and CSS
     runs-on: ubuntu-latest

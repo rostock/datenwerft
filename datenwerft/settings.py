@@ -60,6 +60,7 @@ TEMPLATES = [
       BASE_DIR / 'datenmanagement/templates',
       BASE_DIR / 'antragsmanagement/templates',
       BASE_DIR / 'bemas/templates',
+      BASE_DIR / 'fmm/templates',
     ],
     'APP_DIRS': True,
     'OPTIONS': {
@@ -75,6 +76,7 @@ TEMPLATES = [
         'datenmanagement_tags': 'datenmanagement.tags',
         'antragsmanagement_tags': 'antragsmanagement.tags',
         'bemas_tags': 'bemas.tags',
+        'fmm_tags': 'fmm.tags',
       },
     },
   },
@@ -315,6 +317,30 @@ BEMAS_ICONS = {
 # colors
 
 BEMAS_COLORS = {'complaint': '#b85814', 'originator': '#3d8f8f'}
+
+
+# FMM app:
+# icons
+
+FMM_ICONS = {
+  'activity': 'bell',
+  'back': 'backward-step',
+  'cancel': 'hand',
+  'create': 'circle-plus',
+  'delete': 'trash',
+  'error': 'circle-exclamation',
+  'fmf': 'draw-polygon',
+  'index': 'backward-fast',
+  'info': 'circle-info',
+  'map': 'map-location-dot',
+  'ok': 'circle-check',
+  'overview': 'eye',
+  'paket': 'database',
+  'save': 'floppy-disk',
+  'table': 'table',
+  'update': 'pen',
+  'warning': 'triangle-exclamation',
+}
 
 
 # Toolbox app:

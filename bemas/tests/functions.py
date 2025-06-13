@@ -31,12 +31,11 @@ def get_object(model, object_filter):
 
 def login(test, bemas_user=False, bemas_admin=False):
   """
-  logs test user in
-  (and assigns standard and/or admin rights)
+  logs test user in (and optionally assigns standard and/or admin rights)
 
   :param test: current test case
-  :param bemas_user: assign standard rights to user?
-  :param bemas_admin: assign admin rights to user?
+  :param bemas_user: assign standard rights to test user?
+  :param bemas_admin: assign admin rights to test user?
   """
   if bemas_user:
     test.test_bemas_user_group.user_set.add(test.test_user)

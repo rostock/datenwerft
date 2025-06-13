@@ -2,7 +2,7 @@ from django import template
 from django.apps import apps
 from django.template.defaultfilters import stringfilter
 
-from bemas.utils import get_icon_from_settings
+from .utils import get_icon_from_settings
 
 register = template.Library()
 

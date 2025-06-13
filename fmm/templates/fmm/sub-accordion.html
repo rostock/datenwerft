@@ -1,0 +1,26 @@
+{% load fmm_tags %}
+{% if data_packages %}
+  <div class="mt-4 accordion">
+    {% for data_package in data_packages %}
+      <div id="data-{{ name }}-sub-{{ forloop.counter }}" class="accordion-item">
+        <h2 id="heading-data-{{ name }}-sub-{{ forloop.counter }}" class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-data-{{ name }}-sub-{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse-data-{{ name }}-sub-{{ forloop.counter }}">
+            {{ data_package.modified }} <span class="ms-1 small">({{ data_package.created }})</span>
+          </button>
+        </h2>
+        <div id="collapse-data-{{ name }}-sub-{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading-data-{{ name }}-sub-{{ forloop.counter }}">
+          <div class="accordion-body">
+            <div class="d-grid gap-2{% if not is_mobile %} d-md-block{% endif %}">
+              {% url update_view as update_url %}
+              <a class="btn btn-primary" role="button" href="{{ data_package.update_url }}"><i class="fas fa-{{ 'update'|get_icon }}"></i></a>
+              <a class="btn btn-danger" role="button" href="{{ data_package.delete_url }}"><i class="fas fa-{{ 'delete'|get_icon }}"></i></a>
+            </div>
+            {% include "fmm/attributes-list.html" with items=data_package.items %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="mt-4">Hier sind noch keine Datensätze vorhanden!</p>
+{% endif %}

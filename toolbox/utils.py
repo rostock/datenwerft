@@ -65,6 +65,21 @@ def find_in_wfs_features(string, search_element, wfs_features):
   return False
 
 
+def format_boolean(value):
+  """
+  formats boolean and returns appropriate boolean string
+
+  :param value: boolean
+  :return: appropriate boolean string
+  """
+  if isinstance(value, bool) and value:
+    return 'ja'
+  elif isinstance(value, bool) and not value:
+    return 'nein'
+  else:
+    return ''
+
+
 def format_date_datetime(value, time_string_only=False):
   """
   formats date or datetime and returns appropriate date, datetime or time only string

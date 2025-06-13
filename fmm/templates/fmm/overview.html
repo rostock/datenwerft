@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load fmm_tags %}
+{% load static %}
+
+{% block title %}FMF – Übersicht | {% endblock %}
+
+{% block content %}
+  {% if is_fmm_user %}
+    {% if messages %}
+      {% include "fmm/container_messages.html" %}
+    {% endif %}
+    <h2><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF <em>{{ object }}</em></h2>
+    <input type="hidden" name="original_referer_url" value="{{ referer_url }}">
+    <div class="d-grid mt-5 gap-2{% if not is_mobile %} d-md-block{% endif %}">
+      <a class="btn btn-danger" role="button" href="{% url 'fmm:fmf_delete' pk=object.pk %}"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fas fa-{{ 'delete'|get_icon }}"></i></a>
+      <a class="btn btn-warning" role="button" href="{{ referer_url }}"><i class="me-2 fas fa-{{ 'back'|get_icon }}"></i>zurück</a>
+      <a class="btn btn-warning" role="button" href="{% url 'fmm:index' %}"><i class="me-2 fas fa-{{ 'index'|get_icon }}"></i>Startseite</a>
+    </div>
+    <div class="mt-5 mb-3 accordion">
+      <div id="data-fmf" class="accordion-item">
+        <h2 id="heading-data-fmf" class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-data-fmf" aria-expanded="false" aria-controls="collapse-data-fmf">
+            <i class="me-1 fas fa-{{ 'fmf'|get_icon }}"></i>Stammdaten
+          </button>
+        </h2>
+        <div id="collapse-data-fmf" class="accordion-collapse collapse show" aria-labelledby="heading-data-fmf">
+          <div class="accordion-body">
+            <a class="btn btn-primary" role="button" href="{% url 'fmm:fmf_update' pk=object.pk %}"><i class="fas fa-{{ 'update'|get_icon }}"></i></a>
+            {% include "fmm/attributes-list.html" with items=master_data %}
+          </div>
+        </div>
+      </div>
+      <div id="data-paketumwelt" class="accordion-item">
+        <h2 id="heading-data-paketumwelt" class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-data-paketumwelt" aria-expanded="false" aria-controls="collapse-data-paketumwelt">
+            <i class="me-1 fas fa-{{ 'paket'|get_icon }}"></i>Paketdaten <em class="ms-1">Umwelt</em>
+          </button>
+        </h2>
+        <div id="collapse-data-paketumwelt" class="accordion-collapse collapse" aria-labelledby="heading-data-paketumwelt">
+          <div class="accordion-body">
+            <a class="btn btn-primary" role="button" href="{% url 'fmm:paketumwelt_create' fmf_pk=object.pk %}"><i class="fas fa-{{ 'create'|get_icon }}"></i></a>
+            {% include "fmm/sub-accordion.html" with data_packages=data_packages_umwelt name="paketumwelt" %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      setTimeout(function () {
+        $('.alert-success').alert('close');
+        $('.alert-warning').alert('close');
+      }, 3000);
+    </script>
+  {% else %}
+    {% include "fmm/notice_no-permissions.html" %}
+  {% endif %}
+{% endblock %}
