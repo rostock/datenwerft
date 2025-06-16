@@ -1,4 +1,16 @@
+from django.conf import settings
+
 from .constants_vars import GROUP
+
+
+def get_icon_from_settings(key):
+  """
+  returns icon (i.e. value) of passed key in icon dictionary
+
+  :param key: key in icon dictionary
+  :return: icon (i.e. value) of passed key in icon dictionary
+  """
+  return getattr(settings, 'FMM_ICONS', {}).get(key, 'poo')
 
 
 def is_fmm_user(user, only_fmm_user_check=False):

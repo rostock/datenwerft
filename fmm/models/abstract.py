@@ -18,3 +18,8 @@ class Base(models.Model):
     abstract = True
     ordering = ['-created']
     get_latest_by = 'modified'
+
+  class BaseMeta:
+    icon = 'paket'
+    geometry_field = None
+    geometry_type = None

@@ -90,11 +90,24 @@ wie etwa zu Müllsammelaktionen.
 
 ## *FMM*
 
-Hier finden Sie Hilfestellungen zum Flächenmanagementsystem *FMM.*
+Hier finden Sie Hilfestellungen zu *FMM,* dem Managementsystem
+für potenziell zu entwickelnde Flächen für Wohnraum, Gewerbe etc. (*FMF)*.
 
 ### [Administration](fmm/admin.md)
 
 ### [Berechtigungen](fmm/permissions.md)
+
+### [Startseite (Dashboard)](fmm/usage/dashboard.md)
+
+### Bereiche und Aktionen
+
+#### [neue FMF erstellen](fmm/usage/fmf-create.md)
+
+#### [FMF-Übersichtsseite](fmm/usage/overview.md)
+
+#### [Tabelle](fmm/usage/table.md)
+
+#### [Karte](fmm/usage/map.md)
 
 ## *GDI.HRO Codelists*
 

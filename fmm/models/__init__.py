@@ -1,10 +1,10 @@
 from .abstract import Base
-from .core import InformationspaketUmwelt, Stammpaket
+from .core import Fmf, PaketUmwelt
 
 __all__ = [
   # abstract model classes
   'Base',
   # models
-  'Stammpaket',
-  'InformationspaketUmwelt',
+  'Fmf',
+  'PaketUmwelt',
 ]
