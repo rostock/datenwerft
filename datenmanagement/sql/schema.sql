@@ -58,6 +58,8 @@ CREATE SCHEMA fachdaten_gemeindeteilbezug;
 CREATE SCHEMA fachdaten_strassenbezug;
 
 
+CREATE SCHEMA fachdaten_d3;
+
 --
 -- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
 --
@@ -1808,6 +1810,21 @@ CREATE TABLE codelisten.zustandsbewertungen (
     zustandsbewertung smallint NOT NULL
 );
 
+
+CREATE TABLE codelisten.massnahme (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    massnahme character varying(255) NOT NULL
+);
+
+
+CREATE TABLE codelisten.verfahren (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    verfahren character varying(255) NOT NULL
+);
 
 --
 -- Name: abfallbehaelter_hro; Type: TABLE; Schema: fachdaten; Owner: -
@@ -4324,6 +4341,42 @@ CREATE TABLE fachdaten_strassenbezug.strassenreinigung_hro (
     gemeindeteil uuid NOT NULL
 );
 
+
+CREATE TABLE fachdaten_d3.objekt_vorgang (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL ,
+    id INTEGER NOT NULL PRIMARY KEY,
+    objekt_id character(20) NOT NULL,
+    d3_vorgang character(15) NOT NULL,
+    content_type_id INTEGER NOT NULL
+);
+
+CREATE TABLE fachdaten_d3.metadaten  (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id INTEGER NOT NULL PRIMARY KEY,
+    titel character(255) NOT NULL,
+    gui_element character(255) NOT NULL,
+    eingabe_erforderlich boolean DEFAULT false,
+    regex_validierung character(255),
+    d3_feld_name character(255)
+);
+
+CREATE TABLE fachdaten_d3.metadaten_optionen  (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id INTEGER NOT NULL PRIMARY KEY,
+    metadaten_id integer NOT NULL REFERENCES fachdaten_d3.metadaten(id),
+    name character(255) NOT NULL
+);
+
+CREATE TABLE fachdaten_d3.objekt_vorgang_metadaten (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id INTEGER NOT NULL PRIMARY KEY,
+    objekt_vorgang_id integer NOT NULL REFERENCES fachdaten_d3.objekt_vorgang(id),
+    metadaten_id integer NOT NULL REFERENCES fachdaten_d3.metadaten(id),
+    wert character(255) NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    erstellt_durch integer NOT NULL
+);
 
 --
 -- Name: adressenliste_datenwerft adressenliste_datenwerft_pk; Type: CONSTRAINT; Schema: basisdaten; Owner: -
@@ -7227,11 +7280,13 @@ ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
 
 CREATE INDEX baugrunduntersuchungen_hro_auftraggeber_ix ON fachdaten_strassenbezug.baugrunduntersuchungen_hro USING btree (auftraggeber);
 
+CREATE INDEX idx_objekt_vorgang_content_type_id ON fachdaten_d3.objekt_vorgang(content_type_id);
+
+CREATE INDEX idx_objekt_vorgang_metadaten_erstellt_durch ON fachdaten_d3.objekt_vorgang_metadaten(erstellt_durch);
 
 --
 -- Name: geraetespielanlagen_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
 --
-
 CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.geraetespielanlagen_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
 
 
@@ -8884,10 +8939,16 @@ ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
 --
 -- Name: strassenreinigung_hro strassenreinigung_hro_reinigungsrhythmen_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
 --
-
 ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
     ADD CONSTRAINT strassenreinigung_hro_reinigungsrhythmen_fk FOREIGN KEY (reinigungsrhythmus) REFERENCES codelisten.reinigungsrhythmen_strassenreinigungssatzung_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
+
+ALTER TABLE fachdaten_adressbezug.baudenkmale_hro
+    ADD COLUMN d3_akte character varying(15);
+
+
+ALTER TABLE fachdaten.denkmalbereiche_hro
+    ADD COLUMN d3_akte character varying(15);
 
 --
 -- PostgreSQL database dump complete

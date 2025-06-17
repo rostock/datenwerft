@@ -19,8 +19,8 @@ services:
     ports: !override []
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.datenwert_hro-smtp.loadbalancer.server.port=8025"
-      - "traefik.http.routers.datenwert_hro-smtp.rule=Host(`mail.datenwerft.hro.localhost`)"
+      - "traefik.http.services.datenwert_hro-server.loadbalancer.server.port=8025"
+      - "traefik.http.routers.datenwert_hro-server.rule=Host(`mail.datenwerft.hro.localhost`)"
       - "traefik.docker.network=gateway"
 
 networks:
