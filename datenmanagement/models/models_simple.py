@@ -4501,6 +4501,7 @@ class Parkmoeglichkeiten(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_arten',
   )
+  parkandride = BooleanField(verbose_name='P+R?', blank=True, null=True)
   standort = CharField(verbose_name='Standort', max_length=255, validators=standard_validators)
   betreiber = ForeignKey(
     to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
@@ -4612,12 +4613,18 @@ class Parkmoeglichkeiten(SimpleModel):
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
       'art': 'Art',
+      'parkandride': 'P+R',
       'standort': 'Standort',
       'betreiber': 'Betreiber',
     }
     list_fields_with_foreign_key = {'adresse': 'adresse', 'art': 'art', 'betreiber': 'bezeichnung'}
     map_feature_tooltip_fields = ['art', 'standort']
-    map_filter_fields = {'art': 'Art', 'standort': 'Standort', 'betreiber': 'Betreiber'}
+    map_filter_fields = {
+      'art': 'Art',
+      'parkandride': 'P+R',
+      'standort': 'Standort',
+      'betreiber': 'Betreiber',
+    }
     map_filter_fields_as_list = ['art', 'betreiber']
 
   def __str__(self):

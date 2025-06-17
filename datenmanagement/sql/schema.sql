@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.12
--- Dumped by pg_dump version 16.8
+-- Dumped from database version 15.13
+-- Dumped by pg_dump version 16.9
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3717,7 +3717,8 @@ CREATE TABLE fachdaten_adressbezug.parkmoeglichkeiten_hro (
     gebuehren_zwei_stunden numeric(3,2),
     gebuehren_ganztags numeric(3,2),
     bemerkungen character varying(255),
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    parkandride boolean
 );
 
 
