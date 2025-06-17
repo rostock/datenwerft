@@ -60,12 +60,7 @@ class Metadaten(Model):
         blank=True,
         null=True,
     )
-    d3_feld_name = CharField(
-        verbose_name='d3-Feld-Name',
-        max_length=255,
-        blank=True,
-        null=True,
-    )
+    d3_id = CharField(max_length=32)
 
     class Meta:
         verbose_name = 'Metadaten'
