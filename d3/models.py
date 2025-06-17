@@ -3,7 +3,8 @@ from django.db.models import CASCADE, FileField, ForeignKey, JSONField, ManyToMa
 from django.db.models.fields import AutoField, CharField, DateTimeField, TextField, BooleanField, DateField
 from django.contrib.contenttypes.models import ContentType
 
-from datenmanagement.models import GUI_ELEMENTE
+from d3.constants_vars import GUI_ELEMENTE
+
 
 class Akte(Model):
     id = AutoField(primary_key=True)
