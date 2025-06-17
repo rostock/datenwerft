@@ -29,6 +29,7 @@ class AktenOrdner(Model):
 
 class  Vorgang(Model):
     id = AutoField(primary_key=True)
+    titel = CharField(max_length=255)
     akten_id = ForeignKey(Akte, on_delete=CASCADE)
     d3_id = CharField(max_length=32)
     vorgangs_typ = CharField(max_length=50)
