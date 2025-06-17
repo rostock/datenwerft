@@ -188,12 +188,6 @@ ANERKENNUNGSGEBUEHREN_HERRSCHEND_GRUNDBUCHEINTRAG = (
   ('prüfen', 'prüfen'),
 )
 
-DOKUMENT_STATUS = (
-  ('in_bearbeitung', 'In Bearbeitung'),
-  ('abgelegt', 'Abgelegt'),
-  ('archiviert', 'Archiviert'),
-)
-
 GUI_ELEMENTE = (
   ('select', 'Select'),
   ('input_text', 'Input-Text'),
