@@ -433,14 +433,7 @@ class Service(Base, BaseMetadata, SpatioTemporalMetadata):
   )
 
   class Meta(Base.Meta):
-    constraints = [
-      models.UniqueConstraint(fields=['name', 'type'], name='unique_name_type'),
-      models.UniqueConstraint(
-        fields=['name'],
-        condition=~models.Q(type=None),
-        name='unique_name_when_type_not_null',
-      ),
-    ]
+    unique_together = ['name', 'type']
     ordering = ['type', 'title', 'name']
     verbose_name = _('Entität → Service')
     verbose_name_plural = _('Entitätsklasse → Services')
