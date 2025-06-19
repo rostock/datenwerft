@@ -6,6 +6,7 @@ from django.apps import apps
 from django_rq import enqueue
 from laspy import open as laspy_open
 from pyblisher import Bucket, Project, get_project, settings
+from pyblisher.exceptions import ObjectNotFound
 
 if TYPE_CHECKING:
   from httpx import Response
@@ -59,8 +60,40 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, objectkey: str):
   :return:
   """
   logger.debug('Run Task send_pointcloud_to_vcpub')
+
+  # get needed constants
+  model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken')
+  pointcloud = model.objects.get(pk=pk)
+  pointcloud_projekt = pointcloud.projekt
+
+  # VCP Project
   project: Project = get_project(id=settings.project_id)
-  bucket: Bucket = project.get_bucket(id=str(dataset))
+  task_id = pointcloud_projekt.vcp_task_id
+
+  # try to get bucket, if it doesn't exist create a new one and update task
+  try:
+    bucket: Bucket = project.get_bucket(
+      id=pointcloud_projekt.vcp_dataset_bucket_id
+    )
+  except ObjectNotFound:
+    logger.info('Bucket not found. Create new bucket.')
+    # create new bucket
+    bucket = project.create_bucket(name=pointcloud_projekt.bezeichnung)
+    logger.debug('Bucket created.')
+    print(bucket.__dict__)
+    # update task
+    bucket_reference = bucket.reference()
+    parameters = {'dataset': bucket_reference}
+    print(parameters)
+    task = project.update_task(id=str(task_id), parameters=parameters)
+    logger.debug('Task updated.')
+    # update model
+    update_model(
+      model_name='Punktwolken_Projekte',
+      pk=pointcloud_projekt.pk,
+      attributes={'vcp_dataset_bucket_id': bucket._id},
+    )
+
   response: Response = bucket.upload(key=f'/dataset/{objectkey}', path=path)
   match response.status_code:
     case 204:
@@ -75,9 +108,13 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, objectkey: str):
       change_attr = {
         'vcp_object_key': objectkey,
       }
-      enqueue(update_model, model_name='Punktwolken', pk=pk, attributes=change_attr)
+      enqueue(
+        update_model, model_name='Punktwolken', pk=pk, attributes=change_attr
+      )
     case _:
-      logger.error(f'Pointcloud upload failed. {response.status_code}: {response.__dict__}')
+      logger.error(
+        f'Pointcloud upload failed. {response.status_code}: {response.__dict__}'
+      )
 
 
 def calculate_2d_bounding_box_for_pointcloud(pk, path):
@@ -105,6 +142,13 @@ def calculate_2d_bounding_box_for_pointcloud(pk, path):
       wkt = f'POLYGON(({mn_x} {mn_y}, {mx_x} {mn_y}, {mx_x} {mx_y}, {mn_x} {mx_y}, {mn_x} {mn_y}))'
 
       # update model
-      enqueue(update_model, model_name='Punktwolken', pk=pk, attributes={'geometrie': wkt})
+      enqueue(
+        update_model,
+        model_name='Punktwolken',
+        pk=pk,
+        attributes={'geometrie': wkt},
+      )
   except Exception as e:
-    logger.warning(f'Failed to calculate 2D bounding box for pointcloud with pk {pk}: {e}')
+    logger.warning(
+      f'Failed to calculate 2D bounding box for pointcloud with pk {pk}: {e}'
+    )
