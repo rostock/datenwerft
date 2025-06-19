@@ -80,11 +80,9 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, objectkey: str):
     # create new bucket
     bucket = project.create_bucket(name=pointcloud_projekt.bezeichnung)
     logger.debug('Bucket created.')
-    print(bucket.__dict__)
     # update task
     bucket_reference = bucket.reference()
     parameters = {'dataset': bucket_reference}
-    print(parameters)
     task = project.update_task(id=str(task_id), parameters=parameters)
     logger.debug('Task updated.')
     # update model
