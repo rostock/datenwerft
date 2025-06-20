@@ -2819,11 +2819,7 @@ class Punktwolken_Projekte(ComplexModel):
         )
         source: Source = project.create_source(
           name=str(self.bezeichnung),
-          sourceProperties={
-            'type': 'internal',
-            'dataBucketId': bucket._id,
-            'dataBucketKey': '/datasource',
-          },
+          sourceProperties=bucket.reference(dataBucketKey='/datasource')
           type='tileset',
           typeProperties={},
           description=str(self.beschreibung),
@@ -2837,11 +2833,7 @@ class Punktwolken_Projekte(ComplexModel):
           parameters={
             'command': 'conversion',
             'epsgCode': 25833,
-            'dataset': {
-              'type': 'internal',
-              'dataBucketId': bucket._id,
-              'dataBucketKey': '/dataset',
-            },
+            'dataset': bucket.reference(dataBucketKey='/dataset'),
             'datasource': {'command': 'update', 'datasourceId': source._id},
           },
           jobType='pointcloud',
