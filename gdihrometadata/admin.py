@@ -467,8 +467,9 @@ class ContactAdmin(admin.ModelAdmin):
 class SourceAdmin(admin.ModelAdmin):
   form = SourceAdminForm
   list_display = (
-    'connection_info',
+    'id',
     'modified',
+    'connection_info',
     'last_import',
     'import_frequency',
     'processing_type',
@@ -482,6 +483,7 @@ class SourceAdmin(admin.ModelAdmin):
     'data_type',
   )
   search_fields = (
+    'id',
     'uuid',
     'modified',
     'description',
@@ -513,8 +515,9 @@ class SourceAdmin(admin.ModelAdmin):
 class RepositoryAdmin(admin.ModelAdmin):
   form = RepositoryAdminForm
   list_display = (
-    'connection_info',
+    'id',
     'modified',
+    'connection_info',
     'creation',
     'last_update',
     'update_frequency',
@@ -529,6 +532,7 @@ class RepositoryAdmin(admin.ModelAdmin):
     'source',
   )
   search_fields = (
+    'id',
     'uuid',
     'modified',
     'description',
@@ -563,8 +567,9 @@ class RepositoryAdmin(admin.ModelAdmin):
 @admin.register(Assetset)
 class AssetsetAdmin(admin.ModelAdmin):
   list_display = (
-    'name',
+    'id',
     'modified',
+    'name',
     'title',
     'creation',
     'last_update',
@@ -578,6 +583,7 @@ class AssetsetAdmin(admin.ModelAdmin):
     'type',
   )
   search_fields = (
+    'id',
     'uuid',
     'modified',
     'name',
@@ -604,8 +610,9 @@ class AssetsetAdmin(admin.ModelAdmin):
 class DatasetAdmin(admin.ModelAdmin):
   form = DatasetAdminForm
   list_display = (
-    'name',
+    'id',
     'modified',
+    'name',
     'title',
     'link',
     'creation',
@@ -622,6 +629,7 @@ class DatasetAdmin(admin.ModelAdmin):
     'data_type',
   )
   search_fields = (
+    'id',
     'uuid',
     'modified',
     'name',
@@ -689,8 +697,9 @@ class DatasetAdmin(admin.ModelAdmin):
 class ServiceAdmin(admin.ModelAdmin):
   form = ServiceAdminForm
   list_display = (
-    'name',
+    'id',
     'modified',
+    'name',
     'title',
     'link',
     'legal',
@@ -703,6 +712,7 @@ class ServiceAdmin(admin.ModelAdmin):
     'inspire_theme',
   )
   search_fields = (
+    'id',
     'uuid',
     'modified',
     'name',
@@ -767,14 +777,16 @@ class ServiceAdmin(admin.ModelAdmin):
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
   list_display = (
-    'name',
+    'id',
     'modified',
+    'name',
     'title',
     'categories_display',
     'hvd_category',
   )
   list_filter = ('hvd_category',)
   search_fields = (
+    'id',
     'uuid',
     'modified',
     'name',
@@ -807,14 +819,16 @@ class TopicAdmin(admin.ModelAdmin):
 @admin.register(App)
 class AppAdmin(admin.ModelAdmin):
   list_display = (
-    'name',
+    'id',
     'modified',
+    'name',
     'title',
     'link',
     'legal',
   )
   list_filter = ('legal',)
   search_fields = (
+    'id',
     'uuid',
     'modified',
     'name',
