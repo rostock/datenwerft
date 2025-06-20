@@ -72,14 +72,21 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, objectkey: str):
 
   # try to get bucket, if it doesn't exist create a new one and update task
   try:
-    bucket: Bucket = project.get_bucket(id=pointcloud_projekt.vcp_dataset_bucket_id)
+    bucket: Bucket = project.get_bucket(
+      id=pointcloud_projekt.vcp_dataset_bucket_id
+    )
   except ObjectNotFound:
     logger.info('Bucket not found. Create new bucket.')
     # create new bucket
     bucket = project.create_bucket(name=pointcloud_projekt.bezeichnung)
     logger.debug('Bucket created.')
+    # update datasource
+    project.update_source(
+      id=pointcloud_projekt.vcp_datasource_id,
+      sourceProperties=bucket.reference('/datasource'),
+    )
     # update task
-    bucket_reference = bucket.reference()
+    bucket_reference = bucket.reference('/dataset')
     parameters = {'dataset': bucket_reference}
     project.update_task(id=str(task_id), parameters=parameters)
     logger.debug('Task updated.')
@@ -104,9 +111,13 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, objectkey: str):
       change_attr = {
         'vcp_object_key': objectkey,
       }
-      enqueue(update_model, model_name='Punktwolken', pk=pk, attributes=change_attr)
+      enqueue(
+        update_model, model_name='Punktwolken', pk=pk, attributes=change_attr
+      )
     case _:
-      logger.error(f'Pointcloud upload failed. {response.status_code}: {response.__dict__}')
+      logger.error(
+        f'Pointcloud upload failed. {response.status_code}: {response.__dict__}'
+      )
 
 
 def calculate_2d_bounding_box_for_pointcloud(pk, path):
@@ -141,4 +152,6 @@ def calculate_2d_bounding_box_for_pointcloud(pk, path):
         attributes={'geometrie': wkt},
       )
   except Exception as e:
-    logger.warning(f'Failed to calculate 2D bounding box for pointcloud with pk {pk}: {e}')
+    logger.warning(
+      f'Failed to calculate 2D bounding box for pointcloud with pk {pk}: {e}'
+    )
