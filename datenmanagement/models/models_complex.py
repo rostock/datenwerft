@@ -5,7 +5,14 @@ from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.core.validators import FileExtensionValidator, URLValidator
-from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, IntegerField, UUIDField
+from django.db.models import (
+  CASCADE,
+  RESTRICT,
+  SET_NULL,
+  ForeignKey,
+  IntegerField,
+  UUIDField,
+)
 from django.db.models.fields import DateTimeField
 from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
@@ -71,7 +78,9 @@ class Adressunsicherheiten(ComplexModel):
     verbose_name_plural = 'Adressunsicherheiten'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Adressunsicherheiten in der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Adressunsicherheiten in der Hanse- und Universitätsstadt Rostock'
+    )
     as_overlay = True
     associated_models = {'Adressunsicherheiten_Fotos': 'adressunsicherheit'}
     address_type = 'Adresse'
@@ -93,7 +102,11 @@ class Adressunsicherheiten(ComplexModel):
       }
     ]
     map_feature_tooltip_fields = ['art']
-    map_filter_fields = {'aktiv': 'aktiv?', 'art': 'Art', 'beschreibung': 'Beschreibung'}
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'art': 'Art',
+      'beschreibung': 'Beschreibung',
+    }
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
@@ -115,11 +128,15 @@ class Adressunsicherheiten_Fotos(ComplexModel):
     related_name='%(app_label)s_%(class)s_adressunsicherheiten',
   )
   aufnahmedatum = DateField(verbose_name='Aufnahmedatum', default=date.today)
-  dateiname_original = CharField(verbose_name='Original-Dateiname', max_length=255, default='ohne')
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname', max_length=255, default='ohne'
+  )
   foto = ImageField(
     verbose_name='Foto(s)',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'adressunsicherheiten'),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'adressunsicherheiten'
+    ),
     max_length=255,
   )
 
@@ -148,7 +165,9 @@ class Adressunsicherheiten_Fotos(ComplexModel):
     return (
       str(self.adressunsicherheit)
       + ' mit Aufnahmedatum '
-      + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+      + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime(
+        '%d.%m.%Y'
+      )
     )
 
 
@@ -207,7 +226,9 @@ class Baugrunduntersuchungen(ComplexModel):
     verbose_name_plural = 'Baugrunduntersuchungen'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Baugrunduntersuchungen in der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Baugrunduntersuchungen in der Hanse- und Universitätsstadt Rostock'
+    )
     associated_models = {
       'Baugrunduntersuchungen_Baugrundbohrungen': 'baugrunduntersuchung',
       'Baugrunduntersuchungen_Dokumente': 'baugrunduntersuchung',
@@ -269,7 +290,9 @@ class Baugrunduntersuchungen_Baugrundbohrungen(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_baugrunduntersuchungen',
   )
-  nummer = CharField(verbose_name='Nummer', max_length=255, validators=standard_validators)
+  nummer = CharField(
+    verbose_name='Nummer', max_length=255, validators=standard_validators
+  )
   geometrie = point_field
 
   class Meta(ComplexModel.Meta):
@@ -278,9 +301,7 @@ class Baugrunduntersuchungen_Baugrundbohrungen(ComplexModel):
     verbose_name_plural = 'Baugrundbohrungen der Baugrunduntersuchungen'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = (
-      'Baugrundbohrungen der Baugrunduntersuchungen in der Hanse- und Universitätsstadt Rostock'
-    )
+    description = 'Baugrundbohrungen der Baugrunduntersuchungen in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     short_name = 'Baugrundbohrung'
     fields_with_foreign_key_to_linkify = ['baugrunduntersuchung']
@@ -292,7 +313,10 @@ class Baugrunduntersuchungen_Baugrundbohrungen(ComplexModel):
     }
     list_fields_with_foreign_key = {'baugrunduntersuchung': 'bezeichnung'}
     map_feature_tooltip_fields = ['nummer']
-    map_filter_fields = {'baugrunduntersuchung': 'Baugrunduntersuchung', 'nummer': 'Nummer'}
+    map_filter_fields = {
+      'baugrunduntersuchung': 'Baugrunduntersuchung',
+      'nummer': 'Nummer',
+    }
     map_filter_fields_as_list = ['baugrunduntersuchung']
 
   def __str__(self):
@@ -313,11 +337,15 @@ class Baugrunduntersuchungen_Dokumente(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_baugrunduntersuchungen',
   )
-  dateiname_original = CharField(verbose_name='Original-Dateiname', max_length=255, default='ohne')
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname', max_length=255, default='ohne'
+  )
   pdf = FileField(
     verbose_name='Dokument',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PDF_PATH_PREFIX_PRIVATE + 'baugrunduntersuchungen'),
+    upload_to=path_and_rename(
+      settings.PDF_PATH_PREFIX_PRIVATE + 'baugrunduntersuchungen'
+    ),
     max_length=255,
   )
 
@@ -327,9 +355,7 @@ class Baugrunduntersuchungen_Dokumente(ComplexModel):
     verbose_name_plural = 'Dokumente der Baugrunduntersuchungen'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = (
-      'Dokumente der Baugrunduntersuchungen in der Hanse- und Universitätsstadt Rostock'
-    )
+    description = 'Dokumente der Baugrunduntersuchungen in der Hanse- und Universitätsstadt Rostock'
     short_name = 'Dokument'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['baugrunduntersuchung']
@@ -378,7 +404,8 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
     verbose_name=' verkehrliche Lage(n)',
   )
   sparten = ChoiceArrayField(
-    CharField(verbose_name='Sparte(n)', max_length=255, choices=()), verbose_name='Sparte(n)'
+    CharField(verbose_name='Sparte(n)', max_length=255, choices=()),
+    verbose_name='Sparte(n)',
   )
   auftraggeber = ForeignKey(
     to=Auftraggeber_Baustellen,
@@ -389,7 +416,9 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
     related_name='%(app_label)s_%(class)s_auftraggeber',
   )
   ansprechpartner = CharField(
-    verbose_name='Ansprechpartner:in', max_length=255, validators=ansprechpartner_validators
+    verbose_name='Ansprechpartner:in',
+    max_length=255,
+    validators=ansprechpartner_validators,
   )
   bemerkungen = CharField(
     verbose_name='Bemerkungen',
@@ -401,15 +430,15 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
   geometrie = point_field
 
   class Meta(ComplexModel.Meta):
-    db_table = 'fachdaten_strassenbezug"."baustellen_fotodokumentation_baustellen_hro'
+    db_table = (
+      'fachdaten_strassenbezug"."baustellen_fotodokumentation_baustellen_hro'
+    )
     ordering = ['bezeichnung']
     verbose_name = 'Baustelle der Baustellen-Fotodokumentation'
     verbose_name_plural = 'Baustellen der Baustellen-Fotodokumentation'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = (
-      'Baustellen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
-    )
+    description = 'Baustellen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
     associated_models = {
       'Baustellen_Fotodokumentation_Fotos': 'baustellen_fotodokumentation_baustelle'
     }
@@ -430,7 +459,10 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
       'ansprechpartner': 'Ansprechpartner:in',
       'bemerkungen': 'Bemerkungen',
     }
-    list_fields_with_foreign_key = {'strasse': 'strasse', 'auftraggeber': 'auftraggeber'}
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse',
+      'auftraggeber': 'auftraggeber',
+    }
     list_actions_assign = [
       {
         'action_name': 'baustellen_fotodokumentation_baustellen-auftraggeber',
@@ -448,7 +480,9 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
     map_filter_fields_as_list = ['auftraggeber']
 
   def __str__(self):
-    return self.bezeichnung + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '')
+    return self.bezeichnung + (
+      ' [Straße: ' + str(self.strasse) + ']' if self.strasse else ''
+    )
 
 
 class Baustellen_Fotodokumentation_Fotos(ComplexModel):
@@ -474,11 +508,15 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
     related_name='%(app_label)s_%(class)s_status',
   )
   aufnahmedatum = DateField(verbose_name='Aufnahmedatum', default=date.today)
-  dateiname_original = CharField(verbose_name='Original-Dateiname', max_length=255, default='ohne')
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname', max_length=255, default='ohne'
+  )
   foto = ImageField(
     verbose_name='Foto(s)',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'baustellen_fotodokumentation'),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'baustellen_fotodokumentation'
+    ),
     max_length=255,
   )
 
@@ -488,12 +526,12 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
     verbose_name_plural = 'Fotos der Baustellen-Fotodokumentation'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = (
-      'Fotos der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
-    )
+    description = 'Fotos der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
     short_name = 'Foto'
     readonly_fields = ['dateiname_original']
-    fields_with_foreign_key_to_linkify = ['baustellen_fotodokumentation_baustelle']
+    fields_with_foreign_key_to_linkify = [
+      'baustellen_fotodokumentation_baustelle'
+    ]
     multi_file_upload = True
     list_fields = {
       'aktiv': 'aktiv?',
@@ -530,11 +568,15 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
       + ' mit Status '
       + str(self.status)
       + ' und Aufnahmedatum '
-      + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+      + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime(
+        '%d.%m.%Y'
+      )
     )
 
 
-post_save.connect(photo_post_processing, sender=Baustellen_Fotodokumentation_Fotos)
+post_save.connect(
+  photo_post_processing, sender=Baustellen_Fotodokumentation_Fotos
+)
 
 post_delete.connect(delete_photo, sender=Baustellen_Fotodokumentation_Fotos)
 
@@ -570,7 +612,9 @@ class Baustellen_geplant(ComplexModel):
   bezeichnung = CharField(
     verbose_name='Bezeichnung', max_length=255, validators=standard_validators
   )
-  kurzbeschreibung = NullTextField(verbose_name='Kurzbeschreibung', blank=True, null=True)
+  kurzbeschreibung = NullTextField(
+    verbose_name='Kurzbeschreibung', blank=True, null=True
+  )
   lagebeschreibung = CharField(
     verbose_name='Lagebeschreibung',
     max_length=255,
@@ -583,7 +627,8 @@ class Baustellen_geplant(ComplexModel):
     verbose_name=' verkehrliche Lage(n)',
   )
   sparten = ChoiceArrayField(
-    CharField(verbose_name='Sparte(n)', max_length=255, choices=()), verbose_name='Sparte(n)'
+    CharField(verbose_name='Sparte(n)', max_length=255, choices=()),
+    verbose_name='Sparte(n)',
   )
   beginn = DateField('Beginn')
   ende = DateField('Ende')
@@ -596,7 +641,9 @@ class Baustellen_geplant(ComplexModel):
     related_name='%(app_label)s_%(class)s_auftraggeber',
   )
   ansprechpartner = CharField(
-    verbose_name='Ansprechpartner:in', max_length=255, validators=ansprechpartner_validators
+    verbose_name='Ansprechpartner:in',
+    max_length=255,
+    validators=ansprechpartner_validators,
   )
   status = ForeignKey(
     to=Status_Baustellen_geplant,
@@ -606,7 +653,9 @@ class Baustellen_geplant(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_status',
   )
-  konflikt = BooleanField(verbose_name='Konflikt?', blank=True, null=True, editable=False)
+  konflikt = BooleanField(
+    verbose_name='Konflikt?', blank=True, null=True, editable=False
+  )
   konflikt_tolerieren = BooleanField(
     verbose_name=' räumliche(n)/zeitliche(n) Konflikt(e) mit anderem/anderen Vorhaben tolerieren?',
     blank=True,
@@ -631,7 +680,9 @@ class Baustellen_geplant(ComplexModel):
       'verkehrliche_lagen': 'Verkehrliche_Lagen_Baustellen',
       'sparten': 'Sparten_Baustellen',
     }
-    group_with_users_for_choice_field = 'datenmanagement_baustellen_geplant_full'
+    group_with_users_for_choice_field = (
+      'datenmanagement_baustellen_geplant_full'
+    )
     address_type = 'Straße'
     address_mandatory = False
     geometry_type = 'MultiPolygon'
@@ -718,7 +769,9 @@ class Baustellen_geplant_Dokumente(ComplexModel):
   pdf = FileField(
     verbose_name='Dokument',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PDF_PATH_PREFIX_PUBLIC + 'baustellen_geplant'),
+    upload_to=path_and_rename(
+      settings.PDF_PATH_PREFIX_PUBLIC + 'baustellen_geplant'
+    ),
     max_length=255,
   )
 
@@ -728,9 +781,7 @@ class Baustellen_geplant_Dokumente(ComplexModel):
     verbose_name_plural = 'Dokumente der Baustellen (geplant)'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = (
-      'Dokumente der Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
-    )
+    description = 'Dokumente der Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
     short_name = 'Dokument'
     fields_with_foreign_key_to_linkify = ['baustelle_geplant']
     multi_file_upload = True
@@ -767,7 +818,9 @@ class Baustellen_geplant_Links(ComplexModel):
     verbose_name='Bezeichnung', max_length=255, validators=standard_validators
   )
   link = CharField(
-    verbose_name='Link', max_length=255, validators=[URLValidator(message=url_message)]
+    verbose_name='Link',
+    max_length=255,
+    validators=[URLValidator(message=url_message)],
   )
 
   class Meta(ComplexModel.Meta):
@@ -776,9 +829,7 @@ class Baustellen_geplant_Links(ComplexModel):
     verbose_name_plural = 'Links der Baustellen (geplant)'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = (
-      'Links der Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
-    )
+    description = 'Links der Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
     short_name = 'Link'
     fields_with_foreign_key_to_linkify = ['baustelle_geplant']
     list_fields = {
@@ -820,7 +871,8 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     unique=True,
     validators=[
       RegexValidator(
-        regex=durchlaesse_aktenzeichen_regex, message=durchlaesse_aktenzeichen_message
+        regex=durchlaesse_aktenzeichen_regex,
+        message=durchlaesse_aktenzeichen_message,
       )
     ],
   )
@@ -846,10 +898,12 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     decimal_places=2,
     validators=[
       MinValueValidator(
-        Decimal('0.01'), 'Die <strong><em>Länge</em></strong> muss mindestens 0,01 m betragen.'
+        Decimal('0.01'),
+        'Die <strong><em>Länge</em></strong> muss mindestens 0,01 m betragen.',
       ),
       MaxValueValidator(
-        Decimal('999.99'), 'Die <strong><em>Länge</em></strong> darf höchstens 999,99 m betragen.'
+        Decimal('999.99'),
+        'Die <strong><em>Länge</em></strong> darf höchstens 999,99 m betragen.',
       ),
     ],
     blank=True,
@@ -863,7 +917,11 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     validators=standard_validators,
   )
   zubehoer = NullTextField(
-    verbose_name='Zubehör', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Zubehör',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   zustand_durchlass = ForeignKey(
     to=Zustandsbewertungen,
@@ -987,11 +1045,15 @@ class Durchlaesse_Fotos(ComplexModel):
     null=True,
     validators=standard_validators,
   )
-  dateiname_original = CharField(verbose_name='Original-Dateiname', max_length=255, default='ohne')
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname', max_length=255, default='ohne'
+  )
   foto = ImageField(
     verbose_name='Foto(s)',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'durchlaesse'),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PUBLIC + 'durchlaesse'
+    ),
     max_length=255,
   )
 
@@ -1001,7 +1063,9 @@ class Durchlaesse_Fotos(ComplexModel):
     verbose_name_plural = 'Fotos der Durchlässe'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Fotos der Durchlässe in der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Fotos der Durchlässe in der Hanse- und Universitätsstadt Rostock'
+    )
     short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['durchlaesse_durchlass']
@@ -1028,7 +1092,9 @@ class Durchlaesse_Fotos(ComplexModel):
   def __str__(self):
     return str(self.durchlaesse_durchlass) + (
       ' mit Aufnahmedatum '
-      + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+      + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime(
+        '%d.%m.%Y'
+      )
       if self.aufnahmedatum
       else ''
     )
@@ -1070,16 +1136,21 @@ class Fallwildsuchen_Kontrollgebiete(ComplexModel):
     verbose_name_plural = 'Kontrollgebiete im Rahmen von Fallwildsuchen'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = (
-      'Kontrollgebiete im Rahmen von Fallwildsuchen in der Hanse- und Universitätsstadt Rostock'
-    )
+    description = 'Kontrollgebiete im Rahmen von Fallwildsuchen in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     associated_models = {'Fallwildsuchen_Nachweise': 'kontrollgebiet'}
     geometry_type = 'Polygon'
-    list_fields = {'aktiv': 'aktiv?', 'tierseuche': 'Tierseuche', 'bezeichnung': 'Bezeichnung'}
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'tierseuche': 'Tierseuche',
+      'bezeichnung': 'Bezeichnung',
+    }
     list_fields_with_foreign_key = {'tierseuche': 'bezeichnung'}
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'tierseuche': 'Tierseuche', 'bezeichnung': 'Bezeichnung'}
+    map_filter_fields = {
+      'tierseuche': 'Tierseuche',
+      'bezeichnung': 'Bezeichnung',
+    }
     map_filter_fields_as_list = ['tierseuche']
 
   def __str__(self):
@@ -1118,9 +1189,7 @@ class Fallwildsuchen_Nachweise(ComplexModel):
     verbose_name_plural = 'Nachweise im Rahmen von Fallwildsuchen'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = (
-      'Nachweise im Rahmen von Fallwildsuchen in der Hanse- und Universitätsstadt Rostock'
-    )
+    description = 'Nachweise im Rahmen von Fallwildsuchen in der Hanse- und Universitätsstadt Rostock'
     short_name = 'Nachweis'
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['kontrollgebiet']
@@ -1134,18 +1203,26 @@ class Fallwildsuchen_Nachweise(ComplexModel):
       'endzeitpunkt': 'Endzeitpunkt',
     }
     list_fields_with_datetime = ['startzeitpunkt', 'endzeitpunkt']
-    list_fields_with_foreign_key = {'kontrollgebiet': 'bezeichnung', 'art_kontrolle': 'art'}
+    list_fields_with_foreign_key = {
+      'kontrollgebiet': 'bezeichnung',
+      'art_kontrolle': 'art',
+    }
     map_feature_tooltip_fields = ['art_kontrolle']
     map_intervalfilter_fields = {
       'startzeitpunkt': 'Startzeitpunkt',
       'endzeitpunkt': 'Endzeitpunkt',
     }
-    map_filter_fields = {'kontrollgebiet': 'Kontrollgebiet', 'art_kontrolle': 'Art der Kontrolle'}
+    map_filter_fields = {
+      'kontrollgebiet': 'Kontrollgebiet',
+      'art_kontrolle': 'Art der Kontrolle',
+    }
     map_filter_fields_as_list = ['kontrollgebiet', 'art_kontrolle']
 
   def __str__(self):
     local_tz = ZoneInfo(settings.TIME_ZONE)
-    startzeitpunkt_str = sub(r'([+-][0-9]{2}):', '\\1', str(self.startzeitpunkt))
+    startzeitpunkt_str = sub(
+      r'([+-][0-9]{2}):', '\\1', str(self.startzeitpunkt)
+    )
     startzeitpunkt = (
       datetime.strptime(startzeitpunkt_str, '%Y-%m-%d %H:%M:%S%z')
       .replace(tzinfo=timezone.utc)
@@ -1225,12 +1302,16 @@ class Feuerwehrzufahrten_Feuerwehrzufahrten(ComplexModel):
     verbose_name='Flächen für Feuerwehrzufahrt?', blank=True, null=True
   )
   feuerwehraufstellflaechen_hubrettungsfahrzeug = BooleanField(
-    verbose_name='Aufstellflächen für Hubrettungsfahrzeug?', blank=True, null=True
+    verbose_name='Aufstellflächen für Hubrettungsfahrzeug?',
+    blank=True,
+    null=True,
   )
   feuerwehrbewegungsflaechen = BooleanField(
     verbose_name='Feuerwehrbewegungsflächen?', blank=True, null=True
   )
-  amtlichmachung = DateField(verbose_name='Amtlichmachung', blank=True, null=True)
+  amtlichmachung = DateField(
+    verbose_name='Amtlichmachung', blank=True, null=True
+  )
   bemerkungen = CharField(
     verbose_name='Bemerkungen',
     max_length=255,
@@ -1246,7 +1327,9 @@ class Feuerwehrzufahrten_Feuerwehrzufahrten(ComplexModel):
     verbose_name_plural = 'Feuerwehrzufahrten'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Feuerwehrzufahrten in der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Feuerwehrzufahrten in der Hanse- und Universitätsstadt Rostock'
+    )
     associated_models = {'Feuerwehrzufahrten_Schilder': 'feuerwehrzufahrt'}
     list_fields = {
       'aktiv': 'aktiv?',
@@ -1303,7 +1386,9 @@ class Feuerwehrzufahrten_Schilder(ComplexModel):
     null=True,
   )
   hinweise_aufstellort = CharField(
-    verbose_name='Hinweise zum Aufstellort', max_length=255, validators=standard_validators
+    verbose_name='Hinweise zum Aufstellort',
+    max_length=255,
+    validators=standard_validators,
   )
   bemerkungen = CharField(
     verbose_name='Bemerkungen',
@@ -1315,7 +1400,9 @@ class Feuerwehrzufahrten_Schilder(ComplexModel):
   foto = ImageField(
     verbose_name='Foto',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'feuerwehrzufahrten_schilder'),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'feuerwehrzufahrten_schilder'
+    ),
     max_length=255,
     blank=True,
     null=True,
@@ -1365,7 +1452,9 @@ pre_save.connect(set_pre_save_instance, sender=Feuerwehrzufahrten_Schilder)
 
 post_save.connect(photo_post_processing, sender=Feuerwehrzufahrten_Schilder)
 
-post_save.connect(delete_photo_after_emptied, sender=Feuerwehrzufahrten_Schilder)
+post_save.connect(
+  delete_photo_after_emptied, sender=Feuerwehrzufahrten_Schilder
+)
 
 post_delete.connect(delete_photo, sender=Feuerwehrzufahrten_Schilder)
 
@@ -1406,7 +1495,8 @@ class Freizeitsport(ComplexModel):
     null=True,
   )
   sportarten = ChoiceArrayField(
-    CharField(verbose_name='Sportarten', max_length=255, choices=()), verbose_name='Sportarten'
+    CharField(verbose_name='Sportarten', max_length=255, choices=()),
+    verbose_name='Sportarten',
   )
   besonderheiten = ChoiceArrayField(
     CharField(verbose_name='Besonderheiten', max_length=255, choices=()),
@@ -1414,7 +1504,9 @@ class Freizeitsport(ComplexModel):
     blank=True,
     null=True,
   )
-  freizeitsport = CharField(max_length=255, blank=True, null=True, editable=False)
+  freizeitsport = CharField(
+    max_length=255, blank=True, null=True, editable=False
+  )
   geometrie = point_field
 
   class Meta(ComplexModel.Meta):
@@ -1455,7 +1547,9 @@ class Freizeitsport(ComplexModel):
     map_filter_fields_as_list = ['gruenpflegeobjekt']
 
   def string_representation(self):
-    gruenpflegeobjekt_str = str(self.gruenpflegeobjekt) + ', ' if self.gruenpflegeobjekt else ''
+    gruenpflegeobjekt_str = (
+      str(self.gruenpflegeobjekt) + ', ' if self.gruenpflegeobjekt else ''
+    )
     bezeichnung_str = self.bezeichnung + ', ' if self.bezeichnung else ''
     staedtisch_str = 'städtisch' if self.staedtisch else 'nicht städtisch'
     return gruenpflegeobjekt_str + bezeichnung_str + staedtisch_str
@@ -1463,7 +1557,14 @@ class Freizeitsport(ComplexModel):
   def __str__(self):
     return self.string_representation()
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self,
+    force_insert=False,
+    force_update=False,
+    using=None,
+    update_fields=None,
+    **kwargs,
+  ):
     # store search content in designated field
     self.freizeitsport = self.string_representation()
     super().save(
@@ -1488,7 +1589,9 @@ class Freizeitsport_Fotos(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_freizeitsport',
   )
-  oeffentlich_sichtbar = BooleanField(verbose_name=' öffentlich sichtbar?', default=True)
+  oeffentlich_sichtbar = BooleanField(
+    verbose_name=' öffentlich sichtbar?', default=True
+  )
   aufnahmedatum = DateField(
     verbose_name='Aufnahmedatum', default=date.today, blank=True, null=True
   )
@@ -1499,11 +1602,15 @@ class Freizeitsport_Fotos(ComplexModel):
     null=True,
     validators=standard_validators,
   )
-  dateiname_original = CharField(verbose_name='Original-Dateiname', max_length=255, default='ohne')
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname', max_length=255, default='ohne'
+  )
   foto = ImageField(
     verbose_name='Foto(s)',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'freizeitsport'),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PUBLIC + 'freizeitsport'
+    ),
     max_length=255,
   )
 
@@ -1513,7 +1620,9 @@ class Freizeitsport_Fotos(ComplexModel):
     verbose_name_plural = 'Fotos des Freizeitsports'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Fotos des Freizeitsports in der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Fotos des Freizeitsports in der Hanse- und Universitätsstadt Rostock'
+    )
     short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['freizeitsport']
@@ -1549,7 +1658,9 @@ class Freizeitsport_Fotos(ComplexModel):
       ).strftime('%d.%m.%Y')
     else:
       aufnahmedatum_str = ''
-    return str(self.freizeitsport) + aufnahmedatum_str + oeffentlich_sichtbar_str
+    return (
+      str(self.freizeitsport) + aufnahmedatum_str + oeffentlich_sichtbar_str
+    )
 
 
 post_save.connect(photo_post_processing, sender=Freizeitsport_Fotos)
@@ -1599,7 +1710,11 @@ class Geh_Radwegereinigung(ComplexModel):
     null=True,
   )
   nummer = CharField(
-    verbose_name='Nummer', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Nummer',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   beschreibung = CharField(
     verbose_name='Beschreibung',
@@ -1646,7 +1761,9 @@ class Geh_Radwegereinigung(ComplexModel):
     blank=True,
     null=True,
   )
-  laenge = DecimalField(verbose_name='Länge (in m)', max_digits=7, decimal_places=2, default=0)
+  laenge = DecimalField(
+    verbose_name='Länge (in m)', max_digits=7, decimal_places=2, default=0
+  )
   breite = ForeignKey(
     to=Wegebreiten_Strassenreinigungssatzung_HRO,
     verbose_name='Breite (in m)',
@@ -1674,7 +1791,9 @@ class Geh_Radwegereinigung(ComplexModel):
     blank=True,
     null=True,
   )
-  winterdienst = BooleanField(verbose_name='Winterdienst?', blank=True, null=True)
+  winterdienst = BooleanField(
+    verbose_name='Winterdienst?', blank=True, null=True
+  )
   raeumbreite = ForeignKey(
     to=Raeumbreiten_Strassenreinigungssatzung_HRO,
     verbose_name='Räumbreite im Winterdienst (in m)',
@@ -1711,9 +1830,13 @@ class Geh_Radwegereinigung(ComplexModel):
     verbose_name_plural = 'Geh- und Radwegereinigung'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Geh- und Radwegereinigung der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Geh- und Radwegereinigung der Hanse- und Universitätsstadt Rostock'
+    )
     as_overlay = True
-    associated_models = {'Geh_Radwegereinigung_Flaechen': 'geh_und_radwegereinigung'}
+    associated_models = {
+      'Geh_Radwegereinigung_Flaechen': 'geh_und_radwegereinigung'
+    }
     readonly_fields = ['id', 'gemeindeteil', 'laenge']
     address_type = 'Straße'
     address_mandatory = False
@@ -1795,7 +1918,11 @@ class Geh_Radwegereinigung(ComplexModel):
       + (', ' + str(self.beschreibung) if self.beschreibung else '')
       + (', Wegeart ' + str(self.wegeart) if self.wegeart else '')
       + (', Wegetyp ' + str(self.wegetyp) if self.wegetyp else '')
-      + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '')
+      + (
+        ', Reinigungsklasse ' + str(self.reinigungsklasse)
+        if self.reinigungsklasse
+        else ''
+      )
       + (', mit Winterdienst' if self.winterdienst else '')
       + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '')
       + (
@@ -1833,7 +1960,10 @@ class Geh_Radwegereinigung_Flaechen(ComplexModel):
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['geh_und_radwegereinigung']
     geometry_type = 'MultiPolygon'
-    list_fields = {'aktiv': 'aktiv?', 'geh_und_radwegereinigung': 'Geh- und Radwegereinigung'}
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'geh_und_radwegereinigung': 'Geh- und Radwegereinigung',
+    }
     list_fields_with_foreign_key = {'geh_und_radwegereinigung': 'id'}
     map_feature_tooltip_fields = ['geh_und_radwegereinigung']
 
@@ -1852,10 +1982,14 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
   Haltestellen
   """
 
-  deaktiviert = DateField(verbose_name='Außerbetriebstellung', blank=True, null=True)
+  deaktiviert = DateField(
+    verbose_name='Außerbetriebstellung', blank=True, null=True
+  )
   id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
   hst_bezeichnung = CharField(
-    verbose_name='Haltestellenbezeichnung', max_length=255, validators=standard_validators
+    verbose_name='Haltestellenbezeichnung',
+    max_length=255,
+    validators=standard_validators,
   )
   hst_hafas_id = CharField(
     verbose_name='HAFAS-ID',
@@ -1864,7 +1998,8 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True,
     validators=[
       RegexValidator(
-        regex=haltestellenkataster_hafas_id_regex, message=haltestellenkataster_hafas_id_message
+        regex=haltestellenkataster_hafas_id_regex,
+        message=haltestellenkataster_hafas_id_message,
       )
     ],
   )
@@ -1896,15 +2031,25 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True,
   )
   hst_rsag = BooleanField(
-    verbose_name=' bedient durch Rostocker Straßenbahn AG?', blank=True, null=True
+    verbose_name=' bedient durch Rostocker Straßenbahn AG?',
+    blank=True,
+    null=True,
   )
   hst_rebus = BooleanField(
-    verbose_name=' bedient durch rebus Regionalbus Rostock GmbH?', blank=True, null=True
+    verbose_name=' bedient durch rebus Regionalbus Rostock GmbH?',
+    blank=True,
+    null=True,
   )
-  hst_nur_ausstieg = BooleanField(verbose_name=' nur Ausstieg?', blank=True, null=True)
-  hst_nur_einstieg = BooleanField(verbose_name=' nur Einstieg?', blank=True, null=True)
+  hst_nur_ausstieg = BooleanField(
+    verbose_name=' nur Ausstieg?', blank=True, null=True
+  )
+  hst_nur_einstieg = BooleanField(
+    verbose_name=' nur Einstieg?', blank=True, null=True
+  )
   hst_verkehrsmittelklassen = ChoiceArrayField(
-    CharField(verbose_name='Verkehrsmittelklasse(n)', max_length=255, choices=()),
+    CharField(
+      verbose_name='Verkehrsmittelklasse(n)', max_length=255, choices=()
+    ),
     verbose_name='Verkehrsmittelklasse(n)',
   )
   hst_abfahrten = PositiveSmallIntegerMinField(
@@ -2013,13 +2158,19 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     verbose_name=' barrierefreier Einstieg vorhanden?', blank=True, null=True
   )
   bf_zu_abgaenge = BooleanField(
-    verbose_name=' barrierefreie Zu- und Abgänge vorhanden?', blank=True, null=True
+    verbose_name=' barrierefreie Zu- und Abgänge vorhanden?',
+    blank=True,
+    null=True,
   )
   bf_bewegungsraum = BooleanField(
-    verbose_name=' barrierefreier Bewegungsraum vorhanden?', blank=True, null=True
+    verbose_name=' barrierefreier Bewegungsraum vorhanden?',
+    blank=True,
+    null=True,
   )
   tl_auffindestreifen = BooleanField(
-    verbose_name='Taktiles Leitsystem: Auffindestreifen vorhanden?', blank=True, null=True
+    verbose_name='Taktiles Leitsystem: Auffindestreifen vorhanden?',
+    blank=True,
+    null=True,
   )
   tl_auffindestreifen_ausfuehrung = ForeignKey(
     to=Ausfuehrungen_Haltestellenkataster,
@@ -2038,7 +2189,9 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True,
   )
   tl_einstiegsfeld = BooleanField(
-    verbose_name='Taktiles Leitsystem: Einstiegsfeld vorhanden?', blank=True, null=True
+    verbose_name='Taktiles Leitsystem: Einstiegsfeld vorhanden?',
+    blank=True,
+    null=True,
   )
   tl_einstiegsfeld_ausfuehrung = ForeignKey(
     to=Ausfuehrungen_Haltestellenkataster,
@@ -2057,7 +2210,9 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True,
   )
   tl_leitstreifen = BooleanField(
-    verbose_name='Taktiles Leitsystem: Leitstreifen vorhanden?', blank=True, null=True
+    verbose_name='Taktiles Leitsystem: Leitstreifen vorhanden?',
+    blank=True,
+    null=True,
   )
   tl_leitstreifen_ausfuehrung = ForeignKey(
     to=Ausfuehrungen_Haltestellenkataster,
@@ -2076,7 +2231,9 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True,
   )
   tl_aufmerksamkeitsfeld = BooleanField(
-    verbose_name='Aufmerksamkeitsfeld (1. Tür) vorhanden?', blank=True, null=True
+    verbose_name='Aufmerksamkeitsfeld (1. Tür) vorhanden?',
+    blank=True,
+    null=True,
   )
   tl_bahnsteigkante_visuell = BooleanField(
     verbose_name='Bahnsteigkante visuell erkennbar?', blank=True, null=True
@@ -2094,7 +2251,9 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     blank=True,
     null=True,
   )
-  as_h_mast = BooleanField(verbose_name='Mast vorhanden?', blank=True, null=True)
+  as_h_mast = BooleanField(
+    verbose_name='Mast vorhanden?', blank=True, null=True
+  )
   as_h_masttyp = ForeignKey(
     to=Masttypen_Haltestellenkataster,
     verbose_name='Masttyp',
@@ -2105,7 +2264,9 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     blank=True,
     null=True,
   )
-  as_papierkorb = BooleanField(verbose_name='Papierkorb vorhanden?', blank=True, null=True)
+  as_papierkorb = BooleanField(
+    verbose_name='Papierkorb vorhanden?', blank=True, null=True
+  )
   as_fahrgastunterstand = BooleanField(
     verbose_name='Fahrgastunterstand vorhanden?', blank=True, null=True
   )
@@ -2135,7 +2296,9 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     blank=True,
     null=True,
   )
-  as_gelaender = BooleanField(verbose_name='Geländer vorhanden?', blank=True, null=True)
+  as_gelaender = BooleanField(
+    verbose_name='Geländer vorhanden?', blank=True, null=True
+  )
   as_fahrplanvitrine = BooleanField(
     verbose_name='Fahrplanvitrine vorhanden?', blank=True, null=True
   )
@@ -2152,14 +2315,22 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
   as_tarifinformation = BooleanField(
     verbose_name='Tarifinformation vorhanden?', blank=True, null=True
   )
-  as_liniennetzplan = BooleanField(verbose_name='Liniennetzplan vorhanden?', blank=True, null=True)
-  as_fahrplan = BooleanField(verbose_name='Fahrplan vorhanden?', blank=True, null=True)
+  as_liniennetzplan = BooleanField(
+    verbose_name='Liniennetzplan vorhanden?', blank=True, null=True
+  )
+  as_fahrplan = BooleanField(
+    verbose_name='Fahrplan vorhanden?', blank=True, null=True
+  )
   as_fahrausweisautomat = BooleanField(
     verbose_name='Fahrausweisautomat vorhanden?', blank=True, null=True
   )
-  as_lautsprecher = BooleanField(verbose_name='Lautsprecher vorhanden?', blank=True, null=True)
+  as_lautsprecher = BooleanField(
+    verbose_name='Lautsprecher vorhanden?', blank=True, null=True
+  )
   as_dfi = BooleanField(
-    verbose_name='Dynamisches Fahrgastinformationssystem vorhanden?', blank=True, null=True
+    verbose_name='Dynamisches Fahrgastinformationssystem vorhanden?',
+    blank=True,
+    null=True,
   )
   as_dfi_typ = ForeignKey(
     to=DFI_Typen_Haltestellenkataster,
@@ -2171,33 +2342,45 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     blank=True,
     null=True,
   )
-  as_anfragetaster = BooleanField(verbose_name='Anfragetaster vorhanden?', blank=True, null=True)
+  as_anfragetaster = BooleanField(
+    verbose_name='Anfragetaster vorhanden?', blank=True, null=True
+  )
   as_blindenschrift = BooleanField(
     verbose_name='Haltestellen-/Linieninformationen in Blindenschrift vorhanden?',
     blank=True,
     null=True,
   )
-  as_beleuchtung = BooleanField(verbose_name='Beleuchtung vorhanden?', blank=True, null=True)
+  as_beleuchtung = BooleanField(
+    verbose_name='Beleuchtung vorhanden?', blank=True, null=True
+  )
   as_hinweis_warnblinklicht_ein = BooleanField(
-    verbose_name='Hinweis „Warnblinklicht ein“ vorhanden?', blank=True, null=True
+    verbose_name='Hinweis „Warnblinklicht ein“ vorhanden?',
+    blank=True,
+    null=True,
   )
   bfe_park_and_ride = BooleanField(
     verbose_name='P+R-Parkplatz in Umgebung vorhanden?', blank=True, null=True
   )
   bfe_fahrradabstellmoeglichkeit = BooleanField(
-    verbose_name='Fahrradabstellmöglichkeit in Umgebung vorhanden?', blank=True, null=True
+    verbose_name='Fahrradabstellmöglichkeit in Umgebung vorhanden?',
+    blank=True,
+    null=True,
   )
   bfe_querungshilfe = BooleanField(
     verbose_name='Querungshilfe in Umgebung vorhanden?', blank=True, null=True
   )
   bfe_fussgaengerueberweg = BooleanField(
-    verbose_name='Fußgängerüberweg in Umgebung vorhanden?', blank=True, null=True
+    verbose_name='Fußgängerüberweg in Umgebung vorhanden?',
+    blank=True,
+    null=True,
   )
   bfe_seniorenheim = BooleanField(
     verbose_name='Seniorenheim in Umgebung vorhanden?', blank=True, null=True
   )
   bfe_pflegeeinrichtung = BooleanField(
-    verbose_name='Pflegeeinrichtung in Umgebung vorhanden?', blank=True, null=True
+    verbose_name='Pflegeeinrichtung in Umgebung vorhanden?',
+    blank=True,
+    null=True,
   )
   bfe_medizinische_versorgungseinrichtung = BooleanField(
     verbose_name='Medizinische Versorgungseinrichtung in Umgebung vorhanden?',
@@ -2230,7 +2413,9 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Haltestellen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
-    associated_models = {'Haltestellenkataster_Fotos': 'haltestellenkataster_haltestelle'}
+    associated_models = {
+      'Haltestellenkataster_Fotos': 'haltestellenkataster_haltestelle'
+    }
     readonly_fields = ['id']
     choices_models_for_choices_fields = {
       'hst_linien': 'Linien',
@@ -2286,11 +2471,15 @@ class Haltestellenkataster_Fotos(ComplexModel):
     related_name='%(app_label)s_%(class)s_motive',
   )
   aufnahmedatum = DateField(verbose_name='Aufnahmedatum', default=date.today)
-  dateiname_original = CharField(verbose_name='Original-Dateiname', max_length=255, default='ohne')
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname', max_length=255, default='ohne'
+  )
   foto = ImageField(
     verbose_name='Foto(s)',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'haltestellenkataster'),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'haltestellenkataster'
+    ),
     max_length=255,
   )
 
@@ -2300,7 +2489,9 @@ class Haltestellenkataster_Fotos(ComplexModel):
     verbose_name_plural = 'Fotos des Haltestellenkatasters'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Fotos des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Fotos des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
+    )
     short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['haltestellenkataster_haltestelle']
@@ -2314,7 +2505,10 @@ class Haltestellenkataster_Fotos(ComplexModel):
       'foto': 'Foto',
     }
     list_fields_with_date = ['aufnahmedatum']
-    list_fields_with_foreign_key = {'haltestellenkataster_haltestelle': 'id', 'motiv': 'fotomotiv'}
+    list_fields_with_foreign_key = {
+      'haltestellenkataster_haltestelle': 'id',
+      'motiv': 'fotomotiv',
+    }
     list_actions_assign = [
       {
         'action_name': 'haltestellenkataster_fotos-motiv',
@@ -2337,7 +2531,9 @@ class Haltestellenkataster_Fotos(ComplexModel):
       + ' mit Motiv '
       + str(self.motiv)
       + ' und Aufnahmedatum '
-      + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+      + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime(
+        '%d.%m.%Y'
+      )
     )
 
 
@@ -2358,7 +2554,10 @@ class Lichtwellenleiterinfrastruktur_Abschnitte(ComplexModel):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(ComplexModel.Meta):
@@ -2368,9 +2567,7 @@ class Lichtwellenleiterinfrastruktur_Abschnitte(ComplexModel):
     verbose_name_plural = 'Abschnitte der Lichtwellenleiterinfrastruktur'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = (
-      'Abschnitte der Lichtwellenleiterinfrastruktur in der Hanse- und Universitätsstadt Rostock'
-    )
+    description = 'Abschnitte der Lichtwellenleiterinfrastruktur in der Hanse- und Universitätsstadt Rostock'
     associated_models = {'Lichtwellenleiterinfrastruktur': 'abschnitt'}
     list_fields = {'aktiv': 'aktiv?', 'bezeichnung': 'Bezeichnung'}
 
@@ -2481,7 +2678,10 @@ class Parkscheinautomaten_Tarife(ComplexModel):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
   zeiten = CharField(verbose_name='Bewirtschaftungszeiten', max_length=255)
   normaltarif_parkdauer_min = PositiveSmallIntegerMinField(
@@ -2545,10 +2745,16 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     null=True,
   )
   normaltarif_gebuehrenschritte = CharField(
-    verbose_name='Gebührenschritte Normaltarif', max_length=255, blank=True, null=True
+    verbose_name='Gebührenschritte Normaltarif',
+    max_length=255,
+    blank=True,
+    null=True,
   )
   veranstaltungstarif_parkdauer_min = PositiveSmallIntegerMinField(
-    verbose_name='Mindestparkdauer Veranstaltungstarif', min_value=1, blank=True, null=True
+    verbose_name='Mindestparkdauer Veranstaltungstarif',
+    min_value=1,
+    blank=True,
+    null=True,
   )
   veranstaltungstarif_parkdauer_min_einheit = ForeignKey(
     to=Zeiteinheiten,
@@ -2561,7 +2767,10 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     null=True,
   )
   veranstaltungstarif_parkdauer_max = PositiveSmallIntegerMinField(
-    verbose_name='Maximalparkdauer Veranstaltungstarif', min_value=1, blank=True, null=True
+    verbose_name='Maximalparkdauer Veranstaltungstarif',
+    min_value=1,
+    blank=True,
+    null=True,
   )
   veranstaltungstarif_parkdauer_max_einheit = ForeignKey(
     to=Zeiteinheiten,
@@ -2612,9 +2821,14 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     null=True,
   )
   veranstaltungstarif_gebuehrenschritte = CharField(
-    verbose_name='Gebührenschritte Veranstaltungstarif', max_length=255, blank=True, null=True
+    verbose_name='Gebührenschritte Veranstaltungstarif',
+    max_length=255,
+    blank=True,
+    null=True,
   )
-  zugelassene_muenzen = CharField(verbose_name=' zugelassene Münzen', max_length=255)
+  zugelassene_muenzen = CharField(
+    verbose_name=' zugelassene Münzen', max_length=255
+  )
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten"."parkscheinautomaten_tarife_hro'
@@ -2623,8 +2837,12 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     verbose_name_plural = 'Tarife der Parkscheinautomaten'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Tarife der Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
-    associated_models = {'Parkscheinautomaten_Parkscheinautomaten': 'parkscheinautomaten_tarif'}
+    description = (
+      'Tarife der Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
+    )
+    associated_models = {
+      'Parkscheinautomaten_Parkscheinautomaten': 'parkscheinautomaten_tarif'
+    }
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -2686,7 +2904,9 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
       )
     ],
   )
-  inbetriebnahme = DateField(verbose_name='Inbetriebnahme', blank=True, null=True)
+  inbetriebnahme = DateField(
+    verbose_name='Inbetriebnahme', blank=True, null=True
+  )
   e_anschluss = ForeignKey(
     to=E_Anschluesse_Parkscheinautomaten,
     verbose_name='E-Anschluss',
@@ -2708,11 +2928,15 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     blank=True,
     null=True,
   )
-  laufzeit_geldkarte = DateField(verbose_name='Laufzeit der Geldkarte', blank=True, null=True)
+  laufzeit_geldkarte = DateField(
+    verbose_name='Laufzeit der Geldkarte', blank=True, null=True
+  )
   foto = ImageField(
     verbose_name='Foto',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'parkscheinautomaten'),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'parkscheinautomaten'
+    ),
     max_length=255,
     blank=True,
     null=True,
@@ -2737,7 +2961,10 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
       'zone': 'Zone',
       'foto': 'Foto',
     }
-    list_fields_with_foreign_key = {'parkscheinautomaten_tarif': 'bezeichnung', 'zone': 'zone'}
+    list_fields_with_foreign_key = {
+      'parkscheinautomaten_tarif': 'bezeichnung',
+      'zone': 'zone',
+    }
     map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'parkscheinautomaten_tarif': 'Tarif',
@@ -2751,13 +2978,21 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     return self.bezeichnung
 
 
-pre_save.connect(set_pre_save_instance, sender=Parkscheinautomaten_Parkscheinautomaten)
+pre_save.connect(
+  set_pre_save_instance, sender=Parkscheinautomaten_Parkscheinautomaten
+)
 
-post_save.connect(photo_post_processing, sender=Parkscheinautomaten_Parkscheinautomaten)
+post_save.connect(
+  photo_post_processing, sender=Parkscheinautomaten_Parkscheinautomaten
+)
 
-post_save.connect(delete_photo_after_emptied, sender=Parkscheinautomaten_Parkscheinautomaten)
+post_save.connect(
+  delete_photo_after_emptied, sender=Parkscheinautomaten_Parkscheinautomaten
+)
 
-post_delete.connect(delete_photo, sender=Parkscheinautomaten_Parkscheinautomaten)
+post_delete.connect(
+  delete_photo, sender=Parkscheinautomaten_Parkscheinautomaten
+)
 
 
 #
@@ -2770,7 +3005,9 @@ class Punktwolken_Projekte(ComplexModel):
     verbose_name='Bezeichnung',
     max_length=255,
   )
-  beschreibung = NullTextField(verbose_name='Beschreibung', max_length=255, blank=True, null=True)
+  beschreibung = NullTextField(
+    verbose_name='Beschreibung', max_length=255, blank=True, null=True
+  )
   projekt_update = DateTimeField(
     verbose_name=' letzte Aktualisierung',
     editable=False,
@@ -2781,8 +3018,12 @@ class Punktwolken_Projekte(ComplexModel):
   # so a project have no geometry at initialization.
   geometrie.null = True
   vcp_task_id = UUIDField(verbose_name='VC-Publisher-Task', blank=True)
-  vcp_dataset_bucket_id = UUIDField(verbose_name='VC-Publisher-Dataset', blank=True)
-  vcp_datasource_id = CharField(verbose_name='VC-Publisher-Datasource', max_length=255, blank=True)
+  vcp_dataset_bucket_id = UUIDField(
+    verbose_name='VC-Publisher-Dataset', blank=True
+  )
+  vcp_datasource_id = CharField(
+    verbose_name='VC-Publisher-Datasource', max_length=255, blank=True
+  )
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten"."punktwolken_projekte'
@@ -2791,7 +3032,12 @@ class Punktwolken_Projekte(ComplexModel):
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Projekte mit Punktwolken aus LiDAR-Scans'
-    readonly_fields = ['geometrie', 'vcp_task_id', 'vcp_dataset_bucket_id', 'vcp_datasource_id']
+    readonly_fields = [
+      'geometrie',
+      'vcp_task_id',
+      'vcp_dataset_bucket_id',
+      'vcp_datasource_id',
+    ]
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -2809,7 +3055,14 @@ class Punktwolken_Projekte(ComplexModel):
   def __str__(self):
     return self.bezeichnung
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self,
+    force_insert=False,
+    force_update=False,
+    using=None,
+    update_fields=None,
+    **kwargs,
+  ):
     if not self.vcp_task_id:
       try:
         # create Task
@@ -2819,7 +3072,7 @@ class Punktwolken_Projekte(ComplexModel):
         )
         source: Source = project.create_source(
           name=str(self.bezeichnung),
-          sourceProperties=bucket.reference(dataBucketKey='/datasource')
+          sourceProperties=bucket.reference(dataBucketKey='/datasource'),
           type='tileset',
           typeProperties={},
           description=str(self.beschreibung),
@@ -2898,19 +3151,26 @@ class Punktwolken(ComplexModel):
   punktwolke = FileField(
     verbose_name='Punktwolkendatei',
     upload_to=path_and_rename(
-      path=settings.PC_PATH_PREFIX_PRIVATE + 'punktwolken/', foreign_key_subdir_attr='projekt_id'
+      path=settings.PC_PATH_PREFIX_PRIVATE + 'punktwolken/',
+      foreign_key_subdir_attr='projekt_id',
     ),
     storage=OverwriteStorage(path_root=settings.PC_MEDIA_ROOT),
-    validators=[FileExtensionValidator(allowed_extensions=['e57', 'las', 'laz', 'xyz'])],
+    validators=[
+      FileExtensionValidator(allowed_extensions=['e57', 'las', 'laz', 'xyz'])
+    ],
   )
-  vc_update = DateTimeField(verbose_name=' letzte Aktualisierung', auto_now=True)
+  vc_update = DateTimeField(
+    verbose_name=' letzte Aktualisierung', auto_now=True
+  )
   vcp_object_key = CharField(
     verbose_name='VCP-Objekt-ID', max_length=255, editable=False, blank=True
   )
   geometrie = polygon_field
   geometrie.null = True
   # needed for VCPub downloads. VCPUb returns no filesize in file response.
-  file_size = IntegerField(verbose_name='Dateigröße', editable=False, blank=True)
+  file_size = IntegerField(
+    verbose_name='Dateigröße', editable=False, blank=True
+  )
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten"."punktwolken'
@@ -2944,7 +3204,14 @@ class Punktwolken(ComplexModel):
       aufnahme_str = aufnahme_str + f' ({format_filesize(self.file_size)})'
     return self.dateiname + aufnahme_str
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self,
+    force_insert=False,
+    force_update=False,
+    using=None,
+    update_fields=None,
+    **kwargs,
+  ):
     """
     Modified django save method.
     :param force_insert:
@@ -2962,18 +3229,27 @@ class Punktwolken(ComplexModel):
     if not self.file_size:
       file_path = Path(self.punktwolke.path)
       update_model(
-        model_name='Punktwolken', pk=self.pk, attributes={'file_size': file_path.stat().st_size}
+        model_name='Punktwolken',
+        pk=self.pk,
+        attributes={'file_size': file_path.stat().st_size},
       )
     if not self.vcp_object_key and is_broker_available():
       # If point cloud database entry has no object key attribute, then point cloud must still be
       # uploaded to the VC Publisher.
       # lazy import of celery task -> must remain here to avoid circular import errors
-      from ..tasks import calculate_2d_bounding_box_for_pointcloud, send_pointcloud_to_vcpub
+      from ..tasks import (
+        calculate_2d_bounding_box_for_pointcloud,
+        send_pointcloud_to_vcpub,
+      )
 
       # run celery task delayed
       if not self.geometrie:
         # calculate 2D bounding box for point cloud, asynchron
-        enqueue(calculate_2d_bounding_box_for_pointcloud, pk=self.pk, path=self.punktwolke.path)
+        enqueue(
+          calculate_2d_bounding_box_for_pointcloud,
+          pk=self.pk,
+          path=self.punktwolke.path,
+        )
       # upload point cloud to VC Publisher, asynchron
       enqueue(
         send_pointcloud_to_vcpub,
@@ -3009,7 +3285,11 @@ class RSAG_Gleise(ComplexModel):
   """
 
   quelle = CharField(
-    verbose_name='Quelle', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Quelle',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   geometrie = line_field
 
@@ -3041,7 +3321,9 @@ class RSAG_Masten(ComplexModel):
   Masten
   """
 
-  mastnummer = CharField(verbose_name='Mastnummer', max_length=255, validators=standard_validators)
+  mastnummer = CharField(
+    verbose_name='Mastnummer', max_length=255, validators=standard_validators
+  )
   moment_am_fundament = DecimalField(
     verbose_name='Moment am Fundament (in kNm)',
     max_digits=5,
@@ -3189,7 +3471,10 @@ class RSAG_Masten(ComplexModel):
     related_name='%(app_label)s_%(class)s_masttypen',
   )
   nennmass_ueber_so = PositiveSmallIntegerRangeField(
-    verbose_name='Nennmaß über Schienenoberkante (in mm)', min_value=1, blank=True, null=True
+    verbose_name='Nennmaß über Schienenoberkante (in mm)',
+    min_value=1,
+    blank=True,
+    null=True,
   )
   mastgewicht = PositiveSmallIntegerRangeField(
     verbose_name='Mastgewicht (in kg)', min_value=1, blank=True, null=True
@@ -3288,7 +3573,11 @@ class RSAG_Masten(ComplexModel):
     null=True,
   )
   quelle = CharField(
-    verbose_name='Quelle', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Quelle',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   dgm_hoehe = DecimalField(
     verbose_name='Höhenwert des Durchstoßpunktes auf dem DGM (in m)',
@@ -3315,7 +3604,10 @@ class RSAG_Masten(ComplexModel):
     default_overlays = ['RSAG_Masten']
     forms_in_high_zoom_mode = True
     forms_in_high_zoom_mode_default_aerial = True
-    associated_models = {'RSAG_Quertraeger': 'mast', 'RSAG_Spanndraehte': 'mast'}
+    associated_models = {
+      'RSAG_Quertraeger': 'mast',
+      'RSAG_Spanndraehte': 'mast',
+    }
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
@@ -3407,7 +3699,11 @@ class RSAG_Quertraeger(ComplexModel):
     related_name='%(app_label)s_%(class)s_masten',
   )
   quelle = CharField(
-    verbose_name='Quelle', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Quelle',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   geometrie = line_field
 
@@ -3426,7 +3722,12 @@ class RSAG_Quertraeger(ComplexModel):
     forms_in_high_zoom_mode_default_aerial = True
     fields_with_foreign_key_to_linkify = ['mast']
     geometry_type = 'LineString'
-    list_fields = {'uuid': 'UUID', 'aktiv': 'aktiv?', 'mast': 'Mast', 'quelle': 'Quelle'}
+    list_fields = {
+      'uuid': 'UUID',
+      'aktiv': 'aktiv?',
+      'mast': 'Mast',
+      'quelle': 'Quelle',
+    }
     list_fields_with_foreign_key = {'mast': 'mastnummer'}
     map_filter_fields = {'uuid': 'UUID', 'mast': 'Mast', 'quelle': 'Quelle'}
     map_filter_fields_as_list = ['mast']
@@ -3452,7 +3753,11 @@ class RSAG_Spanndraehte(ComplexModel):
     null=True,
   )
   quelle = CharField(
-    verbose_name='Quelle', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Quelle',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   geometrie = line_field
 
@@ -3471,7 +3776,12 @@ class RSAG_Spanndraehte(ComplexModel):
     forms_in_high_zoom_mode_default_aerial = True
     fields_with_foreign_key_to_linkify = ['mast']
     geometry_type = 'LineString'
-    list_fields = {'uuid': 'UUID', 'aktiv': 'aktiv?', 'mast': 'Mast', 'quelle': 'Quelle'}
+    list_fields = {
+      'uuid': 'UUID',
+      'aktiv': 'aktiv?',
+      'mast': 'Mast',
+      'quelle': 'Quelle',
+    }
     list_fields_with_foreign_key = {'mast': 'mastnummer'}
     map_filter_fields = {'uuid': 'UUID', 'mast': 'Mast', 'quelle': 'Quelle'}
     map_filter_fields_as_list = ['mast']
@@ -3568,7 +3878,9 @@ class Spielplaetze(ComplexModel):
     map_filter_fields_as_list = ['gruenpflegeobjekt']
 
   def string_representation(self):
-    gruenpflegeobjekt_str = str(self.gruenpflegeobjekt) + ', ' if self.gruenpflegeobjekt else ''
+    gruenpflegeobjekt_str = (
+      str(self.gruenpflegeobjekt) + ', ' if self.gruenpflegeobjekt else ''
+    )
     bezeichnung_str = self.bezeichnung + ', ' if self.bezeichnung else ''
     staedtisch_str = 'städtisch' if self.staedtisch else 'nicht städtisch'
     return gruenpflegeobjekt_str + bezeichnung_str + staedtisch_str
@@ -3576,7 +3888,14 @@ class Spielplaetze(ComplexModel):
   def __str__(self):
     return self.string_representation()
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self,
+    force_insert=False,
+    force_update=False,
+    using=None,
+    update_fields=None,
+    **kwargs,
+  ):
     # store search content in designated field
     self.spielplatz = self.string_representation()
     super().save(
@@ -3601,7 +3920,9 @@ class Spielplaetze_Fotos(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_spielplaetze',
   )
-  oeffentlich_sichtbar = BooleanField(verbose_name=' öffentlich sichtbar?', default=True)
+  oeffentlich_sichtbar = BooleanField(
+    verbose_name=' öffentlich sichtbar?', default=True
+  )
   aufnahmedatum = DateField(
     verbose_name='Aufnahmedatum', default=date.today, blank=True, null=True
   )
@@ -3612,11 +3933,15 @@ class Spielplaetze_Fotos(ComplexModel):
     null=True,
     validators=standard_validators,
   )
-  dateiname_original = CharField(verbose_name='Original-Dateiname', max_length=255, default='ohne')
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname', max_length=255, default='ohne'
+  )
   foto = ImageField(
     verbose_name='Foto(s)',
     storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'spielplaetze'),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PUBLIC + 'spielplaetze'
+    ),
     max_length=255,
   )
 
@@ -3626,7 +3951,9 @@ class Spielplaetze_Fotos(ComplexModel):
     verbose_name_plural = 'Fotos der Spielplätze'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Fotos der Spielplätze in der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Fotos der Spielplätze in der Hanse- und Universitätsstadt Rostock'
+    )
     short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['spielplatz']
@@ -3749,7 +4076,9 @@ class Strassenreinigung(ComplexModel):
     blank=True,
     null=True,
   )
-  laenge = DecimalField(verbose_name='Länge (in m)', max_digits=7, decimal_places=2, default=0)
+  laenge = DecimalField(
+    verbose_name='Länge (in m)', max_digits=7, decimal_places=2, default=0
+  )
   geometrie = multiline_field
 
   class Meta(ComplexModel.Meta):
@@ -3832,7 +4161,11 @@ class Strassenreinigung(ComplexModel):
       str(self.id)
       + (', ' + str(self.beschreibung) if self.beschreibung else '')
       + (', außerhalb geschlossener Ortslage' if self.ausserhalb else '')
-      + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '')
+      + (
+        ', Reinigungsklasse ' + str(self.reinigungsklasse)
+        if self.reinigungsklasse
+        else ''
+      )
       + (
         ', Fahrbahnwinterdienst ' + str(self.fahrbahnwinterdienst)
         if self.fahrbahnwinterdienst
@@ -3869,7 +4202,9 @@ class Strassenreinigung_Flaechen(ComplexModel):
     verbose_name_plural = 'Flächen zur Straßenreinigung'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Flächen zur Straßenreinigung der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Flächen zur Straßenreinigung der Hanse- und Universitätsstadt Rostock'
+    )
     short_name = 'Fläche'
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['strassenreinigung']
@@ -3909,7 +4244,9 @@ class Strassen_Simple(ComplexModel):
     max_length=5,
     unique=True,
     validators=[
-      RegexValidator(regex=strassen_schluessel_regex, message=strassen_schluessel_message)
+      RegexValidator(
+        regex=strassen_schluessel_regex, message=strassen_schluessel_message
+      )
     ],
   )
   geometrie = multiline_field
@@ -4035,10 +4372,18 @@ class Strassen_Simple_Historie(ComplexModel):
     related_name='%(app_label)s_%(class)s_strasse',
   )
   datum = CharField(
-    verbose_name='Datum', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Datum',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   beschluss = CharField(
-    verbose_name='Beschluss', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Beschluss',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   veroeffentlichung = CharField(
     verbose_name='Veröffentlichung',
@@ -4048,7 +4393,11 @@ class Strassen_Simple_Historie(ComplexModel):
     validators=standard_validators,
   )
   historie = CharField(
-    verbose_name='Historie', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Historie',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
 
   class Meta(ComplexModel.Meta):
@@ -4057,7 +4406,9 @@ class Strassen_Simple_Historie(ComplexModel):
     verbose_name_plural = 'Historie zu Straßen'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Historie zu Straßen in der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Historie zu Straßen in der Hanse- und Universitätsstadt Rostock'
+    )
     short_name = 'Historie'
     fields_with_foreign_key_to_linkify = ['strasse_simple']
     list_fields = {
@@ -4094,14 +4445,22 @@ class Strassen_Simple_Namensanalyse(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_strasse',
   )
-  person_weiblich = BooleanField(verbose_name='Person weiblich?', blank=True, null=True)
-  person_maennlich = BooleanField(verbose_name='Person männlich?', blank=True, null=True)
+  person_weiblich = BooleanField(
+    verbose_name='Person weiblich?', blank=True, null=True
+  )
+  person_maennlich = BooleanField(
+    verbose_name='Person männlich?', blank=True, null=True
+  )
   beruf = BooleanField(verbose_name='Beruf?', blank=True, null=True)
   literatur = BooleanField(
     verbose_name=' literarische(r) Figur oder Begriff?', blank=True, null=True
   )
-  historisch = BooleanField(verbose_name=' historischer Begriff?', blank=True, null=True)
-  flora_fauna = BooleanField(verbose_name='Eigenname aus der Natur?', blank=True, null=True)
+  historisch = BooleanField(
+    verbose_name=' historischer Begriff?', blank=True, null=True
+  )
+  flora_fauna = BooleanField(
+    verbose_name='Eigenname aus der Natur?', blank=True, null=True
+  )
   orte_landschaften = BooleanField(
     verbose_name='Eigenname von Orten oder Landschaften?', blank=True, null=True
   )
@@ -4109,8 +4468,12 @@ class Strassen_Simple_Namensanalyse(ComplexModel):
     verbose_name='Begriff gesellschaftlicher Werte?', blank=True, null=True
   )
   lagehinweis = BooleanField(verbose_name='Lagehinweis?', blank=True, null=True)
-  religion = BooleanField(verbose_name=' religiöse(r) Figur oder Begriff?', blank=True, null=True)
-  niederdeutsch = BooleanField(verbose_name=' niederdeutscher Begriff?', blank=True, null=True)
+  religion = BooleanField(
+    verbose_name=' religiöse(r) Figur oder Begriff?', blank=True, null=True
+  )
+  niederdeutsch = BooleanField(
+    verbose_name=' niederdeutscher Begriff?', blank=True, null=True
+  )
   erlaeuterungen_intern = NullTextField(
     verbose_name='Erläuterungen (intern)',
     max_length=1000,
@@ -4130,7 +4493,9 @@ class Strassen_Simple_Namensanalyse(ComplexModel):
     max_length=255,
     blank=True,
     null=True,
-    validators=[RegexValidator(regex=wikipedia_regex, message=wikipedia_message)],
+    validators=[
+      RegexValidator(regex=wikipedia_regex, message=wikipedia_message)
+    ],
   )
 
   class Meta(ComplexModel.Meta):
@@ -4139,7 +4504,9 @@ class Strassen_Simple_Namensanalyse(ComplexModel):
     verbose_name_plural = 'Namensanalyse zu Straßen'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Namensanalyse zu Straßen in der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Namensanalyse zu Straßen in der Hanse- und Universitätsstadt Rostock'
+    )
     short_name = 'Namensanalyse'
     fields_with_foreign_key_to_linkify = ['strasse_simple']
     list_fields = {
@@ -4212,7 +4579,8 @@ class UVP_Vorhaben(ComplexModel):
     null=True,
     validators=[
       RegexValidator(
-        regex=uvp_registriernummer_bauamt_regex, message=uvp_registriernummer_bauamt_message
+        regex=uvp_registriernummer_bauamt_regex,
+        message=uvp_registriernummer_bauamt_message,
       )
     ],
   )
@@ -4280,7 +4648,12 @@ class UVP_Vorhaben(ComplexModel):
       'rechtsgrundlage': 'Rechtsgrundlage',
       'typ': 'Typ',
     }
-    map_filter_fields_as_list = ['vorgangsart', 'genehmigungsbehoerde', 'rechtsgrundlage', 'typ']
+    map_filter_fields_as_list = [
+      'vorgangsart',
+      'genehmigungsbehoerde',
+      'rechtsgrundlage',
+      'typ',
+    ]
 
   def __str__(self):
     return self.bezeichnung
@@ -4319,7 +4692,9 @@ class UVP_Vorpruefungen(ComplexModel):
     related_name='%(app_label)s_%(class)s_ergebnisse',
   )
   datum_bekanntmachung = DateField(
-    verbose_name='Datum Bekanntmachung „Städtischer Anzeiger“', blank=True, null=True
+    verbose_name='Datum Bekanntmachung „Städtischer Anzeiger“',
+    blank=True,
+    null=True,
   )
   datum_veroeffentlichung = DateField(
     verbose_name='Datum Veröffentlichung UVP-Portal', blank=True, null=True
