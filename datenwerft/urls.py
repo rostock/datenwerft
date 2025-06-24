@@ -9,7 +9,6 @@ from bemas import urls as bemas_urls
 from datenmanagement import urls as datenmanagement_urls
 from gdihrometadata import urls as gdihrometadata_urls
 from toolbox import urls as toolbox_urls
-
 from .views import (
   IndexView,
   error_400,
@@ -53,6 +52,8 @@ urlpatterns = [
   path('accounts/', view=include('accounts.urls')),
   # ...Toolbox app
   path('toolbox/', view=include('toolbox.urls')),
+# ...d3 app
+  path('d3/', view=include('d3.urls')),
   # ...Datenmanagement app
   path('datenmanagement/', view=include('datenmanagement.urls')),
   # ...Antragsmanagement app
