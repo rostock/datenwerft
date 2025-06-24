@@ -34,18 +34,19 @@ def lade_akten_ordner(content_type_id: int) -> AktenOrdner | None:
   else:
     return akte[0]
 
-def lade_akte(content_type_id: int, object_id: str) -> Akte:
+def lade_akte(content_type_id: int, object_id: str, akten_ordner: AktenOrdner) -> Akte:
   """
-  Lädt den d3 akten ordner für den content type mit der übergebenen id oder None, falls nicht gefunden.
+  Lädt die d3 akte des objekts oder erstellt eine neue falls keine gefunden wurde.
 
   Parameters:
       content_type_id (int): Identifier des content types.
+      object_id (int): Identifier des content Objekts.
+      akten_ordner (AktenOrdner): Aktenordner des Content Types.
 
   Returns:
-      AktenOrdner | None: Der Aktenordner für den übergebenem content_type oder None, falls nicht gefunden.
+      Akten: Die Akte für den content type
   """
   geladene_akten = Akte.objects.filter(model=content_type_id, object_id=object_id)
-  akten_ordner = AktenOrdner.objects.get(model=content_type_id)
   content_object = ContentType.objects.get_for_id(content_type_id).get_object_for_this_type(uuid=object_id)
 
   if geladene_akten.count() == 0:

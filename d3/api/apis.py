@@ -8,6 +8,7 @@ from requests import Response
 from d3.api import SourceMapping, SourceCategory
 from d3.api.responses import Repository, DmsObject, SourceProperty
 from datenwerft.settings import APPLICATION_HTTP_USER_AGENT, D3_USERNAME, D3_PASSWORD, D3_HOST, D3_AKTEN_CATEGORY
+from docker.container.web.secrets import D3_VORGANG_CATEGORY
 
 class D3AuthenticationApi:
 
@@ -17,7 +18,7 @@ class D3AuthenticationApi:
     Methode zum Laden eines Access tokens zur Authentifizierung gegenüber des D3 Backends.
 
     Rückgabe:
-        str | None: AcessToken der Authentifizierung.
+        str | None: AccessToken der Authentifizierung.
     """
     basic_header = base64.b64encode(f"{D3_USERNAME}:{D3_PASSWORD}".encode('ascii'))
 
@@ -28,6 +29,11 @@ class D3AuthenticationApi:
     }
 
     response = requests.get(D3_HOST + "/dms/r/", headers = request_headers)
+
+    if response.status_code >= 400:
+
+      raise Exception("Authentication failed with status code " + str(response.status_code) + " and message " + response.text + "")
+
     return response.cookies.get("AuthSessionId")
 
 class D3Api:
@@ -51,7 +57,7 @@ class D3Api:
 
     if response.status_code >= 400:
 
-      return []
+      raise Exception("Repositories konten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     json_responses = response.json()
     responses = []
@@ -70,6 +76,10 @@ class D3Api:
         Source: Source des d3 repositories
     """
     response = self.__get(f"/dms/r/{repository_id}/source", {})
+
+    if response.status_code >= 400:
+
+      raise Exception("Default Mappings konten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     json_response = response.json()
     properties = []
@@ -107,6 +117,10 @@ class D3Api:
 
     response = self.__post(f"/dms/r/{repository_id}/o2m", json_body)
 
+    if response.status_code >= 400:
+
+      raise Exception("Akte konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
+
     return self.__map_dms_object(response.json())
 
   def lade_akte(self, repository_id: str, akten_id: str) -> DmsObject:
@@ -122,6 +136,10 @@ class D3Api:
     """
 
     response = self.__get(f"/dms/r/{repository_id}/o2m/{akten_id}", {})
+
+    if response.status_code >= 400:
+
+      raise Exception("Akte konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     return self.__map_dms_object(response.json())
 
@@ -157,13 +175,17 @@ class D3Api:
 
     json_body = {
       "displayValue": name,
-      "sourceCategory": category_id,
+      "sourceCategory": D3_VORGANG_CATEGORY,
       "source": f"/dms/r/{repository_id}/source",
       "parentId": parent_id,
       "sourceProperties": mapped_properties,
     }
 
     response = self.__post(f"/dms/r/{repository_id}/o2m", json_body)
+
+    if response.status_code >= 400:
+
+      raise Exception("Vorgang konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     return self.__map_dms_object(response.json())
 
@@ -180,6 +202,10 @@ class D3Api:
     """
 
     response = self.__get(f"/dms/r/{repository_id}/o2m/{vorgangs_id}", {})
+
+    if response.status_code >= 400:
+
+      raise Exception("Vorgang konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     return self.__map_dms_object(response.json())
 

@@ -81,14 +81,17 @@ class DataAddView(CreateView):
     :return: HTTP response if passed form is valid
     """
     form.instance.erstellt_durch = self.request.user
-    form.instance.akten_id = lade_akte(self.content_type_id, self.object_id)
+
+    try:
+      form.instance.akten_id = lade_akte(self.content_type_id, self.object_id, self.akten_ordner)
+    except:
+      error(self.request, 'Beim Anlegen des Vorgangs in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.')
+      return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 
     object_just_created = form.instance
     # return to the page for creating another object of this model,
     # based on the object just created
-    self.success_url = get_url_back(
-      None, 'datenmanagement:' + self.model.__name__ + '_add_another', True
-    )
+    self.success_url = get_url_back(None, 'datenmanagement:' + self.model.__name__ + '_add_another', True)
 
     success(self.request, 'neuer Vorgang erfolgreich angelegt')
     response = super().form_valid(form)

@@ -94,6 +94,13 @@ AUTHENTICATION_BACKENDS = (
   'django.contrib.auth.backends.ModelBackend',
 )
 
+D3_HOST = ''
+D3_REPOSITORY = ''
+D3_USERNAME = ''
+D3_PASSWORD = ''
+D3_AKTEN_CATEGORY = ''
+D3_ORDNER_CATEGORY = ''
+D3_VORGANG_CATEGORY = ''
 
 # Datenwerft.HRO:
 # security
