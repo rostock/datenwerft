@@ -8888,14 +8888,6 @@ ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
 ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
     ADD CONSTRAINT strassenreinigung_hro_reinigungsrhythmen_fk FOREIGN KEY (reinigungsrhythmus) REFERENCES codelisten.reinigungsrhythmen_strassenreinigungssatzung_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
-
-ALTER TABLE fachdaten_adressbezug.baudenkmale_hro
-    ADD COLUMN d3_akte character varying(15);
-
-
-ALTER TABLE fachdaten.denkmalbereiche_hro
-    ADD COLUMN d3_akte character varying(15);
-
 --
 -- PostgreSQL database dump complete
 --

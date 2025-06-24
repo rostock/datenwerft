@@ -329,6 +329,7 @@ PDF_JINJASTRINGS = {
   'comment_end': '}',
 }
 
+APPLICATION_HTTP_USER_AGENT = 'HRO.Datenwerft/1.0'
 
 # configuration file with additional parameters
 # which must not fall under Git version control

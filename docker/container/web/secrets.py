@@ -25,6 +25,15 @@ CSRF_TRUSTED_ORIGINS = [
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/datenwerft/accounts/login/'
 
+D3_HOST = ''
+D3_REPOSITORY = ''
+
+D3_USERNAME = ''
+D3_PASSWORD = ''
+
+D3_AKTEN_CATEGORY = ''
+D3_ORDNER_CATEGORY = ''
+D3_VERFAHREN_CATEGORY = ''
 
 # Datenwerft.HRO:
 # reverse proxy settings

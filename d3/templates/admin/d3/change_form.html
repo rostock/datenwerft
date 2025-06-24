@@ -1,0 +1,17 @@
+{% extends 'admin/change_form.html' %}
+{% load static %}
+
+{% block extrahead %}{{ block.super }}
+
+  <script src="{% static 'jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'select2/select2.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'select2/select2.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/select2-dark-mode.css' %}">
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+  {{ block.super }}
+  <script type="application/javascript">
+    $('.select2').select2({});
+  </script>
+{% endblock %}

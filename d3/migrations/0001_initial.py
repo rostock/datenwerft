@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 ('gui_element', models.CharField(choices=[('select', 'Select'), ('input_text', 'Input-Text'), ('input_zahl', 'Input-Zahl'), ('checkbox', 'Checkbox')], max_length=45, verbose_name='GUI Element')),
                 ('erforderlich', models.BooleanField(default=False, null=True, verbose_name='Eingabe erforderlich?')),
                 ('regex', models.CharField(blank=True, max_length=255, null=True, verbose_name='Validierung über Regex')),
-                ('d3_id', models.CharField(max_length=32)),
+                ('d3_id', models.CharField(max_length=36, null=True, blank=True, default=None)),
             ],
             options={
                 'verbose_name': 'Metadaten',
@@ -63,9 +63,9 @@ class Migration(migrations.Migration):
             name='Akte',
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('d3_id', models.CharField(max_length=32)),
-                ('object_id', models.CharField(max_length=14)),
-                ('model', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                ('d3_id', models.CharField(max_length=36)),
+                ('object_id', models.CharField(max_length=36)),
+                ('model', models.ForeignKey(limit_choices_to={'app_label': 'datenmanagement'}, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
             ],
             options={
                 'verbose_name': 'Akte',
@@ -77,8 +77,8 @@ class Migration(migrations.Migration):
             name='AktenOrdner',
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('d3_id', models.CharField(max_length=32)),
-                ('model', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                ('d3_id', models.CharField(max_length=36)),
+                ('model', models.OneToOneField(limit_choices_to={'app_label': 'datenmanagement'}, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
             ],
             options={
                 'verbose_name': 'AktenOrdner',
@@ -91,11 +91,11 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('titel', models.CharField(max_length=255)),
-                ('d3_id', models.CharField(max_length=32)),
+                ('d3_id', models.CharField(max_length=36)),
                 ('vorgangs_typ', models.CharField(max_length=50)),
                 ('erstellt', models.DateTimeField(auto_now_add=True)),
                 ('aktualisiert', models.DateTimeField(auto_now=True)),
-                ('akten_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='d3.akte')),
+                ('akten', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='d3.akte')),
                 ('erstellt_durch', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, to_field='username')),
             ],
             options={
@@ -112,8 +112,8 @@ class Migration(migrations.Migration):
                 ('aktualisiert', models.DateField(auto_now=True)),
                 ('erstellt', models.DateField(auto_now_add=True)),
                 ('erstellt_durch', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, to_field='username')),
-                ('metadaten_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='d3.metadaten')),
-                ('vorgang_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='d3.vorgang')),
+                ('metadaten', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='d3.metadaten')),
+                ('vorgang', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='d3.vorgang')),
             ],
             options={
                 'verbose_name': 'VorgangMetadaten',
