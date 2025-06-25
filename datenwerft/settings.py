@@ -7,6 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # global application definition
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 DJANGO_APPS = [
   'django.contrib.admin',
   'django.contrib.auth',
