@@ -7,8 +7,7 @@ from requests import Response
 
 from d3.api import SourceMapping, SourceCategory
 from d3.api.responses import Repository, DmsObject, SourceProperty
-from datenwerft.settings import APPLICATION_HTTP_USER_AGENT, D3_USERNAME, D3_PASSWORD, D3_HOST, D3_AKTEN_CATEGORY
-from docker.container.web.secrets import D3_VORGANG_CATEGORY
+from datenwerft.settings import APPLICATION_HTTP_USER_AGENT, D3_USERNAME, D3_PASSWORD, D3_HOST, D3_AKTEN_CATEGORY, D3_VORGANG_CATEGORY
 
 class D3AuthenticationApi:
 
