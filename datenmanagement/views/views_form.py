@@ -2,6 +2,7 @@ from json import dumps
 from time import time
 
 from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.messages import error, success
 from django.contrib.messages.views import SuccessMessageMixin
@@ -13,6 +14,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
+from d3.utils import fetch_processes
+from d3.views.views_process import D3ContextMixin
 from datenmanagement.utils import (
   get_field_name_for_address_type,
   get_thumb_url,
@@ -79,6 +82,7 @@ class DataAddView(CreateView):
     """
     model_name = self.model.__name__
     context = super().get_context_data(**kwargs)
+
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
     # add basic model related elements to context
@@ -193,7 +197,7 @@ class DataAddView(CreateView):
     return self.render_to_response(context_data)
 
 
-class DataChangeView(UpdateView):
+class DataChangeView(D3ContextMixin, UpdateView):
   """
   view for form page for updating an object of a model
   """
@@ -365,6 +369,10 @@ class DataChangeView(UpdateView):
       )
     referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
     context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
+
+    # fetch d3 processes for this object
+    context = self.get_d3_context(context, self.model, self.kwargs['pk'])
+
     return context
 
   def get_initial(self):

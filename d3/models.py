@@ -34,8 +34,28 @@ class Vorgang(Model):
     d3_id = CharField(max_length=36)
     vorgangs_typ = CharField(max_length=50)
     erstellt = DateTimeField(auto_now_add=True)
-    erstellt_durch = ForeignKey(User, on_delete=SET_NULL, null=True, blank=True, to_field='username')
+    erstellt_durch = ForeignKey(User, on_delete=SET_NULL, null=True, blank=True, to_field='id')
     aktualisiert = DateTimeField(auto_now=True)
+
+    class BasemodelMeta:
+        editable = True
+        list_fields = {
+            'id': 'Id',
+            'vorgangs_typ': 'Vorgangs Typ',
+            'titel': 'Titel',
+            'akten': 'Akte',
+            'd3_id': 'D3 Id',
+            'erstellt': 'Erstellt',
+            'erstellt_durch': 'Erstellt Durch',
+            'aktualisiert': 'Aktualisiert',
+        }
+        list_fields_with_date = ['erstellt', 'aktualisiert']
+        list_fields_with_datetime = ['erstellt', 'aktualisiert']
+        list_fields_with_decimal = []
+        list_fields_with_foreign_key = ['akten', 'erstellt_durch']
+        list_additional_foreign_key_field = None
+        highlight_flag = None
+        thumbs = []
 
     class Meta:
         verbose_name = 'Vorgang'
@@ -74,7 +94,7 @@ class VorgangMetadaten(Model):
     wert = CharField(max_length=255)
     aktualisiert = DateField(auto_now=True)
     erstellt = DateField(auto_now_add=True)
-    erstellt_durch = ForeignKey(User, on_delete=SET_NULL, null=True, blank=True, to_field='username')
+    erstellt_durch = ForeignKey(User, on_delete=SET_NULL, null=True, blank=True, to_field='id')
 
     class Meta:
         verbose_name = 'VorgangMetadaten'

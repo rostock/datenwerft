@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.views.generic.edit import CreateView
 
 from d3.models import Vorgang
-from d3.utils import lade_akten_ordner, lade_akte
+from d3.utils import lade_akten_ordner, lade_oder_erstelle_akte
 from d3.views.forms import VorgangForm
 from datenmanagement.utils import (
   get_field_name_for_address_type,
@@ -83,7 +83,7 @@ class DataAddView(CreateView):
     form.instance.erstellt_durch = self.request.user
 
     try:
-      form.instance.akten_id = lade_akte(self.content_type_id, self.object_id, self.akten_ordner)
+      form.instance.akten_id = lade_oder_erstelle_akte(self.content_type_id, self.object_id, self.akten_ordner)
     except:
       error(self.request, 'Beim Anlegen des Vorgangs in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.')
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)

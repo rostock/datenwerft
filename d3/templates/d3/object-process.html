@@ -1,0 +1,46 @@
+{% load static %}
+{% block style %}
+  <link rel="stylesheet" type="text/css" href="{% static 'datatables/datatables.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/list.css' %}">
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'datatables/datatables.min.js' %}"></script>
+  <script src="{% static 'd3/js/list.js' %}"></script>
+{% endblock %}
+
+<hr></hr>
+<h2>Vorgänge</h2>
+<table id="datasets" class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            {% for column_title in column_titles %}
+              <th>{{ column_title }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+</table>
+
+<script>
+      window.dataUrl = '{{ url_process_tabledata }}';
+      window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
+      window.checkAllTarget = true;
+</script>
+
+<script>
+      setTimeout(function () {
+        $('.alert-success').alert('close');
+      }, 3000);
+
+      /**
+       * @function
+       *
+       * main function
+       */
+      $(document).ready(function() {
+
+        let numberOfColumns = $('#datasets > thead > tr th').length;
+
+        initDataTable(window.dataUrl, window.languageUrl, numberOfColumns);
+      });
+</script>
