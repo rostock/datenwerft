@@ -1,6 +1,8 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet
 
+from d3.api import D3AuthenticationApi, D3Api
+from d3.models import AktenOrdner, Akte, Vorgang
 from d3.api import D3AuthenticationApi, D3Api, DmsObject
 from d3.models import AktenOrdner, Akte, Metadaten, Vorgang, VorgangMetadaten
 from datenwerft.settings import D3_REPOSITORY
@@ -19,6 +21,7 @@ def lade_d3_api():
 
   return D3Api(access_token)
 
+
 def lade_akten_ordner(content_type_id: int) -> AktenOrdner | None:
   """
   Lädt den d3 akten ordner für den content type mit der übergebenen id oder None, falls nicht gefunden.
@@ -36,7 +39,7 @@ def lade_akten_ordner(content_type_id: int) -> AktenOrdner | None:
   else:
     return akte[0]
 
-def lade_akte(content_type_id: int, object_id: str, akten_ordner: AktenOrdner) -> Akte:
+def lade_oder_erstelle_akte(content_type_id: int, object_id: str, akten_ordner: AktenOrdner) -> Akte:
   """
   Lädt die d3 akte des objekts oder erstellt eine neue falls keine gefunden wurde.
 
@@ -64,6 +67,59 @@ def lade_akte(content_type_id: int, object_id: str, akten_ordner: AktenOrdner) -
     return akte
   else:
     return geladene_akten[0]
+
+
+def fetch_processes(content_type_id: int, object_id: str) -> list[Vorgang]|None:
+
+  file = load_file(content_type_id, object_id)
+
+  if file:
+
+    processes = load_processes(file.id)
+    if processes:
+
+      return processes
+
+  return None
+
+
+def load_file(content_type_id: int, object_id: str) -> Akte | None:
+  """
+  Lädt die d3 akte des objekts oder None, falls keine gefunden wurde.
+
+  Parameters:
+      content_type_id (int): Identifier des content types.
+      object_id (int): Identifier des content Objekts.
+
+  Returns:
+      Akte | None: Die Akte für den content type oder None, falls nicht gefunden.
+  """
+  files = Akte.objects.filter(model=content_type_id, object_id=object_id)
+
+  if files.count() == 0:
+    return None
+  else:
+    return files[0]
+
+
+def load_processes(akten_id:int) -> QuerySet[Vorgang]|None:
+    """
+    Lädt alle Vorgänge für die übergebene Akten ID.
+
+    Parameters:
+        akten_id (int): Identifier der Akte.
+
+    Returns:
+        list[Vorgang]: Liste der Vorgänge für die Akte.
+    """
+
+    processes = Vorgang.objects.filter(akten_id=akten_id)
+
+    if processes.count() == 0:
+      return None
+    else:
+      return processes
+
 
 def lade_d3_properties() -> list[tuple[str, str]]:
   """

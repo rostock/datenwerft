@@ -5,8 +5,10 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView
 
+from d3.models import Vorgang
+from d3.utils import lade_akten_ordner, lade_oder_erstelle_akte
 from d3.models import Vorgang, VorgangMetadaten
-from d3.utils import lade_akten_ordner, lade_akte, lade_alle_metadaten, erstelle_vorgang
+from d3.utils import lade_akten_ordner, lade_alle_metadaten, erstelle_vorgang
 from d3.views.forms import VorgangForm
 
 
@@ -86,8 +88,9 @@ class ErstelleVorgangView(CreateView):
         vorgang_metadaten.append(vorgang_meta)
 
     try:
-      form.instance.akten = lade_akte(self.content_type_id, self.object_id, self.akten_ordner)
+      form.instance.akten = lade_oder_erstelle_akte(self.content_type_id, self.object_id, self.akten_ordner)
       form.instance.d3_id = erstelle_vorgang(form.instance, vorgang_metadaten, self.metadaten).id
+
     except:
       error(self.request, 'Beim Anlegen des Vorgangs in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.')
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)

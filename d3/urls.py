@@ -5,6 +5,7 @@ from rest_framework.routers import DefaultRouter
 
 from d3.models import Vorgang
 from d3.views.views_form import ErstelleVorgangView
+from d3.views.views_process import TableProcessView
 
 router = DefaultRouter()
 
@@ -41,3 +42,15 @@ for model in models:
       name=model_name + '_d3_add_process',
     )
   )
+
+  urlpatterns.append(
+      path(
+        model_name + '/<str:pk>/process/list',
+        view=permission_required('datenmanagement.view_' + model_name_lower)(
+              TableProcessView.as_view(model=model)
+        ),
+        name=model_name + '_fetch_process_list',
+      )
+    )
+
+
