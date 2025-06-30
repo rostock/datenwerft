@@ -30,15 +30,7 @@ class TableProcessView(BaseDatatableView):
             self.datenmanagement_model_lower = ''
             self.content_type_id = None
 
-        self.model_is_editable = self.model.BasemodelMeta.editable
         self.columns = list(self.model.BasemodelMeta.list_fields.keys())
-        self.columns_with_date = self.model.BasemodelMeta.list_fields_with_date
-        self.columns_with_datetime = self.model.BasemodelMeta.list_fields_with_datetime
-        self.columns_with_decimal = self.model.BasemodelMeta.list_fields_with_decimal
-        self.columns_with_foreign_key = self.model.BasemodelMeta.list_fields_with_foreign_key
-        self.additional_foreign_key_column = self.model.BasemodelMeta.list_additional_foreign_key_field
-        self.column_as_highlight_flag = self.model.BasemodelMeta.highlight_flag
-        self.thumbs = self.model.BasemodelMeta.thumbs
 
         super().__init__(*args, **kwargs)
 

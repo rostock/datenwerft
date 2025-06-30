@@ -20,7 +20,8 @@
 
 </div>
 
-<table id="datasets" class="table table-bordered table-striped">
+<div style="padding-bottom: 50px">
+    <table id="datasets" class="table table-bordered table-striped">
         <thead>
           <tr>
             {% for column_title in column_titles %}
@@ -29,6 +30,7 @@
           </tr>
         </thead>
 </table>
+</div>
 
 <script>
       window.dataUrl = '{{ url_process_tabledata }}';
@@ -50,6 +52,19 @@
 
         let numberOfColumns = $('#datasets > thead > tr th').length;
 
-        initDataTable(window.dataUrl, window.languageUrl, numberOfColumns);
+        const table = initDataTable(window.dataUrl, window.languageUrl, numberOfColumns);
+        table.on('xhr', function(e, settings, json) {
+          if (json && json.recordsTotal === 0) {
+            // Hide pagination and page size controls
+            $('.dataTables_paginate').hide();
+            $('.dataTables_length').hide();
+            $('.dataTables_info').hide();
+
+          } else {
+            $('.dataTables_paginate').show();
+            $('.dataTables_length').show();
+            $('.dataTables_info').show();
+          }
+        });
       });
 </script>
