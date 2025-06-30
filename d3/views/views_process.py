@@ -85,4 +85,6 @@ class D3ContextMixin:
             kwargs={'pk': pk}
         )
 
+        context['url_process_add']  = reverse('d3:' + model_name + '_d3_add_process', kwargs={'pk': pk})
+
         return context

@@ -11,6 +11,15 @@
 
 <hr></hr>
 <h2>Vorgänge</h2>
+
+<div >
+
+  {% if url_process_add %}
+      <a class="btn btn-primary" role="button" href="{{ url_process_add }}"><i class="fas fa-circle-plus"></i> neuen Vorgang anlegen</a>
+  {% endif %}
+
+</div>
+
 <table id="datasets" class="table table-bordered table-striped">
         <thead>
           <tr>

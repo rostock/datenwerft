@@ -5,7 +5,6 @@ from rest_framework.routers import DefaultRouter
 
 from d3.models import Vorgang
 from d3.views.views_form import ErstelleVorgangView
-from d3.views.views_form import DataAddView
 from d3.views.views_process import TableProcessView
 
 router = DefaultRouter()

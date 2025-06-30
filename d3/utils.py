@@ -73,8 +73,6 @@ def fetch_processes(content_type_id: int, object_id: str) -> list[Vorgang]|None:
 
   file = load_file(content_type_id, object_id)
 
-  print(object_id)
-  print(file)
   if file:
 
     processes = load_processes(file.id)
