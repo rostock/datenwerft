@@ -7,8 +7,7 @@ from requests import Response
 
 from d3.api import SourceMapping, SourceCategory
 from d3.api.responses import Repository, DmsObject, SourceProperty
-from datenwerft.settings import APPLICATION_HTTP_USER_AGENT, D3_USERNAME, D3_PASSWORD, D3_HOST, D3_AKTEN_CATEGORY
-from docker.container.web.secrets import D3_VORGANG_CATEGORY
+from datenwerft.settings import APPLICATION_HTTP_USER_AGENT, D3_USERNAME, D3_PASSWORD, D3_HOST, D3_AKTEN_CATEGORY, D3_VORGANG_CATEGORY
 
 class D3AuthenticationApi:
 
@@ -31,7 +30,6 @@ class D3AuthenticationApi:
     response = requests.get(D3_HOST + "/dms/r/", headers = request_headers)
 
     if response.status_code >= 400:
-
       raise Exception("Authentication failed with status code " + str(response.status_code) + " and message " + response.text + "")
 
     return response.cookies.get("AuthSessionId")
@@ -56,14 +54,12 @@ class D3Api:
     response = self.__get("/dms/r", {})
 
     if response.status_code >= 400:
-
-      raise Exception("Repositories konten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
+      raise Exception("Repositories konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     json_responses = response.json()
     responses = []
 
     for json_object in json_responses["repositories"]:
-
       responses.append(Repository(json_object["id"], json_object["name"]))
 
     return responses
@@ -78,19 +74,16 @@ class D3Api:
     response = self.__get(f"/dms/r/{repository_id}/source", {})
 
     if response.status_code >= 400:
-
-      raise Exception("Default Mappings konten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
+      raise Exception("Default Mappings konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     json_response = response.json()
     properties = []
     categories = []
 
     for json_object in json_response["properties"]:
-
       properties.append(SourceProperty(json_object["key"], json_object["type"], json_object["displayName"]))
 
     for json_object in json_response["categories"]:
-
       categories.append(SourceCategory(json_object["key"], json_object["displayName"]))
 
     return SourceMapping(json_response["id"], json_response["displayName"], properties, categories)
@@ -118,7 +111,6 @@ class D3Api:
     response = self.__post(f"/dms/r/{repository_id}/o2m", json_body)
 
     if response.status_code >= 400:
-
       raise Exception("Akte konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     return self.__map_dms_object(response.json())
@@ -138,18 +130,16 @@ class D3Api:
     response = self.__get(f"/dms/r/{repository_id}/o2m/{akten_id}", {})
 
     if response.status_code >= 400:
-
       raise Exception("Akte konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     return self.__map_dms_object(response.json())
 
-  def erstelle_vorgang(self, repository_id: str, category_id: str, parent_id: str, name: str | None, properties: dict[str, str | List[str]]) -> DmsObject:
+  def erstelle_vorgang(self, repository_id: str, parent_id: str, name: str | None, properties: dict[str, str | List[str]]) -> DmsObject:
     """
     erstellt einen neue Vorgang im d3 System
 
     Args:
       repository_id (str): id des repositories
-      category_id (str): id der category zu welcher der Vorgang gehört
       parent_id (str | None): id des Elternelements des neuen Vorgangs
       name (str | None): Anzeigename des Vorgangs in d3
       properties (dict[str, str | List[str]): properties des Vorgangs
