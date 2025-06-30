@@ -1,3 +1,6 @@
-html[data-theme="dark"] .select2-results {
+@media(prefers-color-scheme: dark) {
+
+  .select2-results {
     color: #264b5d !important;
+  }
 }

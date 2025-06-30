@@ -20,10 +20,12 @@ class MetadatenForm(ModelForm):
 
     super(MetadatenForm, self).__init__(*args, **kwargs)
 
-    d3_properties = lade_d3_properties()
+    d3_properties = []
+    # d3_properties = lade_d3_properties()
 
     d3_field = ChoiceField(choices=d3_properties)
     d3_field.widget.attrs.update({'class': 'select2'})
+    d3_field.required = False
 
     self.fields['d3_id'] = d3_field
 

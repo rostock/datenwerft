@@ -1,8 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import QuerySet
 
-from d3.api import D3AuthenticationApi, D3Api
-from d3.models import AktenOrdner, Akte
+from d3.api import D3AuthenticationApi, D3Api, DmsObject
+from d3.models import AktenOrdner, Akte, Metadaten, Vorgang, VorgangMetadaten
 from datenwerft.settings import D3_REPOSITORY
+
 
 def lade_d3_api():
   """
@@ -81,3 +83,42 @@ def lade_d3_properties() -> list[tuple[str, str]]:
     source_properties.append((source_property.key, source_property.displayName))
 
   return source_properties
+
+def erstelle_vorgang(vorgang: Vorgang, vorgang_metadaten: list[VorgangMetadaten], metadaten: QuerySet[Metadaten]) -> DmsObject:
+  """
+  Erstellt einen neuen Vorgang im D3 DMS mit den Daten aus dem Vorgang und deren Metadaten.
+
+  Args:
+      vorgang (Vorgang): Vorgang für welchen ein neues DMS-Objekt erstellt werden soll.
+      vorgang_metadaten (list[VorgangMetadaten]): Liste der Metadaten des Vorgangs
+      metadaten (QuerySet[Metadaten]): Liste alle Metadaten aus der Datenbank
+
+  Returns:
+      DmsObject: The newly created document management system object for the process.
+  """
+  properties = {}
+
+  for metadaten_feld in metadaten:
+
+    wert = None
+
+    for metadaten_wert in vorgang_metadaten:
+
+      if metadaten_wert.metadaten == metadaten_feld:
+        wert = metadaten_wert.wert
+        break
+
+    if metadaten_feld.d3_id and wert:
+      properties[metadaten_feld.d3_id] = wert
+
+  api = lade_d3_api()
+  return api.erstelle_vorgang(D3_REPOSITORY, vorgang.akten.d3_id, vorgang.titel, properties)
+
+def lade_alle_metadaten():
+  """
+  lade alle metadaten felder aus der Datenbank für Vorgänge
+
+  Returns:
+      QuerySet[Metadaten]: Ein QuerySet welches alle Daten aus der Metadaten Tabelle enthält
+  """
+  return Metadaten.objects.all()

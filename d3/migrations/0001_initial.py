@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'Massnahme',
-                'verbose_name_plural': ('Massnahmen',),
+                'verbose_name_plural': 'Massnahmen',
                 'db_table': 'd3_massnahme',
             },
         ),
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'Metadaten',
-                'verbose_name_plural': ('Metadaten',),
+                'verbose_name_plural': 'Metadaten',
                 'db_table': 'd3_metadaten',
             },
         ),
@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'Verfahren',
-                'verbose_name_plural': ('Verfahren',),
+                'verbose_name_plural': 'Verfahren',
                 'db_table': 'd3_verfahren',
             },
         ),
@@ -69,7 +69,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'Akte',
-                'verbose_name_plural': ('Akten',),
+                'verbose_name_plural': 'Akten',
                 'db_table': 'd3_akte',
             },
         ),
@@ -81,8 +81,8 @@ class Migration(migrations.Migration):
                 ('model', models.OneToOneField(limit_choices_to={'app_label': 'datenmanagement'}, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
             ],
             options={
-                'verbose_name': 'AktenOrdner',
-                'verbose_name_plural': ('AktenOrdner',),
+                'verbose_name': 'Akten Ordner',
+                'verbose_name_plural': 'Akten Ordner',
                 'db_table': 'd3_akten_ordner',
             },
         ),
@@ -117,7 +117,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'VorgangMetadaten',
-                'verbose_name_plural': ('VorgangMetadaten',),
+                'verbose_name_plural': 'VorgangMetadaten',
                 'db_table': 'd3_vorgang_metadaten',
             },
         ),

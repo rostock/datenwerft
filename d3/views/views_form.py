@@ -1,26 +1,21 @@
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.messages import success
 from django.contrib.messages import error
-from django.forms.models import modelform_factory
+from django.contrib.messages import success
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic.edit import CreateView
 
-from d3.models import Vorgang
-from d3.utils import lade_akten_ordner, lade_akte
+from d3.models import Vorgang, VorgangMetadaten
+from d3.utils import lade_akten_ordner, lade_akte, lade_alle_metadaten, erstelle_vorgang
 from d3.views.forms import VorgangForm
-from datenmanagement.utils import (
-  get_field_name_for_address_type,
-  is_address_related_field,
-)
-from datenmanagement.views import get_url_back, set_form_attributes, GenericForm
-from toolbox.utils import is_geometry_field
 
 
-class DataAddView(CreateView):
+class ErstelleVorgangView(CreateView):
 
   model = Vorgang
   datenmanagement_model = ''
   object_id = ''
+  metadaten = []
 
   """
   view for form page for creating an object of a model
@@ -31,6 +26,7 @@ class DataAddView(CreateView):
     self.datenmanagement_model = kwargs['datenmanagement_model']
     self.content_type_id = ContentType.objects.get(app_label='datenmanagement', model=self.datenmanagement_model.lower()).id
     self.akten_ordner = lade_akten_ordner(self.content_type_id)
+    self.metadaten = lade_alle_metadaten()
 
     self.model = model
     self.form_class = VorgangForm
@@ -58,20 +54,14 @@ class DataAddView(CreateView):
     self.object_id = self.kwargs['pk']
 
     kwargs = super().get_form_kwargs()
+    kwargs['metadaten'] = self.metadaten
     return kwargs
 
   def get_context_data(self, **kwargs):
 
     context = super().get_context_data(**kwargs)
+    context['url_back'] = reverse('datenmanagement:' + self.datenmanagement_model + '_change', args = [self.object_id])
     return context
-
-  def get_initial(self):
-    """
-    conditionally sets initial field values for this view
-
-    :return: dictionary with initial field values for this view
-    """
-
 
   def form_valid(self, form):
     """
@@ -82,19 +72,36 @@ class DataAddView(CreateView):
     """
     form.instance.erstellt_durch = self.request.user
 
+    vorgang_metadaten = []
+
+    for metadaten in self.metadaten:
+
+      if form.data.get('metadaten.' + str(metadaten.id)):
+
+        vorgang_meta = VorgangMetadaten()
+        vorgang_meta.vorgang = form.instance
+        vorgang_meta.metadaten = metadaten
+        vorgang_meta.erstellt_durch = self.request.user
+        vorgang_meta.wert = form.data.get('metadaten.' + str(metadaten.id))
+        vorgang_metadaten.append(vorgang_meta)
+
     try:
-      form.instance.akten_id = lade_akte(self.content_type_id, self.object_id, self.akten_ordner)
+      form.instance.akten = lade_akte(self.content_type_id, self.object_id, self.akten_ordner)
+      form.instance.d3_id = erstelle_vorgang(form.instance, vorgang_metadaten, self.metadaten).id
     except:
       error(self.request, 'Beim Anlegen des Vorgangs in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.')
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 
-    object_just_created = form.instance
     # return to the page for creating another object of this model,
     # based on the object just created
-    self.success_url = get_url_back(None, 'datenmanagement:' + self.model.__name__ + '_add_another', True)
+    self.success_url = reverse('datenmanagement:' + self.datenmanagement_model + '_change', args = [self.object_id])
 
     success(self.request, 'neuer Vorgang erfolgreich angelegt')
     response = super().form_valid(form)
+
+    for vorgang_metadaten_object in vorgang_metadaten:
+
+      vorgang_metadaten_object.save()
     return response
 
   def form_invalid(self, form, **kwargs):

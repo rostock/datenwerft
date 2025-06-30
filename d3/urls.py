@@ -4,7 +4,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from d3.models import Vorgang
-from d3.views.views_form import DataAddView
+from d3.views.views_form import ErstelleVorgangView
 
 router = DefaultRouter()
 
@@ -37,7 +37,7 @@ for model in models:
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
         'datenmanagement.view_' + model_name_lower,
-      )(DataAddView.as_view(model=Vorgang, template_name='d3/vorgang-form.html', datenmanagement_model=model_name)),
+      )(ErstelleVorgangView.as_view(model=Vorgang, template_name='d3/vorgang-form.html', datenmanagement_model=model_name)),
       name=model_name + '_d3_add_process',
     )
   )
