@@ -16,12 +16,13 @@ class VerfahrenForAdmin(admin.ModelAdmin):
 
 class MetadatenForm(ModelForm):
 
+  required_css_class = 'required'
+
   def __init__(self, *args, **kwargs):
 
     super(MetadatenForm, self).__init__(*args, **kwargs)
 
-    d3_properties = []
-    # d3_properties = lade_d3_properties()
+    d3_properties = [('', '---------')] + lade_d3_properties()
 
     d3_field = ChoiceField(choices=d3_properties)
     d3_field.widget.attrs.update({'class': 'select2'})
@@ -36,6 +37,8 @@ class MetadatenForAdmin(admin.ModelAdmin):
   form = MetadatenForm
 
 class AktenOrdnerForm(ModelForm):
+
+  required_css_class = 'required'
 
   def __init__(self, *args, **kwargs):
 

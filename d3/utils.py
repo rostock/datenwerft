@@ -135,7 +135,6 @@ def lade_d3_properties() -> list[tuple[str, str]]:
   source_properties = []
 
   for source_property in source.properties:
-
     source_properties.append((source_property.key, source_property.displayName))
 
   return source_properties

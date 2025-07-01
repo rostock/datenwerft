@@ -6,6 +6,8 @@ from d3.models import Vorgang, Verfahren, Massnahme
 
 class VorgangForm(ModelForm):
 
+  required_css_class = 'required'
+
   def __init__(self, *args, **kwargs):
 
     metadaten_felder = kwargs.pop('metadaten')
@@ -13,6 +15,7 @@ class VorgangForm(ModelForm):
     super(VorgangForm, self).__init__(*args, **kwargs)
 
     self.fields['titel'].widget.attrs.update({'class': 'form-control'})
+
     self.__init_vorgangs_feld()
     self.__init_metadaten_felder(metadaten_felder)
 

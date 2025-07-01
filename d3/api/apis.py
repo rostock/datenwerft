@@ -24,13 +24,13 @@ class D3AuthenticationApi:
     request_headers = {
       "User-Agent": APPLICATION_HTTP_USER_AGENT,
       "Accept": "application/json",
-      "Authorization": basic_header
+      "Authorization": "Basic " + basic_header.decode('utf-8')
     }
 
     response = requests.get(D3_HOST + "/dms/r/", headers = request_headers)
 
     if response.status_code >= 400:
-      raise Exception("Authentication failed with status code " + str(response.status_code) + " and message " + response.text + "")
+      raise Exception("Authentication failed with status code " + str(response.status_code) + " and message " + response.text)
 
     return response.cookies.get("AuthSessionId")
 
@@ -215,10 +215,9 @@ class D3Api:
     request_headers = {
       "User-Agent": APPLICATION_HTTP_USER_AGENT,
       "Accept": "application/json",
-      "Authorization": f"Bearer {self.accessToken}"
     }
 
-    return requests.get(self.baseUrl + url + "?" + urlencode(params), headers = request_headers)
+    return requests.get(self.baseUrl + url + "?" + urlencode(params), headers = request_headers, cookies={"AuthSessionId": self.accessToken})
 
   def __post(self, url: str, json: any) -> Response:
     """
@@ -239,10 +238,9 @@ class D3Api:
       "User-Agent": APPLICATION_HTTP_USER_AGENT,
       "Accept": "application/json",
       "Content-Type": "application/json",
-      "Authorization": f"Bearer {self.accessToken}"
     }
 
-    return requests.post(self.baseUrl + url, headers = request_headers, json = json)
+    return requests.post(self.baseUrl + url, headers = request_headers, json = json, cookies={"AuthSessionId": self.accessToken})
 
   @staticmethod
   def __map_dms_object(json_object: any) -> DmsObject:

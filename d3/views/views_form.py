@@ -5,8 +5,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView
 
-from d3.models import Vorgang
-from d3.utils import lade_akten_ordner, lade_oder_erstelle_akte
+from d3.utils import lade_oder_erstelle_akte
 from d3.models import Vorgang, VorgangMetadaten
 from d3.utils import lade_akten_ordner, lade_alle_metadaten, erstelle_vorgang
 from d3.views.forms import VorgangForm
@@ -40,7 +39,13 @@ class ErstelleVorgangView(CreateView):
 
   def render_to_response(self, context, **response_kwargs):
 
-    if (self.akten_ordner == None):
+    try:
+      ContentType.objects.get_for_id(self.content_type_id).get_object_for_this_type(uuid=self.object_id)
+    except:
+      error(self.request, self.datenmanagement_model + ' existiert nicht.')
+      return redirect('datenmanagement:' + self.datenmanagement_model + '_start')
+
+    if self.akten_ordner is None:
 
       error(self.request, 'Der D3-Ordner für Akten dieser Objektart ist nicht konfiguriert. Bitte kontaktieren Sie den Systemadministrator.')
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
