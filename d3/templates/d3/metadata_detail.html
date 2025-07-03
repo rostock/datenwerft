@@ -1,0 +1,18 @@
+<div class="p-2 bg-light rounded">
+  <div>
+    {% if metadata %}
+      {% for entry in metadata %}
+        <div style="display: flex; width: 100%; margin-bottom: 0.5rem;">
+          <div style="width: 20%;">
+            <strong>{{ entry.titel }}:</strong>
+          </div>
+          <div style="width: 80%;">
+            {{ entry.wert }}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div>Keine Metadaten vorhanden.</div>
+    {% endif %}
+  </div>
+</div>

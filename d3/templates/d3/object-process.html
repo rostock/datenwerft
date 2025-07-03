@@ -23,12 +23,14 @@
 <div style="padding-bottom: 50px">
     <table id="datasets" class="table table-bordered table-striped">
         <thead>
-          <tr>
-            {% for column_title in column_titles %}
-              <th>{{ column_title }}</th>
-            {% endfor %}
-          </tr>
-        </thead>
+            <tr>
+              {% for column_title in column_titles %}
+                <th>{{ column_title }}</th>
+              {% endfor %}
+              <th></th>
+            </tr>
+
+  </thead>
 </table>
 </div>
 
@@ -36,6 +38,7 @@
       window.dataUrl = '{{ url_process_tabledata }}';
       window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
       window.checkAllTarget = true;
+      window.metaDataUrl = '{{ url_process_metadata }}';
 </script>
 
 <script>
@@ -50,9 +53,36 @@
        */
       $(document).ready(function() {
 
-        let numberOfColumns = $('#datasets > thead > tr th').length;
+        const table = initDataTable(window.dataUrl, window.languageUrl);
 
-        const table = initDataTable(window.dataUrl, window.languageUrl, numberOfColumns);
+        $('#datasets tbody').on('click', 'tr', function () {
+
+          const tr = $(this).closest('tr');
+          const table = $('#datasets').DataTable();
+          const row = table.row(tr);
+
+          const rowData = row.data();
+
+          const processId = rowData[0];
+
+          if (row.child.isShown()) {
+
+            row.child.hide();
+            tr.removeClass('shown');
+          } else {
+
+            fetchMetadata(window.metaDataUrl, processId).then(data => {
+
+              row.child(data.html).show();
+            }).catch(error => {
+
+              row.child('Error loading data').show();
+            });
+
+            tr.addClass('shown');
+          }
+        });
+
         table.on('xhr', function(e, settings, json) {
           if (json && json.recordsTotal === 0) {
             // Hide pagination and page size controls
