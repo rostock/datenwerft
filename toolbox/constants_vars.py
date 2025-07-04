@@ -49,11 +49,11 @@ d3_message = (
   'Der <strong><em>d.3</em></strong>-Vorgang muss folgendes Format aufweisen '
   '(Beispiele): 512.431-003/002 oder 002.13 oder 114.521-025'
 )
-dateiname_regex = r'^[0-9a-z-_]*(\.?[a-z]*?)(\.?[a-z]*?)$'
+dateiname_regex = r'^[0-9A-z_:-]*(\.?[a-z]*?)(\.?[a-z]*?)$'
 dateiname_message = (
-  'Es dürfen nur Ziffern, Kleinbuchstaben – exklusive ä, ö, ü sowie ß –, Bindestriche und '
-  'Unterstriche verwendet werden sowie optional am Ende eine oder zwei durch Punkt abgetrennte '
-  'Dateiendung(en).'
+  'Es dürfen nur Ziffern, Buchstaben (aber keine Umlaute), Doppelpunkte, Bindestriche '
+  'und Unterstriche verwendet werden sowie optional am Ende eine oder zwei durch Punkt '
+  'abgetrennte Dateiendung(en).'
 )
 doppelleerzeichen_regex = r'^(?!.*  ).*$'
 doppelleerzeichen_message = 'Texte dürfen keine doppelten Leerzeichen enthalten.'
@@ -79,9 +79,9 @@ inventarnummer_regex = r'^[0-9]{8}$'
 inventarnummer_message = (
   'Die <strong><em>Inventarnummer</em></strong> muss aus genau acht Ziffern bestehen.'
 )
-kleinbuchstaben_bindestrich_regex = r'^[0-9a-z-_]*$'
+kleinbuchstaben_bindestrich_regex = r'^[0-9a-z_-]*$'
 kleinbuchstaben_bindestrich_message = (
-  'Es dürfen nur Ziffern, Kleinbuchstaben – exklusive ä, ö, ü sowie ß –, Bindestriche und '
+  'Es dürfen nur Ziffern, Kleinbuchstaben (aber keine Umlaute), Bindestriche und '
   'Unterstriche verwendet werden.'
 )
 leerzeichen_bindestrich_regex = r'^(?!.* -).*$'
