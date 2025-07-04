@@ -55,6 +55,7 @@ input[name="strasse"] {
 
 .cell-label {
   padding-left: 0 !important;
+  min-width: 120px;
 }
 
 .label-with-margin {
@@ -199,8 +200,8 @@ input[name="strasse"] {
 }
 
 #pcmanagement > tbody > tr > th:nth-child(2) {
-    width: 1%;
-    text-align: center;
+  width: 1%;
+  text-align: center;
 }
 
 #pc-management > thead > tr > th:last-child {
@@ -291,4 +292,52 @@ input[name="strasse"] {
   #map-addresssearch-container-form {
     min-height: 600px;
   }
+}
+
+/*
+ * For 3D Model Selection in some Codelists
+ */
+#selection3dModel {
+  float: left;
+}
+
+.model-option {
+  width: 11em;
+  padding: 0;
+  padding-bottom: 1em;
+  margin-left: 1em;
+  margin-right: 1em;
+  margin-bottom: 1em;
+  border-radius: 1em;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.model-option:hover {
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 3px 10px;
+}
+
+.model-option > label {
+  width: 100%;
+}
+
+.model-option > label > img {
+  width: 100%;
+}
+
+.model-option > label > p {
+  text-align: center;
+  display: block;
+  margin: 0.5em;
+}
+
+.model-option > label > input {
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.image3DModel {
+  border-top-right-radius: 1em;
+  border-top-left-radius: 1em;
+  padding-bottom: 0.75em;
 }
