@@ -72,13 +72,13 @@
                         {{ field }}
 
                         {% if thumb_urls_3d_models and field.name == "model_3d" %}
-                          <fieldset id="imageSelector" class="d-flex flex-wrap justify-content-center">
+                          <fieldset id="image-selector" class="d-flex flex-wrap justify-content-center">
                             {% for thumb_key, thumb_url in thumb_urls_3d_models.items %}
                               <div class="model-option">
                                 <label for="{{ thumb_key }}">
-                                  <img src="{{ thumb_url }}" alt="{{ thumb_key }}" class="image3DModel">
+                                  <img src="{{ thumb_url }}" alt="{{ thumb_key }}" class="image-3d-model">
                                   <p>{{ thumb_key }}</p>
-                                  <input type="radio" id="{{ thumb_key }}" name="modelSelection" value="{{ thumb_key }}" class="form-check-input">
+                                  <input type="radio" id="{{ thumb_key }}" name="model-selection" value="{{ thumb_key }}" class="form-check-input">
                                 </label>
                               </div>
                             {% endfor %}

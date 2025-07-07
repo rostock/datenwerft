@@ -297,10 +297,6 @@ input[name="strasse"] {
 /*
  * For 3D Model Selection in some Codelists
  */
-#selection3dModel {
-  float: left;
-}
-
 .model-option {
   width: 11em;
   padding: 0;
@@ -336,7 +332,7 @@ input[name="strasse"] {
   transform: translateX(-50%);
 }
 
-.image3DModel {
+.image-3d-model {
   border-top-right-radius: 1em;
   border-top-left-radius: 1em;
   padding-bottom: 0.75em;
