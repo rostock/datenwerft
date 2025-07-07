@@ -1,4 +1,4 @@
-<div class="p-2 bg-light rounded">
+<div class="p-2 rounded {% if request.COOKIES.theme == 'dark' %}bg-dark-subtle{% else %}bg-light-subtle{% endif %}">
   <div>
     {% if metadata %}
       {% for entry in metadata %}
