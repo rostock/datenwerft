@@ -50262,6 +50262,16 @@
       "mime_type": 10
     }
   }, {
+    "model": "gdihrometadata.DataType",
+    "pk": 16,
+    "fields": {
+      "created": "1999-12-31T23:59:59Z",
+      "modified": "2000-01-01T00:00:00Z",
+      "title": "GeoTIFF (gezippt)",
+      "format": 5,
+      "mime_type": 10
+    }
+  }, {
     "model": "gdihrometadata.SpatialReference",
     "pk": 1,
     "fields": {
