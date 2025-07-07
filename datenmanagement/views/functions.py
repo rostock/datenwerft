@@ -68,9 +68,7 @@ def add_model_form_context_elements(context, model):
   context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
   context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
   context['forms_in_mobile_mode'] = model.BasemodelMeta.forms_in_mobile_mode
-  context['forms_in_high_zoom_mode'] = (
-    model.BasemodelMeta.forms_in_high_zoom_mode
-  )
+  context['forms_in_high_zoom_mode'] = model.BasemodelMeta.forms_in_high_zoom_mode
   context['forms_in_high_zoom_mode_default_aerial'] = (
     model.BasemodelMeta.forms_in_high_zoom_mode_default_aerial
   )
@@ -96,22 +94,16 @@ def add_model_form_context_elements(context, model):
   )
   context['catalog_link_fields'] = model.BasemodelMeta.catalog_link_fields
   if model.BasemodelMeta.catalog_link_fields:
-    context['catalog_link_fields_names'] = list(
-      model.BasemodelMeta.catalog_link_fields.keys()
-    )
+    context['catalog_link_fields_names'] = list(model.BasemodelMeta.catalog_link_fields.keys())
   context['address_search_class'] = model.BasemodelMeta.address_search_class
-  context['address_search_long_results'] = (
-    model.BasemodelMeta.address_search_long_results
-  )
+  context['address_search_long_results'] = model.BasemodelMeta.address_search_long_results
   context['address_type'] = model.BasemodelMeta.address_type
   context['address_mandatory'] = model.BasemodelMeta.address_mandatory
   context['geojson_input'] = model.BasemodelMeta.geojson_input
   context['gpx_input'] = model.BasemodelMeta.gpx_input
   context['postcode_assigner'] = model.BasemodelMeta.postcode_assigner
   context['additional_wms_layers'] = model.BasemodelMeta.additional_wms_layers
-  context['additional_wfs_featuretypes'] = (
-    model.BasemodelMeta.additional_wfs_featuretypes
-  )
+  context['additional_wfs_featuretypes'] = model.BasemodelMeta.additional_wfs_featuretypes
   # list of all models
   # which shall be selectable as additional overlay layers in the maps of all form views
   model_list = {}
@@ -157,9 +149,7 @@ def assign_object_value(request, pk):
       field, value = request.GET.get('field'), request.GET.get('value')
       if value:
         if model._meta.get_field(field).remote_field:
-          value = model._meta.get_field(field).remote_field.model.objects.get(
-            pk=value
-          )
+          value = model._meta.get_field(field).remote_field.model.objects.get(pk=value)
         setattr(obj, field, value)
       else:
         setattr(obj, field, None)
@@ -185,9 +175,7 @@ def assign_widgets(field):
   form_field = field.formfield()
   # handle array fields with multiple choices
   if issubclass(field.__class__, ChoiceArrayField):
-    form_field = field.formfield(
-      empty_value=None, widget=CheckboxSelectMultiple()
-    )
+    form_field = field.formfield(empty_value=None, widget=CheckboxSelectMultiple())
   # handle ordinary (single) selects
   elif issubclass(form_field.widget.__class__, Select):
     form_field.widget.attrs['class'] = 'form-select'
@@ -198,25 +186,19 @@ def assign_widgets(field):
   # handle geometry fields/widgets
   elif is_geometry_field(field.__class__):
     form_field = field.formfield(widget=LeafletWidget())
-  elif (
-    issubclass(form_field.widget.__class__, TextInput) and field.name == 'farbe'
-  ):
+  elif issubclass(form_field.widget.__class__, TextInput) and field.name == 'farbe':
     form_field = field.formfield(
       widget=TextInput(attrs={'type': 'color', 'class': 'form-control-color'})
     )
   # handle datetime fields/widgets
   elif issubclass(field.__class__, DateTimeField):
     form_field = field.formfield(
-      widget=TextInput(
-        attrs={'type': 'datetime-local', 'class': 'form-control', 'step': '1'}
-      )
+      widget=TextInput(attrs={'type': 'datetime-local', 'class': 'form-control', 'step': '1'})
     )
   # handle time fields/widgets
   elif issubclass(field.__class__, TimeField):
     form_field = field.formfield(
-      widget=TextInput(
-        attrs={'type': 'time', 'class': 'form-control', 'step': '1'}
-      )
+      widget=TextInput(attrs={'type': 'time', 'class': 'form-control', 'step': '1'})
     )
   # handle decimal array fields/widgets
   elif issubclass(field.__class__, DecimalField) and is_array_field:
@@ -224,9 +206,7 @@ def assign_widgets(field):
     step = 10**-field.decimal_places
     form_field = ArrayDecimalField(
       label=label,
-      widget=TextInput(
-        attrs={'type': 'number', 'class': 'form-control', 'step': step}
-      ),
+      widget=TextInput(attrs={'type': 'number', 'class': 'form-control', 'step': step}),
     )
     form_field.required = False
   # handle date fields/widgets
@@ -265,9 +245,7 @@ def delete_object_immediately(request, pk):
   :param pk: primary key of the database object to be deleted
   :return: HTTP code 204 (No Content)
   """
-  model_name = sub(
-    '^.*/', '', sub('/deleteimmediately.*$', '', request.path_info)
-  )
+  model_name = sub('^.*/', '', sub('/deleteimmediately.*$', '', request.path_info))
   model = apps.get_app_config('datenmanagement').get_model(model_name)
   obj = get_object_or_404(model, pk=pk)
   if request.user.has_perm('datenmanagement.delete_' + model_name.lower()):
@@ -286,24 +264,18 @@ def download_pointcloud(request, pk):
   :return:
   """
   # get pointcloud model instance of given pk
-  pc_model = apps.get_model(
-    app_label='datenmanagement', model_name='Punktwolken'
-  )
+  pc_model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken')
   pc_instance = pc_model.objects.get(pk=pk)
 
   # check if pointcloud is stored at VCPub
   if pc_instance.vcp_object_key:
     # get project instance of pointcloud instance for bucket information
-    pcprj_model = apps.get_model(
-      app_label='datenmanagement', model_name='Punktwolken_Projekte'
-    )
+    pcprj_model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken_Projekte')
     pcprj_instance = pcprj_model.objects.get(pk=pc_instance.projekt.uuid)
 
     # get dataset bucket
     bucket = DataBucket(_id=pcprj_instance.vcp_dataset_bucket_id)
-    ok, response = bucket.download_file(
-      object_key=str(pc_instance.vcp_object_key), stream=True
-    )
+    ok, response = bucket.download_file(object_key=str(pc_instance.vcp_object_key), stream=True)
     if ok:
       file_response = StreamingHttpResponse(
         response.raw,
@@ -321,12 +293,8 @@ def download_pointcloud(request, pk):
   else:
     file_path = Path(f'{settings.PC_MEDIA_ROOT}/{pc_instance.punktwolke}')
     f = open(file_path, 'rb')
-    file_response = StreamingHttpResponse(
-      FileWrapper(f), content_type='application/octet-stream'
-    )
-    file_response['Content-Disposition'] = (
-      f'attachment; filename={pc_instance.dateiname}'
-    )
+    file_response = StreamingHttpResponse(FileWrapper(f), content_type='application/octet-stream')
+    file_response['Content-Disposition'] = f'attachment; filename={pc_instance.dateiname}'
     file_response['Content-Length'] = file_path.stat().st_size
     print(f'Response: {file_response.__dict__}')
     return file_response
@@ -344,9 +312,7 @@ def generate_restricted_objects_list(restricted_objects):
     object_list += '<li>' if len(restricted_objects) > 1 else ''
     restricted_object_model = restricted_object.__class__
     restricted_object_model_name = restricted_object_model.__name__
-    theme_link = reverse(
-      'datenmanagement:' + restricted_object_model_name + '_start'
-    )
+    theme_link = reverse('datenmanagement:' + restricted_object_model_name + '_start')
     theme_link_text = restricted_object_model._meta.verbose_name_plural
     theme_link_element = f'<a href="{theme_link}">{theme_link_text}</a>'
     object_link = reverse(
@@ -355,15 +321,9 @@ def generate_restricted_objects_list(restricted_objects):
     )
     object_link_text = str(restricted_object)
     object_link_element = f'<a href="{object_link}">{object_link_text}</a>'
-    object_list += (
-      f'Datenthema {theme_link_element} – Objekt <em>{object_link_element}</em>'
-    )
+    object_list += f'Datenthema {theme_link_element} – Objekt <em>{object_link_element}</em>'
     object_list += '</li>' if len(restricted_objects) > 1 else ''
-  return (
-    '<ul>' + object_list + '</ul>'
-    if len(restricted_objects) > 1
-    else object_list
-  )
+  return '<ul>' + object_list + '</ul>' if len(restricted_objects) > 1 else object_list
 
 
 def get_github_files(
@@ -429,25 +389,20 @@ def get_github_files(
     if isinstance(file_filters, dict):
       # Prüfe Regex-Patterns
       if 'patterns' in file_filters:
-        if not any(
-          search(pattern, filename, IGNORECASE)
-          for pattern in file_filters['patterns']
-        ):
+        if not any(search(pattern, filename, IGNORECASE) for pattern in file_filters['patterns']):
           return False
 
       # Prüfe Präfixe
       if 'prefixes' in file_filters:
         if not any(
-          filename.lower().startswith(prefix.lower())
-          for prefix in file_filters['prefixes']
+          filename.lower().startswith(prefix.lower()) for prefix in file_filters['prefixes']
         ):
           return False
 
       # Prüfe Suffixe
       if 'suffixes' in file_filters:
         if not any(
-          filename.lower().endswith(suffix.lower())
-          for suffix in file_filters['suffixes']
+          filename.lower().endswith(suffix.lower()) for suffix in file_filters['suffixes']
         ):
           return False
 

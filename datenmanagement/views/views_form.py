@@ -64,24 +64,15 @@ class DataAddView(CreateView):
     """
     kwargs = super().get_form_kwargs()
     self = set_form_attributes(self)
-    if (
-      self.model.BasemodelMeta.multi_file_upload
-      and self.request.method == 'POST'
-    ):
+    if self.model.BasemodelMeta.multi_file_upload and self.request.method == 'POST':
       self.multi_files = self.request.FILES
     if self.request.method == 'POST':
       self.file = self.request.FILES
     kwargs['request'] = self.request
     kwargs['model'] = self.model
-    kwargs['fields_with_foreign_key_to_linkify'] = (
-      self.fields_with_foreign_key_to_linkify
-    )
-    kwargs['choices_models_for_choices_fields'] = (
-      self.choices_models_for_choices_fields
-    )
-    kwargs['group_with_users_for_choice_field'] = (
-      self.group_with_users_for_choice_field
-    )
+    kwargs['fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
+    kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
+    kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
     kwargs['multi_file_upload'] = self.model.BasemodelMeta.multi_file_upload
     kwargs['file'] = self.file
     kwargs['multi_files'] = self.multi_files
@@ -104,17 +95,9 @@ class DataAddView(CreateView):
     context = add_model_form_context_elements(context, self.model)
     # add further elements to context
     context['multi_file_upload'] = self.model.BasemodelMeta.multi_file_upload
-    context['geometry_calculation'] = (
-      self.model.BasemodelMeta.geometry_calculation
-    )
-    referer = (
-      self.request.META['HTTP_REFERER']
-      if 'HTTP_REFERER' in self.request.META
-      else None
-    )
-    context['url_back'] = get_url_back(
-      referer, 'datenmanagement:' + model_name + '_start'
-    )
+    context['geometry_calculation'] = self.model.BasemodelMeta.geometry_calculation
+    referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
+    context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
     return context
 
   def get_initial(self):
@@ -156,12 +139,7 @@ class DataAddView(CreateView):
           + self.request.user.email.lower()
           + ')'
         )
-    if (
-      ansprechpartner
-      or bearbeiter
-      or erfasser
-      or (preselect_field and preselect_value)
-    ):
+    if ansprechpartner or bearbeiter or erfasser or (preselect_field and preselect_value):
       if not self.model.BasemodelMeta.group_with_users_for_choice_field:
         return {
           'ansprechpartner': ansprechpartner,
@@ -188,12 +166,8 @@ class DataAddView(CreateView):
     # for usage in next view
     if hasattr(self.request, 'session'):
       self.request.session['object_just_created'] = str(object_just_created)
-      self.request.session['object_just_created_pk'] = str(
-        object_just_created.pk
-      )
-      self.request.session['original_url_back'] = form.data.get(
-        'original_url_back', None
-      )
+      self.request.session['object_just_created_pk'] = str(object_just_created.pk)
+      self.request.session['original_url_back'] = form.data.get('original_url_back', None)
     success(self.request, 'neuer Datensatz erfolgreich angelegt')
     response = super().form_valid(form)
     return response
@@ -214,12 +188,8 @@ class DataAddView(CreateView):
         form.data[field.name] = None
       # keep address reference (otherwise it would be lost on re-rendering)
       elif is_address_related_field(field):
-        field_name_for_address_type = get_field_name_for_address_type(
-          self.model, False
-        )
-        context_data['current_' + field_name_for_address_type] = form.data.get(
-          field.name, None
-        )
+        field_name_for_address_type = get_field_name_for_address_type(self.model, False)
+        context_data['current_' + field_name_for_address_type] = form.data.get(field.name, None)
         address = form.data.get(field.name + '_temp', None)
         form.data[field.name] = address
       # keep geometry (otherwise it would be lost on re-rendering)
@@ -270,37 +240,23 @@ class DataChangeView(UpdateView):
     kwargs['model'] = self.model
     kwargs['associated_objects'] = self.associated_objects
     kwargs['associated_new'] = self.associated_new
-    kwargs['fields_with_foreign_key_to_linkify'] = (
-      self.fields_with_foreign_key_to_linkify
-    )
-    kwargs['choices_models_for_choices_fields'] = (
-      self.choices_models_for_choices_fields
-    )
-    kwargs['group_with_users_for_choice_field'] = (
-      self.group_with_users_for_choice_field
-    )
+    kwargs['fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
+    kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
+    kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
     kwargs['file'] = self.file
     # use associated models to provide corresponding links
     if self.associated_models:
       self.associated_new = []
       self.associated_objects = []
       for associated_model in self.associated_models:
-        associated_model_model = apps.get_app_config(
-          'datenmanagement'
-        ).get_model(associated_model)
-        associated_model_foreign_key_field = self.associated_models.get(
-          associated_model
-        )
+        associated_model_model = apps.get_app_config('datenmanagement').get_model(associated_model)
+        associated_model_foreign_key_field = self.associated_models.get(associated_model)
         if associated_model_model.BasemodelMeta.short_name:
           title = associated_model_model.BasemodelMeta.short_name
         else:
           title = associated_model_model._meta.verbose_name
         link = reverse('datenmanagement:' + associated_model + '_add')
-        link += (
-          '?preselect_field='
-          + associated_model_foreign_key_field
-          + '&preselect_value='
-        )
+        link += '?preselect_field=' + associated_model_foreign_key_field + '&preselect_value='
         link += str(self.object.pk)
         associated_new_dict = {
           'title': title,
@@ -309,18 +265,9 @@ class DataChangeView(UpdateView):
         }
         self.associated_new.append(associated_new_dict)
         curr_filter = {associated_model_foreign_key_field: self.object.pk}
-        for associated_object in associated_model_model.objects.filter(
-          **curr_filter
-        ):
-          foto = (
-            associated_object.foto
-            if hasattr(associated_object, 'foto')
-            else None
-          )
-          if (
-            hasattr(associated_object, 'geometrie')
-            and associated_object.geometrie is not None
-          ):
+        for associated_object in associated_model_model.objects.filter(**curr_filter):
+          foto = associated_object.foto if hasattr(associated_object, 'foto') else None
+          if hasattr(associated_object, 'geometrie') and associated_object.geometrie is not None:
             geometry = transform_geometry(
               geometry=GEOSGeometry(associated_object.geometrie),
               target_srid=4326,
@@ -354,14 +301,10 @@ class DataChangeView(UpdateView):
             'geometry': geometry,
           }
           if hasattr(associated_object, 'punktwolke'):
-            path = reverse(
-              'datenmanagement:download_pointcloud', args=[associated_object.pk]
-            )
+            path = reverse('datenmanagement:download_pointcloud', args=[associated_object.pk])
             associated_object_dict['file'] = path
           if hasattr(associated_object, 'vcp_object_key'):
-            associated_object_dict['vcp_object_key'] = (
-              associated_object.vcp_object_key
-            )
+            associated_object_dict['vcp_object_key'] = associated_object.vcp_object_key
           self.associated_objects.append(associated_object_dict)
       kwargs['associated_objects'] = self.associated_objects
       kwargs['associated_new'] = self.associated_new
@@ -385,18 +328,10 @@ class DataChangeView(UpdateView):
     context = add_model_form_context_elements(context, self.model)
     # add further elements to context
     context['uuid'] = self.kwargs['pk']
-    context['api'] = reverse(
-      f'{model_name_lower}-detail', kwargs={'pk': f'{self.kwargs["pk"]}'}
-    )
-    context['associated_objects'] = (
-      self.associated_objects if self.associated_objects else None
-    )
-    context['associated_new'] = (
-      self.associated_new if self.associated_new else None
-    )
-    context['geometry_calculation'] = (
-      self.model.BasemodelMeta.geometry_calculation
-    )
+    context['api'] = reverse(f'{model_name_lower}-detail', kwargs={'pk': f'{self.kwargs["pk"]}'})
+    context['associated_objects'] = self.associated_objects if self.associated_objects else None
+    context['associated_new'] = self.associated_new if self.associated_new else None
+    context['geometry_calculation'] = self.model.BasemodelMeta.geometry_calculation
     if self.model.BasemodelMeta.geometry_type:
       with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(
@@ -410,23 +345,13 @@ class DataChangeView(UpdateView):
     else:
       context['geometry'] = None
     if self.model.BasemodelMeta.address_type:
-      field_name_for_address_type = get_field_name_for_address_type(
-        self.model, False
-      )
+      field_name_for_address_type = get_field_name_for_address_type(self.model, False)
       if field_name_for_address_type == 'address' and self.object.adresse:
-        context['current_' + field_name_for_address_type] = (
-          self.object.adresse.pk
-        )
+        context['current_' + field_name_for_address_type] = self.object.adresse.pk
       elif field_name_for_address_type == 'street' and self.object.strasse:
-        context['current_' + field_name_for_address_type] = (
-          self.object.strasse.pk
-        )
-      elif (
-        field_name_for_address_type == 'district' and self.object.gemeindeteil
-      ):
-        context['current_' + field_name_for_address_type] = (
-          self.object.gemeindeteil.pk
-        )
+        context['current_' + field_name_for_address_type] = self.object.strasse.pk
+      elif field_name_for_address_type == 'district' and self.object.gemeindeteil:
+        context['current_' + field_name_for_address_type] = self.object.gemeindeteil.pk
     if self.model.BasemodelMeta.git_repo_of_3d_models:
       context['thumb_urls_3d_models'] = get_github_files(
         self.model.BasemodelMeta.git_repo_of_3d_models
@@ -446,33 +371,21 @@ class DataChangeView(UpdateView):
             # format list contents
             cleaned_array_field_values = []
             for array_field_value in array_field_values:
-              cleaned_array_field_values.append(
-                array_field_value.strftime('%Y-%m-%d')
-              )
+              cleaned_array_field_values.append(array_field_value.strftime('%Y-%m-%d'))
             array_field_values = cleaned_array_field_values
           # insert list into prepared dictionary
           array_fields_values[field.name] = array_field_values
     # create a new context and insert a JSON-serialized dictionary for all array fields
     # and their contents that contain more than one value
-    context['array_fields_values'] = dumps(
-      array_fields_values, cls=DecimalEncoder
-    )
+    context['array_fields_values'] = dumps(array_fields_values, cls=DecimalEncoder)
     if self.request.user.has_perm('datenmanagement.add_' + model_name_lower):
-      context['url_model_add'] = reverse(
-        'datenmanagement:' + model_name + '_add'
-      )
+      context['url_model_add'] = reverse('datenmanagement:' + model_name + '_add')
     if self.request.user.has_perm('datenmanagement.delete_' + model_name_lower):
       context['url_model_delete_object'] = reverse(
         'datenmanagement:' + model_name + '_delete', args=[self.object.pk]
       )
-    referer = (
-      self.request.META['HTTP_REFERER']
-      if 'HTTP_REFERER' in self.request.META
-      else None
-    )
-    context['url_back'] = get_url_back(
-      referer, 'datenmanagement:' + model_name + '_start'
-    )
+    referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
+    context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
     return context
 
   def get_initial(self):
@@ -489,22 +402,15 @@ class DataChangeView(UpdateView):
       field_name_for_address_type = get_field_name_for_address_type(self.model)
       if field_name_for_address_type == 'adresse' and self.object.adresse:
         if self.model.BasemodelMeta.address_search_long_results:
-          curr_dict[field_name_for_address_type] = (
-            self.object.adresse.adresse_lang
-          )
+          curr_dict[field_name_for_address_type] = self.object.adresse.adresse_lang
         else:
           curr_dict[field_name_for_address_type] = self.object.adresse
       elif field_name_for_address_type == 'strasse' and self.object.strasse:
         if self.model.BasemodelMeta.address_search_long_results:
-          curr_dict[field_name_for_address_type] = (
-            self.object.strasse.strasse_lang
-          )
+          curr_dict[field_name_for_address_type] = self.object.strasse.strasse_lang
         else:
           curr_dict[field_name_for_address_type] = self.object.strasse
-      elif (
-        field_name_for_address_type == 'gemeindeteil'
-        and self.object.gemeindeteil
-      ):
+      elif field_name_for_address_type == 'gemeindeteil' and self.object.gemeindeteil:
         curr_dict[field_name_for_address_type] = self.object.gemeindeteil
     for field in self.model._meta.get_fields():
       if field.__class__.__name__ == 'ArrayField':
@@ -532,8 +438,7 @@ class DataChangeView(UpdateView):
     )
     success(
       self.request,
-      'Datensatz <strong><em>%s</em></strong> erfolgreich geändert'
-      % str(form.instance),
+      'Datensatz <strong><em>%s</em></strong> erfolgreich geändert' % str(form.instance),
     )
     response = super().form_valid(form)
     return response
@@ -556,12 +461,8 @@ class DataChangeView(UpdateView):
         )
       # keep address reference (otherwise it would be lost on re-rendering)
       elif is_address_related_field(field):
-        field_name_for_address_type = get_field_name_for_address_type(
-          self.model, False
-        )
-        context_data['current_' + field_name_for_address_type] = form.data.get(
-          field.name, None
-        )
+        field_name_for_address_type = get_field_name_for_address_type(self.model, False)
+        context_data['current_' + field_name_for_address_type] = form.data.get(field.name, None)
         address = form.data.get(field.name + '_temp', None)
         form.data[field.name] = address
       # keep geometry (otherwise it would be lost on re-rendering)
@@ -605,14 +506,8 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
     # add basic model related elements to context
     context = add_basic_model_context_elements(context, self.model)
     # add further elements to context
-    referer = (
-      self.request.META['HTTP_REFERER']
-      if 'HTTP_REFERER' in self.request.META
-      else None
-    )
-    context['url_back'] = get_url_back(
-      referer, 'datenmanagement:' + model_name + '_start'
-    )
+    referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
+    context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
     return context
 
   def get_object(self, *args, **kwargs):
@@ -625,9 +520,7 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
     :return: object to be deleted
     """
     obj = super().get_object(*args, **kwargs)
-    if not self.request.user.has_perm(
-      'datenmanagement.delete_' + self.model.__name__.lower()
-    ):
+    if not self.request.user.has_perm('datenmanagement.delete_' + self.model.__name__.lower()):
       raise PermissionDenied()
     return obj
 
@@ -649,15 +542,13 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
       self.object.delete()
       success(
         self.request,
-        'Datensatz <strong><em>%s</em></strong> erfolgreich gelöscht'
-        % str(self.object),
+        'Datensatz <strong><em>%s</em></strong> erfolgreich gelöscht' % str(self.object),
       )
       return HttpResponseRedirect(success_url)
     except RestrictedError as exception:
       error(
         self.request,
-        'Datensatz <strong><em>%s</em></strong> kann nicht gelöscht werden! '
-        % str(self.object)
+        'Datensatz <strong><em>%s</em></strong> kann nicht gelöscht werden! ' % str(self.object)
         + 'Folgende(s) Objekt(e) verweist/verweisen noch auf ihn:<br><br>'
         + generate_restricted_objects_list(exception.restricted_objects),
       )

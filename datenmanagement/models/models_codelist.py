@@ -55,9 +55,7 @@ class Adressen(Metamodel):
     null=True,
     editable=False,
   )
-  strasse = CharField(
-    verbose_name='Straße', max_length=255, blank=True, null=True, editable=False
-  )
+  strasse = CharField(verbose_name='Straße', max_length=255, blank=True, null=True, editable=False)
   hausnummer = CharField(
     verbose_name='Hausnummer',
     max_length=4,
@@ -155,17 +153,11 @@ class Inoffizielle_Strassen(Metamodel):
   class Meta(Metamodel.Meta):
     db_table = 'basisdaten"."inoffizielle_strassenliste_datenwerft_hro'
     ordering = ['strasse']
-    verbose_name = (
-      'Inoffizielle Straße der Hanse- und Universitätsstadt Rostock'
-    )
-    verbose_name_plural = (
-      'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'
-    )
+    verbose_name = 'Inoffizielle Straße der Hanse- und Universitätsstadt Rostock'
+    verbose_name_plural = 'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'
 
   class BasemodelMeta(Metamodel.BasemodelMeta):
-    description = (
-      'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'
-    )
+    description = 'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'
     list_fields = {'strasse': 'Straße'}
 
   def __str__(self):
@@ -177,9 +169,7 @@ class Gemeindeteile(Metamodel):
   Gemeindeteile
   """
 
-  gemeindeteil = CharField(
-    verbose_name='Gemeindeteil', max_length=255, editable=False
-  )
+  gemeindeteil = CharField(verbose_name='Gemeindeteil', max_length=255, editable=False)
   geometrie = multipolygon_field
 
   class Meta(Metamodel.Meta):
@@ -204,16 +194,10 @@ class Gruenpflegeobjekte(Metamodel):
 
   id = CharField(verbose_name='pit-KOMMUNAL-ID', max_length=17, editable=False)
   art = CharField(verbose_name='Art', max_length=255, editable=False)
-  gruenpflegebezirk = CharField(
-    verbose_name='Grünpflegebezirk', max_length=255, editable=False
-  )
+  gruenpflegebezirk = CharField(verbose_name='Grünpflegebezirk', max_length=255, editable=False)
   nummer = CharField(verbose_name='Nummer', max_length=7, editable=False)
-  bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, editable=False
-  )
-  gruenpflegeobjekt = CharField(
-    verbose_name='Bezeichnung', max_length=255, editable=False
-  )
+  bezeichnung = CharField(verbose_name='Bezeichnung', max_length=255, editable=False)
+  gruenpflegeobjekt = CharField(verbose_name='Bezeichnung', max_length=255, editable=False)
   geometrie = multipolygon_field
 
   class Meta(Metamodel.Meta):
@@ -223,9 +207,7 @@ class Gruenpflegeobjekte(Metamodel):
     verbose_name_plural = 'Grünpflegeobjekte'
 
   class BasemodelMeta(Metamodel.BasemodelMeta):
-    description = (
-      'Grünpflegeobjekte in der Hanse- und Universitätsstadt Rostock'
-    )
+    description = 'Grünpflegeobjekte in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     geometry_type = 'MultiPolygon'
     list_fields = {
@@ -251,9 +233,7 @@ class Altersklassen_Kadaverfunde(Codelist):
   Altersklassen bei Kadaverfunden
   """
 
-  ordinalzahl = PositiveSmallIntegerRangeField(
-    verbose_name='Ordinalzahl', min_value=1
-  )
+  ordinalzahl = PositiveSmallIntegerRangeField(verbose_name='Ordinalzahl', min_value=1)
   bezeichnung = CharField(
     verbose_name='Bezeichnung',
     max_length=255,
@@ -417,9 +397,7 @@ class Antragsteller_Jagdkataster_Skizzenebenen(Codelist):
     db_table = 'codelisten"."antragsteller_jagdkataster_skizzenebenen'
     ordering = ['bezeichnung']
     verbose_name = 'Antragsteller:in bei einer Skizzenebene des Jagdkatasters'
-    verbose_name_plural = (
-      'Antragsteller:innen bei Skizzenebenen des Jagdkatasters'
-    )
+    verbose_name_plural = 'Antragsteller:innen bei Skizzenebenen des Jagdkatasters'
 
   class BasemodelMeta(Codelist.BasemodelMeta):
     description = 'Antragsteller:innen bei Skizzenebenen des Jagdkatasters'
@@ -755,9 +733,7 @@ class Ausfuehrungen_Fahrradabstellanlagen_Stellplaetze(Ausfuehrung):
   class Meta(Ausfuehrung.Meta):
     db_table = 'codelisten"."ausfuehrungen_fahrradabstellanlagen_stellplaetze'
     verbose_name = 'Ausführung eines Stellplatzes in einer Fahrradabstellanlage'
-    verbose_name_plural = (
-      'Ausführungen von Stellplätzen in Fahrradabstellanlagen'
-    )
+    verbose_name_plural = 'Ausführungen von Stellplätzen in Fahrradabstellanlagen'
 
   class BasemodelMeta(Ausfuehrung.BasemodelMeta):
     description = 'Ausführungen von Stellplätzen in Fahrradabstellanlagen'
@@ -833,19 +809,17 @@ class Ausfuehrungen_Ingenieurbauwerke(Ausfuehrung):
     description = 'Ausführungen von Ingenieurbauwerken'
 
 
-class Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster(
-  Befestigungsart
-):
+class Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster(Befestigungsart):
   """
   Befestigungsarten der Aufstellfläche Bus innerhalb eines Haltestellenkatasters
   """
 
   class Meta(Befestigungsart.Meta):
-    db_table = (
-      'codelisten"."befestigungsarten_aufstellflaeche_bus_haltestellenkataster'
-    )
+    db_table = 'codelisten"."befestigungsarten_aufstellflaeche_bus_haltestellenkataster'
     verbose_name = 'Befestigungsart der Aufstellfläche Bus innerhalb eines Haltestellenkatasters'
-    verbose_name_plural = 'Befestigungsarten der Aufstellfläche Bus innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = (
+      'Befestigungsarten der Aufstellfläche Bus innerhalb eines Haltestellenkatasters'
+    )
 
   class BasemodelMeta(Befestigungsart.BasemodelMeta):
     description = 'Befestigungsarten der Aufstellfläche Bus innerhalb eines Haltestellenkatasters'
@@ -857,20 +831,12 @@ class Befestigungsarten_Warteflaeche_Haltestellenkataster(Befestigungsart):
   """
 
   class Meta(Befestigungsart.Meta):
-    db_table = (
-      'codelisten"."befestigungsarten_warteflaeche_haltestellenkataster'
-    )
-    verbose_name = (
-      'Befestigungsart der Wartefläche innerhalb eines Haltestellenkatasters'
-    )
-    verbose_name_plural = (
-      'Befestigungsarten der Wartefläche innerhalb eines Haltestellenkatasters'
-    )
+    db_table = 'codelisten"."befestigungsarten_warteflaeche_haltestellenkataster'
+    verbose_name = 'Befestigungsart der Wartefläche innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Befestigungsarten der Wartefläche innerhalb eines Haltestellenkatasters'
 
   class BasemodelMeta(Befestigungsart.BasemodelMeta):
-    description = (
-      'Befestigungsarten der Wartefläche innerhalb eines Haltestellenkatasters'
-    )
+    description = 'Befestigungsarten der Wartefläche innerhalb eines Haltestellenkatasters'
 
 
 class Beleuchtungsarten(Codelist):
@@ -1027,9 +993,7 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
   bestellungszeitraum_ende = DateField(
     verbose_name='Ende des Bestellungszeitraums', blank=True, null=True
   )
-  vorname = CharField(
-    verbose_name='Vorname', max_length=255, validators=personennamen_validators
-  )
+  vorname = CharField(verbose_name='Vorname', max_length=255, validators=personennamen_validators)
   nachname = CharField(
     verbose_name='Nachname', max_length=255, validators=personennamen_validators
   )
@@ -1039,37 +1003,27 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
   anschrift_hausnummer = CharField(
     verbose_name='Hausnummer',
     max_length=4,
-    validators=[
-      RegexValidator(regex=hausnummer_regex, message=hausnummer_message)
-    ],
+    validators=[RegexValidator(regex=hausnummer_regex, message=hausnummer_message)],
   )
   anschrift_postleitzahl = CharField(
     verbose_name='Postleitzahl',
     max_length=5,
-    validators=[
-      RegexValidator(regex=postleitzahl_regex, message=postleitzahl_message)
-    ],
+    validators=[RegexValidator(regex=postleitzahl_regex, message=postleitzahl_message)],
   )
-  anschrift_ort = CharField(
-    verbose_name='Ort', max_length=255, validators=standard_validators
-  )
+  anschrift_ort = CharField(verbose_name='Ort', max_length=255, validators=standard_validators)
   telefon_festnetz = CharField(
     verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
-    validators=[
-      RegexValidator(regex=rufnummer_regex, message=rufnummer_message)
-    ],
+    validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)],
   )
   telefon_mobil = CharField(
     verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
-    validators=[
-      RegexValidator(regex=rufnummer_regex, message=rufnummer_message)
-    ],
+    validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)],
   )
   email = CharField(
     verbose_name='E-Mail-Adresse',
@@ -1131,9 +1085,7 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(Codelist):
     unique=True,
     validators=standard_validators,
   )
-  art = CharField(
-    verbose_name='Art', max_length=255, validators=standard_validators
-  )
+  art = CharField(verbose_name='Art', max_length=255, validators=standard_validators)
 
   class Meta(Codelist.Meta):
     db_table = 'codelisten"."bewirtschafter_betreiber_traeger_eigentuemer'
@@ -1216,11 +1168,17 @@ class DFI_Typen_Haltestellenkataster(Codelist):
   class Meta(Codelist.Meta):
     db_table = 'codelisten"."dfi_typen_haltestellenkataster'
     ordering = ['dfi_typ']
-    verbose_name = 'Typ eines Dynamischen Fahrgastinformationssystems innerhalb eines Haltestellenkatasters'
-    verbose_name_plural = 'Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters'
+    verbose_name = (
+      'Typ eines Dynamischen Fahrgastinformationssystems innerhalb eines Haltestellenkatasters'
+    )
+    verbose_name_plural = (
+      'Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters'
+    )
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters'
+    description = (
+      'Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters'
+    )
     list_fields = {'dfi_typ': 'DFI-Typ'}
 
   def __str__(self):
@@ -1334,17 +1292,11 @@ class Fahrgastunterstandstypen_Haltestellenkataster(Codelist):
   class Meta(Codelist.Meta):
     db_table = 'codelisten"."fahrgastunterstandstypen_haltestellenkataster'
     ordering = ['fahrgastunterstandstyp']
-    verbose_name = (
-      'Typ eines Fahrgastunterstands innerhalb eines Haltestellenkatasters'
-    )
-    verbose_name_plural = (
-      'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
-    )
+    verbose_name = 'Typ eines Fahrgastunterstands innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    description = (
-      'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
-    )
+    description = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
     list_fields = {'fahrgastunterstandstyp': 'Fahrgastunterstandstyp'}
 
   def __str__(self):
@@ -1366,17 +1318,11 @@ class Fahrplanvitrinentypen_Haltestellenkataster(Codelist):
   class Meta(Codelist.Meta):
     db_table = 'codelisten"."fahrplanvitrinentypen_haltestellenkataster'
     ordering = ['fahrplanvitrinentyp']
-    verbose_name = (
-      'Typ einer Fahrplanvitrine innerhalb eines Haltestellenkatasters'
-    )
-    verbose_name_plural = (
-      'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
-    )
+    verbose_name = 'Typ einer Fahrplanvitrine innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    description = (
-      'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
-    )
+    description = 'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
     list_fields = {'fahrplanvitrinentyp': 'Fahrplanvitrinentyp'}
 
   def __str__(self):
@@ -1582,9 +1528,7 @@ class Geschlechter_Kadaverfunde(Codelist):
   Geschlechter bei Kadaverfunden
   """
 
-  ordinalzahl = PositiveSmallIntegerRangeField(
-    verbose_name='Ordinalzahl', min_value=1
-  )
+  ordinalzahl = PositiveSmallIntegerRangeField(verbose_name='Ordinalzahl', min_value=1)
   bezeichnung = CharField(
     verbose_name='Bezeichnung',
     max_length=255,
@@ -1619,11 +1563,7 @@ class Haefen(Codelist):
     verbose_name='Abkürzung',
     max_length=5,
     unique=True,
-    validators=[
-      RegexValidator(
-        regex=haefen_abkuerzung_regex, message=haefen_abkuerzung_message
-      )
-    ],
+    validators=[RegexValidator(regex=haefen_abkuerzung_regex, message=haefen_abkuerzung_message)],
   )
   code = PositiveSmallIntegerRangeField(
     verbose_name='Code', min_value=1, unique=True, blank=True, null=True
@@ -1691,9 +1631,7 @@ class Kabeltypen_Lichtwellenleiterinfrastruktur(Codelist):
     db_table = 'codelisten"."kabeltypen_lichtwellenleiterinfrastruktur'
     ordering = ['kabeltyp']
     verbose_name = 'Kabeltyp innerhalb einer Lichtwellenleiterinfrastruktur'
-    verbose_name_plural = (
-      'Kabeltypen innerhalb einer Lichtwellenleiterinfrastruktur'
-    )
+    verbose_name_plural = 'Kabeltypen innerhalb einer Lichtwellenleiterinfrastruktur'
 
   class BasemodelMeta(Codelist.BasemodelMeta):
     description = 'Kabeltypen innerhalb einer Lichtwellenleiterinfrastruktur'
@@ -1708,9 +1646,7 @@ class Kategorien_Strassen(Codelist):
   Kategorien von Straßen
   """
 
-  code = PositiveSmallIntegerRangeField(
-    verbose_name='Code', min_value=1, unique=True
-  )
+  code = PositiveSmallIntegerRangeField(verbose_name='Code', min_value=1, unique=True)
   bezeichnung = CharField(
     verbose_name='Bezeichnung', max_length=255, validators=standard_validators
   )
@@ -1757,9 +1693,7 @@ class Labore_Baugrunduntersuchungen(Codelist):
     max_length=255,
     blank=True,
     null=True,
-    validators=[
-      RegexValidator(regex=rufnummer_regex, message=rufnummer_message)
-    ],
+    validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)],
   )
   email = CharField(
     verbose_name='E-Mail-Adresse',
@@ -1859,25 +1793,17 @@ class Linien(Codelist):
     verbose_name='Linie',
     max_length=4,
     unique=True,
-    validators=[
-      RegexValidator(regex=linien_linie_regex, message=linien_linie_message)
-    ],
+    validators=[RegexValidator(regex=linien_linie_regex, message=linien_linie_message)],
   )
 
   class Meta(Codelist.Meta):
     db_table = 'codelisten"."linien'
     ordering = ['linie']
-    verbose_name = (
-      'Linie der Rostocker Straßenbahn AG und/oder der Regionalbus Rostock GmbH'
-    )
-    verbose_name_plural = (
-      'Linien der Rostocker Straßenbahn AG und der Regionalbus Rostock GmbH'
-    )
+    verbose_name = 'Linie der Rostocker Straßenbahn AG und/oder der Regionalbus Rostock GmbH'
+    verbose_name_plural = 'Linien der Rostocker Straßenbahn AG und der Regionalbus Rostock GmbH'
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    description = (
-      'Linien der Rostocker Straßenbahn AG und der Regionalbus Rostock GmbH'
-    )
+    description = 'Linien der Rostocker Straßenbahn AG und der Regionalbus Rostock GmbH'
     list_fields = {'linie': 'Linie'}
 
   def __str__(self):
@@ -1902,11 +1828,17 @@ class Mastkennzeichen_RSAG(Codelist):
   class Meta(Codelist.Meta):
     db_table = 'codelisten"."mastkennzeichen_rsag'
     ordering = ['kennzeichen']
-    verbose_name = 'Mastkennzeichen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
-    verbose_name_plural = 'Mastkennzeichen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+    verbose_name = (
+      'Mastkennzeichen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+    )
+    verbose_name_plural = (
+      'Mastkennzeichen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+    )
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Mastkennzeichen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+    description = (
+      'Mastkennzeichen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+    )
     list_fields = {'kennzeichen': 'Kennzeichen', 'erlaeuterung': 'Erläuterung'}
 
   def __str__(self):
@@ -1958,7 +1890,9 @@ class Masttypen_RSAG(Codelist):
     db_table = 'codelisten"."masttypen_rsag'
     ordering = ['typ']
     verbose_name = 'Masttyp innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
-    verbose_name_plural = 'Masttypen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+    verbose_name_plural = (
+      'Masttypen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+    )
 
   class BasemodelMeta(Codelist.BasemodelMeta):
     description = 'Masttypen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
@@ -2012,9 +1946,7 @@ class Objektarten_Lichtwellenleiterinfrastruktur(Codelist):
     db_table = 'codelisten"."objektarten_lichtwellenleiterinfrastruktur'
     ordering = ['objektart']
     verbose_name = 'Objektart innerhalb einer Lichtwellenleiterinfrastruktur'
-    verbose_name_plural = (
-      'Objektarten innerhalb einer Lichtwellenleiterinfrastruktur'
-    )
+    verbose_name_plural = 'Objektarten innerhalb einer Lichtwellenleiterinfrastruktur'
 
   class BasemodelMeta(Codelist.BasemodelMeta):
     description = 'Objektarten innerhalb einer Lichtwellenleiterinfrastruktur'
@@ -2029,9 +1961,7 @@ class Ordnungen_Fliessgewaesser(Codelist):
   Ordnungen von Fließgewässern
   """
 
-  ordnung = PositiveSmallIntegerMinField(
-    verbose_name='Ordnung', min_value=1, unique=True
-  )
+  ordnung = PositiveSmallIntegerMinField(verbose_name='Ordnung', min_value=1, unique=True)
 
   class Meta(Codelist.Meta):
     db_table = 'codelisten"."ordnungen_fliessgewaesser'
@@ -2082,9 +2012,7 @@ class Quartiere(Codelist):
     verbose_name='Code',
     max_length=3,
     unique=True,
-    validators=[
-      RegexValidator(regex=quartiere_code_regex, message=quartiere_code_message)
-    ],
+    validators=[RegexValidator(regex=quartiere_code_regex, message=quartiere_code_message)],
   )
 
   class Meta(Codelist.Meta):
@@ -2126,11 +2054,17 @@ class Raeumbreiten_Strassenreinigungssatzung_HRO(Codelist):
   class Meta(Codelist.Meta):
     db_table = 'codelisten"."raeumbreiten_strassenreinigungssatzung_hro'
     ordering = ['raeumbreite']
-    verbose_name = 'Räumbreite gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    verbose_name_plural = 'Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    verbose_name = (
+      'Räumbreite gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
+    verbose_name_plural = (
+      'Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
     list_fields = {'raeumbreite': 'Räumbreite (in m)'}
     list_fields_with_decimal = ['raeumbreite']
 
@@ -2169,9 +2103,7 @@ class Reinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
   Reinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock
   """
 
-  code = PositiveSmallIntegerRangeField(
-    verbose_name='Code', min_value=1, max_value=7, unique=True
-  )
+  code = PositiveSmallIntegerRangeField(verbose_name='Code', min_value=1, max_value=7, unique=True)
   reinigungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
     verbose_name='Reinigungshäufigkeit pro Jahr', min_value=1
   )
@@ -2179,11 +2111,17 @@ class Reinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
   class Meta(Codelist.Meta):
     db_table = 'codelisten"."reinigungsklassen_strassenreinigungssatzung_hro'
     ordering = ['code']
-    verbose_name = 'Reinigungsklasse gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    verbose_name_plural = 'Reinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    verbose_name = (
+      'Reinigungsklasse gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
+    verbose_name_plural = (
+      'Reinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Reinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Reinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
     list_fields = {
       'code': 'Code',
       'reinigungshaeufigkeit_pro_jahr': 'Reinigungshäufigkeit pro Jahr',
@@ -2216,11 +2154,17 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(Codelist):
   class Meta(Codelist.Meta):
     db_table = 'codelisten"."reinigungsrhythmen_strassenreinigungssatzung_hro'
     ordering = ['ordinalzahl']
-    verbose_name = 'Reinigungsrhythmus gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    verbose_name_plural = 'Reinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    verbose_name = (
+      'Reinigungsrhythmus gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
+    verbose_name_plural = (
+      'Reinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Reinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Reinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
     naming = 'reinigungsrhythmus'
     list_fields = {
       'ordinalzahl': 'Ordinalzahl',
@@ -2761,11 +2705,17 @@ class Wegebreiten_Strassenreinigungssatzung_HRO(Codelist):
   class Meta(Codelist.Meta):
     db_table = 'codelisten"."wegebreiten_strassenreinigungssatzung_hro'
     ordering = ['wegebreite']
-    verbose_name = 'Wegebreite gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    verbose_name_plural = 'Wegebreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    verbose_name = (
+      'Wegebreite gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
+    verbose_name_plural = (
+      'Wegebreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Wegebreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Wegebreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
     list_fields = {'wegebreite': 'Wegebreite (in m)'}
     list_fields_with_decimal = ['wegebreite']
 
@@ -2778,17 +2728,13 @@ class Wegereinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
   Wegereinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock
   """
 
-  code = PositiveSmallIntegerRangeField(
-    verbose_name='Code', min_value=1, max_value=7, unique=True
-  )
+  code = PositiveSmallIntegerRangeField(verbose_name='Code', min_value=1, max_value=7, unique=True)
   reinigungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
     verbose_name='Reinigungshäufigkeit pro Jahr', min_value=1
   )
 
   class Meta(Codelist.Meta):
-    db_table = (
-      'codelisten"."wegereinigungsklassen_strassenreinigungssatzung_hro'
-    )
+    db_table = 'codelisten"."wegereinigungsklassen_strassenreinigungssatzung_hro'
     ordering = ['code']
     verbose_name = (
       'Wegereinigungsklasse gemäß Straßenreinigungssatzung '
@@ -2834,9 +2780,7 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(Codelist):
   )
 
   class Meta(Codelist.Meta):
-    db_table = (
-      'codelisten"."wegereinigungsrhythmen_strassenreinigungssatzung_hro'
-    )
+    db_table = 'codelisten"."wegereinigungsrhythmen_strassenreinigungssatzung_hro'
     ordering = ['ordinalzahl']
     verbose_name = (
       'Wegereinigungsrhythmus gemäß Straßenreinigungssatzung '
@@ -2878,11 +2822,17 @@ class Wegetypen_Strassenreinigungssatzung_HRO(Codelist):
   class Meta(Codelist.Meta):
     db_table = 'codelisten"."wegetypen_strassenreinigungssatzung_hro'
     ordering = ['wegetyp']
-    verbose_name = 'Wegetyp gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    verbose_name_plural = 'Wegetypen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    verbose_name = (
+      'Wegetyp gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
+    verbose_name_plural = (
+      'Wegetypen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Wegetypen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    description = (
+      'Wegetypen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    )
     list_fields = {'wegetyp': 'Wegetyp'}
 
   def __str__(self):
@@ -2980,9 +2930,7 @@ class Zustaende_Kadaverfunde(Codelist):
   Zustände von Kadaverfunden
   """
 
-  ordinalzahl = PositiveSmallIntegerRangeField(
-    verbose_name='Ordinalzahl', min_value=1
-  )
+  ordinalzahl = PositiveSmallIntegerRangeField(verbose_name='Ordinalzahl', min_value=1)
   zustand = CharField(
     verbose_name='Zustand',
     max_length=255,
@@ -3010,9 +2958,7 @@ class Zustaende_Schutzzaeune_Tierseuchen(Codelist):
   Zustände von Schutzzäunen gegen Tierseuchen
   """
 
-  ordinalzahl = PositiveSmallIntegerRangeField(
-    verbose_name='Ordinalzahl', min_value=1
-  )
+  ordinalzahl = PositiveSmallIntegerRangeField(verbose_name='Ordinalzahl', min_value=1)
   zustand = CharField(
     verbose_name='Zustand',
     max_length=255,
