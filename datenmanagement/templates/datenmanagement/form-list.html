@@ -75,7 +75,7 @@
                           <fieldset id="image-selector" class="d-flex flex-wrap justify-content-center">
                             {% for thumb_key, thumb_url in thumb_urls_3d_models.items %}
                               <div class="model-option">
-                                <label for="{{ thumb_key }}">
+                                <label for="{{ thumb_key }}" onclick="toggleRadioButton('{{ thumb_key }}', event)">
                                   <img src="{{ thumb_url }}" alt="{{ thumb_key }}" class="image-3d-model">
                                   <p>{{ thumb_key }}</p>
                                   <input type="radio" id="{{ thumb_key }}" name="model-selection" value="{{ thumb_key }}" class="form-check-input">
@@ -151,26 +151,25 @@
                 /**
                  * update the original Input Field of 3D Model Selection
                  */
-                function updateModel3DField() {
-                  const modelOptions = document.querySelectorAll(".model-option > label");
-                  const model3DField = document.getElementById("id_model_3d");
+                function toggleRadioButton(radioId, event) {
+                  event.preventDefault(); // Verhindert das Standard-Verhalten
+                  const radioButton = document.getElementById(radioId);
+                  const inputField = document.getElementById('id_model_3d');
 
-                  // add Event listener to each label, which updates the original hidden input field
-                  modelOptions.forEach(label => {
-                    label.addEventListener("click", function() {
-                      for (child of label.children) {
-                        if (child.type == "radio" && child.checked) {
-                          model3DField.value = child.value;
-                        }
-                      }
-                    })
-                  });
+                  if (radioButton.checked) {
+                    // Radio button was already checked, uncheck it and clear input field
+                    radioButton.checked = false;
+                    inputField.value = '';
+                  } else {
+                    // Radio button was not checked, check it and set input field value
+                    radioButton.checked = true;
+                    inputField.value = radioButton.value;
+                  }
                 }
 
                 hide3dModelInput();
                 manipulate3DModelNames()
                 select3DModelOnLoad();
-                updateModel3DField();
               </script>
             {% endif %}
           </table>
