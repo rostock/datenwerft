@@ -200,7 +200,7 @@ class D3Api:
 
     location_header = response.headers.get("Location")
 
-    d3_id_with_query = location_header.replace("/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/o2m/", "")
+    d3_id_with_query = location_header.replace(f"/dms/r/{repository_id}/o2m/", "")
     query_start = d3_id_with_query.find("?")
     return d3_id_with_query[:query_start]
 
