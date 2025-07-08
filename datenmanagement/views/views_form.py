@@ -98,6 +98,10 @@ class DataAddView(CreateView):
     context['geometry_calculation'] = self.model.BasemodelMeta.geometry_calculation
     referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
     context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
+    if self.model.BasemodelMeta.git_repo_of_3d_models:
+      context['thumb_urls_3d_models'] = get_github_files(
+        self.model.BasemodelMeta.git_repo_of_3d_models
+      )
     return context
 
   def get_initial(self):
