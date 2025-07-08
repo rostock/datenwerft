@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.13
--- Dumped by pg_dump version 16.9
+-- Dumped from database version 16.9 (Ubuntu 16.9-0ubuntu0.24.04.1)
+-- Dumped by pg_dump version 16.9 (Ubuntu 16.9-0ubuntu0.24.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -1535,7 +1535,8 @@ CREATE TABLE codelisten.typen_abfallbehaelter (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
-    typ character varying(255) NOT NULL
+    typ character varying(255) NOT NULL,
+    model_3d character varying(255)
 );
 
 
@@ -8815,4 +8816,3 @@ ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
 --
 -- PostgreSQL database dump complete
 --
-
