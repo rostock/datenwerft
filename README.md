@@ -297,15 +297,6 @@ pip install -r requirements-dev.txt
 uv sync --dev
 ```
 
-### Datenbankveränderungen festhalten
-
-```bash
-pg_dump -U <user> -O -x -s -N public -N topology -e postgis -e uuid-ossp -f datenmanagement/sql/schema.sql datenmanagement
-```
-
-> [!WARNING]
-> Die Zeile `SELECT pg_catalog.set_config('search_path', '', false);` muss in `SELECT pg_catalog.set_config('search_path', 'public', false);` verändert werden.
-
 #### _PEP8_-Durchsetzung
 
 Die Vorgaben von _PEP8_ finden mit zwei Ausnahmen vollständig Anwendung:
@@ -318,6 +309,15 @@ Die entsprechende Konfigurationsdatei `pyproject.toml` für (zum Beispiel) _ruff
 ### JavaScript
 
 JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc) dokumentiert, angelehnt an [diese Übersicht](https://devhints.io/jsdoc).
+
+### Datenbankveränderungen festhalten
+
+```bash
+pg_dump -U <user> -O -x -s -N public -N topology -e postgis -e uuid-ossp -f datenmanagement/sql/schema.sql datenmanagement
+```
+
+> [!WARNING]
+> Die Zeile `SELECT pg_catalog.set_config('search_path', '', false);` muss in `SELECT pg_catalog.set_config('search_path', 'public', false);` verändert werden.
 
 ## Linting
 
