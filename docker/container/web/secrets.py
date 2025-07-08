@@ -34,6 +34,8 @@ D3_PASSWORD = ''
 D3_AKTEN_CATEGORY = ''
 D3_ORDNER_CATEGORY = ''
 D3_VORGANG_CATEGORY = ''
+D3_VORGANGS_TITEL_ID = ''
+D3_VORGANGS_TYP_ID = None
 
 # Datenwerft.HRO:
 # reverse proxy settings

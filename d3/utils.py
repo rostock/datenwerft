@@ -17,7 +17,8 @@ def lade_d3_api():
   Returns:
       D3Api: D3Api Client mit geladenen Access-Token
   """
-  access_token = D3AuthenticationApi.lade_access_token()
+  authentication_api = D3AuthenticationApi()
+  access_token = authentication_api.lade_access_token()
 
   return D3Api(access_token)
 
@@ -139,7 +140,7 @@ def lade_d3_properties() -> list[tuple[str, str]]:
 
   return source_properties
 
-def erstelle_vorgang(vorgang: Vorgang, vorgang_metadaten: list[VorgangMetadaten], metadaten: QuerySet[Metadaten]) -> DmsObject:
+def erstelle_vorgang(vorgang: Vorgang, vorgang_metadaten: list[VorgangMetadaten], metadaten: QuerySet[Metadaten]) -> str:
   """
   Erstellt einen neuen Vorgang im D3 DMS mit den Daten aus dem Vorgang und deren Metadaten.
 
@@ -167,7 +168,7 @@ def erstelle_vorgang(vorgang: Vorgang, vorgang_metadaten: list[VorgangMetadaten]
       properties[metadaten_feld.d3_id] = wert
 
   api = lade_d3_api()
-  return api.erstelle_vorgang(D3_REPOSITORY, vorgang.akten.d3_id, vorgang.titel, properties)
+  return api.erstelle_vorgang(D3_REPOSITORY, vorgang.akten.d3_id, vorgang.titel, vorgang.vorgangs_typ, properties)
 
 def lade_alle_metadaten():
   """

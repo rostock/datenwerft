@@ -83,18 +83,25 @@ class ErstelleVorgangView(CreateView):
 
     for metadaten in self.metadaten:
 
-      if form.data.get('metadaten.' + str(metadaten.id)):
+      wert = form.data.get('metadaten.' + str(metadaten.id))
+
+      if metadaten.gui_element == 'checkbox' and 'on' != wert:
+        wert = "Nein"
+      if metadaten.gui_element == 'checkbox' and 'on' == wert:
+        wert = "Ja"
+
+      if wert:
 
         vorgang_meta = VorgangMetadaten()
         vorgang_meta.vorgang = form.instance
         vorgang_meta.metadaten = metadaten
         vorgang_meta.erstellt_durch = self.request.user
-        vorgang_meta.wert = form.data.get('metadaten.' + str(metadaten.id))
+        vorgang_meta.wert = wert
         vorgang_metadaten.append(vorgang_meta)
 
     try:
       form.instance.akten = lade_oder_erstelle_akte(self.content_type_id, self.object_id, self.akten_ordner)
-      form.instance.d3_id = erstelle_vorgang(form.instance, vorgang_metadaten, self.metadaten).id
+      form.instance.d3_id = erstelle_vorgang(form.instance, vorgang_metadaten, self.metadaten)
 
     except:
       error(self.request, 'Beim Anlegen des Vorgangs in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.')

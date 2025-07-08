@@ -1,18 +1,21 @@
 import base64
 from typing import List
 from urllib.parse import urlencode
+import logging
 
 import requests
 from requests import Response
 
 from d3.api import SourceMapping, SourceCategory
 from d3.api.responses import Repository, DmsObject, SourceProperty
-from datenwerft.settings import APPLICATION_HTTP_USER_AGENT, D3_USERNAME, D3_PASSWORD, D3_HOST, D3_AKTEN_CATEGORY, D3_VORGANG_CATEGORY
+from datenwerft.settings import APPLICATION_HTTP_USER_AGENT, D3_USERNAME, D3_PASSWORD, D3_HOST, D3_AKTEN_CATEGORY, D3_VORGANG_CATEGORY, \
+  D3_VORGANGS_TITEL_ID, D3_VORGANGS_TYP_ID
 
 class D3AuthenticationApi:
 
-  @staticmethod
-  def lade_access_token() -> str | None:
+  logger = logging.getLogger(__name__)
+
+  def lade_access_token(self) -> str | None:
     """
     Methode zum Laden eines Access tokens zur Authentifizierung gegenüber des D3 Backends.
 
@@ -27,14 +30,18 @@ class D3AuthenticationApi:
       "Authorization": "Basic " + basic_header.decode('utf-8')
     }
 
+    self.logger.debug("Sending request to " + D3_HOST + "/dms/r/ with Headers: " + request_headers.__str__())
     response = requests.get(D3_HOST + "/dms/r/", headers = request_headers)
 
     if response.status_code >= 400:
+      self.logger.error("Authentication failed with status code " + str(response.status_code) + " and message " + response.text)
       raise Exception("Authentication failed with status code " + str(response.status_code) + " and message " + response.text)
 
     return response.cookies.get("AuthSessionId")
 
 class D3Api:
+
+  logger = logging.getLogger(__name__)
 
   accessToken: str
   baseUrl: str
@@ -54,6 +61,7 @@ class D3Api:
     response = self.__get("/dms/r", {})
 
     if response.status_code >= 400:
+      self.logger.error("Repositories konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
       raise Exception("Repositories konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     json_responses = response.json()
@@ -74,6 +82,7 @@ class D3Api:
     response = self.__get(f"/dms/r/{repository_id}/source", {})
 
     if response.status_code >= 400:
+      self.logger.error("Default Mappings konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
       raise Exception("Default Mappings konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     json_response = response.json()
@@ -111,6 +120,7 @@ class D3Api:
     response = self.__post(f"/dms/r/{repository_id}/o2m", json_body)
 
     if response.status_code >= 400:
+      self.logger.error("Akte konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
       raise Exception("Akte konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     return self.__map_dms_object(response.json())
@@ -130,11 +140,12 @@ class D3Api:
     response = self.__get(f"/dms/r/{repository_id}/o2m/{akten_id}", {})
 
     if response.status_code >= 400:
+      self.logger.error("Akte konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
       raise Exception("Akte konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     return self.__map_dms_object(response.json())
 
-  def erstelle_vorgang(self, repository_id: str, parent_id: str, name: str | None, properties: dict[str, str | List[str]]) -> DmsObject:
+  def erstelle_vorgang(self, repository_id: str, parent_id: str, name: str | None, vorgangs_typ: str, properties: dict[str, str | List[str]]) -> str:
     """
     erstellt einen neue Vorgang im d3 System
 
@@ -142,13 +153,22 @@ class D3Api:
       repository_id (str): id des repositories
       parent_id (str | None): id des Elternelements des neuen Vorgangs
       name (str | None): Anzeigename des Vorgangs in d3
+      vorgangs_typ (str): Vorgangs type des Vorgangs
       properties (dict[str, str | List[str]): properties des Vorgangs
 
     Returns:
         DmsObject: neu erstellter Vorgang
     """
 
-    mapped_properties = []
+    mapped_properties = [
+      {"key": D3_VORGANGS_TITEL_ID, "values": [name]}
+    ]
+
+    if None != D3_VORGANGS_TYP_ID:
+      mapped_properties.append({
+        "key": D3_VORGANGS_TYP_ID,
+        "values": [vorgangs_typ]
+      })
 
     for key, value in properties.items():
 
@@ -160,24 +180,29 @@ class D3Api:
       else:
         mapped_properties.append({
           "key": key,
-          "value": value,
+          "values": [value],
         })
 
     json_body = {
-      "displayValue": name,
       "sourceCategory": D3_VORGANG_CATEGORY,
-      "source": f"/dms/r/{repository_id}/source",
+      "sourceId": f"/dms/r/{repository_id}/source",
       "parentId": parent_id,
-      "sourceProperties": mapped_properties,
+      "sourceProperties": {
+        "properties": mapped_properties,
+      },
     }
 
     response = self.__post(f"/dms/r/{repository_id}/o2m", json_body)
 
     if response.status_code >= 400:
-
+      self.logger.error("Vorgang konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
       raise Exception("Vorgang konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
-    return self.__map_dms_object(response.json())
+    location_header = response.headers.get("Location")
+
+    d3_id_with_query = location_header.replace("/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/o2m/", "")
+    query_start = d3_id_with_query.find("?")
+    return d3_id_with_query[:query_start]
 
   def lade_vorgang(self, repository_id: str, vorgangs_id: str):
     """
@@ -194,7 +219,7 @@ class D3Api:
     response = self.__get(f"/dms/r/{repository_id}/o2m/{vorgangs_id}", {})
 
     if response.status_code >= 400:
-
+      self.logger.error("Vorgang konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
       raise Exception("Vorgang konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
     return self.__map_dms_object(response.json())
@@ -217,7 +242,10 @@ class D3Api:
       "Accept": "application/json",
     }
 
-    return requests.get(self.baseUrl + url + "?" + urlencode(params), headers = request_headers, cookies={"AuthSessionId": self.accessToken})
+    full_url = self.baseUrl + url + "?" + urlencode(params)
+
+    self.logger.debug("Sending request to " + full_url + " with Headers: " + request_headers.__str__())
+    return requests.get(full_url, headers = request_headers, cookies={"AuthSessionId": self.accessToken})
 
   def __post(self, url: str, json: any) -> Response:
     """
@@ -240,6 +268,7 @@ class D3Api:
       "Content-Type": "application/json",
     }
 
+    self.logger.debug("Sending request to " + self.baseUrl + url + " with Headers: " + request_headers.__str__() + " and JSON: " + json.__str__())
     return requests.post(self.baseUrl + url, headers = request_headers, json = json, cookies={"AuthSessionId": self.accessToken})
 
   @staticmethod
