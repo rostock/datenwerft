@@ -297,6 +297,24 @@ pip install -r requirements-dev.txt
 uv sync --dev
 ```
 
+### Datenbankveränderungen festhalten
+
+```bash
+pg_dump -U <user> -O -x -s -N public -N topology -e postgis -e uuid-ossp -f datenmanagement/sql/schema.sql datenmanagement
+```
+
+- `pg_dump`: Das ist das Kommandozeilen-Programm, das verwendet wird, um eine PostgreSQL-Datenbank zu sichern.
+- `-U <user>`: Diese Option gibt den Benutzernamen an, der für die Verbindung zur Datenbank verwendet wird.
+- `-O`: Diese Option bewirkt, dass keine Eigentümerinformationen (Owner) in die Sicherungsdatei geschrieben werden.
+- `-x`: Diese Option schließt große Objekte aus der Sicherung aus.
+- `-s`: Diese Option bewirkt, dass nur das Schema (also die Struktur der Datenbank wie Tabellen, Indizes, etc.) und keine Daten gesichert werden.
+- `-N public`: Diese Option schließt das Schema `public` aus der Sicherung aus.
+- `-N topology`: Diese Option schließt das Schema `topology` aus der Sicherung aus.
+- `-e postgis`: Diese Option schließt die Erweiterung `postgis` aus der Sicherung aus.
+- `-e uuid-ossp`: Diese Option schließt die Erweiterung `uuid-ossp` aus der Sicherung aus.
+- `-f datenmanagement/sql/schema.sql`: Diese Option gibt die Ausgabedatei an, in die die Sicherung geschrieben wird.
+- `datenmanagement`: Dies ist der Name der Datenbank, die gesichert wird.
+
 #### _PEP8_-Durchsetzung
 
 Die Vorgaben von _PEP8_ finden mit zwei Ausnahmen vollständig Anwendung:
