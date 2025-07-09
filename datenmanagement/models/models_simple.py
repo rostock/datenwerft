@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.core.validators import URLValidator
-from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, OneToOneField
+from django.db.models import CASCADE, SET_NULL, OneToOneField
 from django.db.models.fields import DateTimeField
 from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
@@ -4476,6 +4476,103 @@ class Mobilpunkte(SimpleModel):
 
   def __str__(self):
     return self.bezeichnung
+
+
+class Naturdenkmale(SimpleModel):
+  """
+  Naturdenkmale
+  """
+
+  typ = ForeignKey(
+    to=Typen_Naturdenkmale,
+    verbose_name='Typ',
+    on_delete=RESTRICT,
+    db_column='typ',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_typen',
+  )
+  nummer = PositiveSmallIntegerMinField(
+    verbose_name='Nummer',
+    min_value=1,
+    unique=True,
+  )
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung', max_length=255, validators=standard_validators
+  )
+  rechtsvorschrift_festsetzung = CharField(
+    verbose_name='Rechtsvorschrift zur Festsetzung',
+    max_length=255,
+    validators=standard_validators,
+    blank=True,
+    null=True,
+  )
+  datum_rechtsvorschrift_festsetzung = DateField(
+    verbose_name='Datum der Rechtsvorschrift zur Festsetzung', blank=True, null=True
+  )
+  pdf = FileField(
+    verbose_name='Datenblatt',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(settings.PDF_PATH_PREFIX_PUBLIC + '_naturdenkmale'),
+    max_length=255,
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten"."_naturdenkmale_hro'
+    verbose_name = 'Naturdenkmal'
+    verbose_name_plural = 'Naturdenkmale'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Naturdenkmale in der Hanse- und Universitätsstadt Rostock'
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'typ': 'Typ',
+      'nummer': 'Nummer',
+      'bezeichnung': 'Bezeichnung',
+      'rechtsvorschrift_festsetzung': 'Rechtsvorschrift zur Festsetzung',
+      'datum_rechtsvorschrift_festsetzung': 'Datum der Rechtsvorschrift zur Festsetzung',
+      'pdf': 'Datenblatt',
+    }
+    list_fields_with_date = ['datum_rechtsvorschrift_festsetzung']
+    list_fields_with_foreign_key = {
+      'typ': 'typ',
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'naturdenkmale-typ',
+        'action_title': 'ausgewählten Datensätzen Typ direkt zuweisen',
+        'field': 'typ',
+        'type': 'foreignkey',
+      },
+      {
+        'action_name': 'naturdenkmale-rechtsvorschrift_festsetzung',
+        'action_title': 'ausgewählten Datensätzen Rechtsvorschrift zur Festsetzung direkt zuweisen',
+        'field': 'rechtsvorschrift_festsetzung',
+        'type': 'text',
+      },
+      {
+        'action_name': 'naturdenkmale-datum_rechtsvorschrift_festsetzung',
+        'action_title': 'ausgewählten Datensätzen Datum der Rechtsvorschrift zur Festsetzung direkt zuweisen',
+        'field': 'datum_rechtsvorschrift_festsetzung',
+        'type': 'date',
+      },
+    ]
+    map_feature_tooltip_fields = ['nummer']
+    map_filter_fields = {
+      'typ': 'Typ',
+      'nummer': 'Nummer',
+      'bezeichnung': 'Bezeichnung',
+      'rechtsvorschrift_festsetzung': 'Rechtsvorschrift zur Festsetzung',
+      'datum_rechtsvorschrift_festsetzung': 'Datum der Rechtsvorschrift zur Festsetzung',
+    }
+    map_filter_fields_as_list = ['typ']
+
+  def __str__(self):
+    return f'{self.nummer}'
+
+
+post_delete.connect(delete_pdf, sender=Naturdenkmale)
 
 
 class Parkmoeglichkeiten(SimpleModel):

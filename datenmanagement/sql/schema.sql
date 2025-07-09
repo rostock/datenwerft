@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.9 (Ubuntu 16.9-0ubuntu0.24.04.1)
--- Dumped by pg_dump version 16.9 (Ubuntu 16.9-0ubuntu0.24.04.1)
+-- Dumped from database version 15.13
+-- Dumped by pg_dump version 16.9
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -576,6 +576,18 @@ CREATE TABLE codelisten.arten_meldedienst_flaechenhaft (
 --
 
 CREATE TABLE codelisten.arten_meldedienst_punkthaft (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art character varying(255) NOT NULL
+);
+
+
+--
+-- Name: arten_naturdenkmale; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.arten_naturdenkmale (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -1589,6 +1601,19 @@ CREATE TABLE codelisten.typen_kleinklaeranlagen (
 
 
 --
+-- Name: typen_naturdenkmale; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.typen_naturdenkmale (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art uuid NOT NULL,
+    typ character varying(255) NOT NULL
+);
+
+
+--
 -- Name: typen_uvp_vorhaben; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1795,6 +1820,28 @@ CREATE TABLE codelisten.zustandsbewertungen (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     zustandsbewertung smallint NOT NULL
+);
+
+
+--
+-- Name: _naturdenkmale_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten._naturdenkmale_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    typ uuid NOT NULL,
+    nummer smallint NOT NULL,
+    bezeichnung character varying(255) NOT NULL,
+    rechtsvorschrift_festsetzung character varying(255),
+    datum_rechtsvorschrift_festsetzung date,
+    pdf character varying(255) NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
 );
 
 
@@ -4594,6 +4641,22 @@ ALTER TABLE ONLY codelisten.arten_meldedienst_punkthaft
 
 
 --
+-- Name: arten_naturdenkmale arten_naturdenkmale_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_naturdenkmale
+    ADD CONSTRAINT arten_naturdenkmale_art_unique UNIQUE (art);
+
+
+--
+-- Name: arten_naturdenkmale arten_naturdenkmale_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_naturdenkmale
+    ADD CONSTRAINT arten_naturdenkmale_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: arten_parkmoeglichkeiten arten_parkmoeglichkeiten_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -5882,6 +5945,22 @@ ALTER TABLE ONLY codelisten.typen_kleinklaeranlagen
 
 
 --
+-- Name: typen_naturdenkmale typen_naturdenkmale_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_naturdenkmale
+    ADD CONSTRAINT typen_naturdenkmale_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: typen_naturdenkmale typen_naturdenkmale_typ_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_naturdenkmale
+    ADD CONSTRAINT typen_naturdenkmale_typ_unique UNIQUE (typ);
+
+
+--
 -- Name: typen_uvp_vorhaben typen_uvp_vorhaben_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -6151,6 +6230,22 @@ ALTER TABLE ONLY codelisten.zustandsbewertungen
 
 ALTER TABLE ONLY codelisten.zustandsbewertungen
     ADD CONSTRAINT zustandsbewertungen_zustandsbewertung_unique UNIQUE (zustandsbewertung);
+
+
+--
+-- Name: _naturdenkmale_hro _naturdenkmale_hro_nummer_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten._naturdenkmale_hro
+    ADD CONSTRAINT _naturdenkmale_hro_nummer_unique UNIQUE (nummer);
+
+
+--
+-- Name: _naturdenkmale_hro _naturdenkmale_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten._naturdenkmale_hro
+    ADD CONSTRAINT _naturdenkmale_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7518,6 +7613,22 @@ CREATE TRIGGER tr_before_update_20_gemeindeteil BEFORE UPDATE OF geometrie ON fa
 
 
 --
+-- Name: typen_naturdenkmale typen_naturdenkmale_arten_fk; Type: FK CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_naturdenkmale
+    ADD CONSTRAINT typen_naturdenkmale_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_naturdenkmale(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: _naturdenkmale_hro _naturdenkmale_hro_typen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten._naturdenkmale_hro
+    ADD CONSTRAINT _naturdenkmale_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_naturdenkmale(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: abfallbehaelter_hro abfallbehaelter_hro_bewirtschafter_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -8816,3 +8927,4 @@ ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
 --
 -- PostgreSQL database dump complete
 --
+

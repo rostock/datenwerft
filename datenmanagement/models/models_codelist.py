@@ -5,6 +5,7 @@ from django.core.validators import (
   MaxValueValidator,
   MinValueValidator,
 )
+from django.db.models import RESTRICT, ForeignKey
 from django.db.models.fields import (
   BooleanField,
   CharField,
@@ -559,6 +560,20 @@ class Arten_Meldedienst_punkthaft(Art):
 
   class BasemodelMeta(Art.BasemodelMeta):
     description = 'Arten von Meldediensten (punkthaft)'
+
+
+class Arten_Naturdenkmale(Art):
+  """
+  Arten von Naturdenkmalen
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten"."arten_naturdenkmale'
+    verbose_name = 'Art eines Naturdenkmals'
+    verbose_name_plural = 'Arten von Naturdenkmalen'
+
+  class BasemodelMeta(Art.BasemodelMeta):
+    description = 'Arten von Naturdenkmalen'
 
 
 class Arten_Parkmoeglichkeiten(Art):
@@ -2520,6 +2535,40 @@ class Typen_Kleinklaeranlagen(Typ):
 
   class BasemodelMeta(Typ.BasemodelMeta):
     description = 'Typen von Kleinkläranlagen'
+
+
+class Typen_Naturdenkmale(Codelist):
+  """
+  Typen von Naturdenkmalen
+  """
+
+  art = ForeignKey(
+    to=Arten_Naturdenkmale,
+    verbose_name='Art',
+    on_delete=RESTRICT,
+    db_column='art',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_arten',
+  )
+  typ = CharField(
+    verbose_name='Typ',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten"."typen_naturdenkmale'
+    ordering = ['typ']
+    verbose_name = 'Typ eines Naturdenkmals'
+    verbose_name_plural = 'Typen von Naturdenkmalen'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Typen von Naturdenkmalen'
+    list_fields = {'typ': 'Typ'}
+
+  def __str__(self):
+    return f'{self.typ}'
 
 
 class Typen_Versenkpoller(Typ):
