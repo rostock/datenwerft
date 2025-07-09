@@ -24,6 +24,7 @@ from leaflet.forms.widgets import LeafletWidget
 
 from datenmanagement.models.base import Basemodel
 from datenmanagement.models.fields import ChoiceArrayField
+from datenmanagement.utils import logger
 from toolbox.models import Subsets
 from toolbox.utils import is_geometry_field
 from toolbox.vcpub.DataBucket import DataBucket
@@ -413,7 +414,11 @@ def get_github_files(
     # API-Anfrage senden
     response = get(url=api_url)
 
-    # Verarbeite die Antwort
+    # handle response
+    if response.status_code < 200 or response.status_code >= 300:
+      logger.error(f'Network error: {response.status_code} - {response.reason_phrase}')
+      return {}
+
     files = response.json()
     print(files)
     file_links = {}
@@ -425,7 +430,7 @@ def get_github_files(
     return file_links
 
   except Exception as e:
-    print(f'Fehler beim Abrufen der Daten: {e}')
+    print(f'Error retrieving data: {e}')
     return {}
 
 
