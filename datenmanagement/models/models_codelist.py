@@ -2565,7 +2565,8 @@ class Typen_Naturdenkmale(Codelist):
 
   class BasemodelMeta(Codelist.BasemodelMeta):
     description = 'Typen von Naturdenkmalen'
-    list_fields = {'typ': 'Typ'}
+    list_fields = {'art': 'Art', 'typ': 'Typ'}
+    list_fields_with_foreign_key = {'art': 'Art'}
 
   def __str__(self):
     return f'{self.typ}'
