@@ -20,6 +20,7 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
    - [Grundsätzliches](#grundsätzliches)
    - [Python](#python)
    - [JavaScript](#javascript)
+   - [Anpassungen Datenbankschema App _Datenmanagement_](#anpassungen-datenbankschema-app-_datenmanagement_)
 1. [Linting](#linting)
 1. [Tests](#tests)
 1. [CI/CD](#cicd)
@@ -310,14 +311,14 @@ Die entsprechende Konfigurationsdatei `pyproject.toml` für (zum Beispiel) _ruff
 
 JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc) dokumentiert, angelehnt an [diese Übersicht](https://devhints.io/jsdoc).
 
-### Datenbankveränderungen festhalten
+### Anpassungen Datenbankschema App _Datenmanagement_
 
 ```bash
-pg_dump -U <user> -O -x -s -N public -N topology -e postgis -e uuid-ossp -f datenmanagement/sql/schema.sql datenmanagement
+pg_dump -U [Datenbanknutzer] -O -x -s -N public -N topology -e postgis -e uuid-ossp -f datenmanagement/sql/schema.sql [Datenbankname]
 ```
 
 > [!WARNING]
-> Die Zeile `SELECT pg_catalog.set_config('search_path', '', false);` muss in `SELECT pg_catalog.set_config('search_path', 'public', false);` verändert werden.
+> Sobald die Datei `datenmanagement/sql/schema.sql` überschrieben wurde, muss darin die Zeile `SELECT pg_catalog.set_config('search_path', '', false);` in `SELECT pg_catalog.set_config('search_path', 'public', false);` geändert werden!
 
 ## Linting
 
