@@ -310,6 +310,15 @@ Die entsprechende Konfigurationsdatei `pyproject.toml` für (zum Beispiel) _ruff
 
 JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc) dokumentiert, angelehnt an [diese Übersicht](https://devhints.io/jsdoc).
 
+### Datenbankveränderungen festhalten
+
+```bash
+pg_dump -U <user> -O -x -s -N public -N topology -e postgis -e uuid-ossp -f datenmanagement/sql/schema.sql datenmanagement
+```
+
+> [!WARNING]
+> Die Zeile `SELECT pg_catalog.set_config('search_path', '', false);` muss in `SELECT pg_catalog.set_config('search_path', 'public', false);` verändert werden.
+
 ## Linting
 
 - Python-Prüfungen mittels [_ruff_](https://docs.astral.sh/ruff/):

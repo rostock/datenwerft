@@ -1,22 +1,30 @@
 from decimal import Decimal
 from json import JSONEncoder
 from pathlib import Path
-from re import sub
+from re import IGNORECASE, search, sub
+from urllib.parse import urlparse
 from wsgiref.util import FileWrapper
 
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.db.models.fields import DateField, DateTimeField, DecimalField, TimeField
+from django.db.models.fields import (
+  DateField,
+  DateTimeField,
+  DecimalField,
+  TimeField,
+)
 from django.forms import CheckboxSelectMultiple, Select, Textarea, TextInput
 from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
+from httpx import get
 from leaflet.forms.widgets import LeafletWidget
 
 from datenmanagement.models.base import Basemodel
 from datenmanagement.models.fields import ChoiceArrayField
+from datenmanagement.utils import logger
 from toolbox.models import Subsets
 from toolbox.utils import is_geometry_field
 from toolbox.vcpub.DataBucket import DataBucket
@@ -207,7 +215,8 @@ def assign_widgets(field):
     if is_array_field:
       label = form_field.label
       form_field = ArrayDateField(
-        label=label, widget=TextInput(attrs={'type': 'date', 'class': 'form-control'})
+        label=label,
+        widget=TextInput(attrs={'type': 'date', 'class': 'form-control'}),
       )
       form_field.required = False
     else:
@@ -308,13 +317,121 @@ def generate_restricted_objects_list(restricted_objects):
     theme_link_text = restricted_object_model._meta.verbose_name_plural
     theme_link_element = f'<a href="{theme_link}">{theme_link_text}</a>'
     object_link = reverse(
-      'datenmanagement:' + restricted_object_model_name + '_change', args=[restricted_object.pk]
+      'datenmanagement:' + restricted_object_model_name + '_change',
+      args=[restricted_object.pk],
     )
     object_link_text = str(restricted_object)
     object_link_element = f'<a href="{object_link}">{object_link_text}</a>'
     object_list += f'Datenthema {theme_link_element} – Objekt <em>{object_link_element}</em>'
     object_list += '</li>' if len(restricted_objects) > 1 else ''
   return '<ul>' + object_list + '</ul>' if len(restricted_objects) > 1 else object_list
+
+
+def get_github_files(
+  github_folder_url: str,
+  file_filters: list[str] | dict[str, list[str]] | None = None,
+) -> dict[str, str]:
+  r"""
+  Extrahiert Download-Links für Dateien aus einem GitHub-Unterverzeichnis mit flexibler Filterung.
+  :param github_folder_url: Github Repo URL to specific folder
+  :param file_filters: filters for filenames
+  :type file_filters: list[str] | dict[str, list[str]] | None
+    Example:
+    - None: return all files
+    - list[str]: list of filetypes (['.jpg', '.png'])
+    - dict with possible keys:
+      - 'patterns': list[str] - list of regex-patterns
+      - 'prefixes': list[str] - list of prefixes
+      - 'suffixes': list[str] - list of suffixes (incl. filetypes)
+  Returns:
+    dict: Dictionary mit Dateinamen als Keys und Download-URLs als Values
+  Examples:
+    # Alle Dateien holen
+    files = get_github_files("https://github.com/user/repo/tree/main/folder")
+    # Nur Bilder holen
+    image_files = get_github_files(
+      "https://github.com/user/repo/tree/main/folder",
+      ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+    )
+    # Komplexe Filterung
+    filtered_files = get_github_files(
+      "https://github.com/user/repo/tree/main/folder",
+      {
+        'patterns': [r'protokoll_\d{4}'],
+        'prefixes': ['rostock_'],
+        'suffixes': ['_final.pdf']
+      }
+    )
+  """
+  # Konvertiere normale GitHub-URL in API-URL
+  parsed = urlparse(github_folder_url)
+  path_parts = parsed.path.split('/')
+
+  # Extrahiere relevante Teile aus der URL
+  owner = path_parts[1]
+  repo = path_parts[2]
+  branch = path_parts[4]
+  folder_path = '/'.join(path_parts[5:])
+
+  # Erstelle API-URL
+  api_url = f'https://api.github.com/repos/{owner}/{repo}/contents/{folder_path}?ref={branch}'
+
+  def matches_filters(filename: str) -> bool:
+    """Prüft, ob ein Dateiname die Filter-Kriterien erfüllt."""
+    # Wenn keine Filter definiert sind, geben wir alle Dateien zurück
+    if file_filters is None:
+      return True
+
+    # Wenn file_filters eine Liste ist, behandeln wir sie als Dateiendungen
+    if isinstance(file_filters, list):
+      return any(filename.lower().endswith(ext.lower()) for ext in file_filters)
+
+    # Komplexe Filterung mit Dictionary
+    if isinstance(file_filters, dict):
+      # Prüfe Regex-Patterns
+      if 'patterns' in file_filters:
+        if not any(search(pattern, filename, IGNORECASE) for pattern in file_filters['patterns']):
+          return False
+
+      # Prüfe Präfixe
+      if 'prefixes' in file_filters:
+        if not any(
+          filename.lower().startswith(prefix.lower()) for prefix in file_filters['prefixes']
+        ):
+          return False
+
+      # Prüfe Suffixe
+      if 'suffixes' in file_filters:
+        if not any(
+          filename.lower().endswith(suffix.lower()) for suffix in file_filters['suffixes']
+        ):
+          return False
+
+      return True
+    return False
+
+  try:
+    # API-Anfrage senden
+    response = get(url=api_url)
+
+    # handle response
+    if response.status_code < 200 or response.status_code >= 300:
+      logger.error(f'Network error: {response.status_code} - {response.reason_phrase}')
+      return {}
+
+    files = response.json()
+    print(files)
+    file_links = {}
+
+    for file in files:
+      if file['type'] == 'file' and matches_filters(file['name']):
+        file_links[file['name']] = file['download_url']
+
+    return file_links
+
+  except Exception as e:
+    print(f'Error retrieving data: {e}')
+    return {}
 
 
 def get_model_objects(model, subset_id=None, count_only=False):
