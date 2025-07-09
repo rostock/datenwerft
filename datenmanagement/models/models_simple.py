@@ -4547,13 +4547,13 @@ class Naturdenkmale(SimpleModel):
       },
       {
         'action_name': 'naturdenkmale-rechtsvorschrift_festsetzung',
-        'action_title': 'ausgewählten Datensätzen Rechtsvorschrift zur Festsetzung direkt zuweisen',
+        'action_title': 'ausgewählten Datensätzen Rechtsvorschrift zur Festsetzung direkt zuweisen',  # noqa: E501
         'field': 'rechtsvorschrift_festsetzung',
         'type': 'text',
       },
       {
         'action_name': 'naturdenkmale-datum_rechtsvorschrift_festsetzung',
-        'action_title': 'ausgewählten Datensätzen Datum der Rechtsvorschrift zur Festsetzung direkt zuweisen',
+        'action_title': 'ausgewählten Datensätzen Datum der Rechtsvorschrift zur Festsetzung direkt zuweisen',  # noqa: E501
         'field': 'datum_rechtsvorschrift_festsetzung',
         'type': 'date',
       },
