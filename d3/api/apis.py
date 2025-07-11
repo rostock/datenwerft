@@ -10,9 +10,8 @@ from requests import Response
 from d3.api import SourceMapping, SourceCategory, ObjectDefinition, ObjectDefinitionPropertyField, SourcePropertyValue, \
   DateiInhalt
 from d3.api.responses import Repository, DmsObject, SourceProperty
-from datenwerft.secrets import D3_DATEI_CATEGORY
 from datenwerft.settings import APPLICATION_HTTP_USER_AGENT, D3_USERNAME, D3_PASSWORD, D3_HOST, D3_AKTEN_CATEGORY, D3_VORGANG_CATEGORY, \
-  D3_VORGANGS_TITEL_ID, D3_VORGANGS_TYP_ID
+  D3_VORGANGS_TITEL_ID, D3_VORGANGS_TYP_ID, D3_DATEI_CATEGORY
 
 class D3AuthenticationApi:
 
@@ -114,8 +113,8 @@ class D3Api:
     response = self.__get(f"/dms/r/{repository_id}/objdef", {})
 
     if response.status_code >= 400:
-      self.logger.error("Objekt Definition konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text)
-      raise Exception("Objekt Definition konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text)
+      self.logger.error("Objekt Definition konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text)
+      raise Exception("Objekt Definition konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text)
 
     json_response = response.json()
 
@@ -146,7 +145,7 @@ class D3Api:
 
       return object_definition
 
-    raise Exception(f"Objekt Definition für Kategorie {category_id} konnten nicht geladen werden.")
+    raise Exception(f"Objekt Definition für Kategorie {category_id} konnte nicht geladen werden.")
 
   def erstelle_akte(self, repository_id: str, parent_id: str | None, name: str | None) -> DmsObject:
     """

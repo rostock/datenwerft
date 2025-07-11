@@ -199,7 +199,6 @@ class DokumentenErstellenView(View, DokumentenView):
     form = UploadDokumentForm(request.POST, request.FILES)
 
     if form.is_valid():
-
       properties = self.lese_metadaten(form)
 
       try:
