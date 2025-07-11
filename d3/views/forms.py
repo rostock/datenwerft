@@ -2,9 +2,51 @@ from django import forms
 from django.forms import ChoiceField
 from django.forms.models import ModelForm
 
-from d3.models import Vorgang, Verfahren, Massnahme
+from d3.models import Vorgang, Verfahren, Massnahme, MetadatenOption
+from d3.utils import lade_alle_metadaten
 
-class VorgangForm(ModelForm):
+
+class MetadatenMixin(forms.Form):
+
+  def init_metadaten_felder(self, metadaten_felder):
+    """
+    Fügt alle Metadaten Felder zum Formular hinzu, damit diese eingegeben und validiert werden können.
+
+    Parameters:
+        metadaten_felder (list): Liste der Metadaten die eingegeben werden können
+
+    """
+    for metadaten in metadaten_felder:
+
+      feld_key = 'metadaten.' + str(metadaten.id)
+      attributes = {'class': 'form-control'}
+
+      match metadaten.gui_element:
+        case 'select':
+          optionen = []
+
+          for metadaten_option in MetadatenOption.objects.filter(metadaten=metadaten):
+            optionen.append((metadaten_option.value, metadaten_option.value))
+
+          optionen.sort()
+          select_field = ChoiceField(choices=optionen, required=metadaten.erforderlich, label=metadaten.titel)
+          select_field.widget.attrs.update({'class': 'select2'})
+
+          self.fields[feld_key] = select_field
+        case 'input_text':
+          self.fields[feld_key] = forms.CharField(label=metadaten.titel, required=metadaten.erforderlich)
+        case 'input_zahl':
+          self.fields[feld_key] = forms.DecimalField(label=metadaten.titel, required=metadaten.erforderlich)
+        case 'checkbox':
+          self.fields[feld_key] = forms.BooleanField(label=metadaten.titel, required=metadaten.erforderlich)
+          attributes.pop('class')
+
+      if metadaten.regex:
+        attributes['pattern'] = metadaten.regex
+
+      self.fields[feld_key].widget.attrs.update(attributes)
+
+class VorgangForm(ModelForm, MetadatenMixin):
 
   required_css_class = 'required'
 
@@ -17,7 +59,7 @@ class VorgangForm(ModelForm):
     self.fields['titel'].widget.attrs.update({'class': 'form-control'})
 
     self.__init_vorgangs_feld()
-    self.__init_metadaten_felder(metadaten_felder)
+    self.init_metadaten_felder(metadaten_felder)
 
   class Meta:
     model = Vorgang
@@ -41,31 +83,24 @@ class VorgangForm(ModelForm):
 
     self.fields['vorgangs_typ'] = vorgangs_typ
 
-  def __init_metadaten_felder(self, metadaten_felder):
-    """
-    Fügt alle Metadaten Felder zum Formular hinzu, damit diese eingegeben und validiert werden können.
+class UploadDokumentForm(MetadatenMixin):
 
-    Parameters:
-        metadaten_felder (list): Liste der Metadaten die eingegeben werden können
+  file = forms.FileField(label='Datei', required=True)
+  required_css_class = 'required'
 
-    """
-    for metadaten in metadaten_felder:
+  def __init__(self, *args, **kwargs):
 
-      feld_key = 'metadaten.' + str(metadaten.id)
-      attributes = {'class': 'form-control'}
+    super(UploadDokumentForm, self).__init__(*args, **kwargs)
 
-      match metadaten.gui_element:
-        case 'select':
-          self.fields[feld_key] = forms.CharField(label=metadaten.titel, required=metadaten.erforderlich)
-        case 'input_text':
-          self.fields[feld_key] = forms.CharField(label=metadaten.titel, required=metadaten.erforderlich)
-        case 'input_zahl':
-          self.fields[feld_key] = forms.DecimalField(label=metadaten.titel, required=metadaten.erforderlich)
-        case 'checkbox':
-          self.fields[feld_key] = forms.BooleanField(label=metadaten.titel, required=metadaten.erforderlich)
-          attributes.pop('class')
+    self.init_metadaten_felder(lade_alle_metadaten("dokument"))
 
-      if metadaten.regex:
-        attributes['pattern'] = metadaten.regex
+class BearbeiteDokumentForm(MetadatenMixin):
 
-      self.fields[feld_key].widget.attrs.update(attributes)
+  file = forms.FileField(label='Datei', required=False)
+  required_css_class = 'required'
+
+  def __init__(self, *args, **kwargs):
+
+    super(BearbeiteDokumentForm, self).__init__(*args, **kwargs)
+
+    self.init_metadaten_felder(lade_alle_metadaten("dokument"))

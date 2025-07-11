@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.shortcuts import resolve_url
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from django.urls import reverse
 
@@ -8,6 +9,9 @@ from datenwerft.settings import D3_HOST, D3_REPOSITORY
 
 
 class TableProcessView(BaseDatatableView):
+
+    object_id: str = ''
+
     """
     View to return JSON data for the Vorgang model.
     """
@@ -18,7 +22,6 @@ class TableProcessView(BaseDatatableView):
         model_name_lower = model_name.lower()
         self.model_name = model_name
         self.model_name_lower = model_name_lower
-
         if model is not None:
             self.datenmanagement_model_name = model.__name__
             self.datenmanagement_model_lower = self.datenmanagement_model_name.lower()
@@ -37,6 +40,7 @@ class TableProcessView(BaseDatatableView):
 
     def get_initial_queryset(self):
 
+        self.object_id = self.kwargs.get('pk')
         qs = fetch_processes(self.content_type_id, self.kwargs.get('pk'))
         if qs is None:
             return Vorgang.objects.none()  # Avoid NoneType crash
@@ -66,8 +70,10 @@ class TableProcessView(BaseDatatableView):
                     value = str(value)
                 row.append(value)
 
-
-            row.append('<div class="dt-control"><i class="fa fa-chevron-down text-secondary" style="cursor:pointer"></i></div>')
+            upload_url = resolve_url('d3:' + self.datenmanagement_model_name + '_d3_add_file', self.object_id, obj.id)
+            expand_element = '<i class="fa fa-chevron-down text-secondary" style="cursor:pointer"></i>'
+            upload_link = f"<a href=\"{upload_url}\"><i class=\"fa fa-upload text-secondary\"></i></a>"
+            row.append(f"<div class=\"dt-control\">{upload_link} {expand_element}</div>")
             results.append(row)
 
         return results

@@ -15,4 +15,17 @@
       <div>Keine Metadaten vorhanden.</div>
     {% endif %}
   </div>
+  <br />
+  <div id="{{ random_uuid }}">
+    <p>Dateien werden geladen...</p>
+    <script type="text/javascript">
+
+      var div_container = $('#{{ random_uuid }}');
+
+      $.get('{{ file_list_url }}', function(data) {
+
+        div_container.html(data);
+      });
+    </script>
+  </div>
 </div>

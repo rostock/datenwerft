@@ -1,8 +1,26 @@
 from django.contrib import admin
 from django.forms import ModelForm, ChoiceField, Select
 
-from .models import Metadaten, AktenOrdner, Massnahme, Verfahren
+from datenwerft.settings import D3_DATEI_CATEGORY, D3_VORGANG_CATEGORY
+from .models import Metadaten, AktenOrdner, Massnahme, Verfahren, Akte, MetadatenOption
 from .utils import lade_d3_properties
+
+class MetadatenOptionenForInline(admin.StackedInline):
+  model = MetadatenOption
+  fieldsets = [(None, {'fields': ['value']})]
+  extra = 0
+
+class VorgangMetadatenProxy(Metadaten):
+  class Meta:
+    proxy = True
+    verbose_name = 'Metadaten (Vorgang)'
+    verbose_name_plural = 'Metadaten (Vorgang)'
+
+class DokumentMetadatenProxy(Metadaten):
+  class Meta:
+    proxy = True
+    verbose_name = 'Metadaten (Dokument)'
+    verbose_name_plural = 'Metadaten (Dokument)'
 
 @admin.register(Massnahme)
 class MassnahmeForAdmin(admin.ModelAdmin):
@@ -14,15 +32,15 @@ class VerfahrenForAdmin(admin.ModelAdmin):
   ordering = ['titel']
   list_display = ('id', 'titel', 'erstellt', 'aktualisiert')
 
-class MetadatenForm(ModelForm):
+class VorgangMetadatenProxyForm(ModelForm):
 
   required_css_class = 'required'
 
   def __init__(self, *args, **kwargs):
 
-    super(MetadatenForm, self).__init__(*args, **kwargs)
+    super(VorgangMetadatenProxyForm, self).__init__(*args, **kwargs)
 
-    d3_properties = [('', '---------')] + lade_d3_properties()
+    d3_properties = [('', '---------')] + lade_d3_properties(D3_VORGANG_CATEGORY)
 
     d3_field = ChoiceField(choices=d3_properties)
     d3_field.widget.attrs.update({'class': 'select2'})
@@ -30,11 +48,54 @@ class MetadatenForm(ModelForm):
 
     self.fields['d3_id'] = d3_field
 
-@admin.register(Metadaten)
-class MetadatenForAdmin(admin.ModelAdmin):
+class DokumentMetadatenProxyForm(ModelForm):
+
+  required_css_class = 'required'
+
+  def __init__(self, *args, **kwargs):
+
+    super(DokumentMetadatenProxyForm, self).__init__(*args, **kwargs)
+
+    d3_properties = [('', '---------')] + lade_d3_properties(D3_DATEI_CATEGORY)
+
+    d3_field = ChoiceField(choices=d3_properties)
+    d3_field.widget.attrs.update({'class': 'select2'})
+    d3_field.required = False
+
+    self.fields['d3_id'] = d3_field
+
+@admin.register(VorgangMetadatenProxy)
+class VorgangMetadatenForAdmin(admin.ModelAdmin):
   ordering = ['titel']
   list_display = ('id', 'titel', 'gui_element', 'erforderlich', 'd3_id')
-  form = MetadatenForm
+  readonly_fields = ['category']
+  form = VorgangMetadatenProxyForm
+  inlines = [MetadatenOptionenForInline]
+
+  def get_queryset(self, request):
+    return self.model.objects.filter(category="vorgang")
+
+  def category(self, obj):
+    return "vorgang"
+
+@admin.register(DokumentMetadatenProxy)
+class DokumentenMetadatenForAdmin(admin.ModelAdmin):
+  ordering = ['titel']
+  list_display = ('id', 'titel', 'gui_element', 'erforderlich', 'd3_id')
+  readonly_fields = ['category']
+  form = DokumentMetadatenProxyForm
+  inlines = [MetadatenOptionenForInline]
+
+  def get_queryset(self, request):
+    return self.model.objects.filter(category="dokument")
+
+  def category(self, obj):
+    return "dokument"
+
+  def save_model(self, request, obj, form, change):
+    obj.category = "dokument"
+    super().save_model(request, obj, form, change)
+
 
 class AktenOrdnerForm(ModelForm):
 
@@ -63,3 +124,21 @@ class AktenOrdnerForAdmin(admin.ModelAdmin):
   ordering = ['model']
   list_display = ('id', 'd3_id', 'model')
   form = AktenOrdnerForm
+
+class AktenForm(ModelForm):
+
+  required_css_class = 'required'
+
+  class Meta:
+
+    widgets = {
+      'model': Select(attrs={'class': 'select2'})
+    }
+
+@admin.register(Akte)
+class AktenForAdmin(admin.ModelAdmin):
+  ordering = ['model']
+  list_display = ('id', 'd3_id', 'model', 'object_id')
+  fields = ['model', 'object_id', 'd3_id']
+  form = AktenForm
+  search_fields = ['object_id']

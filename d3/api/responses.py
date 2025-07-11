@@ -1,3 +1,19 @@
+class DateiInhalt:
+  name: str
+  mime_type: str
+  content: bytes
+
+  def __init__(self, name: str | None, mime_type: str | None, content: bytes):
+
+    if name is None:
+      name = 'download'
+    if mime_type is None:
+      mime_type = 'application/octet-stream'
+
+    self.name = name
+    self.mime_type = mime_type
+    self.content = content
+
 class SourceProperty:
 
   key: str
@@ -9,6 +25,23 @@ class SourceProperty:
     self.key = key
     self.propertyType = property_type
     self.displayName = display_name
+
+class ObjectDefinitionPropertyField:
+
+  id: str
+  uniqueId: str
+  displayName: str
+  isMandatory: bool
+  dataType: int
+
+class ObjectDefinition:
+
+  id: str
+  uniqueId: str
+  displayName: str
+  writeAccess: bool
+  objectType: int
+  propertyFields: list[ObjectDefinitionPropertyField]
 
 class SourceCategory:
 
@@ -24,13 +57,11 @@ class SourcePropertyValue:
 
   key: str
   value: str
-  values: dict[str, str]
 
-  def __init__(self, key: str, value: str, values: dict[str, str] | None):
+  def __init__(self, key: str, value: str):
 
     self.key = key
     self.value = value
-    self.values = values
 
 class Repository:
 

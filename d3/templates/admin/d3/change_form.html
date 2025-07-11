@@ -13,5 +13,21 @@
   {{ block.super }}
   <script type="application/javascript">
     $('.select2').select2({});
+
+    $('#id_gui_element').change(function(event) {
+
+        let metadatenOptionenFieldset = $('#metadatenoption_set-group');
+
+        if ('select' === event.target.value) {
+
+            metadatenOptionenFieldset.show();
+        } else {
+
+            $('.dynamic-metadatenoption_set', metadatenOptionenFieldset).remove()
+            metadatenOptionenFieldset.hide();
+        }
+    });
+
+    $('#id_gui_element').change();
   </script>
 {% endblock %}

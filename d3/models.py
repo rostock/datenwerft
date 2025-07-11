@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.db.models import CASCADE, ForeignKey, Model, SET_NULL, OneToOneField
+from django.db.models import CASCADE, ForeignKey, Model, SET_NULL, OneToOneField, ManyToManyField
 from django.db.models.fields import AutoField, CharField, DateTimeField, BooleanField, DateField
 from django.contrib.contenttypes.models import ContentType
 
@@ -64,7 +64,7 @@ class Vorgang(Model):
 
 class Metadaten(Model):
     id = AutoField(primary_key=True)
-    titel = CharField(verbose_name='Titel', max_length=255, unique=True)
+    titel = CharField(verbose_name='Titel', max_length=255, unique=False)
     gui_element = CharField(
         verbose_name='GUI Element',
         max_length=45,
@@ -80,12 +80,22 @@ class Metadaten(Model):
         null=True,
     )
     d3_id = CharField(max_length=36, null=True, blank=True, default=None)
+    category = CharField(max_length=50, null=False, blank=False, default="vorgang")
 
     class Meta:
         verbose_name = 'Metadaten'
         verbose_name_plural = 'Metadaten'
         db_table = 'd3_metadaten'
 
+class MetadatenOption(Model):
+    id = AutoField(primary_key=True)
+    metadaten = ForeignKey(Metadaten, on_delete=CASCADE)
+    value = CharField(verbose_name='Wert', max_length=255)
+
+    class Meta:
+        verbose_name = 'Metadatenoption'
+        verbose_name_plural = 'Metadatenoption'
+        db_table = 'd3_metadaten_option'
 
 class VorgangMetadaten(Model):
     id = AutoField(primary_key=True)

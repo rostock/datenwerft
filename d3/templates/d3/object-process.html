@@ -21,17 +21,16 @@
 </div>
 
 <div style="padding-bottom: 50px">
-    <table id="datasets" class="table table-bordered table-striped">
-        <thead>
-            <tr>
-              {% for column_title in column_titles %}
-                <th>{{ column_title }}</th>
-              {% endfor %}
-              <th></th>
-            </tr>
-
-  </thead>
-</table>
+  <table id="datasets" class="table table-bordered table-striped">
+    <thead>
+        <tr>
+          {% for column_title in column_titles %}
+            <th>{{ column_title }}</th>
+          {% endfor %}
+          <th></th>
+        </tr>
+    </thead>
+  </table>
 </div>
 
 <script>
@@ -61,6 +60,10 @@
           const table = $('#datasets').DataTable();
           const row = table.row(tr);
 
+          if (row.length === 0) {
+            return;
+          }
+
           const rowData = row.data();
 
           const processId = rowData[0];
@@ -71,12 +74,15 @@
             tr.removeClass('shown');
           } else {
 
+            tr.css('opacity', 0.5);
             fetchMetadata(window.metaDataUrl, processId).then(data => {
 
               row.child(data.html).show();
+              tr.css('opacity', 'initial')
             }).catch(error => {
 
               row.child('Error loading data').show();
+              tr.css('opacity', 'initial')
             });
 
             tr.addClass('shown');
