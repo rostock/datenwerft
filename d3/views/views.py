@@ -34,9 +34,6 @@ class FetchMetaDataRequestView(JsonView):
 
     process_metadata = VorgangMetadaten.objects.filter(vorgang__id=process_id)
 
-    process_metadata_ids = process_metadata.values_list('id', flat=True)
-    metadata = Metadaten.objects.filter(id__in=process_metadata_ids)
-
     html = render_to_string('d3/metadata_detail.html', {
       "random_uuid": str(uuid.uuid4()),
       "file_list_url": resolve_url('d3:' + str(model_name) + '_d3_list_file', model_id, vorgang.id),
@@ -45,12 +42,10 @@ class FetchMetaDataRequestView(JsonView):
       "vorgangs_id": vorgang.id,
       "metadata": [
            {
-            "titel": meta.titel,
+            "titel": pm.metadaten.titel,
             "wert": pm.wert
            }
            for pm in process_metadata
-           for meta in metadata
-           if pm.metadaten_id == meta.id
          ]
     })
 
