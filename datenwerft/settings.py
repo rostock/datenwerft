@@ -36,6 +36,7 @@ LOCAL_APPS = [
   'fmm',
   'gdihrocodelists',
   'gdihrometadata',
+  'kiju',
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 LOGIN_REDIRECT_URL = '/'
