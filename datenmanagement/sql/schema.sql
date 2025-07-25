@@ -2,12 +2,13 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.13
--- Dumped by pg_dump version 16.9
+-- Dumped from database version 17.5
+-- Dumped by pg_dump version 17.5
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', 'public', false);
@@ -115,7 +116,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -2620,6 +2621,23 @@ CREATE TABLE fachdaten.kadaverfunde_hro (
 
 
 --
+-- Name: kleinklaeranlagen_gewaessereinleitungsorte_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.kleinklaeranlagen_gewaessereinleitungsorte_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    kleinklaeranlage uuid NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: kunst_im_oeffentlichen_raum_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -3660,7 +3678,8 @@ CREATE TABLE fachdaten_adressbezug.kleinklaeranlagen_hro (
     umfang_einleitung numeric(3,2),
     einwohnerwert numeric(3,1),
     zulassung character varying(11),
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    bemerkungen character varying(1000)
 );
 
 
@@ -6569,6 +6588,14 @@ ALTER TABLE ONLY fachdaten.kadaverfunde_hro
 
 
 --
+-- Name: kleinklaeranlagen_gewaessereinleitungsorte_hro kleinklaeranlagen_gewaessereinleitungsorte_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.kleinklaeranlagen_gewaessereinleitungsorte_hro
+    ADD CONSTRAINT kleinklaeranlagen_gewaessereinleitungsorte_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: kunst_im_oeffentlichen_raum_hro kunst_im_oeffentlichen_raum_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -8130,6 +8157,14 @@ ALTER TABLE ONLY fachdaten.kadaverfunde_hro
 
 ALTER TABLE ONLY fachdaten.kadaverfunde_hro
     ADD CONSTRAINT kadaverfunde_hro_zustaende_fk FOREIGN KEY (zustand) REFERENCES codelisten.zustaende_kadaverfunde(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: kleinklaeranlagen_gewaessereinleitungsorte_hro kleinklaeranlagen_gewaessereinleitungsorte_kleinklaeranlagen_hr; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.kleinklaeranlagen_gewaessereinleitungsorte_hro
+    ADD CONSTRAINT kleinklaeranlagen_gewaessereinleitungsorte_kleinklaeranlagen_hr FOREIGN KEY (kleinklaeranlage) REFERENCES fachdaten_adressbezug.kleinklaeranlagen_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

@@ -149,10 +149,10 @@ function filterGeoJsonFeatures(filterObjectsList, layer, isSubLayer, clusterLaye
       } else if (filterObjectsList[i].type === 'list') {
         // negative or positive impact logic?
         if (filterObjectsList[i].logic === 'negative') {
-          if (layer.feature.properties[filterObjectsList[i].name].toLowerCase() === filterObjectsList[i].value.toLowerCase())
+          if (layer.feature.properties[filterObjectsList[i].name].toLowerCase().includes(filterObjectsList[i].value.toLowerCase()))
             stillVisible = false;
         } else {
-          if (layer.feature.properties[filterObjectsList[i].name].toLowerCase() !== filterObjectsList[i].value.toLowerCase())
+          if (!layer.feature.properties[filterObjectsList[i].name].toLowerCase().includes(filterObjectsList[i].value.toLowerCase()))
             stillVisible = false;
         }
       // ordinary text filter

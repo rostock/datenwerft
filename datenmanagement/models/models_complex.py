@@ -7,9 +7,7 @@ from django.conf import settings
 from django.core.validators import FileExtensionValidator, URLValidator
 from django.db.models import (
   CASCADE,
-  RESTRICT,
   SET_NULL,
-  ForeignKey,
   IntegerField,
   UUIDField,
 )
@@ -2440,6 +2438,201 @@ class Haltestellenkataster_Fotos(ComplexModel):
 post_save.connect(photo_post_processing, sender=Haltestellenkataster_Fotos)
 
 post_delete.connect(delete_photo, sender=Haltestellenkataster_Fotos)
+
+
+#
+# Kleinkläranlagen
+#
+
+
+class Kleinklaeranlagen(ComplexModel):
+  """
+  Kleinkläranlagen:
+  Kleinkläranlagen
+  """
+
+  adresse = ForeignKey(
+    to=Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True,
+  )
+  d3 = CharField(
+    verbose_name=' d.3',
+    max_length=16,
+    validators=[RegexValidator(regex=d3_regex, message=d3_message)],
+  )
+  we_datum = DateField(verbose_name='Datum der wasserrechtlichen Erlaubnis', default=date.today)
+  we_aktenzeichen = CharField(
+    verbose_name='Aktenzeichen der wasserrechtlichen Erlaubnis',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  we_befristung = DateField(
+    verbose_name='Befristung der wasserrechtlichen Erlaubnis', blank=True, null=True
+  )
+  typ = ForeignKey(
+    to=Typen_Kleinklaeranlagen,
+    verbose_name='Anlagetyp',
+    on_delete=RESTRICT,
+    db_column='typ',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_typen',
+  )
+  einleitstelle = CharField(
+    verbose_name='Einleitstelle', max_length=255, validators=standard_validators
+  )
+  gewaesser_berichtspflichtig = BooleanField(
+    verbose_name=' berichtspflichtiges Gewässer?',
+  )
+  umfang_einleitung = DecimalField(
+    verbose_name='Umfang der Einleitung (in m³/d)',
+    max_digits=3,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der <strong><em>Umfang der Einleitung</em></strong> muss mindestens 0,01 m³/d betragen.',
+      ),
+      MaxValueValidator(
+        Decimal('9.99'),
+        'Der <strong><em>Umfang der Einleitung</em></strong> darf höchstens 9,99 m³/d betragen.',
+      ),
+    ],
+    blank=True,
+    null=True,
+  )
+  einwohnerwert = DecimalField(
+    verbose_name='Einwohnerwert',
+    max_digits=3,
+    decimal_places=1,
+    validators=[
+      MinValueValidator(
+        Decimal('0.1'), 'Der <strong><em>Einwohnerwert</em></strong> muss mindestens 0,1 betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('99.9'),
+        'Der <strong><em>Einwohnerwert</em></strong> darf höchstens 99,9 betragen.',
+      ),
+    ],
+    blank=True,
+    null=True,
+  )
+  zulassung = CharField(
+    verbose_name='Zulassung',
+    max_length=11,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=kleinklaeranlagen_zulassung_regex, message=kleinklaeranlagen_zulassung_message
+      )
+    ],
+  )
+  bemerkungen = NullTextField(
+    verbose_name='Bemerkungen',
+    max_length=500,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  geometrie = point_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten_adressbezug"."kleinklaeranlagen_hro'
+    ordering = ['d3', 'we_datum']
+    verbose_name = 'Kleinkläranlage'
+    verbose_name_plural = 'Kleinkläranlagen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Kleinkläranlagen in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'd3': 'd.3',
+      'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
+      'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
+      'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
+      'typ': 'Anlagetyp',
+      'einleitstelle': 'Einleitstelle',
+      'adresse': 'Adresse',
+      'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
+      'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
+      'einwohnerwert': 'Einwohnerwert',
+      'zulassung': 'Zulassung',
+    }
+    list_fields_with_date = ['we_datum', 'we_befristung']
+    list_fields_with_decimal = ['umfang_einleitung', 'einwohnerwert']
+    list_fields_with_foreign_key = {'adresse': 'adresse', 'typ': 'typ'}
+    map_feature_tooltip_fields = ['d3']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'd3': 'd.3',
+      'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
+      'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
+      'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
+      'typ': 'Anlagetyp',
+      'einleitstelle': 'Einleitstelle',
+      'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
+      'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
+      'einwohnerwert': 'Einwohnerwert',
+      'zulassung': 'Zulassung',
+    }
+    map_filter_fields_as_list = ['typ']
+
+  def __str__(self):
+    return self.d3 + ' mit Datum der wasserrechtlichen Erlaubnis ' + str(self.we_datum)
+
+
+class Kleinklaeranlagen_Gewaessereinleitungsorte(ComplexModel):
+  """
+  Kleinkläranlagen:
+  Orte der Gewässereinleitung
+  """
+
+  kleinklaeranlage = ForeignKey(
+    to=Kleinklaeranlagen,
+    verbose_name='Kleinkläranlage',
+    on_delete=RESTRICT,
+    db_column='kleinklaeranlage',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_kleinklaeranlagen',
+  )
+  geometrie = point_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten"."kleinklaeranlagen_gewaessereinleitungsorte_hro'
+    verbose_name = 'Ort der Gewässereinleitung einer Kleinkläranlage'
+    verbose_name_plural = 'Orte der Gewässereinleitung der Kleinkläranlagen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Orte der Gewässereinleitung der Kleinkläranlagen in der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Ort der Gewässereinleitung'
+    fields_with_foreign_key_to_linkify = ['kleinklaeranlage']
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'kleinklaeranlage': 'Kleinkläranlage',
+    }
+    list_fields_with_foreign_key = {'kleinklaeranlage': 'd3'}
+    map_feature_tooltip_fields = ['kleinklaeranlage']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'kleinklaeranlage': 'Kleinkläranlage',
+    }
+    map_filter_fields_as_list = ['kleinklaeranlage']
+
+  def __str__(self):
+    return str(self.kleinklaeranlage)
 
 
 #
