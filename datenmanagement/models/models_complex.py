@@ -2615,7 +2615,8 @@ class Kleinklaeranlagen_Gewaessereinleitungsorte(ComplexModel):
     verbose_name_plural = 'Orte der Gewässereinleitung der Kleinkläranlagen'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    description = 'Orte der Gewässereinleitung der Kleinkläranlagen in der Hanse- und Universitätsstadt Rostock'
+    description = ('Orte der Gewässereinleitung der Kleinkläranlagen '
+                   'in der Hanse- und Universitätsstadt Rostock')
     short_name = 'Ort der Gewässereinleitung'
     fields_with_foreign_key_to_linkify = ['kleinklaeranlage']
     geometry_type = 'Point'
