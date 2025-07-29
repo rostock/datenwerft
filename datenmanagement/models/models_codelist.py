@@ -257,32 +257,6 @@ class Altersklassen_Kadaverfunde(Codelist):
     return self.bezeichnung
 
 
-class Anbieter_Carsharing(Codelist):
-  """
-  Carsharing-Anbieter
-  """
-
-  anbieter = CharField(
-    verbose_name='Anbieter',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten"."anbieter_carsharing'
-    ordering = ['anbieter']
-    verbose_name = 'Carsharing-Anbieter'
-    verbose_name_plural = 'Carsharing-Anbieter'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Carsharing-Anbieter'
-    list_fields = {'anbieter': 'Anbieter'}
-
-  def __str__(self):
-    return self.anbieter
-
-
 class Angebote_Mobilpunkte(Codelist):
   """
   Angebote bei Mobilpunkten
