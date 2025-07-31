@@ -40,16 +40,16 @@ def create_serializer_class(model_class):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def get_by_uuid(request):
+def get_by_uuid(request, uuid):
   """
   looks up the model instance by the passed UUID
   and returns an HTTP redirect to the corresponding object's canonical API detail URL
 
   :param request: request object
+  :param uuid: UUID of corresponding object
   """
 
-  uuid_value = request.GET.get('uuid')
-  if not uuid_value:
+  if not uuid:
     return Response(
       data={'detail': 'Pflichtparameter uuid fehlt.'},
       status=status.HTTP_400_BAD_REQUEST,
@@ -59,7 +59,7 @@ def get_by_uuid(request):
     if not hasattr(model, 'uuid'):
       continue
     try:
-      obj = model.objects.get(uuid=uuid_value)
+      obj = model.objects.get(uuid=uuid)
       model_name = model.__name__.lower()
       # construct canonical API detail URL
       obj_api_detail_url = reverse(
@@ -71,12 +71,12 @@ def get_by_uuid(request):
       continue
     except model.MultipleObjectsReturned:
       return JsonResponse(
-        data={'detail': f'Mehrere Objekte mit derselben UUID {uuid_value} gefunden.'},
+        data={'detail': f'Mehrere Objekte mit derselben UUID {uuid} gefunden.'},
         status=status.HTTP_409_CONFLICT,
       )
 
   return JsonResponse(
-    data={'detail': f'Kein Objekt mit der UUID {uuid_value} gefunden.'},
+    data={'detail': f'Kein Objekt mit der UUID {uuid} gefunden.'},
     status=status.HTTP_404_NOT_FOUND,
   )
 

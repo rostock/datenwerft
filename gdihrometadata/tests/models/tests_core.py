@@ -3,6 +3,7 @@ from datetime import date
 from gdihrometadata.models.auxiliary import (
   Contact,
   DataType,
+  Legal,
   Organization,
 )
 from gdihrometadata.models.codelists import (
@@ -10,6 +11,7 @@ from gdihrometadata.models.codelists import (
   AssetType,
   Charset,
   DatathemeCategory,
+  Frequency,
   Language,
   License,
 )
@@ -17,8 +19,6 @@ from gdihrometadata.models.core import (
   App,
   Assetset,
   Dataset,
-  Frequency,
-  Legal,
   Repository,
   Service,
   Source,

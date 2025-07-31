@@ -17,7 +17,7 @@ api_urlpatterns = router.urls
 api_urlpatterns += [
   # main page
   path(
-    'get-by-uuid/',
+    'get-by-uuid/<uuid>',
     view=get_by_uuid,
     name='get_by_uuid',
   ),
