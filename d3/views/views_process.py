@@ -4,8 +4,8 @@ from django_datatables_view.base_datatable_view import BaseDatatableView
 from django.urls import reverse
 
 from d3.models import Vorgang
-from d3.utils import fetch_processes
-from datenwerft.settings import D3_HOST, D3_REPOSITORY
+from d3.utils import fetch_processes, lade_d3_session_id
+from datenwerft.settings import D3_HOST, D3_REPOSITORY, D3_ENABLED
 
 
 class TableProcessView(BaseDatatableView):
@@ -78,24 +78,28 @@ class TableProcessView(BaseDatatableView):
 
         return results
 
-
-
 class D3ContextMixin:
 
     def get_d3_context(self, context, model, pk):
 
-        self.model = model
-        model_name = self.model.__name__
+        if not D3_ENABLED:
+            context['enabled'] = False
+        elif None == lade_d3_session_id(self.request):
+            context['authentication_failed'] = True
+        else:
+            context['enabled'] = True
 
-        context['column_titles'] = list(Vorgang.BasemodelMeta.list_fields.values())
+            model_name = model.__name__
 
-        context['url_process_tabledata'] = reverse(
-            'd3:' + model_name + '_fetch_process_list',
-            kwargs={'pk': pk}
-        )
+            context['column_titles'] = list(Vorgang.BasemodelMeta.list_fields.values())
 
-        context['url_process_metadata'] = reverse('d3:' + model_name + '_fetch_metadata',)
+            context['url_process_tabledata'] = reverse(
+                'd3:' + model_name + '_fetch_process_list',
+                kwargs={'pk': pk}
+            )
 
-        context['url_process_add']  = reverse('d3:' + model_name + '_d3_add_process', kwargs={'pk': pk})
+            context['url_process_metadata'] = reverse('d3:' + model_name + '_fetch_metadata',)
+
+            context['url_process_add']  = reverse('d3:' + model_name + '_d3_add_process', kwargs={'pk': pk})
 
         return context

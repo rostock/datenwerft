@@ -19,13 +19,24 @@ class Akte(Model):
 
 class AktenOrdner(Model):
     id = AutoField(primary_key=True)
-    d3_id = CharField(max_length=36)
     model = OneToOneField(ContentType, on_delete=CASCADE, limit_choices_to={'app_label': 'datenmanagement'})
 
     class Meta:
         verbose_name = 'Akten Ordner'
         verbose_name_plural = 'Akten Ordner'
         db_table = 'd3_akten_ordner'
+
+class AktenOrdnerOption(Model):
+    id = AutoField(primary_key=True)
+    akten_ordner = ForeignKey(AktenOrdner, on_delete=CASCADE)
+    d3_id = CharField(max_length=36)
+    wert = CharField(max_length=255, null=True, blank=True)
+    ist_namens_feld = BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Akten Ordner Option'
+        verbose_name_plural = 'Akten Ordner Optionen'
+        db_table = 'd3_akten_ordner_option'
 
 class Vorgang(Model):
     id = AutoField(primary_key=True)
