@@ -127,7 +127,7 @@ class D3Api:
   def erstelle_akte(self, repository_id: str, properties: dict[str, str]) -> str:
     """
     Erstellt eine neue Akte in der D3 API. Alle notwendigen properties müssen übergeben werden, da es sonst zu einem
-    Fehler in der D3 Api gibt. Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der
+    Fehler in der D3 Api kommt. Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der
     D3 API in der Response zurückgegeben wird.
 
     Request: /dms/r/{repository_id}/o2m
@@ -183,7 +183,7 @@ class D3Api:
   def erstelle_vorgang(self, repository_id: str, parent_id: str, name: str | None, vorgangs_typ: str, properties: dict[str, str | List[str]]) -> str:
     """
     Erstellt einen neuen Vorgang in der D3 API. Alle notwendigen properties müssen übergeben werden, da es sonst zu einem
-    Fehler in der D3 Api gibt. Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der
+    Fehler in der D3 Api kommt. Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der
     D3 API in der Response zurückgegeben wird.
 
     Request: /dms/r/{repository_id}/o2m
@@ -397,7 +397,7 @@ class D3Api:
 
   def erstelle_dokument(self, repository_id: str, parent_id: str, name: str, temp_file_uri: str, properties: dict[str, str | List[str]]) -> str:
     """
-    Erstellt ein neues Dokument in der D3 API und verlinke die hochgeladene Datei mit dem Dokument. Die Id des neuen
+    Erstellt ein neues Dokument in der D3 API und verlinkt die hochgeladene Datei mit dem Dokument. Die Id des neuen
     DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der D3 API in der Response zurückgegeben wird.
 
     Request: /dms/r/{repository_id}/o2m
@@ -470,7 +470,7 @@ class D3Api:
 
   def bearbeite_dokument(self, repository_id: str, parent_id: str, d3_id: str | None, name: str | None, temp_file_uri: str | None, properties: dict[str, str | List[str]]) -> str:
     """
-    Bearbeite eine bereits existierende Datei und gib das aktualisierte Objekt zurück.
+    Bearbeitet eine bereits existierende Datei und gib das aktualisierte Objekt zurück.
 
     Request: /dms/r/{repository_id}/o2m
     {
