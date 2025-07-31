@@ -62,7 +62,7 @@ class SourceApiTest(DefaultApiTestCase):
     self.generic_api_test(
       log_in=True,
       view_name='source-detail',
-      view_args={'pk': 1},
+      view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='application/json',
       string='test-connection-info',
@@ -72,7 +72,7 @@ class SourceApiTest(DefaultApiTestCase):
     self.generic_api_test(
       log_in=False,
       view_name='source-detail',
-      view_args={'pk': 1},
+      view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='application/json',
       string='*** hidden on read-only access ***',
@@ -122,7 +122,7 @@ class RepositoryApiTest(DefaultApiTestCase):
     self.generic_api_test(
       log_in=True,
       view_name='repository-detail',
-      view_args={'pk': 1},
+      view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='application/json',
       string='test-connection-info',
@@ -132,7 +132,7 @@ class RepositoryApiTest(DefaultApiTestCase):
     self.generic_api_test(
       log_in=False,
       view_name='repository-detail',
-      view_args={'pk': 1},
+      view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='application/json',
       string='*** hidden on read-only access ***',
