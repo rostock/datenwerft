@@ -31,9 +31,11 @@ app_name = 'datenmanagement'
 
 models = apps.get_app_config(app_name).get_models()
 for model in models:
-  model_name_lower = model.__name__.lower()
+  model_name = model.__name__.lower()
   router.register(
-    model_name_lower, DatenmanagementViewSet.create_custom(model=model), basename=model_name_lower
+    prefix=model_name,
+    viewset=DatenmanagementViewSet.create_custom(model=model),
+    basename=model_name,
   )
 
 api_urlpatterns = router.urls
