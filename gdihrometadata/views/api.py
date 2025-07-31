@@ -22,6 +22,19 @@ def create_serializer_class(model_class):
       model = model_class
       fields = '__all__'
 
+    def to_representation(self, instance):
+      representation = super().to_representation(instance)
+      request = self.context.get('request')
+
+      # hide field connection_info of Source and Repository models for anonymous users
+      if (model_class.__name__ == 'Source' or model_class.__name__ == 'Repository') and isinstance(
+        representation, dict
+      ):
+        if not request or not request.user or not request.user.is_authenticated:
+          representation['connection_info'] = '*** hidden on read-only access ***'
+
+      return representation
+
   return GenericSerializer
 
 
