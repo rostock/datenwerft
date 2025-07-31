@@ -1,9 +1,11 @@
 from django.contrib import admin
-from django.forms import ModelForm, ChoiceField, Select
+from django.contrib.messages import error, warning
+from django.forms import ModelForm, ChoiceField, Select, CharField
+from django.forms.widgets import Input, HiddenInput
 
 from datenwerft.settings import D3_DATEI_CATEGORY, D3_VORGANG_CATEGORY
 from .models import Metadaten, AktenOrdner, Massnahme, Verfahren, Akte, MetadatenOption
-from .utils import lade_d3_properties
+from .utils import lade_d3_properties, lade_d3_session_id
 
 class MetadatenOptionenForInline(admin.StackedInline):
   model = MetadatenOption
@@ -35,34 +37,40 @@ class VerfahrenForAdmin(admin.ModelAdmin):
 class VorgangMetadatenProxyForm(ModelForm):
 
   required_css_class = 'required'
+  user_request = None
 
   def __init__(self, *args, **kwargs):
 
     super(VorgangMetadatenProxyForm, self).__init__(*args, **kwargs)
 
-    d3_properties = [('', '---------')] + lade_d3_properties(D3_VORGANG_CATEGORY)
+    if lade_d3_session_id(self.user_request) is None:
+      self.fields['d3_id'] = CharField(widget=HiddenInput(attrs={'readonly': 'readonly'}), required=False)
+    else:
+      d3_properties = [('', '---------')] + lade_d3_properties(self.user_request, D3_VORGANG_CATEGORY)
+      d3_field = ChoiceField(label="D3 Feld", choices=d3_properties)
+      d3_field.widget.attrs.update({'class': 'select2'})
+      d3_field.required = False
 
-    d3_field = ChoiceField(choices=d3_properties)
-    d3_field.widget.attrs.update({'class': 'select2'})
-    d3_field.required = False
-
-    self.fields['d3_id'] = d3_field
+      self.fields['d3_id'] = d3_field
 
 class DokumentMetadatenProxyForm(ModelForm):
 
   required_css_class = 'required'
+  user_request = None
 
   def __init__(self, *args, **kwargs):
 
     super(DokumentMetadatenProxyForm, self).__init__(*args, **kwargs)
 
-    d3_properties = [('', '---------')] + lade_d3_properties(D3_DATEI_CATEGORY)
+    if lade_d3_session_id(self.user_request) is None:
+      self.fields['d3_id'] = CharField(widget=HiddenInput(attrs={'readonly': 'readonly'}), required=False)
+    else:
+      d3_properties = [('', '---------')] + lade_d3_properties(self.user_request, D3_DATEI_CATEGORY)
+      d3_field = ChoiceField(label="D3 Feld", choices=d3_properties)
+      d3_field.widget.attrs.update({'class': 'select2'})
+      d3_field.required = False
 
-    d3_field = ChoiceField(choices=d3_properties)
-    d3_field.widget.attrs.update({'class': 'select2'})
-    d3_field.required = False
-
-    self.fields['d3_id'] = d3_field
+      self.fields['d3_id'] = d3_field
 
 @admin.register(VorgangMetadatenProxy)
 class VorgangMetadatenForAdmin(admin.ModelAdmin):
@@ -74,6 +82,15 @@ class VorgangMetadatenForAdmin(admin.ModelAdmin):
 
   def get_queryset(self, request):
     return self.model.objects.filter(category="vorgang")
+
+  def get_form(self, request, obj=None, change=False, **kwargs):
+    form = super(VorgangMetadatenForAdmin, self).get_form(request, obj, change, **kwargs)
+    form.user_request = request
+
+    if None != kwargs.get('fields') and 'd3_id' in kwargs.get('fields') and None == lade_d3_session_id(request):
+      warning(request, 'Die Metadaten konnten nicht über die D3 API geladen werden.')
+
+    return form
 
   def category(self, obj):
     return "vorgang"
@@ -88,6 +105,15 @@ class DokumentenMetadatenForAdmin(admin.ModelAdmin):
 
   def get_queryset(self, request):
     return self.model.objects.filter(category="dokument")
+
+  def get_form(self, request, obj=None, change=False, **kwargs):
+    form = super(DokumentenMetadatenForAdmin, self).get_form(request, obj, change, **kwargs)
+    form.user_request = request
+
+    if None != kwargs.get('fields') and 'd3_id' in kwargs.get('fields') and None == lade_d3_session_id(request):
+      warning(request, 'Die Metadaten konnten nicht über die D3 API geladen werden.')
+
+    return form
 
   def category(self, obj):
     return "dokument"

@@ -27,9 +27,7 @@ LOGIN_URL = '/datenwerft/accounts/login/'
 
 D3_HOST = ''
 D3_REPOSITORY = ''
-
-D3_USERNAME = ''
-D3_PASSWORD = ''
+D3_ENABLED = False
 
 D3_AKTEN_CATEGORY = ''
 D3_VORGANG_CATEGORY = ''

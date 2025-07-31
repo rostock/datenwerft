@@ -10,8 +10,10 @@ from django.views import View
 from jsonview.views import JsonView
 
 from d3.models import VorgangMetadaten, Metadaten, Vorgang
-from d3.utils import suche_dateien, lade_akte, lade_datei_inhalt, erstelle_dokument, lade_dokument, bearbeite_dokument
+from d3.utils import suche_dateien, lade_akte, lade_datei_inhalt, erstelle_dokument, lade_dokument, bearbeite_dokument, \
+  lade_d3_session_id
 from d3.views.forms import UploadDokumentForm, BearbeiteDokumentForm
+from datenwerft.settings import D3_ENABLED
 
 
 class FetchMetaDataRequestView(JsonView):
@@ -84,7 +86,7 @@ class ListeDateienView(View):
       try:
         dateien = []
 
-        for dms_object in suche_dateien(vorgang.d3_id):
+        for dms_object in suche_dateien(request, vorgang.d3_id):
           datei = {"id": dms_object.id}
 
           for source_property in dms_object.sourceProperties:
@@ -122,7 +124,7 @@ class DownloadView(View):
 
   def get(self, request, *args, **kwargs):
 
-    datei = lade_datei_inhalt(kwargs['file_id'])
+    datei = lade_datei_inhalt(request, kwargs['file_id'])
 
     return HttpResponse(datei.content, content_type=datei.mime_type)
 
@@ -197,7 +199,7 @@ class DokumentenErstellenView(View, DokumentenView):
       properties = self.lese_metadaten(form)
 
       try:
-        erstelle_dokument(vorgang, form.cleaned_data['file'], properties)
+        erstelle_dokument(request, vorgang, form.cleaned_data['file'], properties)
         success(self.request, 'neues Dokument erfolgreich angelegt')
       except:
         error(self.request, 'Beim Hochladen des Dokuments in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.')
@@ -223,8 +225,15 @@ class DokumentenBearbeitenView(View, DokumentenView):
     object_id = kwargs["pk"]
     dokumenten_id = kwargs["file_id"]
 
+    if not D3_ENABLED:
+      return redirect('datenmanagement:' + self.datenmanagement_model + '_change', object_id)
+
+    if None == lade_d3_session_id(request):
+      error(request, 'Die Authentifizierung zu D3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.')
+      return redirect('datenmanagement:' + self.datenmanagement_model + '_change', object_id)
+
     try:
-      dokument = lade_dokument(dokumenten_id)
+      dokument = lade_dokument(request, dokumenten_id)
     except:
       error(self.request,'Dokument konnte nicht geladen werden. Bitte kontaktieren Sie den Systemadministrator.')
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', object_id)
@@ -245,7 +254,6 @@ class DokumentenBearbeitenView(View, DokumentenView):
           elif 'checkbox' != metadaten.gui_element:
             form_data['metadaten.' + str(metadaten.id)] = wert
           break
-    print(form_data)
 
     return self.render_view(request, BearbeiteDokumentForm(initial=form_data), object_id)
 
@@ -262,7 +270,7 @@ class DokumentenBearbeitenView(View, DokumentenView):
       properties = self.lese_metadaten(form)
 
       try:
-        bearbeite_dokument(dokumenten_id, vorgang, form.cleaned_data['file'], properties)
+        bearbeite_dokument(request, dokumenten_id, vorgang, form.cleaned_data['file'], properties)
         success(self.request, 'Das Dokument erfolgreich bearbeitet')
       except:
         error(self.request, 'Beim Bearbeiten des Dokuments in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.')

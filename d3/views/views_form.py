@@ -6,9 +6,10 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView
 
 from d3.models import Vorgang, VorgangMetadaten
-from d3.utils import lade_akten_ordner, lade_alle_metadaten, erstelle_vorgang
+from d3.utils import lade_akten_ordner, lade_alle_metadaten, erstelle_vorgang, lade_d3_session_id
 from d3.utils import lade_oder_erstelle_akte
 from d3.views.forms import VorgangForm
+from datenwerft.settings import D3_ENABLED
 
 
 class ErstelleVorgangView(CreateView):
@@ -38,6 +39,13 @@ class ErstelleVorgangView(CreateView):
     super().__init__(*args, **kwargs)
 
   def render_to_response(self, context, **response_kwargs):
+
+    if not D3_ENABLED:
+      return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
+
+    if None == lade_d3_session_id(self.request):
+      error(self.request, 'Die Authentifizierung zu D3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.')
+      return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 
     try:
       ContentType.objects.get_for_id(self.content_type_id).get_object_for_this_type(uuid=self.object_id)
@@ -100,9 +108,8 @@ class ErstelleVorgangView(CreateView):
         vorgang_metadaten.append(vorgang_meta)
 
     try:
-      form.instance.akten = lade_oder_erstelle_akte(self.content_type_id, self.object_id, self.akten_ordner)
-      form.instance.d3_id = erstelle_vorgang(form.instance, vorgang_metadaten, self.metadaten)
-
+      form.instance.akten = lade_oder_erstelle_akte(self.request, self.content_type_id, self.object_id, self.akten_ordner)
+      form.instance.d3_id = erstelle_vorgang(self.request, form.instance, vorgang_metadaten, self.metadaten)
     except:
       error(self.request, 'Beim Anlegen des Vorgangs in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.')
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)

@@ -10,21 +10,21 @@ from requests import Response
 from d3.api import SourceMapping, SourceCategory, ObjectDefinition, ObjectDefinitionPropertyField, SourcePropertyValue, \
   DateiInhalt
 from d3.api.responses import Repository, DmsObject, SourceProperty
-from datenwerft.settings import APPLICATION_HTTP_USER_AGENT, D3_USERNAME, D3_PASSWORD, D3_HOST, D3_AKTEN_CATEGORY, D3_VORGANG_CATEGORY, \
+from datenwerft.settings import APPLICATION_HTTP_USER_AGENT, D3_HOST, D3_AKTEN_CATEGORY, D3_VORGANG_CATEGORY, \
   D3_VORGANGS_TITEL_ID, D3_VORGANGS_TYP_ID, D3_DATEI_CATEGORY
 
 class D3AuthenticationApi:
 
   logger = logging.getLogger(__name__)
 
-  def lade_access_token(self) -> str | None:
+  def lade_access_token(self, username: str, password: str) -> str | None:
     """
     Methode zum Laden eines Access tokens zur Authentifizierung gegenüber des D3 Backends.
 
     Rückgabe:
         str | None: AccessToken der Authentifizierung.
     """
-    basic_header = base64.b64encode(f"{D3_USERNAME}:{D3_PASSWORD}".encode('ascii'))
+    basic_header = base64.b64encode(f"{username}:{password}".encode('ascii'))
 
     request_headers = {
       "User-Agent": APPLICATION_HTTP_USER_AGENT,

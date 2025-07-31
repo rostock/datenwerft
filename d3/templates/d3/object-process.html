@@ -9,98 +9,106 @@
   <script src="{% static 'd3/js/list.js' %}"></script>
 {% endblock %}
 
-<hr></hr>
-<h2>Vorgänge</h2>
+{% if authentication_failed %}
+  <hr />
+  <div class="alert alert-danger" role="alert">
+    Die Authentifizierung zu D3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.
+  </div>
+{% elif enabled %}
 
-<div >
+  <hr />
+  <h2>Vorgänge</h2>
 
-  {% if url_process_add %}
-      <a class="btn btn-primary" role="button" href="{{ url_process_add }}"><i class="fas fa-circle-plus"></i> neuen Vorgang anlegen</a>
-  {% endif %}
+  <div >
 
-</div>
+    {% if url_process_add %}
+        <a class="btn btn-primary" role="button" href="{{ url_process_add }}"><i class="fas fa-circle-plus"></i> neuen Vorgang anlegen</a>
+    {% endif %}
 
-<div style="padding-bottom: 50px">
-  <table id="datasets" class="table table-bordered table-striped">
-    <thead>
-        <tr>
-          {% for column_title in column_titles %}
-            <th>{{ column_title }}</th>
-          {% endfor %}
-          <th></th>
-        </tr>
-    </thead>
-  </table>
-</div>
+  </div>
 
-<script>
-      window.dataUrl = '{{ url_process_tabledata }}';
-      window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
-      window.checkAllTarget = true;
-      window.metaDataUrl = '{{ url_process_metadata }}';
-</script>
+  <div style="padding-bottom: 50px">
+    <table id="datasets" class="table table-bordered table-striped">
+      <thead>
+          <tr>
+            {% for column_title in column_titles %}
+              <th>{{ column_title }}</th>
+            {% endfor %}
+            <th></th>
+          </tr>
+      </thead>
+    </table>
+  </div>
 
-<script>
-      setTimeout(function () {
-        $('.alert-success').alert('close');
-      }, 3000);
+  <script>
+    window.dataUrl = '{{ url_process_tabledata }}';
+    window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
+    window.checkAllTarget = true;
+    window.metaDataUrl = '{{ url_process_metadata }}';
+  </script>
 
-      /**
-       * @function
-       *
-       * main function
-       */
-      $(document).ready(function() {
+  <script>
+    setTimeout(function () {
+      $('.alert-success').alert('close');
+    }, 3000);
 
-        const table = initDataTable(window.dataUrl, window.languageUrl);
+    /**
+     * @function
+     *
+     * main function
+     */
+    $(document).ready(function() {
 
-        $('#datasets tbody').on('click', 'tr', function () {
+      const table = initDataTable(window.dataUrl, window.languageUrl);
 
-          const tr = $(this).closest('tr');
-          const table = $('#datasets').DataTable();
-          const row = table.row(tr);
+      $('#datasets tbody').on('click', 'tr', function () {
 
-          if (row.length === 0) {
-            return;
-          }
+        const tr = $(this).closest('tr');
+        const table = $('#datasets').DataTable();
+        const row = table.row(tr);
 
-          const rowData = row.data();
+        if (row.length === 0) {
+          return;
+        }
 
-          const processId = rowData[0];
+        const rowData = row.data();
 
-          if (row.child.isShown()) {
+        const processId = rowData[0];
 
-            row.child.hide();
-            tr.removeClass('shown');
-          } else {
+        if (row.child.isShown()) {
 
-            tr.css('opacity', 0.5);
-            fetchMetadata(window.metaDataUrl, processId).then(data => {
+          row.child.hide();
+          tr.removeClass('shown');
+        } else {
 
-              row.child(data.html).show();
-              tr.css('opacity', 'initial')
-            }).catch(error => {
+          tr.css('opacity', 0.5);
+          fetchMetadata(window.metaDataUrl, processId).then(data => {
 
-              row.child('Error loading data').show();
-              tr.css('opacity', 'initial')
-            });
+            row.child(data.html).show();
+            tr.css('opacity', 'initial')
+          }).catch(error => {
 
-            tr.addClass('shown');
-          }
-        });
+            row.child('Error loading data').show();
+            tr.css('opacity', 'initial')
+          });
 
-        table.on('xhr', function(e, settings, json) {
-          if (json && json.recordsTotal === 0) {
-            // Hide pagination and page size controls
-            $('.dataTables_paginate').hide();
-            $('.dataTables_length').hide();
-            $('.dataTables_info').hide();
-
-          } else {
-            $('.dataTables_paginate').show();
-            $('.dataTables_length').show();
-            $('.dataTables_info').show();
-          }
-        });
+          tr.addClass('shown');
+        }
       });
-</script>
+
+      table.on('xhr', function(e, settings, json) {
+        if (json && json.recordsTotal === 0) {
+          // Hide pagination and page size controls
+          $('.dataTables_paginate').hide();
+          $('.dataTables_length').hide();
+          $('.dataTables_info').hide();
+
+        } else {
+          $('.dataTables_paginate').show();
+          $('.dataTables_length').show();
+          $('.dataTables_info').show();
+        }
+      });
+    });
+  </script>
+{% endif %}
