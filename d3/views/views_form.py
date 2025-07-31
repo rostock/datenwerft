@@ -102,7 +102,6 @@ class ErstelleVorgangView(CreateView):
     try:
       form.instance.akten = lade_oder_erstelle_akte(self.content_type_id, self.object_id, self.akten_ordner)
       form.instance.d3_id = erstelle_vorgang(form.instance, vorgang_metadaten, self.metadaten)
-
     except:
       error(self.request, 'Beim Anlegen des Vorgangs in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.')
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
