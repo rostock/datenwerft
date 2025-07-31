@@ -3,14 +3,8 @@ from django.conf.urls.static import static
 from django.contrib.admin import site as admin_site
 from django.urls import include, path
 
-from accounts import urls as accounts_urls
-from antragsmanagement import urls as antragsmanagement_urls
-from bemas import urls as bemas_urls
 from datenmanagement import urls as datenmanagement_urls
-from fmm import urls as fmm_urls
-from gdihrocodelists import urls as gdihrocodelists_urls
 from gdihrometadata import urls as gdihrometadata_urls
-from toolbox import urls as toolbox_urls
 
 from .views import (
   IndexView,
@@ -35,22 +29,14 @@ handler501 = error_501
 handler502 = error_502
 handler503 = error_503
 
-api_urlpatterns = []
-api_urlpatterns += accounts_urls.api_urlpatterns
-api_urlpatterns += toolbox_urls.api_urlpatterns
-api_urlpatterns += datenmanagement_urls.api_urlpatterns
-api_urlpatterns += antragsmanagement_urls.api_urlpatterns
-api_urlpatterns += bemas_urls.api_urlpatterns
-api_urlpatterns += fmm_urls.api_urlpatterns
-api_urlpatterns += gdihrocodelists_urls.api_urlpatterns
-api_urlpatterns += gdihrometadata_urls.api_urlpatterns
-
 # routing...
 urlpatterns = [
   # ...Django administration
   path('admin/', view=admin_site.urls),
-  # ...Django API
-  path('api/', include(api_urlpatterns)),
+  # ...Django API for Datenmanagement app
+  path('api/datenmanagement/', include(datenmanagement_urls.api_urlpatterns)),
+  # ...Django API for GDI.HRO Metadata app
+  path('api/gdihrometadata/', include(gdihrometadata_urls.api_urlpatterns)),
   # ...Django API auth
   path('api-auth/', view=include('rest_framework.urls')),
   # ...Accounts app
