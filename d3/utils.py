@@ -3,7 +3,7 @@ from django.db.models import QuerySet
 
 from d3.api import D3Api, DmsObject
 from d3.api import DateiInhalt
-from d3.models import AktenOrdner, Akte, Metadaten, Vorgang, VorgangMetadaten
+from d3.models import AktenOrdner, Akte, Metadaten, Vorgang, VorgangMetadaten, AktenOrdnerOption
 from datenwerft.settings import D3_REPOSITORY, D3_ENABLED
 from django.core.files.uploadedfile import UploadedFile
 
@@ -68,18 +68,32 @@ def lade_oder_erstelle_akte(request, content_type_id: int, object_id: str, akten
 
   if geladene_akten.count() == 0:
 
-    api = lade_d3_api(request)
-    d3_akte = api.erstelle_akte(D3_REPOSITORY, akten_ordner.d3_id, content_object.__str__())
+    d3_akte = erstelle_d3_akte(request, akten_ordner, content_object.__str__())
 
     akte = Akte()
-    akte.d3_id = d3_akte.id,
+    akte.d3_id = d3_akte
     akte.object_id = object_id
-    akte.model = content_type_id
+    akte.model_id = content_type_id
     akte.save()
     return akte
   else:
     return geladene_akten[0]
 
+def erstelle_d3_akte(request, akten_ordner: AktenOrdner, name: str):
+
+  ordner_optionen = AktenOrdnerOption.objects.filter(akten_ordner=akten_ordner)
+
+  properties = {}
+
+  for option in ordner_optionen:
+
+    if option.ist_namens_feld:
+      properties[option.d3_id] = name
+    else:
+      properties[option.d3_id] = option.wert
+
+  api = lade_d3_api(request)
+  return api.erstelle_akte(D3_REPOSITORY, properties)
 
 def fetch_processes(content_type_id: int, object_id: str) -> list[Vorgang]|None:
 

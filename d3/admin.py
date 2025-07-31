@@ -1,11 +1,26 @@
 from django.contrib import admin
-from django.contrib.messages import error, warning
+from django.contrib.messages import warning
 from django.forms import ModelForm, ChoiceField, Select, CharField
-from django.forms.widgets import Input, HiddenInput
+from django.forms.widgets import HiddenInput
 
-from datenwerft.settings import D3_DATEI_CATEGORY, D3_VORGANG_CATEGORY
-from .models import Metadaten, AktenOrdner, Massnahme, Verfahren, Akte, MetadatenOption
+from datenwerft.settings import D3_DATEI_CATEGORY, D3_VORGANG_CATEGORY, D3_AKTEN_CATEGORY
+from .models import Metadaten, AktenOrdner, Massnahme, Verfahren, Akte, MetadatenOption, AktenOrdnerOption
 from .utils import lade_d3_properties, lade_d3_session_id
+
+class AktenOrdnerOptionenForInline(admin.StackedInline):
+  model = AktenOrdnerOption
+  fieldsets = [(None, {'fields': ['d3_id', 'wert', 'ist_namens_feld']})]
+  extra = 0
+
+  def get_formset(self, request, obj=None, **kwargs):
+
+    d3_properties = [('', '---------')] + lade_d3_properties(request, D3_AKTEN_CATEGORY)
+    d3_field = ChoiceField(label="D3 Feld", choices=d3_properties)
+    d3_field.required = False
+
+    self.form.base_fields['d3_id'] = d3_field
+
+    return super().get_formset(request, obj, **kwargs)
 
 class MetadatenOptionenForInline(admin.StackedInline):
   model = MetadatenOption
@@ -127,18 +142,6 @@ class AktenOrdnerForm(ModelForm):
 
   required_css_class = 'required'
 
-  def __init__(self, *args, **kwargs):
-
-    super(AktenOrdnerForm, self).__init__(*args, **kwargs)
-
-    d3_akten_ordner = [("test1", "Test1"), ("test2", "Test2"),("test3", "Test3")]
-    # d3_akten_ordner = lade_d3_properties()
-
-    d3_field = ChoiceField(choices=d3_akten_ordner)
-    d3_field.widget.attrs.update({'class': 'select2'})
-
-    self.fields['d3_id'] = d3_field
-
   class Meta:
 
     widgets = {
@@ -148,8 +151,9 @@ class AktenOrdnerForm(ModelForm):
 @admin.register(AktenOrdner)
 class AktenOrdnerForAdmin(admin.ModelAdmin):
   ordering = ['model']
-  list_display = ('id', 'd3_id', 'model')
+  list_display = ('id', 'model')
   form = AktenOrdnerForm
+  inlines = [AktenOrdnerOptionenForInline]
 
 class AktenForm(ModelForm):
 

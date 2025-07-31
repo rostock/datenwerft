@@ -7,9 +7,8 @@ import requests
 from django.core.files.uploadedfile import UploadedFile
 from requests import Response
 
-from d3.api import SourceMapping, SourceCategory, ObjectDefinition, ObjectDefinitionPropertyField, SourcePropertyValue, \
-  DateiInhalt
-from d3.api.responses import Repository, DmsObject, SourceProperty
+from d3.api import ObjectDefinition, ObjectDefinitionPropertyField, SourcePropertyValue, DateiInhalt
+from d3.api.responses import DmsObject
 from datenwerft.settings import APPLICATION_HTTP_USER_AGENT, D3_HOST, D3_AKTEN_CATEGORY, D3_VORGANG_CATEGORY, \
   D3_VORGANGS_TITEL_ID, D3_VORGANGS_TYP_ID, D3_DATEI_CATEGORY
 
@@ -20,6 +19,13 @@ class D3AuthenticationApi:
   def lade_access_token(self, username: str, password: str) -> str | None:
     """
     Methode zum Laden eines Access tokens zur Authentifizierung gegenüber des D3 Backends.
+
+    Zur Authentifikation gegenüber des D3 Backends wird ein Basic Authentifizierungsheader mit dem username und password
+    an die URL zum Laden der Repository-Daten gesendet und der empfangene Cookie ausgelesen.
+
+    Args:
+        username (str): Nutzername des Nutzers für die Authentifizierung
+        password (str): Passwort des Nutzers für die Authentifizierung
 
     Rückgabe:
         str | None: AccessToken der Authentifizierung.
@@ -53,55 +59,26 @@ class D3Api:
     self.accessToken = access_token
     self.baseUrl = D3_HOST
 
-  def suche_repositories(self) -> List[Repository]:
-    """
-    sucht alle verfügbaren repositories im d3 System
-
-    Returns:
-        List[Repository]: Liste der repositories im d3 System
-    """
-    response = self.__get("/dms/r", {})
-
-    if response.status_code >= 400:
-      self.logger.error("Repositories konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
-      raise Exception("Repositories konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
-
-    json_responses = response.json()
-    responses = []
-
-    for json_object in json_responses["repositories"]:
-      responses.append(Repository(json_object["id"], json_object["name"]))
-
-    return responses
-
-  def lade_default_mapping(self, repository_id: str) -> SourceMapping:
-    """
-    lade das standard mapping des d3 repositories
-
-    Returns:
-        Source: Source des d3 repositories
-    """
-    response = self.__get(f"/dms/r/{repository_id}/source", {})
-
-    if response.status_code >= 400:
-      self.logger.error("Default Mappings konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
-      raise Exception("Default Mappings konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
-
-    json_response = response.json()
-    properties = []
-    categories = []
-
-    for json_object in json_response["properties"]:
-      properties.append(SourceProperty(json_object["key"], json_object["type"], json_object["displayName"]))
-
-    for json_object in json_response["categories"]:
-      categories.append(SourceCategory(json_object["key"], json_object["displayName"]))
-
-    return SourceMapping(json_response["id"], json_response["displayName"], properties, categories)
-
   def lade_objekt_definitionen(self, repository_id: str, category_id: str) -> ObjectDefinition:
     """
-    lade die Objektdefinition von der Kategorie mit der übergebenen id im d3 repositories
+    Lade die Objektdefinition von der Kategorie mit der übergebenen id im d3 repositories. Hiermit können die konfigurierten
+    Felder einer Kategorie abgefragt werden.
+
+    Request: /dms/r/{repository_id}/objdef
+
+    Response: 200
+    {
+      "objectDefinitions": [
+        {
+            "id": "3BC81EDC-3880-4EB6-BBA2-5FB4E4D5397B",
+            "displayName": "Common document",
+            "writeAccess": false,
+            "objectType": 0,
+            "propertyFields": []
+        },
+      },
+      "count": 96
+    }
 
     Args:
         repository_id (str): id des repositories
@@ -127,13 +104,13 @@ class D3Api:
 
       for property_json_object in object_definition_json["propertyFields"]:
 
-        propertyDefinition = ObjectDefinitionPropertyField()
-        propertyDefinition.id = property_json_object["id"]
-        propertyDefinition.uniqueId = property_json_object["uniqueId"]
-        propertyDefinition.displayName = property_json_object["displayName"]
-        propertyDefinition.isMandatory = property_json_object["isMandatory"]
-        propertyDefinition.dataType = property_json_object["dataType"]
-        property_fields.append(propertyDefinition)
+        property_definition = ObjectDefinitionPropertyField()
+        property_definition.id = property_json_object["id"]
+        property_definition.uniqueId = property_json_object["uniqueId"]
+        property_definition.displayName = property_json_object["displayName"]
+        property_definition.isMandatory = property_json_object["isMandatory"]
+        property_definition.dataType = property_json_object["dataType"]
+        property_fields.append(property_definition)
 
       object_definition = ObjectDefinition()
       object_definition.id = object_definition_json["id"]
@@ -147,24 +124,48 @@ class D3Api:
 
     raise Exception(f"Objekt Definition für Kategorie {category_id} konnte nicht geladen werden.")
 
-  def erstelle_akte(self, repository_id: str, parent_id: str | None, name: str | None) -> DmsObject:
+  def erstelle_akte(self, repository_id: str, properties: dict[str, str]) -> str:
     """
-    erstellt eine neue Akte im d3 System
+    Erstellt eine neue Akte in der D3 API. Alle notwendigen properties müssen übergeben werden, da es sonst zu einem
+    Fehler in der D3 Api gibt. Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der
+    D3 API in der Response zurückgegeben wird.
+
+    Request: /dms/r/{repository_id}/o2m
+    {
+      "sourceCategory": "9a2a6014-af3b-44d3-8166-1067bce68ed6",
+      "sourceId": "/dms/r/16b3fa2e-3ae6-4b9b-b49e-e0199cece05b/source",
+      "sourceProperties": {
+        "properties": [
+          {
+            "key": "0799e697-76fa-4605-b6cc-5ae1cc7c55d0",
+            "values": ["Mein Titel"]
+          }
+        ]
+      }
+    }
+
+    Response: 201
 
     Args:
       repository_id (str): id des repositories
-      parent_id (str | None): id des Elternelements der neuen Akte
-      name (str | None): Anzeigename der akte in d3
+      properties (dict[str, str]): Properties der Akte, die gesendet werden sollen
 
     Returns:
-        DmsObject: neu erstellt akte
+        str: Id der neu erstellten Akte
     """
 
+    mapped_properties = []
+
+    for key, value in properties.items():
+
+      mapped_properties.append({"key": key, "values": [value]})
+
     json_body = {
-      "displayValue": name,
       "sourceCategory": D3_AKTEN_CATEGORY,
-      "source": f"/dms/r/{repository_id}/source",
-      "parentId": parent_id,
+      "sourceId": f"/dms/r/{repository_id}/source",
+      "sourceProperties": {
+        "properties": mapped_properties,
+      },
     }
 
     response = self.__post(f"/dms/r/{repository_id}/o2m", json_body)
@@ -173,37 +174,40 @@ class D3Api:
       self.logger.error("Akte konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
       raise Exception("Akte konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
 
-    return self.__map_dms_object(response.json())
+    location_header = response.headers.get("Location")
 
-  def lade_akte(self, repository_id: str, akten_id: str) -> DmsObject:
-    """
-    lädt eine existierende Akte aus dem d3 System
-
-    Args:
-      repository_id (str): id des repositories
-      akten_id (str): id der Akte
-
-    Returns:
-        DmsObject: Akte aus dem d3 System
-    """
-
-    response = self.__get(f"/dms/r/{repository_id}/o2m/{akten_id}", {})
-
-    if response.status_code >= 400:
-      self.logger.error("Akte konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
-      raise Exception("Akte konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
-
-    return self.__map_dms_object(response.json())
+    d3_id_with_query = location_header.replace(f"/dms/r/{repository_id}/o2m/", "")
+    query_start = d3_id_with_query.find("?")
+    return d3_id_with_query[:query_start]
 
   def erstelle_vorgang(self, repository_id: str, parent_id: str, name: str | None, vorgangs_typ: str, properties: dict[str, str | List[str]]) -> str:
     """
-    erstellt einen neue Vorgang im d3 System
+    Erstellt einen neuen Vorgang in der D3 API. Alle notwendigen properties müssen übergeben werden, da es sonst zu einem
+    Fehler in der D3 Api gibt. Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der
+    D3 API in der Response zurückgegeben wird.
+
+    Request: /dms/r/{repository_id}/o2m
+    {
+      "sourceCategory": "9a2a6014-af3b-44d3-8166-1067bce68ed6",
+      "sourceId": "/dms/r/16b3fa2e-3ae6-4b9b-b49e-e0199cece05b/source",
+      "parentId": "7d72f307-def2-422f-85fb-04dcd1559a20",
+      "sourceProperties": {
+        "properties": [
+          {
+            "key": "0799e697-76fa-4605-b6cc-5ae1cc7c55d0",
+            "values": ["Mein Titel"]
+          }
+        ]
+      }
+    }
+
+    Response: 201
 
     Args:
-      repository_id (str): id des repositories
-      parent_id (str | None): id des Elternelements des neuen Vorgangs
-      name (str | None): Anzeigename des Vorgangs in d3
-      vorgangs_typ (str): Vorgangs type des Vorgangs
+      repository_id (str): id des Repositories
+      parent_id (str | None): id der Akte, zu welcher der Vorgang gehört
+      name (str | None): Anzeigename des Vorgangs
+      vorgangs_typ (str): Vorgangstyps des Vorgangs
       properties (dict[str, str | List[str]): properties des Vorgangs
 
     Returns:
@@ -256,7 +260,27 @@ class D3Api:
 
   def lade_dokument(self, repository_id: str, dokumenten_id: str):
     """
-    lädt ein existierendes Dokument aus dem d3 System
+    Lade das Dokument mit der gesuchten ID aus dem D3 System.
+
+    Request: /dms/r/{repository_id}/o2m/{dokumenten_id}?sourceId=/dms/r/{repository_id}/source
+
+    Response: 200
+
+    {
+      "_links": {
+        "self": {
+            "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/o2m/T000018520?sourceid=%2fdms%2fr%250ad81f3-f1f0-45b7-a3bb-3412881fa9af%2fsource"
+        }
+      },
+      "id": "T000018520",
+      "sourceProperties": [
+        {
+            "key": "property_last_modified_date",
+            "value": "2025-07-08T09:21:28.000+02:00"
+        }
+      ],
+      "sourceCategories": ["AAKTE", "9a2a6014-af3b-44d3-8166-1067bce68ed6"]
+    }
 
     Args:
       repository_id (str): id des repositories
@@ -275,7 +299,37 @@ class D3Api:
 
   def suche_dokumente(self, repository_id: str, vorgangs_id: str) -> list[DmsObject]:
     """
-    Suche alle Dateien, die zu dem übergebenen Vorgang gehören
+    Suche alle Dokumente, die zu dem übergebenen Vorgang gehören
+
+    Request: /dms/r/{repository_id}/srm?children_of={vorgangs_id}&sourceId=/dms/r/{repository_id}/source
+
+    Response: 200
+
+    {
+      "_links": {
+          "self": {
+              "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/srm/?sourceid=%2Fdms%2Fr%2F0e2133c9-b9e1-5c56-bac3-2b2a75f81509%2Fsource&page=1&pagesize=25&children_of=T000008201"
+          }
+      },
+      "items": [
+        {
+          "_links": {
+            "self": {
+                "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/o2m/T000018520?sourceid=%2fdms%2fr%250ad81f3-f1f0-45b7-a3bb-3412881fa9af%2fsource"
+            }
+          },
+          "id": "T000018520",
+          "sourceProperties": [
+            {
+                "key": "property_last_modified_date",
+                "value": "2025-07-08T09:21:28.000+02:00"
+            }
+          ],
+          "sourceCategories": ["DDOKU", "9a2a6014-af3b-44d3-8166-1067bce68ed6"]
+        }
+      ],
+      "page": 1
+    }
 
     Args:
       repository_id (str): id des repositories
@@ -304,8 +358,12 @@ class D3Api:
 
   def lade_datei_hoch(self, repository_id: str, file: UploadedFile) -> str | None:
     """
-    Lädt eine Datei in den d3 Repository hoch und gibt anschließend die content uri zurück, damit diese verwendet werden
-    kann, um neue DmsObjects anlegen zu können.
+    Lädt eine Datei in das D3 Repository hoch und gibt anschließend die content uri zurück, damit diese verwendet werden
+    kann, um neue DmsObjects anlegen zu können. Die Content-Uri ist im Location-Headers des ersten chunk uploads enthalten
+
+    Request: /dms/r/{repository_id}/blob/chunk
+
+    Response: 201 | 200
 
     Parameters:
       repository_id (str): id des d3 repositories
@@ -339,7 +397,27 @@ class D3Api:
 
   def erstelle_dokument(self, repository_id: str, parent_id: str, name: str, temp_file_uri: str, properties: dict[str, str | List[str]]) -> str:
     """
-    erstellt eine neue Datei im d3 System
+    Erstellt ein neues Dokument in der D3 API und verlinke die hochgeladene Datei mit dem Dokument. Die Id des neuen
+    DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der D3 API in der Response zurückgegeben wird.
+
+    Request: /dms/r/{repository_id}/o2m
+    {
+      "sourceCategory": "9a2a6014-af3b-44d3-8166-1067bce68ed6",
+      "sourceId": "/dms/r/16b3fa2e-3ae6-4b9b-b49e-e0199cece05b/source",
+      "parentId": "7d72f307-def2-422f-85fb-04dcd1559a20",
+      "contentLocationUri": "/dms/r/dee1f3d3-eae8-5d9d-84d8-2d758c5ddc27/blob/chunk/2018-01-01_temp_master_file_user1_44f7-95a6-58b8400ecf43",
+      "filename": "Testfile.xls",
+      "sourceProperties": {
+        "properties": [
+          {
+            "key": "0799e697-76fa-4605-b6cc-5ae1cc7c55d0",
+            "values": ["Mein Titel"]
+          }
+        ]
+      }
+    }
+
+    Response: 201
 
     Args:
       repository_id (str): id des repositories
@@ -378,7 +456,6 @@ class D3Api:
       },
     }
 
-    print(json_body)
     response = self.__post(f"/dms/r/{repository_id}/o2m", json_body)
 
     if response.status_code >= 400:
@@ -393,14 +470,49 @@ class D3Api:
 
   def bearbeite_dokument(self, repository_id: str, parent_id: str, d3_id: str | None, name: str | None, temp_file_uri: str | None, properties: dict[str, str | List[str]]) -> str:
     """
-    erstellt eine neue Datei im d3 System
+    Bearbeite eine bereits existierende Datei und gib das aktualisierte Objekt zurück.
+
+    Request: /dms/r/{repository_id}/o2m
+    {
+      "sourceCategory": "9a2a6014-af3b-44d3-8166-1067bce68ed6",
+      "sourceId": "/dms/r/16b3fa2e-3ae6-4b9b-b49e-e0199cece05b/source",
+      "parentId": "7d72f307-def2-422f-85fb-04dcd1559a20",
+      "contentLocationUri": "/dms/r/dee1f3d3-eae8-5d9d-84d8-2d758c5ddc27/blob/chunk/2018-01-01_temp_master_file_user1_44f7-95a6-58b8400ecf43",
+      "filename": "Testfile.xls",
+      "sourceProperties": {
+        "properties": [
+          {
+            "key": "0799e697-76fa-4605-b6cc-5ae1cc7c55d0",
+            "values": ["Mein Titel"]
+          }
+        ]
+      }
+    }
+
+    Response: 200
+
+    {
+      "_links": {
+        "self": {
+            "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/o2m/T000018520?sourceid=%2fdms%2fr%250ad81f3-f1f0-45b7-a3bb-3412881fa9af%2fsource"
+        }
+      },
+      "id": "T000018520",
+      "sourceProperties": [
+        {
+            "key": "property_last_modified_date",
+            "value": "2025-07-08T09:21:28.000+02:00"
+        }
+      ],
+      "sourceCategories": ["DDOKU", "9a2a6014-af3b-44d3-8166-1067bce68ed6"]
+    }
 
     Args:
       repository_id (str): id des repositories
       parent_id (str | None): id des Elternelements der neuen Datei
       d3_id (str | None): Id des Objekts, welches aktualisiert werden soll
       name (str): Anzeigename der Datei in d3
-      temp_file_uri (str | None): Uri der temp file, für die die Datei erstellt werden soll
+      temp_file_uri (str | None): uri der zuvor hochgeladenen Datei, die aktualisiert werden soll
       properties (dict[str, str | List[str]): properties der Datei
 
     Returns:
