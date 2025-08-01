@@ -173,10 +173,60 @@ class DefaultViewTestCase(DefaultTestCase):
     # log test user in
     login(self)
     # prepare the GET
-    url = reverse(f'admin:gdihrometadata_{view_name}')
+    url = reverse(viewname=f'admin:gdihrometadata_{view_name}')
     # try GETting the view
     response = self.client.get(url)
     # status code of response as expected?
     self.assertEqual(response.status_code, status_code)
     # content type of response as expected?
     self.assertEqual(response['content-type'].lower(), content_type)
+
+
+class DefaultApiTestCase(DefaultTestCase):
+  """
+  abstract test class for API access
+  """
+
+  model = None
+  create_test_object_in_classmethod = True
+  attributes_values = {}
+  test_object = None
+
+  @classmethod
+  def setUpTestData(cls):
+    if cls.create_test_object_in_classmethod:
+      cls.test_object = cls.model.objects.create(**cls.attributes_values)
+
+  def init(self):
+    super().init()
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  def generic_api_test(self, log_in, view_name, view_args, status_code, content_type, string):
+    """
+    tests authorized API access via GET
+
+    :param self
+    :param log_in: authenticate test user?
+    :param view_name: name of the view
+    :param view_args: arguments (i.e. URL parameters) for the view
+    :param status_code: expected status code of response
+    :param content_type: expected content type of response
+    :param string: specific string that should be contained in response
+    """
+    # authenticate test user
+    if log_in:
+      login(self)
+    # prepare the GET
+    if view_args:
+      url = reverse(viewname=f'{view_name}', kwargs=view_args)
+    else:
+      url = reverse(viewname=f'{view_name}')
+    # try GETting the view
+    response = self.client.get(url, follow=True)
+    # status code of response as expected?
+    self.assertEqual(response.status_code, status_code)
+    # content type of response as expected?
+    self.assertEqual(response['content-type'].lower(), content_type)
+    # specific string contained in response?
+    if string:
+      self.assertIn(string, str(response.content))

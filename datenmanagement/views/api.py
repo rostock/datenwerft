@@ -7,12 +7,13 @@ from ..models import Punktwolken
 
 class DatenmanagementViewSet(ModelViewSet):
   model = None
-  filterset_class = None  # Add filterset_class attribute
+  # add filterset_class attribute
+  filterset_class = None
 
   @classmethod
   def create_custom(cls, **kwargs):
     _model = kwargs['model']
-    # Initialisiere filterset_class hier, um Scope-Probleme zu vermeiden
+    # initialize filterset_class here to avoid scope problems
     _filterset_class = None
     if _model == Punktwolken:
       _filterset_class = PunktwolkenFilter
@@ -20,7 +21,8 @@ class DatenmanagementViewSet(ModelViewSet):
     class CustomViewSet(cls):
       model = _model
       queryset = _model.objects.all()
-      filterset_class = _filterset_class  # Weise die initialisierte Variable zu
+      # assign initialized variable
+      filterset_class = _filterset_class
 
     return CustomViewSet
 
