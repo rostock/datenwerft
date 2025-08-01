@@ -8,6 +8,7 @@ der Anwendung *Datenwerft.HRO* ein Zugriff via API besteht:
 | Bereich (= App) | URL-Bereich | Vollzugriff gemäß Berechtigungen | Lesezugriff für anonyme Benutzer:innen |
 | --- | --- | --- | --- |
 | Datenmanagement | `/api/datenmanagement` | ja | nein |
+| *GDI.HRO Codelists* | `/api/gdihrocodelists` | ja | ja |
 | *GDI.HRO Metadata* | `/api/gdihrometadata` | ja | ja |
 
 *Vollzugriff gemäß Berechtigungen* bedeutet hier, dass es von den jeweiligen Berechtigungen
@@ -42,11 +43,27 @@ Dasselbe Beispiel als Aufruf in der Kommandozeile:
 curl -X GET -k -i 'https://geo.sv.rostock.de/datenwerft/api/datenmanagement/feuerwachen.json'
 ```
 
+### *GDI.HRO Codelists*
+
+Ein einfaches Beispiel für den Bereich (also die App) *GDI.HRO Codelists* wäre die via `GET`
+im Browser angefragte Detailseite des Objekts mit dem Primärschlüssel `1`
+des Datenmodells *Codelist* im JSON-Format:
+
+```
+https://geo.sv.rostock.de/datenwerft/api/gdihrocodelists/codelist/1.json
+```
+
+Dasselbe Beispiel als Aufruf in der Kommandozeile:
+
+```
+curl -X GET -k -i 'https://geo.sv.rostock.de/datenwerft/api/gdihrocodelists/codelist/1.json'
+```
+
 ### *GDI.HRO Metadata*
 
 Ein einfaches Beispiel für den Bereich (also die App) *GDI.HRO Metadata* wäre die via `GET`
 im Browser angefragte Detailseite des Objekts mit dem Primärschlüssel `1`
-des Datenmodells *Datensatz* im JSON-Format:
+des Datenmodells *Dataset* im JSON-Format:
 
 ```
 https://geo.sv.rostock.de/datenwerft/api/gdihrometadata/dataset/1.json

@@ -65,7 +65,7 @@ class SourceApiTest(DefaultApiTestCase):
       view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='application/json',
-      string='test-connection-info',
+      string=self.test_object.connection_info,
     )
 
   def test_anonymous(self):
@@ -125,7 +125,7 @@ class RepositoryApiTest(DefaultApiTestCase):
       view_args={'pk': self.test_object.pk},
       status_code=200,
       content_type='application/json',
-      string='test-connection-info',
+      string=self.test_object.connection_info,
     )
 
   def test_anonymous(self):

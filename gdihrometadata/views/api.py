@@ -4,9 +4,10 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
-from rest_framework.response import Response
 from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.viewsets import ModelViewSet
+
+from toolbox.utils import is_valid_uuid
 
 
 def create_serializer_class(model_class):
@@ -49,9 +50,9 @@ def get_by_uuid(request, uuid):
   :param uuid: UUID of corresponding object
   """
 
-  if not uuid:
-    return Response(
-      data={'detail': 'Pflichtparameter uuid fehlt.'},
+  if not is_valid_uuid(uuid):
+    return JsonResponse(
+      data={'detail': f'Die angegebene UUID {uuid} weist kein gültiges Format auf.'},
       status=status.HTTP_400_BAD_REQUEST,
     )
 
@@ -66,14 +67,9 @@ def get_by_uuid(request, uuid):
         viewname=f'{model_name}-detail',
         kwargs={'pk': f'{obj.pk}'},
       )
-      return HttpResponseRedirect(obj_api_detail_url.rstrip('/') + '.json')
+      return HttpResponseRedirect(f'{obj_api_detail_url.rstrip("/")}.json')
     except model.DoesNotExist:
       continue
-    except model.MultipleObjectsReturned:
-      return JsonResponse(
-        data={'detail': f'Mehrere Objekte mit derselben UUID {uuid} gefunden.'},
-        status=status.HTTP_409_CONFLICT,
-      )
 
   return JsonResponse(
     data={'detail': f'Kein Objekt mit der UUID {uuid} gefunden.'},
@@ -81,7 +77,6 @@ def get_by_uuid(request, uuid):
   )
 
 
-# generic viewset using dynamic serializer
 class GenericModelViewSet(ModelViewSet):
   """
   generic viewset using dynamic serializer that gets replaced dynamically for each model

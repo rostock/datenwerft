@@ -1,3 +1,4 @@
+import uuid
 from datetime import date, datetime, timezone
 from itertools import groupby
 from logging import getLogger
@@ -273,6 +274,21 @@ def is_geometry_field(field):
     return True
   else:
     return False
+
+
+def is_valid_uuid(uuid_value, version=4):
+  """
+  checks if passed UUID value is a valid UUID
+
+  :param uuid_value: UUID value
+  :param version: UUID version to check against
+  :return: True if passed UUID value is a valid UUID, False otherwise
+  """
+  try:
+    uuid.UUID(uuid_value, version=version)
+  except ValueError:
+    return False
+  return True
 
 
 def optimize_datatable_filter(search_element, search_column, qs_params_inner):

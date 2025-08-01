@@ -4,6 +4,7 @@ from django.contrib.admin import site as admin_site
 from django.urls import include, path
 
 from datenmanagement import urls as datenmanagement_urls
+from gdihrocodelists import urls as gdihrocodelists_urls
 from gdihrometadata import urls as gdihrometadata_urls
 
 from .views import (
@@ -35,8 +36,10 @@ urlpatterns = [
   path('admin/', view=admin_site.urls),
   # ...Django API for Datenmanagement app
   path('api/datenmanagement/', include(datenmanagement_urls.api_urlpatterns)),
+  # ...Django API for GDI.HRO Codelists app
+  path('api/gdihrocodelists/', include(gdihrocodelists_urls.api_urlpatterns, namespace='gdihrocodelists')),
   # ...Django API for GDI.HRO Metadata app
-  path('api/gdihrometadata/', include(gdihrometadata_urls.api_urlpatterns)),
+  path('api/gdihrometadata/', include(gdihrometadata_urls.api_urlpatterns, namespace='gdihrometadata')),
   # ...Django API auth
   path('api-auth/', view=include('rest_framework.urls')),
   # ...Accounts app

@@ -6,6 +6,8 @@ from .views.api import GenericModelViewSet, get_by_uuid
 
 router = DefaultRouter()
 
+app_name = 'gdihrometadata'
+
 for model in apps.get_app_config('gdihrometadata').get_models():
   model_name = model.__name__.lower()
   # dynamically create a subclass of GenericModelViewSet with model assigned
@@ -15,9 +17,9 @@ for model in apps.get_app_config('gdihrometadata').get_models():
 api_urlpatterns = router.urls
 
 api_urlpatterns += [
-  # main page
+  # API function get_by_uuid()
   path(
-    'get-by-uuid/<uuid>',
+    route='get-by-uuid/<uuid>',
     view=get_by_uuid,
     name='get_by_uuid',
   ),
