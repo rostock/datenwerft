@@ -33,35 +33,44 @@ handler503 = error_503
 # routing...
 urlpatterns = [
   # ...Django administration
-  path('admin/', view=admin_site.urls),
+  path(route='admin/', view=admin_site.urls),
   # ...Django API for Datenmanagement app
-  path('api/datenmanagement/', include(datenmanagement_urls.api_urlpatterns)),
+  path(
+    route='api/datenmanagement/',
+    view=include(datenmanagement_urls.api_urlpatterns),
+  ),
   # ...Django API for GDI.HRO Codelists app
-  path('api/gdihrocodelists/', include(gdihrocodelists_urls.api_urlpatterns, namespace='gdihrocodelists')),
+  path(
+    route='api/gdihrocodelists/',
+    view=include(gdihrocodelists_urls.api_urlpatterns),
+  ),
   # ...Django API for GDI.HRO Metadata app
-  path('api/gdihrometadata/', include(gdihrometadata_urls.api_urlpatterns, namespace='gdihrometadata')),
+  path(
+    route='api/gdihrometadata/',
+    view=include(gdihrometadata_urls.api_urlpatterns),
+  ),
   # ...Django API auth
-  path('api-auth/', view=include('rest_framework.urls')),
+  path(route='api-auth/', view=include('rest_framework.urls')),
   # ...Accounts app
-  path('accounts/', view=include('accounts.urls')),
+  path(route='accounts/', view=include('accounts.urls')),
   # ...Toolbox app
-  path('toolbox/', view=include('toolbox.urls')),
+  path(route='toolbox/', view=include('toolbox.urls')),
   # ...Datenmanagement app
-  path('datenmanagement/', view=include('datenmanagement.urls')),
+  path(route='datenmanagement/', view=include('datenmanagement.urls')),
   # ...Antragsmanagement app
-  path('antragsmanagement/', view=include('antragsmanagement.urls')),
+  path(route='antragsmanagement/', view=include('antragsmanagement.urls')),
   # ...BEMAS app
-  path('bemas/', view=include('bemas.urls')),
+  path(route='bemas/', view=include('bemas.urls')),
   # ...FMM app
-  path('fmm/', view=include('fmm.urls')),
+  path(route='fmm/', view=include('fmm.urls')),
   # ...GDI.HRO Codelists app
-  path('gdihrocodelists/', view=include('gdihrocodelists.urls')),
+  path(route='gdihrocodelists/', view=include('gdihrocodelists.urls')),
   # ...GDI.HRO Metadata app
-  path('gdihrometadata/', view=include('gdihrometadata.urls')),
+  path(route='gdihrometadata/', view=include('gdihrometadata.urls')),
   # ...Django-RQ
-  path('django-rq/', view=include('django_rq.urls')),
+  path(route='django-rq/', view=include('django_rq.urls')),
   # ...main page
-  path('', view=IndexView.as_view(), name='index'),
+  path(route='', view=IndexView.as_view(), name='index'),
 ]
 
 if settings.DEBUG:

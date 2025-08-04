@@ -58,7 +58,7 @@ class SourceApiTest(DefaultApiTestCase):
   def setUp(self):
     self.init()
 
-  def test_authorized(self):
+  def test_authorized_detail(self):
     self.generic_api_test(
       log_in=True,
       view_name='source-detail',
@@ -68,11 +68,31 @@ class SourceApiTest(DefaultApiTestCase):
       string=self.test_object.connection_info,
     )
 
-  def test_anonymous(self):
+  def test_anonymous_detail(self):
     self.generic_api_test(
       log_in=False,
       view_name='source-detail',
       view_args={'pk': self.test_object.pk},
+      status_code=200,
+      content_type='application/json',
+      string='*** hidden on read-only access ***',
+    )
+
+  def test_authorized_list(self):
+    self.generic_api_test(
+      log_in=True,
+      view_name='source-list',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string=self.test_object.connection_info,
+    )
+
+  def test_anonymous_list(self):
+    self.generic_api_test(
+      log_in=False,
+      view_name='source-list',
+      view_args=None,
       status_code=200,
       content_type='application/json',
       string='*** hidden on read-only access ***',
@@ -118,7 +138,7 @@ class RepositoryApiTest(DefaultApiTestCase):
   def setUp(self):
     self.init()
 
-  def test_authorized(self):
+  def test_authorized_detail(self):
     self.generic_api_test(
       log_in=True,
       view_name='repository-detail',
@@ -128,11 +148,31 @@ class RepositoryApiTest(DefaultApiTestCase):
       string=self.test_object.connection_info,
     )
 
-  def test_anonymous(self):
+  def test_anonymous_detail(self):
     self.generic_api_test(
       log_in=False,
       view_name='repository-detail',
       view_args={'pk': self.test_object.pk},
+      status_code=200,
+      content_type='application/json',
+      string='*** hidden on read-only access ***',
+    )
+
+  def test_authorized_list(self):
+    self.generic_api_test(
+      log_in=True,
+      view_name='repository-list',
+      view_args=None,
+      status_code=200,
+      content_type='application/json',
+      string=self.test_object.connection_info,
+    )
+
+  def test_anonymous_list(self):
+    self.generic_api_test(
+      log_in=False,
+      view_name='repository-list',
+      view_args=None,
       status_code=200,
       content_type='application/json',
       string='*** hidden on read-only access ***',
@@ -176,42 +216,62 @@ class GetByUuidTest(DefaultApiTestCase):
   def setUp(self):
     self.init()
 
-  def test_authorized_found(self):
+  def test_authorized_uuid_found(self):
     self.generic_api_test(
       log_in=True,
-      view_name='get_by_uuid',
+      view_name='get_metadata_by_uuid',
       view_args={'uuid': str(self.test_object.uuid)},
       status_code=200,
       content_type='application/json',
       string=str(self.test_object.uuid),
     )
 
-  def test_anonymous_found(self):
+  def test_anonymous_uuid_found(self):
     self.generic_api_test(
       log_in=False,
-      view_name='get_by_uuid',
+      view_name='get_metadata_by_uuid',
       view_args={'uuid': str(self.test_object.uuid)},
       status_code=200,
       content_type='application/json',
       string='*** hidden on read-only access ***',
     )
 
-  def test_authorized_not_found(self):
+  def test_authorized_uuid_not_found(self):
     self.generic_api_test(
       log_in=True,
-      view_name='get_by_uuid',
+      view_name='get_metadata_by_uuid',
       view_args={'uuid': '550e8400-e29b-41d4-a716-446655440000'},
       status_code=404,
       content_type='application/json',
       string='Kein Objekt',
     )
 
-  def test_anonymous_not_found(self):
+  def test_anonymous_uuid_not_found(self):
     self.generic_api_test(
       log_in=False,
-      view_name='get_by_uuid',
+      view_name='get_metadata_by_uuid',
       view_args={'uuid': '550e8400-e29b-41d4-a716-446655440000'},
       status_code=404,
       content_type='application/json',
       string='Kein Objekt',
+    )
+
+  def test_authorized_invalid_uuid(self):
+    self.generic_api_test(
+      log_in=True,
+      view_name='get_metadata_by_uuid',
+      view_args={'uuid': '73t5Ahfe'},
+      status_code=400,
+      content_type='application/json',
+      string='weist kein',
+    )
+
+  def test_anonymous_invalid_uuid(self):
+    self.generic_api_test(
+      log_in=False,
+      view_name='get_metadata_by_uuid',
+      view_args={'uuid': 'gfa68gHg'},
+      status_code=400,
+      content_type='application/json',
+      string='weist kein',
     )

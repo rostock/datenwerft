@@ -199,9 +199,9 @@ class DefaultApiTestCase(DefaultTestCase):
       login(self)
     # prepare the GET
     if view_args:
-      url = reverse(viewname=f'gdihrocodelists:{view_name}', kwargs=view_args)
+      url = reverse(viewname=f'{view_name}', kwargs=view_args)
     else:
-      url = reverse(viewname=f'gdihrocodelists:{view_name}')
+      url = reverse(viewname=f'{view_name}')
     # try GETting the view
     response = self.client.get(url, follow=True)
     # status code of response as expected?
