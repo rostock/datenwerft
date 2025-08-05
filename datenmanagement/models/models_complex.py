@@ -2556,6 +2556,7 @@ class Kleinklaeranlagen(ComplexModel):
     address_type = 'Adresse'
     address_mandatory = False
     geometry_type = 'Point'
+    associated_models = {'Kleinklaeranlagen_Gewaessereinleitungsorte': 'kleinklaeranlage'}
     list_fields = {
       'aktiv': 'aktiv?',
       'd3': 'd.3',
