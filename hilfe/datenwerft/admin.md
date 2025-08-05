@@ -34,3 +34,4 @@
 3.  nach *Auth Token* → *Tokens* navigieren
 4.  neuen API-Token für gewünschte:n Benutzer:in erstellen
 
+**Hinweis:** Jede:r Benutzer:in kann nur einen API-Token haben.
