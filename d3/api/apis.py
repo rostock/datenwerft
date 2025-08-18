@@ -39,7 +39,7 @@ class D3AuthenticationApi:
     }
 
     self.logger.debug("Sending request to " + D3_HOST + "/dms/r/ with Headers: " + request_headers.__str__())
-    response = requests.get(D3_HOST + "/dms/r/", headers = request_headers)
+    response = requests.get(D3_HOST + "/dms/r/", headers = request_headers, timeout = 5)
 
     if response.status_code >= 400:
       self.logger.error("Authentication failed with status code " + str(response.status_code) + " and message " + response.text)
