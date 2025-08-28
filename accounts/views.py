@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from rest_framework import viewsets
 
+from d3.api import D3AuthenticationApi
 from .emails import send_login_code
 from .forms import ExternalAuthenticationForm
 from .models import UserAuthToken
@@ -60,6 +61,16 @@ class PreLoginView(LoginView):
     if ip_in_array(user_ip, settings.AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES):
       # user is internal
       login(self.request, user)
+
+      try:
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+
+        authentication_api = D3AuthenticationApi()
+        self.request.session['d3_login'] = authentication_api.lade_access_token(username, password)
+      except:
+        pass
+
       return HttpResponseRedirect(self.get_success_url())
     else:
       # user is external next step is to generate login tokens

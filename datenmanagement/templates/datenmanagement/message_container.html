@@ -1,0 +1,16 @@
+  {% if messages %}
+    {% for message in messages %}
+      {% if message.tags and message.tags == 'success' %}
+        <div class="alert alert-success" role="alert">
+          <i class="fa-solid fa-circle-check"></i>
+          {{ message|safe }}
+        </div>
+      {% endif %}
+      {% if message.tags and message.tags == 'error' %}
+        <div class="alert alert-danger" role="alert">
+          <i class="fa-solid fa-circle-check"></i>
+          {{ message|safe }}
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}

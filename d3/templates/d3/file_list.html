@@ -1,0 +1,35 @@
+<div>
+
+  {% if error %}
+    <p>{{ error }}</p>
+  {% else %}
+    {% if dateien %}
+      <table class="table table-bordered table-striped no-footer">
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Dokumentenname</th>
+            <th>Dateiname</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in dateien %}
+            <tr>
+
+              <td>{{ entry.id }}</td>
+              <td>{{ entry.name }}</td>
+              <td>{{ entry.filename }}</td>
+              <td class="text-right">
+                <a href="{% url file_download_view object_id entry.id %}" title="Datei herunterladen" target="_blank"><i class="fa fa-download"></i></a>
+                <a style="padding-left: 5px;" href="{% url file_change_view object_id vorgang_id entry.id %}" title="Datei bearbeiten"><i class="fa fa-edit"></i></a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div>Keine Dateien vorhanden.</div>
+    {% endif %}
+  {% endif %}
+</div>
