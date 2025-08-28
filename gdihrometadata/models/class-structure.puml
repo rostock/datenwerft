@@ -128,9 +128,9 @@ class Legal {
 class SpatialReference {
   +title : TEXT {unique}
   +extent_spatial_south : NUMERIC
-  +extent_spatial_east : NUMERIC
-  +extent_spatial_north : NUMERIC
   +extent_spatial_west : NUMERIC
+  +extent_spatial_north : NUMERIC
+  +extent_spatial_east : NUMERIC
   ~political_geocoding_level <<FK>> [0..1]
   ~political_geocoding <<FK>> [0..1]
 }
@@ -201,7 +201,7 @@ class Service {
   #publisher [1..*]
   #maintainer [1..*]
   ~legal <<FK>>
-  +type : ServiceType
+  +type : ServiceType [0..1]
   ~inspire_theme <<FK>> [0..1]
   ~inspire_spatial_scope <<FK>> [0..1]
   ~inspire_service_type <<FK>> [0..1]
@@ -253,7 +253,7 @@ class Repository {
   #maintainer [1..*]
   #author [1..*]
   +type : RepositoryType
-  +connection_info : TEXT
+  +connection_info : TEXT {unique}
   ~data_type <<FK>>
   ~spatial_representation_type <<FK>> [0..1]
   +geometry_type : GeometryType [0..1]
@@ -266,7 +266,7 @@ class Source {
   #author [1..*]
   +processing_type : ProcessingType
   +type : RepositoryType
-  +connection_info : TEXT
+  +connection_info : TEXT {unique}
   ~data_type <<FK>>
   ~spatial_representation_type <<FK>> [0..1]
   +geometry_type : GeometryType [0..1]

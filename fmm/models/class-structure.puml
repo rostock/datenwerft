@@ -1,0 +1,26 @@
+@startuml
+
+skinparam linetype ortho
+
+abstract class Base {
+  +id : IDENTITY <<PK>>
+  +created : DATETIME
+  +modified : DATETIME
+  +uuid : UUID {unique}
+}
+
+class FMF {
+  +bezeichnung : TEXT {unique}
+  +geometrie : GEOMETRY
+}
+
+class PaketUmwelt {
+  ~fmf <<FK>>
+  +trinkwassernotbrunnen : BOOLEAN
+}
+
+Base <|-- FMF
+Base <|-- PaketUmwelt
+PaketUmwelt --> FMF : fmf
+
+@enduml

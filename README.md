@@ -20,6 +20,7 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
    - [Grundsätzliches](#grundsätzliches)
    - [Python](#python)
    - [JavaScript](#javascript)
+   - [Anpassungen Datenbankschema App _Datenmanagement_](#anpassungen-datenbankschema-app-_datenmanagement_)
 1. [Linting](#linting)
 1. [Tests](#tests)
 1. [CI/CD](#cicd)
@@ -71,10 +72,12 @@ uv sync
 ### Datenbanken
 
 1. leere _PostgreSQL_-Datenbank für die Anwendungsadministration anlegen
+2. leere _PostgreSQL_-Datenbank für die App _GDI.HRO Codelists_ anlegen
 2. leere _PostgreSQL_-Datenbank für die App _GDI.HRO Metadata_ anlegen
 3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Antragsmanagement_ anlegen
 4. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _BEMAS_ anlegen
 5. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Datenmanagement_ anlegen
+5. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _FMM_ anlegen
 6. Datenbankschema in Datenbank für die App _Datenmanagement_ installieren (da keines der Datenmodelle in dieser App von _Django_ verwaltet wird):
 
 ```bash
@@ -113,20 +116,28 @@ npm install
 source .venv/bin/activate
 python manage.py migrate --database=antragsmanagement antragsmanagement
 python manage.py migrate --database=bemas bemas
+python manage.py migrate --database=fmm fmm
+python manage.py migrate --database=gdihrocodelists gdihrocodelists
 python manage.py migrate --database=gdihrometadata gdihrometadata
 python manage.py migrate
 python manage.py antragsmanagement_roles_permissions
 python manage.py bemas_roles_permissions
+python manage.py fmm_roles_permissions
+python manage.py gdihrocodelists_roles_permissions
 python manage.py gdihrometadata_roles_permissions
 python manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 
 # mit uv
 uv run manage.py migrate --database=antragsmanagement antragsmanagement
 uv run manage.py migrate --database=bemas bemas
+uv run manage.py migrate --database=fmm fmm
+uv run manage.py migrate --database=gdihrocodelists gdihrocodelists
 uv run manage.py migrate --database=gdihrometadata gdihrometadata
 uv run manage.py migrate
 uv run manage.py antragsmanagement_roles_permissions
 uv run manage.py bemas_roles_permissions
+uv run manage.py fmm_roles_permissions
+uv run manage.py gdihrocodelists_roles_permissions
 uv run manage.py gdihrometadata_roles_permissions
 uv run manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 ```
@@ -233,6 +244,14 @@ Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](antragsmanagement/models
 
 Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](bemas/models/class-structure.puml)
 
+### App _FMM_
+
+Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](fmm/models/class-structure.puml)
+
+### App _GDI.HRO Codelists_
+
+Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](gdihrocodelists/models/class-structure.puml)
+
 ### App _GDI.HRO Metadata_
 
 Klassenstruktur als UML-Diagramm siehe [PlantUML-Datei](gdihrometadata/models/class-structure.puml)
@@ -291,6 +310,15 @@ Die entsprechende Konfigurationsdatei `pyproject.toml` für (zum Beispiel) _ruff
 ### JavaScript
 
 JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc) dokumentiert, angelehnt an [diese Übersicht](https://devhints.io/jsdoc).
+
+### Anpassungen Datenbankschema App _Datenmanagement_
+
+```bash
+pg_dump -U [Datenbanknutzer] -O -x -s -N public -N topology -e postgis -e uuid-ossp -f datenmanagement/sql/schema.sql [Datenbankname]
+```
+
+> [!WARNING]
+> Sobald die Datei `datenmanagement/sql/schema.sql` überschrieben wurde, muss darin die Zeile `SELECT pg_catalog.set_config('search_path', '', false);` in `SELECT pg_catalog.set_config('search_path', 'public', false);` geändert werden!
 
 ## Linting
 
@@ -366,19 +394,94 @@ uv run manage.py test toolbox
   ```
 
 - Tests der App _Antragsmanagement_ durchführen:
-```bash
-python manage.py test antragsmanagement
-```
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test antragsmanagement.tests.CleanupEventRequestCommentCreateViewTest.test_post_create_success
+
+  # mit uv
+  uv run manage.py test antragsmanagement.tests.CleanupEventRequestCommentCreateViewTest.test_post_create_success
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test antragsmanagement
+
+  # mit uv
+  uv run manage.py test antragsmanagement
 
 - Tests der App _BEMAS_ durchführen:
-```bash
-python manage.py test bemas
-```
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test bemas.tests.OriginatorModelTest.test_delete
+
+  # mit uv
+  uv run manage.py test bemas.tests.OriginatorModelTest.test_delete
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test bemas
+
+  # mit uv
+  uv run manage.py test bemas
+
+- Tests der App _FMM_ durchführen:
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test fmm.tests.FmfModelTest.test_create
+
+  # mit uv
+  uv run manage.py test fmm.tests.FmfModelTest.test_create
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test fmm
+
+  # mit uv
+  uv run manage.py test fmm
+
+- Tests der App _GDI.HRO Codelists_ durchführen:
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test gdihrocodelists.tests.CodelistValueModelTest.test_create
+
+  # mit uv
+  uv run manage.py test gdihrocodelists.tests.CodelistValueModelTest.test_create
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test gdihrocodelists
+
+  # mit uv
+  uv run manage.py test gdihrocodelists
 
 - Tests der App _GDI.HRO Metadata_ durchführen:
-```bash
-python manage.py test gdihrometadata
-```
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test gdihrometadata.tests.DataTypeModelTest.test_create
+
+  # mit uv
+  uv run manage.py test gdihrometadata.tests.DataTypeModelTest.test_create
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test gdihrometadata
+
+  # mit uv
+  uv run manage.py test gdihrometadata
 
 ## CI/CD
 

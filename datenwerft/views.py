@@ -3,6 +3,7 @@ from django.views.generic.base import TemplateView
 
 from antragsmanagement.utils import is_antragsmanagement_user
 from bemas.utils import is_bemas_user
+from fmm.utils import is_fmm_user
 
 
 class IndexView(TemplateView):
@@ -27,12 +28,15 @@ class IndexView(TemplateView):
         and not request.user.is_staff
         and not is_antragsmanagement_user(request.user)
         and not is_bemas_user(request.user)
+        and not is_fmm_user(request.user)
       ):
         return redirect('datenmanagement:index')
       elif is_antragsmanagement_user(request.user, only_antragsmanagement_user_check=True):
         return redirect('antragsmanagement:index')
       elif is_bemas_user(request.user, only_bemas_user_check=True):
         return redirect('bemas:index')
+      elif is_fmm_user(request.user, only_fmm_user_check=True):
+        return redirect('fmm:index')
 
     return super(IndexView, self).dispatch(request, *args, **kwargs)
 

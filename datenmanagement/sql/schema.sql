@@ -2,12 +2,13 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.12
--- Dumped by pg_dump version 16.8
+-- Dumped from database version 17.5
+-- Dumped by pg_dump version 17.5
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', 'public', false);
@@ -500,18 +501,6 @@ CREATE TABLE codelisten.arten_erdwaermesonden (
 
 
 --
--- Name: arten_fairtrade; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.arten_fairtrade (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    art character varying(255) NOT NULL
-);
-
-
---
 -- Name: arten_fallwildsuchen_kontrollen; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -588,6 +577,18 @@ CREATE TABLE codelisten.arten_meldedienst_flaechenhaft (
 --
 
 CREATE TABLE codelisten.arten_meldedienst_punkthaft (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art character varying(255) NOT NULL
+);
+
+
+--
+-- Name: arten_naturdenkmale; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.arten_naturdenkmale (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -1547,7 +1548,8 @@ CREATE TABLE codelisten.typen_abfallbehaelter (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
-    typ character varying(255) NOT NULL
+    typ character varying(255) NOT NULL,
+    model_3d character varying(255)
 );
 
 
@@ -1595,6 +1597,19 @@ CREATE TABLE codelisten.typen_kleinklaeranlagen (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
+    typ character varying(255) NOT NULL
+);
+
+
+--
+-- Name: typen_naturdenkmale; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.typen_naturdenkmale (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art uuid NOT NULL,
     typ character varying(255) NOT NULL
 );
 
@@ -1806,6 +1821,28 @@ CREATE TABLE codelisten.zustandsbewertungen (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     zustandsbewertung smallint NOT NULL
+);
+
+
+--
+-- Name: _naturdenkmale_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten._naturdenkmale_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    typ uuid NOT NULL,
+    nummer smallint NOT NULL,
+    bezeichnung character varying(255) NOT NULL,
+    rechtsvorschrift_festsetzung character varying(255),
+    datum_rechtsvorschrift_festsetzung date,
+    pdf character varying(255) NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
 );
 
 
@@ -2579,6 +2616,23 @@ CREATE TABLE fachdaten.kadaverfunde_hro (
     art_auffinden uuid NOT NULL,
     witterung character varying(255),
     bemerkungen character varying(500),
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
+-- Name: kleinklaeranlagen_gewaessereinleitungsorte_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.kleinklaeranlagen_gewaessereinleitungsorte_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    kleinklaeranlage uuid NOT NULL,
     geometrie public.geometry(Point,25833) NOT NULL
 );
 
@@ -3446,32 +3500,6 @@ CREATE TABLE fachdaten_adressbezug.denksteine_hro (
 
 
 --
--- Name: fairtrade_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
---
-
-CREATE TABLE fachdaten_adressbezug.fairtrade_hro (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    id_fachsystem character varying(255),
-    id_zielsystem character varying(255),
-    aktiv boolean DEFAULT true NOT NULL,
-    adresse uuid,
-    art uuid NOT NULL,
-    bezeichnung character varying(255) NOT NULL,
-    betreiber character varying(255),
-    barrierefrei boolean,
-    zeiten character varying(255),
-    telefon_festnetz character varying(255),
-    telefon_mobil character varying(255),
-    email character varying(255),
-    website character varying(255),
-    geometrie public.geometry(Point,25833) NOT NULL,
-    deaktiviert date
-);
-
-
---
 -- Name: feuerwachen_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -3650,7 +3678,8 @@ CREATE TABLE fachdaten_adressbezug.kleinklaeranlagen_hro (
     umfang_einleitung numeric(3,2),
     einwohnerwert numeric(3,1),
     zulassung character varying(11),
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    bemerkungen character varying(1000)
 );
 
 
@@ -3755,7 +3784,8 @@ CREATE TABLE fachdaten_adressbezug.parkmoeglichkeiten_hro (
     gebuehren_zwei_stunden numeric(3,2),
     gebuehren_ganztags numeric(3,2),
     bemerkungen character varying(255),
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    parkandride boolean
 );
 
 
@@ -4518,22 +4548,6 @@ ALTER TABLE ONLY codelisten.arten_erdwaermesonden
 
 
 --
--- Name: arten_fairtrade arten_fairtrade_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.arten_fairtrade
-    ADD CONSTRAINT arten_fairtrade_art_unique UNIQUE (art);
-
-
---
--- Name: arten_fairtrade arten_fairtrade_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.arten_fairtrade
-    ADD CONSTRAINT arten_fairtrade_pk PRIMARY KEY (uuid);
-
-
---
 -- Name: arten_fallwildsuchen_kontrollen arten_fallwildsuchen_kontrollen_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -4643,6 +4657,22 @@ ALTER TABLE ONLY codelisten.arten_meldedienst_punkthaft
 
 ALTER TABLE ONLY codelisten.arten_meldedienst_punkthaft
     ADD CONSTRAINT arten_meldedienst_punkthaft_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: arten_naturdenkmale arten_naturdenkmale_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_naturdenkmale
+    ADD CONSTRAINT arten_naturdenkmale_art_unique UNIQUE (art);
+
+
+--
+-- Name: arten_naturdenkmale arten_naturdenkmale_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_naturdenkmale
+    ADD CONSTRAINT arten_naturdenkmale_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5934,6 +5964,22 @@ ALTER TABLE ONLY codelisten.typen_kleinklaeranlagen
 
 
 --
+-- Name: typen_naturdenkmale typen_naturdenkmale_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_naturdenkmale
+    ADD CONSTRAINT typen_naturdenkmale_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: typen_naturdenkmale typen_naturdenkmale_typ_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_naturdenkmale
+    ADD CONSTRAINT typen_naturdenkmale_typ_unique UNIQUE (typ);
+
+
+--
 -- Name: typen_uvp_vorhaben typen_uvp_vorhaben_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -6203,6 +6249,22 @@ ALTER TABLE ONLY codelisten.zustandsbewertungen
 
 ALTER TABLE ONLY codelisten.zustandsbewertungen
     ADD CONSTRAINT zustandsbewertungen_zustandsbewertung_unique UNIQUE (zustandsbewertung);
+
+
+--
+-- Name: _naturdenkmale_hro _naturdenkmale_hro_nummer_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten._naturdenkmale_hro
+    ADD CONSTRAINT _naturdenkmale_hro_nummer_unique UNIQUE (nummer);
+
+
+--
+-- Name: _naturdenkmale_hro _naturdenkmale_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten._naturdenkmale_hro
+    ADD CONSTRAINT _naturdenkmale_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6523,6 +6585,14 @@ ALTER TABLE ONLY fachdaten.jagdkataster_skizzenebenen_hro
 
 ALTER TABLE ONLY fachdaten.kadaverfunde_hro
     ADD CONSTRAINT kadaverfunde_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: kleinklaeranlagen_gewaessereinleitungsorte_hro kleinklaeranlagen_gewaessereinleitungsorte_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.kleinklaeranlagen_gewaessereinleitungsorte_hro
+    ADD CONSTRAINT kleinklaeranlagen_gewaessereinleitungsorte_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6862,14 +6932,6 @@ ALTER TABLE ONLY fachdaten_adressbezug.denksteine_hro
 
 
 --
--- Name: fairtrade_hro fairtrade_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
---
-
-ALTER TABLE ONLY fachdaten_adressbezug.fairtrade_hro
-    ADD CONSTRAINT fairtrade_hro_pk PRIMARY KEY (uuid);
-
-
---
 -- Name: feuerwachen_hro feuerwachen_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -7043,14 +7105,6 @@ ALTER TABLE ONLY fachdaten_adressbezug.vereine_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.verkaufstellen_angelberechtigungen_hro
     ADD CONSTRAINT verkaufstellen_angelberechtigungen_hro_pk PRIMARY KEY (uuid);
-
-
---
--- Name: reinigungsreviere_hro reinigungsreviere_hro_nummer_unique; Type: CONSTRAINT; Schema: fachdaten_gemeindeteilbezug; Owner: -
---
-
-ALTER TABLE ONLY fachdaten_gemeindeteilbezug.reinigungsreviere_hro
-    ADD CONSTRAINT reinigungsreviere_hro_nummer_unique UNIQUE (nummer);
 
 
 --
@@ -7586,6 +7640,22 @@ CREATE TRIGGER tr_before_update_20_gemeindeteil BEFORE UPDATE OF geometrie ON fa
 
 
 --
+-- Name: typen_naturdenkmale typen_naturdenkmale_arten_fk; Type: FK CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_naturdenkmale
+    ADD CONSTRAINT typen_naturdenkmale_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_naturdenkmale(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: _naturdenkmale_hro _naturdenkmale_hro_typen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten._naturdenkmale_hro
+    ADD CONSTRAINT _naturdenkmale_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_naturdenkmale(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: abfallbehaelter_hro abfallbehaelter_hro_bewirtschafter_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -8090,6 +8160,14 @@ ALTER TABLE ONLY fachdaten.kadaverfunde_hro
 
 
 --
+-- Name: kleinklaeranlagen_gewaessereinleitungsorte_hro kleinklaeranlagen_gewaessereinleitungsorte_kleinklaeranlagen_hr; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.kleinklaeranlagen_gewaessereinleitungsorte_hro
+    ADD CONSTRAINT kleinklaeranlagen_gewaessereinleitungsorte_kleinklaeranlagen_hr FOREIGN KEY (kleinklaeranlage) REFERENCES fachdaten_adressbezug.kleinklaeranlagen_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: lichtwellenleiterinfrastruktur_hro lichtwellenleiterinfrastruktur_hro_kabeltypen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -8479,14 +8557,6 @@ ALTER TABLE ONLY fachdaten_adressbezug.denksteine_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.denksteine_hro
     ADD CONSTRAINT denksteine_hro_titel_fk FOREIGN KEY (titel) REFERENCES codelisten.personentitel(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: fairtrade_hro fairtrade_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
---
-
-ALTER TABLE ONLY fachdaten_adressbezug.fairtrade_hro
-    ADD CONSTRAINT fairtrade_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_fairtrade(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

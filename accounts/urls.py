@@ -21,13 +21,19 @@ router.register(prefix=r'content_type', viewset=ContentTypeViewSet)
 api_urlpatterns = router.urls
 
 app_name = 'accounts'
+
+
 urlpatterns = [
   path(
-    'login/',
-    PreLoginView.as_view(template_name='accounts/login.html', redirect_authenticated_user=True),
+    route='login/',
+    view=PreLoginView.as_view(
+      template_name='accounts/login.html', redirect_authenticated_user=True
+    ),
     name='login',
   ),
-  path('login/<url_token>', ExternalLoginView.as_view(), name='external_login'),
-  path('logout/', view=LogoutView.as_view(template_name='accounts/logout.html'), name='logout'),
-  path('test', view=TemplateView.as_view(template_name='accounts/test.html'), name='test'),
+  path(route='login/<url_token>', view=ExternalLoginView.as_view(), name='external_login'),
+  path(
+    route='logout/', view=LogoutView.as_view(template_name='accounts/logout.html'), name='logout'
+  ),
+  path(route='test', view=TemplateView.as_view(template_name='accounts/test.html'), name='test'),
 ]

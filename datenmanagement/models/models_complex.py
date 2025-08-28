@@ -5,7 +5,12 @@ from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.core.validators import FileExtensionValidator, URLValidator
-from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, IntegerField, UUIDField
+from django.db.models import (
+  CASCADE,
+  SET_NULL,
+  IntegerField,
+  UUIDField,
+)
 from django.db.models.fields import DateTimeField
 from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
@@ -93,7 +98,11 @@ class Adressunsicherheiten(ComplexModel):
       }
     ]
     map_feature_tooltip_fields = ['art']
-    map_filter_fields = {'aktiv': 'aktiv?', 'art': 'Art', 'beschreibung': 'Beschreibung'}
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'art': 'Art',
+      'beschreibung': 'Beschreibung',
+    }
     map_filter_fields_as_list = ['art']
 
   def __str__(self):
@@ -292,7 +301,10 @@ class Baugrunduntersuchungen_Baugrundbohrungen(ComplexModel):
     }
     list_fields_with_foreign_key = {'baugrunduntersuchung': 'bezeichnung'}
     map_feature_tooltip_fields = ['nummer']
-    map_filter_fields = {'baugrunduntersuchung': 'Baugrunduntersuchung', 'nummer': 'Nummer'}
+    map_filter_fields = {
+      'baugrunduntersuchung': 'Baugrunduntersuchung',
+      'nummer': 'Nummer',
+    }
     map_filter_fields_as_list = ['baugrunduntersuchung']
 
   def __str__(self):
@@ -378,7 +390,8 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
     verbose_name=' verkehrliche Lage(n)',
   )
   sparten = ChoiceArrayField(
-    CharField(verbose_name='Sparte(n)', max_length=255, choices=()), verbose_name='Sparte(n)'
+    CharField(verbose_name='Sparte(n)', max_length=255, choices=()),
+    verbose_name='Sparte(n)',
   )
   auftraggeber = ForeignKey(
     to=Auftraggeber_Baustellen,
@@ -389,7 +402,9 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
     related_name='%(app_label)s_%(class)s_auftraggeber',
   )
   ansprechpartner = CharField(
-    verbose_name='Ansprechpartner:in', max_length=255, validators=ansprechpartner_validators
+    verbose_name='Ansprechpartner:in',
+    max_length=255,
+    validators=ansprechpartner_validators,
   )
   bemerkungen = CharField(
     verbose_name='Bemerkungen',
@@ -430,7 +445,10 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
       'ansprechpartner': 'Ansprechpartner:in',
       'bemerkungen': 'Bemerkungen',
     }
-    list_fields_with_foreign_key = {'strasse': 'strasse', 'auftraggeber': 'auftraggeber'}
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse',
+      'auftraggeber': 'auftraggeber',
+    }
     list_actions_assign = [
       {
         'action_name': 'baustellen_fotodokumentation_baustellen-auftraggeber',
@@ -583,7 +601,8 @@ class Baustellen_geplant(ComplexModel):
     verbose_name=' verkehrliche Lage(n)',
   )
   sparten = ChoiceArrayField(
-    CharField(verbose_name='Sparte(n)', max_length=255, choices=()), verbose_name='Sparte(n)'
+    CharField(verbose_name='Sparte(n)', max_length=255, choices=()),
+    verbose_name='Sparte(n)',
   )
   beginn = DateField('Beginn')
   ende = DateField('Ende')
@@ -596,7 +615,9 @@ class Baustellen_geplant(ComplexModel):
     related_name='%(app_label)s_%(class)s_auftraggeber',
   )
   ansprechpartner = CharField(
-    verbose_name='Ansprechpartner:in', max_length=255, validators=ansprechpartner_validators
+    verbose_name='Ansprechpartner:in',
+    max_length=255,
+    validators=ansprechpartner_validators,
   )
   status = ForeignKey(
     to=Status_Baustellen_geplant,
@@ -767,7 +788,9 @@ class Baustellen_geplant_Links(ComplexModel):
     verbose_name='Bezeichnung', max_length=255, validators=standard_validators
   )
   link = CharField(
-    verbose_name='Link', max_length=255, validators=[URLValidator(message=url_message)]
+    verbose_name='Link',
+    max_length=255,
+    validators=[URLValidator(message=url_message)],
   )
 
   class Meta(ComplexModel.Meta):
@@ -820,7 +843,8 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     unique=True,
     validators=[
       RegexValidator(
-        regex=durchlaesse_aktenzeichen_regex, message=durchlaesse_aktenzeichen_message
+        regex=durchlaesse_aktenzeichen_regex,
+        message=durchlaesse_aktenzeichen_message,
       )
     ],
   )
@@ -846,10 +870,12 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     decimal_places=2,
     validators=[
       MinValueValidator(
-        Decimal('0.01'), 'Die <strong><em>Länge</em></strong> muss mindestens 0,01 m betragen.'
+        Decimal('0.01'),
+        'Die <strong><em>Länge</em></strong> muss mindestens 0,01 m betragen.',
       ),
       MaxValueValidator(
-        Decimal('999.99'), 'Die <strong><em>Länge</em></strong> darf höchstens 999,99 m betragen.'
+        Decimal('999.99'),
+        'Die <strong><em>Länge</em></strong> darf höchstens 999,99 m betragen.',
       ),
     ],
     blank=True,
@@ -863,7 +889,11 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     validators=standard_validators,
   )
   zubehoer = NullTextField(
-    verbose_name='Zubehör', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Zubehör',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   zustand_durchlass = ForeignKey(
     to=Zustandsbewertungen,
@@ -1076,10 +1106,17 @@ class Fallwildsuchen_Kontrollgebiete(ComplexModel):
     as_overlay = True
     associated_models = {'Fallwildsuchen_Nachweise': 'kontrollgebiet'}
     geometry_type = 'Polygon'
-    list_fields = {'aktiv': 'aktiv?', 'tierseuche': 'Tierseuche', 'bezeichnung': 'Bezeichnung'}
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'tierseuche': 'Tierseuche',
+      'bezeichnung': 'Bezeichnung',
+    }
     list_fields_with_foreign_key = {'tierseuche': 'bezeichnung'}
     map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {'tierseuche': 'Tierseuche', 'bezeichnung': 'Bezeichnung'}
+    map_filter_fields = {
+      'tierseuche': 'Tierseuche',
+      'bezeichnung': 'Bezeichnung',
+    }
     map_filter_fields_as_list = ['tierseuche']
 
   def __str__(self):
@@ -1134,13 +1171,19 @@ class Fallwildsuchen_Nachweise(ComplexModel):
       'endzeitpunkt': 'Endzeitpunkt',
     }
     list_fields_with_datetime = ['startzeitpunkt', 'endzeitpunkt']
-    list_fields_with_foreign_key = {'kontrollgebiet': 'bezeichnung', 'art_kontrolle': 'art'}
+    list_fields_with_foreign_key = {
+      'kontrollgebiet': 'bezeichnung',
+      'art_kontrolle': 'art',
+    }
     map_feature_tooltip_fields = ['art_kontrolle']
     map_intervalfilter_fields = {
       'startzeitpunkt': 'Startzeitpunkt',
       'endzeitpunkt': 'Endzeitpunkt',
     }
-    map_filter_fields = {'kontrollgebiet': 'Kontrollgebiet', 'art_kontrolle': 'Art der Kontrolle'}
+    map_filter_fields = {
+      'kontrollgebiet': 'Kontrollgebiet',
+      'art_kontrolle': 'Art der Kontrolle',
+    }
     map_filter_fields_as_list = ['kontrollgebiet', 'art_kontrolle']
 
   def __str__(self):
@@ -1225,7 +1268,9 @@ class Feuerwehrzufahrten_Feuerwehrzufahrten(ComplexModel):
     verbose_name='Flächen für Feuerwehrzufahrt?', blank=True, null=True
   )
   feuerwehraufstellflaechen_hubrettungsfahrzeug = BooleanField(
-    verbose_name='Aufstellflächen für Hubrettungsfahrzeug?', blank=True, null=True
+    verbose_name='Aufstellflächen für Hubrettungsfahrzeug?',
+    blank=True,
+    null=True,
   )
   feuerwehrbewegungsflaechen = BooleanField(
     verbose_name='Feuerwehrbewegungsflächen?', blank=True, null=True
@@ -1303,7 +1348,9 @@ class Feuerwehrzufahrten_Schilder(ComplexModel):
     null=True,
   )
   hinweise_aufstellort = CharField(
-    verbose_name='Hinweise zum Aufstellort', max_length=255, validators=standard_validators
+    verbose_name='Hinweise zum Aufstellort',
+    max_length=255,
+    validators=standard_validators,
   )
   bemerkungen = CharField(
     verbose_name='Bemerkungen',
@@ -1406,7 +1453,8 @@ class Freizeitsport(ComplexModel):
     null=True,
   )
   sportarten = ChoiceArrayField(
-    CharField(verbose_name='Sportarten', max_length=255, choices=()), verbose_name='Sportarten'
+    CharField(verbose_name='Sportarten', max_length=255, choices=()),
+    verbose_name='Sportarten',
   )
   besonderheiten = ChoiceArrayField(
     CharField(verbose_name='Besonderheiten', max_length=255, choices=()),
@@ -1463,7 +1511,14 @@ class Freizeitsport(ComplexModel):
   def __str__(self):
     return self.string_representation()
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self,
+    force_insert=False,
+    force_update=False,
+    using=None,
+    update_fields=None,
+    **kwargs,
+  ):
     # store search content in designated field
     self.freizeitsport = self.string_representation()
     super().save(
@@ -1599,7 +1654,11 @@ class Geh_Radwegereinigung(ComplexModel):
     null=True,
   )
   nummer = CharField(
-    verbose_name='Nummer', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Nummer',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   beschreibung = CharField(
     verbose_name='Beschreibung',
@@ -1833,7 +1892,10 @@ class Geh_Radwegereinigung_Flaechen(ComplexModel):
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['geh_und_radwegereinigung']
     geometry_type = 'MultiPolygon'
-    list_fields = {'aktiv': 'aktiv?', 'geh_und_radwegereinigung': 'Geh- und Radwegereinigung'}
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'geh_und_radwegereinigung': 'Geh- und Radwegereinigung',
+    }
     list_fields_with_foreign_key = {'geh_und_radwegereinigung': 'id'}
     map_feature_tooltip_fields = ['geh_und_radwegereinigung']
 
@@ -1855,7 +1917,9 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
   deaktiviert = DateField(verbose_name='Außerbetriebstellung', blank=True, null=True)
   id = PositiveIntegerField(verbose_name='ID', unique=True, default=0)
   hst_bezeichnung = CharField(
-    verbose_name='Haltestellenbezeichnung', max_length=255, validators=standard_validators
+    verbose_name='Haltestellenbezeichnung',
+    max_length=255,
+    validators=standard_validators,
   )
   hst_hafas_id = CharField(
     verbose_name='HAFAS-ID',
@@ -1864,7 +1928,8 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True,
     validators=[
       RegexValidator(
-        regex=haltestellenkataster_hafas_id_regex, message=haltestellenkataster_hafas_id_message
+        regex=haltestellenkataster_hafas_id_regex,
+        message=haltestellenkataster_hafas_id_message,
       )
     ],
   )
@@ -1896,10 +1961,14 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True,
   )
   hst_rsag = BooleanField(
-    verbose_name=' bedient durch Rostocker Straßenbahn AG?', blank=True, null=True
+    verbose_name=' bedient durch Rostocker Straßenbahn AG?',
+    blank=True,
+    null=True,
   )
   hst_rebus = BooleanField(
-    verbose_name=' bedient durch rebus Regionalbus Rostock GmbH?', blank=True, null=True
+    verbose_name=' bedient durch rebus Regionalbus Rostock GmbH?',
+    blank=True,
+    null=True,
   )
   hst_nur_ausstieg = BooleanField(verbose_name=' nur Ausstieg?', blank=True, null=True)
   hst_nur_einstieg = BooleanField(verbose_name=' nur Einstieg?', blank=True, null=True)
@@ -2013,13 +2082,19 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     verbose_name=' barrierefreier Einstieg vorhanden?', blank=True, null=True
   )
   bf_zu_abgaenge = BooleanField(
-    verbose_name=' barrierefreie Zu- und Abgänge vorhanden?', blank=True, null=True
+    verbose_name=' barrierefreie Zu- und Abgänge vorhanden?',
+    blank=True,
+    null=True,
   )
   bf_bewegungsraum = BooleanField(
-    verbose_name=' barrierefreier Bewegungsraum vorhanden?', blank=True, null=True
+    verbose_name=' barrierefreier Bewegungsraum vorhanden?',
+    blank=True,
+    null=True,
   )
   tl_auffindestreifen = BooleanField(
-    verbose_name='Taktiles Leitsystem: Auffindestreifen vorhanden?', blank=True, null=True
+    verbose_name='Taktiles Leitsystem: Auffindestreifen vorhanden?',
+    blank=True,
+    null=True,
   )
   tl_auffindestreifen_ausfuehrung = ForeignKey(
     to=Ausfuehrungen_Haltestellenkataster,
@@ -2038,7 +2113,9 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True,
   )
   tl_einstiegsfeld = BooleanField(
-    verbose_name='Taktiles Leitsystem: Einstiegsfeld vorhanden?', blank=True, null=True
+    verbose_name='Taktiles Leitsystem: Einstiegsfeld vorhanden?',
+    blank=True,
+    null=True,
   )
   tl_einstiegsfeld_ausfuehrung = ForeignKey(
     to=Ausfuehrungen_Haltestellenkataster,
@@ -2057,7 +2134,9 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True,
   )
   tl_leitstreifen = BooleanField(
-    verbose_name='Taktiles Leitsystem: Leitstreifen vorhanden?', blank=True, null=True
+    verbose_name='Taktiles Leitsystem: Leitstreifen vorhanden?',
+    blank=True,
+    null=True,
   )
   tl_leitstreifen_ausfuehrung = ForeignKey(
     to=Ausfuehrungen_Haltestellenkataster,
@@ -2076,7 +2155,9 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True,
   )
   tl_aufmerksamkeitsfeld = BooleanField(
-    verbose_name='Aufmerksamkeitsfeld (1. Tür) vorhanden?', blank=True, null=True
+    verbose_name='Aufmerksamkeitsfeld (1. Tür) vorhanden?',
+    blank=True,
+    null=True,
   )
   tl_bahnsteigkante_visuell = BooleanField(
     verbose_name='Bahnsteigkante visuell erkennbar?', blank=True, null=True
@@ -2159,7 +2240,9 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
   )
   as_lautsprecher = BooleanField(verbose_name='Lautsprecher vorhanden?', blank=True, null=True)
   as_dfi = BooleanField(
-    verbose_name='Dynamisches Fahrgastinformationssystem vorhanden?', blank=True, null=True
+    verbose_name='Dynamisches Fahrgastinformationssystem vorhanden?',
+    blank=True,
+    null=True,
   )
   as_dfi_typ = ForeignKey(
     to=DFI_Typen_Haltestellenkataster,
@@ -2179,25 +2262,33 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
   )
   as_beleuchtung = BooleanField(verbose_name='Beleuchtung vorhanden?', blank=True, null=True)
   as_hinweis_warnblinklicht_ein = BooleanField(
-    verbose_name='Hinweis „Warnblinklicht ein“ vorhanden?', blank=True, null=True
+    verbose_name='Hinweis „Warnblinklicht ein“ vorhanden?',
+    blank=True,
+    null=True,
   )
   bfe_park_and_ride = BooleanField(
     verbose_name='P+R-Parkplatz in Umgebung vorhanden?', blank=True, null=True
   )
   bfe_fahrradabstellmoeglichkeit = BooleanField(
-    verbose_name='Fahrradabstellmöglichkeit in Umgebung vorhanden?', blank=True, null=True
+    verbose_name='Fahrradabstellmöglichkeit in Umgebung vorhanden?',
+    blank=True,
+    null=True,
   )
   bfe_querungshilfe = BooleanField(
     verbose_name='Querungshilfe in Umgebung vorhanden?', blank=True, null=True
   )
   bfe_fussgaengerueberweg = BooleanField(
-    verbose_name='Fußgängerüberweg in Umgebung vorhanden?', blank=True, null=True
+    verbose_name='Fußgängerüberweg in Umgebung vorhanden?',
+    blank=True,
+    null=True,
   )
   bfe_seniorenheim = BooleanField(
     verbose_name='Seniorenheim in Umgebung vorhanden?', blank=True, null=True
   )
   bfe_pflegeeinrichtung = BooleanField(
-    verbose_name='Pflegeeinrichtung in Umgebung vorhanden?', blank=True, null=True
+    verbose_name='Pflegeeinrichtung in Umgebung vorhanden?',
+    blank=True,
+    null=True,
   )
   bfe_medizinische_versorgungseinrichtung = BooleanField(
     verbose_name='Medizinische Versorgungseinrichtung in Umgebung vorhanden?',
@@ -2314,7 +2405,10 @@ class Haltestellenkataster_Fotos(ComplexModel):
       'foto': 'Foto',
     }
     list_fields_with_date = ['aufnahmedatum']
-    list_fields_with_foreign_key = {'haltestellenkataster_haltestelle': 'id', 'motiv': 'fotomotiv'}
+    list_fields_with_foreign_key = {
+      'haltestellenkataster_haltestelle': 'id',
+      'motiv': 'fotomotiv',
+    }
     list_actions_assign = [
       {
         'action_name': 'haltestellenkataster_fotos-motiv',
@@ -2347,6 +2441,205 @@ post_delete.connect(delete_photo, sender=Haltestellenkataster_Fotos)
 
 
 #
+# Kleinkläranlagen
+#
+
+
+class Kleinklaeranlagen(ComplexModel):
+  """
+  Kleinkläranlagen:
+  Kleinkläranlagen
+  """
+
+  adresse = ForeignKey(
+    to=Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True,
+  )
+  d3 = CharField(
+    verbose_name=' d.3',
+    max_length=16,
+    validators=[RegexValidator(regex=d3_regex, message=d3_message)],
+  )
+  we_datum = DateField(verbose_name='Datum der wasserrechtlichen Erlaubnis', default=date.today)
+  we_aktenzeichen = CharField(
+    verbose_name='Aktenzeichen der wasserrechtlichen Erlaubnis',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  we_befristung = DateField(
+    verbose_name='Befristung der wasserrechtlichen Erlaubnis', blank=True, null=True
+  )
+  typ = ForeignKey(
+    to=Typen_Kleinklaeranlagen,
+    verbose_name='Anlagetyp',
+    on_delete=RESTRICT,
+    db_column='typ',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_typen',
+  )
+  einleitstelle = CharField(
+    verbose_name='Einleitstelle', max_length=255, validators=standard_validators
+  )
+  gewaesser_berichtspflichtig = BooleanField(
+    verbose_name=' berichtspflichtiges Gewässer?',
+  )
+  umfang_einleitung = DecimalField(
+    verbose_name='Umfang der Einleitung (in m³/d)',
+    max_digits=3,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der <strong><em>Umfang der Einleitung</em></strong> muss mindestens 0,01 m³/d betragen.',
+      ),
+      MaxValueValidator(
+        Decimal('9.99'),
+        'Der <strong><em>Umfang der Einleitung</em></strong> darf höchstens 9,99 m³/d betragen.',
+      ),
+    ],
+    blank=True,
+    null=True,
+  )
+  einwohnerwert = DecimalField(
+    verbose_name='Einwohnerwert',
+    max_digits=3,
+    decimal_places=1,
+    validators=[
+      MinValueValidator(
+        Decimal('0.1'), 'Der <strong><em>Einwohnerwert</em></strong> muss mindestens 0,1 betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('99.9'),
+        'Der <strong><em>Einwohnerwert</em></strong> darf höchstens 99,9 betragen.',
+      ),
+    ],
+    blank=True,
+    null=True,
+  )
+  zulassung = CharField(
+    verbose_name='Zulassung',
+    max_length=11,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=kleinklaeranlagen_zulassung_regex, message=kleinklaeranlagen_zulassung_message
+      )
+    ],
+  )
+  bemerkungen = NullTextField(
+    verbose_name='Bemerkungen',
+    max_length=500,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  geometrie = point_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten_adressbezug"."kleinklaeranlagen_hro'
+    ordering = ['d3', 'we_datum']
+    verbose_name = 'Kleinkläranlage'
+    verbose_name_plural = 'Kleinkläranlagen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Kleinkläranlagen in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+    associated_models = {'Kleinklaeranlagen_Gewaessereinleitungsorte': 'kleinklaeranlage'}
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'd3': 'd.3',
+      'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
+      'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
+      'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
+      'typ': 'Anlagetyp',
+      'einleitstelle': 'Einleitstelle',
+      'adresse': 'Adresse',
+      'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
+      'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
+      'einwohnerwert': 'Einwohnerwert',
+      'zulassung': 'Zulassung',
+    }
+    list_fields_with_date = ['we_datum', 'we_befristung']
+    list_fields_with_decimal = ['umfang_einleitung', 'einwohnerwert']
+    list_fields_with_foreign_key = {'adresse': 'adresse', 'typ': 'typ'}
+    map_feature_tooltip_fields = ['d3']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'd3': 'd.3',
+      'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
+      'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
+      'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
+      'typ': 'Anlagetyp',
+      'einleitstelle': 'Einleitstelle',
+      'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
+      'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
+      'einwohnerwert': 'Einwohnerwert',
+      'zulassung': 'Zulassung',
+    }
+    map_filter_fields_as_list = ['typ']
+
+  def __str__(self):
+    return self.d3 + ' mit Datum der wasserrechtlichen Erlaubnis ' + str(self.we_datum)
+
+
+class Kleinklaeranlagen_Gewaessereinleitungsorte(ComplexModel):
+  """
+  Kleinkläranlagen:
+  Orte der Gewässereinleitung
+  """
+
+  kleinklaeranlage = ForeignKey(
+    to=Kleinklaeranlagen,
+    verbose_name='Kleinkläranlage',
+    on_delete=RESTRICT,
+    db_column='kleinklaeranlage',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_kleinklaeranlagen',
+  )
+  geometrie = point_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten"."kleinklaeranlagen_gewaessereinleitungsorte_hro'
+    verbose_name = 'Ort der Gewässereinleitung einer Kleinkläranlage'
+    verbose_name_plural = 'Orte der Gewässereinleitung der Kleinkläranlagen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = (
+      'Orte der Gewässereinleitung der Kleinkläranlagen '
+      'in der Hanse- und Universitätsstadt Rostock'
+    )
+    short_name = 'Ort der Gewässereinleitung'
+    fields_with_foreign_key_to_linkify = ['kleinklaeranlage']
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'kleinklaeranlage': 'Kleinkläranlage',
+    }
+    list_fields_with_foreign_key = {'kleinklaeranlage': 'd3'}
+    map_feature_tooltip_fields = ['kleinklaeranlage']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'kleinklaeranlage': 'Kleinkläranlage',
+    }
+    map_filter_fields_as_list = ['kleinklaeranlage']
+
+  def __str__(self):
+    return str(self.kleinklaeranlage)
+
+
+#
 # Lichtwellenleiterinfrastruktur
 #
 
@@ -2358,7 +2651,10 @@ class Lichtwellenleiterinfrastruktur_Abschnitte(ComplexModel):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(ComplexModel.Meta):
@@ -2481,7 +2777,10 @@ class Parkscheinautomaten_Tarife(ComplexModel):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
   zeiten = CharField(verbose_name='Bewirtschaftungszeiten', max_length=255)
   normaltarif_parkdauer_min = PositiveSmallIntegerMinField(
@@ -2545,10 +2844,16 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     null=True,
   )
   normaltarif_gebuehrenschritte = CharField(
-    verbose_name='Gebührenschritte Normaltarif', max_length=255, blank=True, null=True
+    verbose_name='Gebührenschritte Normaltarif',
+    max_length=255,
+    blank=True,
+    null=True,
   )
   veranstaltungstarif_parkdauer_min = PositiveSmallIntegerMinField(
-    verbose_name='Mindestparkdauer Veranstaltungstarif', min_value=1, blank=True, null=True
+    verbose_name='Mindestparkdauer Veranstaltungstarif',
+    min_value=1,
+    blank=True,
+    null=True,
   )
   veranstaltungstarif_parkdauer_min_einheit = ForeignKey(
     to=Zeiteinheiten,
@@ -2561,7 +2866,10 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     null=True,
   )
   veranstaltungstarif_parkdauer_max = PositiveSmallIntegerMinField(
-    verbose_name='Maximalparkdauer Veranstaltungstarif', min_value=1, blank=True, null=True
+    verbose_name='Maximalparkdauer Veranstaltungstarif',
+    min_value=1,
+    blank=True,
+    null=True,
   )
   veranstaltungstarif_parkdauer_max_einheit = ForeignKey(
     to=Zeiteinheiten,
@@ -2612,7 +2920,10 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     null=True,
   )
   veranstaltungstarif_gebuehrenschritte = CharField(
-    verbose_name='Gebührenschritte Veranstaltungstarif', max_length=255, blank=True, null=True
+    verbose_name='Gebührenschritte Veranstaltungstarif',
+    max_length=255,
+    blank=True,
+    null=True,
   )
   zugelassene_muenzen = CharField(verbose_name=' zugelassene Münzen', max_length=255)
 
@@ -2737,7 +3048,10 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
       'zone': 'Zone',
       'foto': 'Foto',
     }
-    list_fields_with_foreign_key = {'parkscheinautomaten_tarif': 'bezeichnung', 'zone': 'zone'}
+    list_fields_with_foreign_key = {
+      'parkscheinautomaten_tarif': 'bezeichnung',
+      'zone': 'zone',
+    }
     map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'parkscheinautomaten_tarif': 'Tarif',
@@ -2791,7 +3105,12 @@ class Punktwolken_Projekte(ComplexModel):
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Projekte mit Punktwolken aus LiDAR-Scans'
-    readonly_fields = ['geometrie', 'vcp_task_id', 'vcp_dataset_bucket_id', 'vcp_datasource_id']
+    readonly_fields = [
+      'geometrie',
+      'vcp_task_id',
+      'vcp_dataset_bucket_id',
+      'vcp_datasource_id',
+    ]
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -2809,7 +3128,14 @@ class Punktwolken_Projekte(ComplexModel):
   def __str__(self):
     return self.bezeichnung
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self,
+    force_insert=False,
+    force_update=False,
+    using=None,
+    update_fields=None,
+    **kwargs,
+  ):
     if not self.vcp_task_id:
       try:
         # create Task
@@ -2819,11 +3145,7 @@ class Punktwolken_Projekte(ComplexModel):
         )
         source: Source = project.create_source(
           name=str(self.bezeichnung),
-          sourceProperties={
-            'type': 'internal',
-            'dataBucketId': bucket._id,
-            'dataBucketKey': '/datasource',
-          },
+          sourceProperties=bucket.reference(dataBucketKey='/datasource'),
           type='tileset',
           typeProperties={},
           description=str(self.beschreibung),
@@ -2837,11 +3159,7 @@ class Punktwolken_Projekte(ComplexModel):
           parameters={
             'command': 'conversion',
             'epsgCode': 25833,
-            'dataset': {
-              'type': 'internal',
-              'dataBucketId': bucket._id,
-              'dataBucketKey': '/dataset',
-            },
+            'dataset': bucket.reference(dataBucketKey='/dataset'),
             'datasource': {'command': 'update', 'datasourceId': source._id},
           },
           jobType='pointcloud',
@@ -2906,7 +3224,8 @@ class Punktwolken(ComplexModel):
   punktwolke = FileField(
     verbose_name='Punktwolkendatei',
     upload_to=path_and_rename(
-      path=settings.PC_PATH_PREFIX_PRIVATE + 'punktwolken/', foreign_key_subdir_attr='projekt_id'
+      path=settings.PC_PATH_PREFIX_PRIVATE + 'punktwolken/',
+      foreign_key_subdir_attr='projekt_id',
     ),
     storage=OverwriteStorage(path_root=settings.PC_MEDIA_ROOT),
     validators=[FileExtensionValidator(allowed_extensions=['e57', 'las', 'laz', 'xyz'])],
@@ -2952,7 +3271,14 @@ class Punktwolken(ComplexModel):
       aufnahme_str = aufnahme_str + f' ({format_filesize(self.file_size)})'
     return self.dateiname + aufnahme_str
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self,
+    force_insert=False,
+    force_update=False,
+    using=None,
+    update_fields=None,
+    **kwargs,
+  ):
     """
     Modified django save method.
     :param force_insert:
@@ -2970,18 +3296,27 @@ class Punktwolken(ComplexModel):
     if not self.file_size:
       file_path = Path(self.punktwolke.path)
       update_model(
-        model_name='Punktwolken', pk=self.pk, attributes={'file_size': file_path.stat().st_size}
+        model_name='Punktwolken',
+        pk=self.pk,
+        attributes={'file_size': file_path.stat().st_size},
       )
     if not self.vcp_object_key and is_broker_available():
       # If point cloud database entry has no object key attribute, then point cloud must still be
       # uploaded to the VC Publisher.
       # lazy import of celery task -> must remain here to avoid circular import errors
-      from ..tasks import calculate_2d_bounding_box_for_pointcloud, send_pointcloud_to_vcpub
+      from ..tasks import (
+        calculate_2d_bounding_box_for_pointcloud,
+        send_pointcloud_to_vcpub,
+      )
 
       # run celery task delayed
       if not self.geometrie:
         # calculate 2D bounding box for point cloud, asynchron
-        enqueue(calculate_2d_bounding_box_for_pointcloud, pk=self.pk, path=self.punktwolke.path)
+        enqueue(
+          calculate_2d_bounding_box_for_pointcloud,
+          pk=self.pk,
+          path=self.punktwolke.path,
+        )
       # upload point cloud to VC Publisher, asynchron
       enqueue(
         send_pointcloud_to_vcpub,
@@ -3017,7 +3352,11 @@ class RSAG_Gleise(ComplexModel):
   """
 
   quelle = CharField(
-    verbose_name='Quelle', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Quelle',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   geometrie = line_field
 
@@ -3197,7 +3536,10 @@ class RSAG_Masten(ComplexModel):
     related_name='%(app_label)s_%(class)s_masttypen',
   )
   nennmass_ueber_so = PositiveSmallIntegerRangeField(
-    verbose_name='Nennmaß über Schienenoberkante (in mm)', min_value=1, blank=True, null=True
+    verbose_name='Nennmaß über Schienenoberkante (in mm)',
+    min_value=1,
+    blank=True,
+    null=True,
   )
   mastgewicht = PositiveSmallIntegerRangeField(
     verbose_name='Mastgewicht (in kg)', min_value=1, blank=True, null=True
@@ -3296,7 +3638,11 @@ class RSAG_Masten(ComplexModel):
     null=True,
   )
   quelle = CharField(
-    verbose_name='Quelle', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Quelle',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   dgm_hoehe = DecimalField(
     verbose_name='Höhenwert des Durchstoßpunktes auf dem DGM (in m)',
@@ -3323,7 +3669,10 @@ class RSAG_Masten(ComplexModel):
     default_overlays = ['RSAG_Masten']
     forms_in_high_zoom_mode = True
     forms_in_high_zoom_mode_default_aerial = True
-    associated_models = {'RSAG_Quertraeger': 'mast', 'RSAG_Spanndraehte': 'mast'}
+    associated_models = {
+      'RSAG_Quertraeger': 'mast',
+      'RSAG_Spanndraehte': 'mast',
+    }
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
@@ -3415,7 +3764,11 @@ class RSAG_Quertraeger(ComplexModel):
     related_name='%(app_label)s_%(class)s_masten',
   )
   quelle = CharField(
-    verbose_name='Quelle', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Quelle',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   geometrie = line_field
 
@@ -3434,7 +3787,12 @@ class RSAG_Quertraeger(ComplexModel):
     forms_in_high_zoom_mode_default_aerial = True
     fields_with_foreign_key_to_linkify = ['mast']
     geometry_type = 'LineString'
-    list_fields = {'uuid': 'UUID', 'aktiv': 'aktiv?', 'mast': 'Mast', 'quelle': 'Quelle'}
+    list_fields = {
+      'uuid': 'UUID',
+      'aktiv': 'aktiv?',
+      'mast': 'Mast',
+      'quelle': 'Quelle',
+    }
     list_fields_with_foreign_key = {'mast': 'mastnummer'}
     map_filter_fields = {'uuid': 'UUID', 'mast': 'Mast', 'quelle': 'Quelle'}
     map_filter_fields_as_list = ['mast']
@@ -3460,7 +3818,11 @@ class RSAG_Spanndraehte(ComplexModel):
     null=True,
   )
   quelle = CharField(
-    verbose_name='Quelle', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Quelle',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   geometrie = line_field
 
@@ -3479,7 +3841,12 @@ class RSAG_Spanndraehte(ComplexModel):
     forms_in_high_zoom_mode_default_aerial = True
     fields_with_foreign_key_to_linkify = ['mast']
     geometry_type = 'LineString'
-    list_fields = {'uuid': 'UUID', 'aktiv': 'aktiv?', 'mast': 'Mast', 'quelle': 'Quelle'}
+    list_fields = {
+      'uuid': 'UUID',
+      'aktiv': 'aktiv?',
+      'mast': 'Mast',
+      'quelle': 'Quelle',
+    }
     list_fields_with_foreign_key = {'mast': 'mastnummer'}
     map_filter_fields = {'uuid': 'UUID', 'mast': 'Mast', 'quelle': 'Quelle'}
     map_filter_fields_as_list = ['mast']
@@ -3584,7 +3951,14 @@ class Spielplaetze(ComplexModel):
   def __str__(self):
     return self.string_representation()
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+  def save(
+    self,
+    force_insert=False,
+    force_update=False,
+    using=None,
+    update_fields=None,
+    **kwargs,
+  ):
     # store search content in designated field
     self.spielplatz = self.string_representation()
     super().save(
@@ -4043,10 +4417,18 @@ class Strassen_Simple_Historie(ComplexModel):
     related_name='%(app_label)s_%(class)s_strasse',
   )
   datum = CharField(
-    verbose_name='Datum', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Datum',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   beschluss = CharField(
-    verbose_name='Beschluss', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Beschluss',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   veroeffentlichung = CharField(
     verbose_name='Veröffentlichung',
@@ -4056,7 +4438,11 @@ class Strassen_Simple_Historie(ComplexModel):
     validators=standard_validators,
   )
   historie = CharField(
-    verbose_name='Historie', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Historie',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
 
   class Meta(ComplexModel.Meta):
@@ -4220,7 +4606,8 @@ class UVP_Vorhaben(ComplexModel):
     null=True,
     validators=[
       RegexValidator(
-        regex=uvp_registriernummer_bauamt_regex, message=uvp_registriernummer_bauamt_message
+        regex=uvp_registriernummer_bauamt_regex,
+        message=uvp_registriernummer_bauamt_message,
       )
     ],
   )
@@ -4288,7 +4675,12 @@ class UVP_Vorhaben(ComplexModel):
       'rechtsgrundlage': 'Rechtsgrundlage',
       'typ': 'Typ',
     }
-    map_filter_fields_as_list = ['vorgangsart', 'genehmigungsbehoerde', 'rechtsgrundlage', 'typ']
+    map_filter_fields_as_list = [
+      'vorgangsart',
+      'genehmigungsbehoerde',
+      'rechtsgrundlage',
+      'typ',
+    ]
 
   def __str__(self):
     return self.bezeichnung
@@ -4327,7 +4719,9 @@ class UVP_Vorpruefungen(ComplexModel):
     related_name='%(app_label)s_%(class)s_ergebnisse',
   )
   datum_bekanntmachung = DateField(
-    verbose_name='Datum Bekanntmachung „Städtischer Anzeiger“', blank=True, null=True
+    verbose_name='Datum Bekanntmachung „Städtischer Anzeiger“',
+    blank=True,
+    null=True,
   )
   datum_veroeffentlichung = DateField(
     verbose_name='Datum Veröffentlichung UVP-Portal', blank=True, null=True

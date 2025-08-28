@@ -11,11 +11,15 @@ wie etwa zur An- und Abmeldung oder zur Navigation über die Titelleiste.
 
 ### [Navigation](datenwerft/usage/navigation.md)
 
+### [API](datenwerft/usage/api.md)
+
 ## Datenmanagement
 
 Hier finden Sie Hilfestellungen zur Standard-Umgebung der Anwendung *Datenwerft.HRO,*
 dem Datenmanagement – zum Beispiel: Wie können Datensätze übersichtlich angezeigt werden?
 Wie können neue Datensätze angelegt werden?
+
+### [Administration](datenmanagement/admin.md)
 
 ### [Berechtigungen](datenmanagement/permissions.md)
 
@@ -87,6 +91,35 @@ wie etwa zu Müllsammelaktionen.
 #### [Anträge auf Karte](antragsmanagement/usage/requests-map.md)
 
 ### [Benachrichtigungen](antragsmanagement/usage/notifications.md)
+
+## *FMM*
+
+Hier finden Sie Hilfestellungen zu *FMM,* dem Managementsystem
+für potenziell zu entwickelnde Flächen für Wohnraum, Gewerbe etc. (*FMF)*.
+
+### [Administration](fmm/admin.md)
+
+### [Berechtigungen](fmm/permissions.md)
+
+### [Startseite (Dashboard)](fmm/usage/dashboard.md)
+
+### Bereiche und Aktionen
+
+#### [neue FMF erstellen](fmm/usage/fmf-create.md)
+
+#### [FMF-Übersichtsseite](fmm/usage/overview.md)
+
+#### [Tabelle](fmm/usage/table.md)
+
+#### [Karte](fmm/usage/map.md)
+
+## *GDI.HRO Codelists*
+
+Hier finden Sie Hilfestellungen zum System zur Administration von Codelisten im Rahmen der GDI.HRO.
+
+### [Administration](gdihrocodelists/admin.md)
+
+### [Berechtigungen](gdihrocodelists/permissions.md)
 
 ## *GDI.HRO Metadata*
 

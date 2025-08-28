@@ -1,7 +1,17 @@
 from decimal import Decimal
 
-from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator
-from django.db.models.fields import BooleanField, CharField, DateField, DecimalField
+from django.core.validators import (
+  EmailValidator,
+  MaxValueValidator,
+  MinValueValidator,
+)
+from django.db.models import RESTRICT, ForeignKey
+from django.db.models.fields import (
+  BooleanField,
+  CharField,
+  DateField,
+  DecimalField,
+)
 
 from toolbox.constants_vars import *
 from toolbox.utils import concat_address
@@ -33,21 +43,41 @@ class Adressen(Metamodel):
   """
 
   gemeinde = CharField(
-    verbose_name='Gemeinde', max_length=255, blank=True, null=True, editable=False
+    verbose_name='Gemeinde',
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False,
   )
   gemeindeteil = CharField(
-    verbose_name='Gemeindeteil', max_length=255, blank=True, null=True, editable=False
+    verbose_name='Gemeindeteil',
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False,
   )
   strasse = CharField(verbose_name='Straße', max_length=255, blank=True, null=True, editable=False)
   hausnummer = CharField(
-    verbose_name='Hausnummer', max_length=4, blank=True, null=True, editable=False
+    verbose_name='Hausnummer',
+    max_length=4,
+    blank=True,
+    null=True,
+    editable=False,
   )
   postleitzahl = CharField(
-    verbose_name='Postleitzahl', max_length=5, blank=True, null=True, editable=False
+    verbose_name='Postleitzahl',
+    max_length=5,
+    blank=True,
+    null=True,
+    editable=False,
   )
   adresse = CharField(verbose_name='Adresse', max_length=255, editable=False)
   adresse_lang = CharField(
-    verbose_name='Adresse', max_length=255, blank=True, null=True, editable=False
+    verbose_name='Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False,
   )
 
   class Meta(Metamodel.Meta):
@@ -77,10 +107,18 @@ class Strassen(Metamodel):
   """
 
   gemeinde = CharField(
-    verbose_name='Gemeinde', max_length=255, blank=True, null=True, editable=False
+    verbose_name='Gemeinde',
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False,
   )
   gemeindeteil = CharField(
-    verbose_name='Gemeindeteil', max_length=255, blank=True, null=True, editable=False
+    verbose_name='Gemeindeteil',
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False,
   )
   strasse = CharField(verbose_name='Straße', max_length=255, editable=False)
   strasse_lang = CharField(
@@ -96,7 +134,11 @@ class Strassen(Metamodel):
   class BasemodelMeta(Metamodel.BasemodelMeta):
     description = 'Straßen in Mecklenburg-Vorpommern'
     naming = 'strasse'
-    list_fields = {'gemeinde': 'Gemeinde', 'gemeindeteil': 'Gemeindeteil', 'strasse': 'Straße'}
+    list_fields = {
+      'gemeinde': 'Gemeinde',
+      'gemeindeteil': 'Gemeindeteil',
+      'strasse': 'Straße',
+    }
 
   def __str__(self):
     return self.strasse
@@ -194,7 +236,10 @@ class Altersklassen_Kadaverfunde(Codelist):
 
   ordinalzahl = PositiveSmallIntegerRangeField(verbose_name='Ordinalzahl', min_value=1)
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -212,36 +257,16 @@ class Altersklassen_Kadaverfunde(Codelist):
     return self.bezeichnung
 
 
-class Anbieter_Carsharing(Codelist):
-  """
-  Carsharing-Anbieter
-  """
-
-  anbieter = CharField(
-    verbose_name='Anbieter', max_length=255, unique=True, validators=standard_validators
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten"."anbieter_carsharing'
-    ordering = ['anbieter']
-    verbose_name = 'Carsharing-Anbieter'
-    verbose_name_plural = 'Carsharing-Anbieter'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Carsharing-Anbieter'
-    list_fields = {'anbieter': 'Anbieter'}
-
-  def __str__(self):
-    return self.anbieter
-
-
 class Angebote_Mobilpunkte(Codelist):
   """
   Angebote bei Mobilpunkten
   """
 
   angebot = CharField(
-    verbose_name='Angebot', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Angebot',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -264,7 +289,10 @@ class Angelberechtigungen(Codelist):
   """
 
   angelberechtigung = CharField(
-    verbose_name='Angelberechtigung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Angelberechtigung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -315,7 +343,11 @@ class Ansprechpartner_Baustellen(Codelist):
 
   class BasemodelMeta(Codelist.BasemodelMeta):
     description = 'Ansprechpartner:innen bei Baustellen'
-    list_fields = {'vorname': 'Vorname', 'nachname': 'Nachname', 'email': 'E-Mail-Adresse'}
+    list_fields = {
+      'vorname': 'Vorname',
+      'nachname': 'Nachname',
+      'email': 'E-Mail-Adresse',
+    }
 
   def __str__(self):
     if not self.nachname:
@@ -330,7 +362,10 @@ class Antragsteller_Jagdkataster_Skizzenebenen(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -401,20 +436,6 @@ class Arten_Erdwaermesonden(Art):
 
   class BasemodelMeta(Art.BasemodelMeta):
     description = 'Arten von Erdwärmesonden'
-
-
-class Arten_FairTrade(Art):
-  """
-  Arten von Fair-Trade-Einrichtungen
-  """
-
-  class Meta(Art.Meta):
-    db_table = 'codelisten"."arten_fairtrade'
-    verbose_name = 'Art einer Fair-Trade-Einrichtung'
-    verbose_name_plural = 'Arten von Fair-Trade-Einrichtungen'
-
-  class BasemodelMeta(Art.BasemodelMeta):
-    description = 'Arten von Fair-Trade-Einrichtungen'
 
 
 class Arten_Fallwildsuchen_Kontrollen(Art):
@@ -513,6 +534,20 @@ class Arten_Meldedienst_punkthaft(Art):
 
   class BasemodelMeta(Art.BasemodelMeta):
     description = 'Arten von Meldediensten (punkthaft)'
+
+
+class Arten_Naturdenkmale(Art):
+  """
+  Arten von Naturdenkmalen
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten"."arten_naturdenkmale'
+    verbose_name = 'Art eines Naturdenkmals'
+    verbose_name_plural = 'Arten von Naturdenkmalen'
+
+  class BasemodelMeta(Art.BasemodelMeta):
+    description = 'Arten von Naturdenkmalen'
 
 
 class Arten_Parkmoeglichkeiten(Art):
@@ -619,7 +654,10 @@ class Auftraggeber_Baugrunduntersuchungen(Codelist):
   """
 
   auftraggeber = CharField(
-    verbose_name='Auftraggeber', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Auftraggeber',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -642,7 +680,10 @@ class Auftraggeber_Baustellen(Codelist):
   """
 
   auftraggeber = CharField(
-    verbose_name='Auftraggeber', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Auftraggeber',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -793,7 +834,10 @@ class Beleuchtungsarten(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -816,7 +860,10 @@ class Besonderheiten_Freizeitsport(Codelist):
   """
 
   besonderheit = CharField(
-    verbose_name='Besonderheit', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Besonderheit',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -839,7 +886,10 @@ class Besonderheiten_Spielplaetze(Codelist):
   """
 
   besonderheit = CharField(
-    verbose_name='Besonderheit', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Besonderheit',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -862,7 +912,10 @@ class Betriebsarten(Codelist):
   """
 
   betriebsart = CharField(
-    verbose_name='Betriebsart', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Betriebsart',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -885,7 +938,10 @@ class Betriebszeiten(Codelist):
   """
 
   betriebszeit = CharField(
-    verbose_name='Betriebszeit', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Betriebszeit',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -989,7 +1045,10 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
     }
     list_field_with_address_string = 'anschrift'
     list_field_with_address_string_fallback_field = 'anschrift_strasse'
-    list_fields_with_date = ['bestellungszeitraum_beginn', 'bestellungszeitraum_ende']
+    list_fields_with_date = [
+      'bestellungszeitraum_beginn',
+      'bestellungszeitraum_ende',
+    ]
 
   def __str__(self):
     bezirk = ' (Bezirk ' + self.bezirk + ')' if self.bezirk else ''
@@ -1010,7 +1069,10 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
   art = CharField(verbose_name='Art', max_length=255, validators=standard_validators)
 
@@ -1034,7 +1096,10 @@ class Bodenarten_Freizeitsport(Codelist):
   """
 
   bodenart = CharField(
-    verbose_name='Bodenart', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bodenart',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1057,7 +1122,10 @@ class Bodenarten_Spielplaetze(Codelist):
   """
 
   bodenart = CharField(
-    verbose_name='Bodenart', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bodenart',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1080,7 +1148,10 @@ class DFI_Typen_Haltestellenkataster(Codelist):
   """
 
   dfi_typ = CharField(
-    verbose_name='DFI-Typ', max_length=255, unique=True, validators=standard_validators
+    verbose_name='DFI-Typ',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1109,7 +1180,10 @@ class E_Anschluesse_Parkscheinautomaten(Codelist):
   """
 
   e_anschluss = CharField(
-    verbose_name='E-Anschluss', max_length=255, unique=True, validators=standard_validators
+    verbose_name='E-Anschluss',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1132,7 +1206,10 @@ class Ergebnisse_UVP_Vorpruefungen(Codelist):
   """
 
   ergebnis = CharField(
-    verbose_name='Ergebnis', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Ergebnis',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1160,7 +1237,8 @@ class Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO(Codelist):
     unique=True,
     validators=[
       RegexValidator(
-        regex=fahrbahnwinterdienst_code_regex, message=fahrbahnwinterdienst_code_message
+        regex=fahrbahnwinterdienst_code_regex,
+        message=fahrbahnwinterdienst_code_message,
       )
     ],
   )
@@ -1220,7 +1298,10 @@ class Fahrplanvitrinentypen_Haltestellenkataster(Codelist):
   """
 
   fahrplanvitrinentyp = CharField(
-    verbose_name='Fahrplanvitrinentyp', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Fahrplanvitrinentyp',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1243,7 +1324,10 @@ class Fotomotive_Haltestellenkataster(Codelist):
   """
 
   fotomotiv = CharField(
-    verbose_name='Fotomotiv', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Fotomotiv',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1266,7 +1350,10 @@ class Freizeitsportarten(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1288,7 +1375,12 @@ class Fundamenttypen_RSAG(Codelist):
   Fundamenttypen für Masten innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG
   """
 
-  typ = CharField(verbose_name='Typ', max_length=255, unique=True, validators=standard_validators)
+  typ = CharField(
+    verbose_name='Typ',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
+  )
   erlaeuterung = CharField(
     verbose_name='Erläuterung', max_length=255, validators=standard_validators
   )
@@ -1322,7 +1414,10 @@ class Gebaeudearten_Meldedienst_punkthaft(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1397,7 +1492,10 @@ class Genehmigungsbehoerden_UVP_Vorhaben(Codelist):
   """
 
   genehmigungsbehoerde = CharField(
-    verbose_name='Genehmigungsbehörde', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Genehmigungsbehörde',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1421,7 +1519,10 @@ class Geschlechter_Kadaverfunde(Codelist):
 
   ordinalzahl = PositiveSmallIntegerRangeField(verbose_name='Ordinalzahl', min_value=1)
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1465,7 +1566,11 @@ class Haefen(Codelist):
 
   class BasemodelMeta(Codelist.BasemodelMeta):
     description = 'Häfen'
-    list_fields = {'bezeichnung': 'Bezeichnung', 'abkuerzung': 'Abkürzung', 'code': 'Code'}
+    list_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'abkuerzung': 'Abkürzung',
+      'code': 'Code',
+    }
 
   def __str__(self):
     return self.bezeichnung
@@ -1505,7 +1610,10 @@ class Kabeltypen_Lichtwellenleiterinfrastruktur(Codelist):
   """
 
   kabeltyp = CharField(
-    verbose_name='Kabeltyp', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Kabeltyp',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1544,7 +1652,11 @@ class Kategorien_Strassen(Codelist):
   class BasemodelMeta(Codelist.BasemodelMeta):
     description = 'Kategorien von Straßen'
     naming = 'bezeichnung'
-    list_fields = {'code': 'Code', 'bezeichnung': 'Bezeichnung', 'erlaeuterung': 'Erläuterung'}
+    list_fields = {
+      'code': 'Code',
+      'bezeichnung': 'Bezeichnung',
+      'erlaeuterung': 'Erläuterung',
+    }
 
   def __str__(self):
     return self.bezeichnung
@@ -1559,7 +1671,11 @@ class Labore_Baugrunduntersuchungen(Codelist):
     verbose_name='Bezeichnung', max_length=255, validators=standard_validators
   )
   anschrift = CharField(
-    verbose_name='Anschrift', max_length=255, blank=True, null=True, validators=standard_validators
+    verbose_name='Anschrift',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
   )
   telefon = CharField(
     verbose_name='Telefon',
@@ -1602,7 +1718,10 @@ class Ladekarten_Ladestationen_Elektrofahrzeuge(Codelist):
   """
 
   ladekarte = CharField(
-    verbose_name='Ladekarte', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Ladekarte',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1625,10 +1744,16 @@ class Leerungszeiten(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
   leerungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
-    verbose_name='Leerungshäufigkeit pro Jahr', min_value=1, blank=True, null=True
+    verbose_name='Leerungshäufigkeit pro Jahr',
+    min_value=1,
+    blank=True,
+    null=True,
   )
 
   class Meta(Codelist.Meta):
@@ -1680,7 +1805,10 @@ class Mastkennzeichen_RSAG(Codelist):
   """
 
   kennzeichen = CharField(
-    verbose_name='Kennzeichen', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Kennzeichen',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
   erlaeuterung = CharField(
     verbose_name='Erläuterung', max_length=255, validators=standard_validators
@@ -1712,7 +1840,10 @@ class Masttypen_Haltestellenkataster(Codelist):
   """
 
   masttyp = CharField(
-    verbose_name='Masttyp', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Masttyp',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1734,7 +1865,12 @@ class Masttypen_RSAG(Codelist):
   Masttypen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG
   """
 
-  typ = CharField(verbose_name='Typ', max_length=255, unique=True, validators=standard_validators)
+  typ = CharField(
+    verbose_name='Typ',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
+  )
   erlaeuterung = CharField(
     verbose_name='Erläuterung', max_length=255, validators=standard_validators
   )
@@ -1789,7 +1925,10 @@ class Objektarten_Lichtwellenleiterinfrastruktur(Codelist):
   """
 
   objektart = CharField(
-    verbose_name='Objektart', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Objektart',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1833,7 +1972,10 @@ class Personentitel(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1925,7 +2067,10 @@ class Rechtsgrundlagen_UVP_Vorhaben(Codelist):
   """
 
   rechtsgrundlage = CharField(
-    verbose_name='Rechtsgrundlage', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Rechtsgrundlage',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -1984,10 +2129,15 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(Codelist):
     verbose_name='Ordinalzahl', min_value=1, unique=True
   )
   reinigungsrhythmus = CharField(
-    verbose_name='Reinigungsrhythmus', max_length=255, validators=standard_validators
+    verbose_name='Reinigungsrhythmus',
+    max_length=255,
+    validators=standard_validators,
   )
   reinigungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
-    verbose_name='Reinigungshäufigkeit pro Jahr', min_value=1, blank=True, null=True
+    verbose_name='Reinigungshäufigkeit pro Jahr',
+    min_value=1,
+    blank=True,
+    null=True,
   )
 
   class Meta(Codelist.Meta):
@@ -2021,7 +2171,10 @@ class Schaeden_Haltestellenkataster(Codelist):
   """
 
   schaden = CharField(
-    verbose_name='Schaden', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Schaden',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2072,7 +2225,10 @@ class Sitzbanktypen_Haltestellenkataster(Codelist):
   """
 
   sitzbanktyp = CharField(
-    verbose_name='Sitzbanktyp', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Sitzbanktyp',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2095,7 +2251,10 @@ class Sparten_Baustellen(Codelist):
   """
 
   sparte = CharField(
-    verbose_name='Sparte', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Sparte',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2118,7 +2277,10 @@ class Spielgeraete(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2141,7 +2303,10 @@ class Sportarten(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2220,7 +2385,10 @@ class Themen_Jagdkataster_Skizzenebenen(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2243,7 +2411,10 @@ class Tierseuchen(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2265,6 +2436,13 @@ class Typen_Abfallbehaelter(Typ):
   Typen von Abfallbehältern
   """
 
+  model_3d = CharField(
+    max_length=255,
+    verbose_name='3D-Modell',
+    blank=True,
+    null=True,
+  )
+
   class Meta(Typ.Meta):
     db_table = 'codelisten"."typen_abfallbehaelter'
     verbose_name = 'Typ eines Abfallbehälters'
@@ -2272,6 +2450,9 @@ class Typen_Abfallbehaelter(Typ):
 
   class BasemodelMeta(Typ.BasemodelMeta):
     description = 'Typen von Abfallbehältern'
+    git_repo_of_3d_models = (
+      'https://github.com/rostock/3DModels/tree/main/Thumbnails/Abfallbehaelter'
+    )
 
 
 class Typen_Erdwaermesonden(Typ):
@@ -2330,6 +2511,41 @@ class Typen_Kleinklaeranlagen(Typ):
     description = 'Typen von Kleinkläranlagen'
 
 
+class Typen_Naturdenkmale(Codelist):
+  """
+  Typen von Naturdenkmalen
+  """
+
+  art = ForeignKey(
+    to=Arten_Naturdenkmale,
+    verbose_name='Art',
+    on_delete=RESTRICT,
+    db_column='art',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_arten',
+  )
+  typ = CharField(
+    verbose_name='Typ',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten"."typen_naturdenkmale'
+    ordering = ['typ']
+    verbose_name = 'Typ eines Naturdenkmals'
+    verbose_name_plural = 'Typen von Naturdenkmalen'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Typen von Naturdenkmalen'
+    list_fields = {'art': 'Art', 'typ': 'Typ'}
+    list_fields_with_foreign_key = {'art': 'Art'}
+
+  def __str__(self):
+    return f'{self.typ}'
+
+
 class Typen_Versenkpoller(Typ):
   """
   Typen von Versenkpollern
@@ -2364,7 +2580,10 @@ class Verbuende_Ladestationen_Elektrofahrzeuge(Codelist):
   """
 
   verbund = CharField(
-    verbose_name='Verbund', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Verbund',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2387,7 +2606,10 @@ class Verkehrliche_Lagen_Baustellen(Codelist):
   """
 
   verkehrliche_lage = CharField(
-    verbose_name=' verkehrliche Lage', max_length=255, unique=True, validators=standard_validators
+    verbose_name=' verkehrliche Lage',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2436,7 +2658,10 @@ class Vorgangsarten_UVP_Vorhaben(Codelist):
   """
 
   vorgangsart = CharField(
-    verbose_name='Vorgangsart', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Vorgangsart',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2459,7 +2684,10 @@ class Wartungsfirmen_Versenkpoller(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2564,10 +2792,15 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(Codelist):
     verbose_name='Ordinalzahl', min_value=1, unique=True
   )
   reinigungsrhythmus = CharField(
-    verbose_name='Reinigungsrhythmus', max_length=255, validators=standard_validators
+    verbose_name='Reinigungsrhythmus',
+    max_length=255,
+    validators=standard_validators,
   )
   reinigungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
-    verbose_name='Reinigungshäufigkeit pro Jahr', min_value=1, blank=True, null=True
+    verbose_name='Reinigungshäufigkeit pro Jahr',
+    min_value=1,
+    blank=True,
+    null=True,
   )
 
   class Meta(Codelist.Meta):
@@ -2604,7 +2837,10 @@ class Wegetypen_Strassenreinigungssatzung_HRO(Codelist):
   """
 
   wegetyp = CharField(
-    verbose_name='Wegetyp', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Wegetyp',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2633,7 +2869,10 @@ class Zeiteinheiten(Codelist):
   """
 
   zeiteinheit = CharField(
-    verbose_name='Zeiteinheit', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Zeiteinheit',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
   erlaeuterung = CharField(
     verbose_name='Erläuterung', max_length=255, validators=standard_validators
@@ -2659,7 +2898,10 @@ class ZH_Typen_Haltestellenkataster(Codelist):
   """
 
   zh_typ = CharField(
-    verbose_name='ZH-Typ', max_length=255, unique=True, validators=standard_validators
+    verbose_name='ZH-Typ',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2687,7 +2929,8 @@ class Zonen_Parkscheinautomaten(Codelist):
     unique=True,
     validators=[
       RegexValidator(
-        regex=parkscheinautomaten_zone_regex, message=parkscheinautomaten_zone_message
+        regex=parkscheinautomaten_zone_regex,
+        message=parkscheinautomaten_zone_message,
       )
     ],
   )
@@ -2713,7 +2956,10 @@ class Zustaende_Kadaverfunde(Codelist):
 
   ordinalzahl = PositiveSmallIntegerRangeField(verbose_name='Ordinalzahl', min_value=1)
   zustand = CharField(
-    verbose_name='Zustand', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Zustand',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):
@@ -2738,7 +2984,10 @@ class Zustaende_Schutzzaeune_Tierseuchen(Codelist):
 
   ordinalzahl = PositiveSmallIntegerRangeField(verbose_name='Ordinalzahl', min_value=1)
   zustand = CharField(
-    verbose_name='Zustand', max_length=255, unique=True, validators=standard_validators
+    verbose_name='Zustand',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
   )
 
   class Meta(Codelist.Meta):

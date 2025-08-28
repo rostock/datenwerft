@@ -1,3 +1,4 @@
+import uuid
 from datetime import date, datetime, timezone
 from itertools import groupby
 from logging import getLogger
@@ -63,6 +64,21 @@ def find_in_wfs_features(string, search_element, wfs_features):
     if properties.get(search_element) == string:
       return True
   return False
+
+
+def format_boolean(value):
+  """
+  formats boolean and returns appropriate boolean string
+
+  :param value: boolean
+  :return: appropriate boolean string
+  """
+  if isinstance(value, bool) and value:
+    return 'ja'
+  elif isinstance(value, bool) and not value:
+    return 'nein'
+  else:
+    return ''
 
 
 def format_date_datetime(value, time_string_only=False):
@@ -258,6 +274,21 @@ def is_geometry_field(field):
     return True
   else:
     return False
+
+
+def is_valid_uuid(uuid_value, version=4):
+  """
+  checks if passed UUID value is a valid UUID
+
+  :param uuid_value: UUID value
+  :param version: UUID version to check against
+  :return: True if passed UUID value is a valid UUID, False otherwise
+  """
+  try:
+    uuid.UUID(uuid_value, version=version)
+  except ValueError:
+    return False
+  return True
 
 
 def optimize_datatable_filter(search_element, search_column, qs_params_inner):

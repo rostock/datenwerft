@@ -29,3 +29,5 @@ venv/
 
 # docker
 docker-compose.override.yml
+
+uv.lock

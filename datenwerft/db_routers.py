@@ -4,7 +4,14 @@ class DatabaseRouter:
   on various apps
   """
 
-  route_app_labels = {'antragsmanagement', 'bemas', 'datenmanagement', 'gdihrometadata'}
+  route_app_labels = {
+    'antragsmanagement',
+    'bemas',
+    'datenmanagement',
+    'fmm',
+    'gdihrocodelists',
+    'gdihrometadata',
+  }
 
   def db_for_read(self, model, **hints):
     """
@@ -18,6 +25,10 @@ class DatabaseRouter:
         return 'bemas'
       elif model._meta.app_label == 'datenmanagement':
         return 'datenmanagement'
+      elif model._meta.app_label == 'fmm':
+        return 'fmm'
+      elif model._meta.app_label == 'gdihrocodelists':
+        return 'gdihrocodelists'
       elif model._meta.app_label == 'gdihrometadata':
         return 'gdihrometadata'
     return 'default'
@@ -34,6 +45,10 @@ class DatabaseRouter:
         return 'bemas'
       elif model._meta.app_label == 'datenmanagement':
         return 'datenmanagement'
+      elif model._meta.app_label == 'fmm':
+        return 'fmm'
+      elif model._meta.app_label == 'gdihrocodelists':
+        return 'gdihrocodelists'
       elif model._meta.app_label == 'gdihrometadata':
         return 'gdihrometadata'
     return 'default'
