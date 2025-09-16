@@ -1,19 +1,31 @@
 import base64
+import logging
 from typing import List
 from urllib.parse import urlencode
-import logging
 
 import requests
 from django.core.files.uploadedfile import UploadedFile
 from requests import Response
 
-from d3.api import ObjectDefinition, ObjectDefinitionPropertyField, SourcePropertyValue, DateiInhalt
+from d3.api import (
+  DateiInhalt,
+  ObjectDefinition,
+  ObjectDefinitionPropertyField,
+  SourcePropertyValue,
+)
 from d3.api.responses import DmsObject
-from datenwerft.settings import APPLICATION_HTTP_USER_AGENT, D3_HOST, D3_AKTEN_CATEGORY, D3_VORGANG_CATEGORY, \
-  D3_VORGANGS_TITEL_ID, D3_VORGANGS_TYP_ID, D3_DATEI_CATEGORY
+from datenwerft.settings import (
+  APPLICATION_HTTP_USER_AGENT,
+  D3_AKTEN_CATEGORY,
+  D3_DATEI_CATEGORY,
+  D3_HOST,
+  D3_VORGANG_CATEGORY,
+  D3_VORGANGS_TITEL_ID,
+  D3_VORGANGS_TYP_ID,
+)
+
 
 class D3AuthenticationApi:
-
   logger = logging.getLogger(__name__)
 
   def lade_access_token(self, username: str, password: str) -> str | None:
@@ -30,32 +42,43 @@ class D3AuthenticationApi:
     Rückgabe:
         str | None: AccessToken der Authentifizierung.
     """
-    basic_header = base64.b64encode(f"{username}:{password}".encode('ascii'))
+    basic_header = base64.b64encode(f'{username}:{password}'.encode('ascii'))
 
     request_headers = {
-      "User-Agent": APPLICATION_HTTP_USER_AGENT,
-      "Accept": "application/json",
-      "Authorization": "Basic " + basic_header.decode('utf-8')
+      'User-Agent': APPLICATION_HTTP_USER_AGENT,
+      'Accept': 'application/json',
+      'Authorization': 'Basic ' + basic_header.decode('utf-8'),
     }
 
-    self.logger.debug("Sending request to " + D3_HOST + "/dms/r/ with Headers: " + request_headers.__str__())
-    response = requests.get(D3_HOST + "/dms/r/", headers = request_headers, timeout = 5)
+    self.logger.debug(
+      'Sending request to ' + D3_HOST + '/dms/r/ with Headers: ' + request_headers.__str__()
+    )
+    response = requests.get(D3_HOST + '/dms/r/', headers=request_headers, timeout=5)
 
     if response.status_code >= 400:
-      self.logger.error("Authentication failed with status code " + str(response.status_code) + " and message " + response.text)
-      raise Exception("Authentication failed with status code " + str(response.status_code) + " and message " + response.text)
+      self.logger.error(
+        'Authentication failed with status code '
+        + str(response.status_code)
+        + ' and message '
+        + response.text
+      )
+      raise Exception(
+        'Authentication failed with status code '
+        + str(response.status_code)
+        + ' and message '
+        + response.text
+      )
 
-    return response.cookies.get("AuthSessionId")
+    return response.cookies.get('AuthSessionId')
+
 
 class D3Api:
-
   logger = logging.getLogger(__name__)
 
   accessToken: str
   baseUrl: str
 
   def __init__(self, access_token: str):
-
     self.accessToken = access_token
     self.baseUrl = D3_HOST
 
@@ -87,42 +110,53 @@ class D3Api:
     Returns:
         ObjectDefinition: Objektdefinition der Kategorie
     """
-    response = self.__get(f"/dms/r/{repository_id}/objdef", {})
+    response = self.__get(f'/dms/r/{repository_id}/objdef', {})
 
     if response.status_code >= 400:
-      self.logger.error("Objekt Definition konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text)
-      raise Exception("Objekt Definition konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text)
+      self.logger.error(
+        'Objekt Definition konnte nicht geladen werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+      )
+      raise Exception(
+        'Objekt Definition konnte nicht geladen werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+      )
 
     json_response = response.json()
 
-    for object_definition_json in json_response["objectDefinitions"]:
-
-      if "uniqueId" not in object_definition_json or object_definition_json["uniqueId"] != category_id:
+    for object_definition_json in json_response['objectDefinitions']:
+      if (
+        'uniqueId' not in object_definition_json
+        or object_definition_json['uniqueId'] != category_id
+      ):
         continue
 
       property_fields = []
 
-      for property_json_object in object_definition_json["propertyFields"]:
-
+      for property_json_object in object_definition_json['propertyFields']:
         property_definition = ObjectDefinitionPropertyField()
-        property_definition.id = property_json_object["id"]
-        property_definition.uniqueId = property_json_object["uniqueId"]
-        property_definition.displayName = property_json_object["displayName"]
-        property_definition.isMandatory = property_json_object["isMandatory"]
-        property_definition.dataType = property_json_object["dataType"]
+        property_definition.id = property_json_object['id']
+        property_definition.uniqueId = property_json_object['uniqueId']
+        property_definition.displayName = property_json_object['displayName']
+        property_definition.isMandatory = property_json_object['isMandatory']
+        property_definition.dataType = property_json_object['dataType']
         property_fields.append(property_definition)
 
       object_definition = ObjectDefinition()
-      object_definition.id = object_definition_json["id"]
-      object_definition.uniqueId = object_definition_json["uniqueId"]
-      object_definition.displayName = object_definition_json["displayName"]
-      object_definition.writeAccess = object_definition_json["writeAccess"]
-      object_definition.objectType = object_definition_json["objectType"]
+      object_definition.id = object_definition_json['id']
+      object_definition.uniqueId = object_definition_json['uniqueId']
+      object_definition.displayName = object_definition_json['displayName']
+      object_definition.writeAccess = object_definition_json['writeAccess']
+      object_definition.objectType = object_definition_json['objectType']
       object_definition.propertyFields = property_fields
 
       return object_definition
 
-    raise Exception(f"Objekt Definition für Kategorie {category_id} konnte nicht geladen werden.")
+    raise Exception(f'Objekt Definition für Kategorie {category_id} konnte nicht geladen werden.')
 
   def erstelle_akte(self, repository_id: str, properties: dict[str, str]) -> str:
     """
@@ -157,30 +191,48 @@ class D3Api:
     mapped_properties = []
 
     for key, value in properties.items():
-
-      mapped_properties.append({"key": key, "values": [value]})
+      mapped_properties.append({'key': key, 'values': [value]})
 
     json_body = {
-      "sourceCategory": D3_AKTEN_CATEGORY,
-      "sourceId": f"/dms/r/{repository_id}/source",
-      "sourceProperties": {
-        "properties": mapped_properties,
+      'sourceCategory': D3_AKTEN_CATEGORY,
+      'sourceId': f'/dms/r/{repository_id}/source',
+      'sourceProperties': {
+        'properties': mapped_properties,
       },
     }
 
-    response = self.__post(f"/dms/r/{repository_id}/o2m", json_body)
+    response = self.__post(f'/dms/r/{repository_id}/o2m', json_body)
 
     if response.status_code >= 400:
-      self.logger.error("Akte konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
-      raise Exception("Akte konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
+      self.logger.error(
+        'Akte konnte nicht erstellt werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+        + ''
+      )
+      raise Exception(
+        'Akte konnte nicht erstellt werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+        + ''
+      )
 
-    location_header = response.headers.get("Location")
+    location_header = response.headers.get('Location')
 
-    d3_id_with_query = location_header.replace(f"/dms/r/{repository_id}/o2m/", "")
-    query_start = d3_id_with_query.find("?")
+    d3_id_with_query = location_header.replace(f'/dms/r/{repository_id}/o2m/', '')
+    query_start = d3_id_with_query.find('?')
     return d3_id_with_query[:query_start]
 
-  def erstelle_vorgang(self, repository_id: str, parent_id: str, name: str | None, vorgangs_typ: str, properties: dict[str, str | List[str]]) -> str:
+  def erstelle_vorgang(
+    self,
+    repository_id: str,
+    parent_id: str,
+    name: str | None,
+    vorgangs_typ: str,
+    properties: dict[str, str | List[str]],
+  ) -> str:
     """
     Erstellt einen neuen Vorgang in der D3 API. Alle notwendigen properties müssen übergeben werden, da es sonst zu einem
     Fehler in der D3 Api kommt. Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der
@@ -214,48 +266,58 @@ class D3Api:
         DmsObject: neu erstellter Vorgang
     """
 
-    mapped_properties = [
-      {"key": D3_VORGANGS_TITEL_ID, "values": [name]}
-    ]
+    mapped_properties = [{'key': D3_VORGANGS_TITEL_ID, 'values': [name]}]
 
     if None != D3_VORGANGS_TYP_ID:
-      mapped_properties.append({
-        "key": D3_VORGANGS_TYP_ID,
-        "values": [vorgangs_typ]
-      })
+      mapped_properties.append({'key': D3_VORGANGS_TYP_ID, 'values': [vorgangs_typ]})
 
     for key, value in properties.items():
-
       if isinstance(value, list):
-        mapped_properties.append({
-          "key": key,
-          "values": value,
-        })
+        mapped_properties.append(
+          {
+            'key': key,
+            'values': value,
+          }
+        )
       else:
-        mapped_properties.append({
-          "key": key,
-          "values": [value],
-        })
+        mapped_properties.append(
+          {
+            'key': key,
+            'values': [value],
+          }
+        )
 
     json_body = {
-      "sourceCategory": D3_VORGANG_CATEGORY,
-      "sourceId": f"/dms/r/{repository_id}/source",
-      "parentId": parent_id,
-      "sourceProperties": {
-        "properties": mapped_properties,
+      'sourceCategory': D3_VORGANG_CATEGORY,
+      'sourceId': f'/dms/r/{repository_id}/source',
+      'parentId': parent_id,
+      'sourceProperties': {
+        'properties': mapped_properties,
       },
     }
 
-    response = self.__post(f"/dms/r/{repository_id}/o2m", json_body)
+    response = self.__post(f'/dms/r/{repository_id}/o2m', json_body)
 
     if response.status_code >= 400:
-      self.logger.error("Vorgang konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
-      raise Exception("Vorgang konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
+      self.logger.error(
+        'Vorgang konnte nicht erstellt werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+        + ''
+      )
+      raise Exception(
+        'Vorgang konnte nicht erstellt werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+        + ''
+      )
 
-    location_header = response.headers.get("Location")
+    location_header = response.headers.get('Location')
 
-    d3_id_with_query = location_header.replace(f"/dms/r/{repository_id}/o2m/", "")
-    query_start = d3_id_with_query.find("?")
+    d3_id_with_query = location_header.replace(f'/dms/r/{repository_id}/o2m/', '')
+    query_start = d3_id_with_query.find('?')
     return d3_id_with_query[:query_start]
 
   def lade_dokument(self, repository_id: str, dokumenten_id: str):
@@ -289,11 +351,23 @@ class D3Api:
     Returns:
         DmsObject: Vorgang aus dem d3 System
     """
-    response = self.__get(f"/dms/r/{repository_id}/o2m/{dokumenten_id}", {"sourceId": f"/dms/r/{repository_id}/source"})
+    response = self.__get(
+      f'/dms/r/{repository_id}/o2m/{dokumenten_id}', {'sourceId': f'/dms/r/{repository_id}/source'}
+    )
 
     if response.status_code >= 400:
-      self.logger.error("Dokument konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text)
-      raise Exception("Dokument konnte nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text)
+      self.logger.error(
+        'Dokument konnte nicht geladen werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+      )
+      raise Exception(
+        'Dokument konnte nicht geladen werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+      )
 
     return self.__map_dms_object(response.json())
 
@@ -340,18 +414,28 @@ class D3Api:
     """
 
     params = {
-      "children_of": vorgangs_id,
-      "sourceId": f"/dms/r/{repository_id}/source",
+      'children_of': vorgangs_id,
+      'sourceId': f'/dms/r/{repository_id}/source',
     }
 
-    response = self.__get(f"/dms/r/{repository_id}/srm", params)
+    response = self.__get(f'/dms/r/{repository_id}/srm', params)
 
     if response.status_code >= 400:
-      self.logger.error("Dateien konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text)
-      raise Exception("Dateien konnten nicht geladen werden. Status code: " + str(response.status_code) + " Message: " + response.text)
+      self.logger.error(
+        'Dateien konnten nicht geladen werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+      )
+      raise Exception(
+        'Dateien konnten nicht geladen werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+      )
 
     dateien = []
-    for item_json in response.json()["items"]:
+    for item_json in response.json()['items']:
       dateien.append(self.__map_dms_object(item_json))
 
     return dateien
@@ -373,29 +457,45 @@ class D3Api:
       str | None: content_uri der hochgeladenen Datei
     """
     if not file.multiple_chunks():
-      response = self.__post_file(f"/dms/r/{repository_id}/blob/chunk/", file)
+      response = self.__post_file(f'/dms/r/{repository_id}/blob/chunk/', file)
       return response.headers.get('Location')
     else:
       content_location = None
 
       for chunk in file.chunks():
-
         if None == content_location:
-          response = self.__post_file(f"/dms/r/{repository_id}/blob/chunk/", chunk)
+          response = self.__post_file(f'/dms/r/{repository_id}/blob/chunk/', chunk)
 
           if response.status_code >= 400:
-            raise Exception("Datei konnte nicht hochgeladen werden. Status code: " + str(response.status_code) + " Message: " + response.text)
+            raise Exception(
+              'Datei konnte nicht hochgeladen werden. Status code: '
+              + str(response.status_code)
+              + ' Message: '
+              + response.text
+            )
 
           content_location = response.headers.get('Location')
         else:
           response = self.__post_file(content_location, chunk)
 
           if response.status_code >= 400:
-            raise Exception("Datei konnte nicht hochgeladen werden. Status code: " + str(response.status_code) + " Message: " + response.text)
+            raise Exception(
+              'Datei konnte nicht hochgeladen werden. Status code: '
+              + str(response.status_code)
+              + ' Message: '
+              + response.text
+            )
 
       return content_location
 
-  def erstelle_dokument(self, repository_id: str, parent_id: str, name: str, temp_file_uri: str, properties: dict[str, str | List[str]]) -> str:
+  def erstelle_dokument(
+    self,
+    repository_id: str,
+    parent_id: str,
+    name: str,
+    temp_file_uri: str,
+    properties: dict[str, str | List[str]],
+  ) -> str:
     """
     Erstellt ein neues Dokument in der D3 API und verlinkt die hochgeladene Datei mit dem Dokument. Die Id des neuen
     DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der D3 API in der Response zurückgegeben wird.
@@ -433,42 +533,65 @@ class D3Api:
     mapped_properties = []
 
     for key, value in properties.items():
-
       if isinstance(value, list):
-        mapped_properties.append({
-          "key": key,
-          "values": value,
-        })
+        mapped_properties.append(
+          {
+            'key': key,
+            'values': value,
+          }
+        )
       else:
-        mapped_properties.append({
-          "key": key,
-          "values": [value],
-        })
+        mapped_properties.append(
+          {
+            'key': key,
+            'values': [value],
+          }
+        )
 
     json_body = {
-      "sourceId": f"/dms/r/{repository_id}/source",
-      "sourceCategory": D3_DATEI_CATEGORY,
-      "contentLocationUri": temp_file_uri,
-      "filename": name,
-      "parentId": parent_id,
-      "sourceProperties": {
-        "properties": mapped_properties,
+      'sourceId': f'/dms/r/{repository_id}/source',
+      'sourceCategory': D3_DATEI_CATEGORY,
+      'contentLocationUri': temp_file_uri,
+      'filename': name,
+      'parentId': parent_id,
+      'sourceProperties': {
+        'properties': mapped_properties,
       },
     }
 
-    response = self.__post(f"/dms/r/{repository_id}/o2m", json_body)
+    response = self.__post(f'/dms/r/{repository_id}/o2m', json_body)
 
     if response.status_code >= 400:
-      self.logger.error("Datei konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
-      raise Exception("Datei konnte nicht erstellt werden. Status code: " + str(response.status_code) + " Message: " + response.text + "")
+      self.logger.error(
+        'Datei konnte nicht erstellt werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+        + ''
+      )
+      raise Exception(
+        'Datei konnte nicht erstellt werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+        + ''
+      )
 
-    location_header = response.headers.get("Location")
+    location_header = response.headers.get('Location')
 
-    d3_id_with_query = location_header.replace(f"/dms/r/{repository_id}/o2m/", "")
-    query_start = d3_id_with_query.find("?")
+    d3_id_with_query = location_header.replace(f'/dms/r/{repository_id}/o2m/', '')
+    query_start = d3_id_with_query.find('?')
     return d3_id_with_query[:query_start]
 
-  def bearbeite_dokument(self, repository_id: str, parent_id: str, d3_id: str | None, name: str | None, temp_file_uri: str | None, properties: dict[str, str | List[str]]) -> str:
+  def bearbeite_dokument(
+    self,
+    repository_id: str,
+    parent_id: str,
+    d3_id: str | None,
+    name: str | None,
+    temp_file_uri: str | None,
+    properties: dict[str, str | List[str]],
+  ) -> str:
     """
     Bearbeitet eine bereits existierende Datei und gib das aktualisierte Objekt zurück.
 
@@ -522,38 +645,51 @@ class D3Api:
     mapped_properties = []
 
     for key, value in properties.items():
-
       if isinstance(value, list):
-        mapped_properties.append({
-          "key": key,
-          "values": value,
-        })
+        mapped_properties.append(
+          {
+            'key': key,
+            'values': value,
+          }
+        )
       else:
-        mapped_properties.append({
-          "key": key,
-          "values": [value],
-        })
+        mapped_properties.append(
+          {
+            'key': key,
+            'values': [value],
+          }
+        )
 
     json_body = {
-      "dmsObjectId": d3_id,
-      "sourceId": f"/dms/r/{repository_id}/source",
-      "sourceCategory": D3_DATEI_CATEGORY,
-      "contentLocationUri": temp_file_uri,
-      "filename": name,
-      "parentId": parent_id,
-      "sourceProperties": {
-        "properties": mapped_properties,
+      'dmsObjectId': d3_id,
+      'sourceId': f'/dms/r/{repository_id}/source',
+      'sourceCategory': D3_DATEI_CATEGORY,
+      'contentLocationUri': temp_file_uri,
+      'filename': name,
+      'parentId': parent_id,
+      'sourceProperties': {
+        'properties': mapped_properties,
       },
     }
 
     if temp_file_uri:
-      json_body["alterationText"] = "updated file"
+      json_body['alterationText'] = 'updated file'
 
-    response = self.__put(f"/dms/r/{repository_id}/o2m/{d3_id}", json_body)
+    response = self.__put(f'/dms/r/{repository_id}/o2m/{d3_id}', json_body)
 
     if response.status_code >= 400:
-      self.logger.error("Datei konnte nicht bearbeitet werden. Status code: " + str(response.status_code) + " Message: " + response.text)
-      raise Exception("Datei konnte nicht bearbeitet werden. Status code: " + str(response.status_code) + " Message: " + response.text)
+      self.logger.error(
+        'Datei konnte nicht bearbeitet werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+      )
+      raise Exception(
+        'Datei konnte nicht bearbeitet werden. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+      )
 
     return d3_id
 
@@ -569,30 +705,56 @@ class D3Api:
         DateiInhalt: geladene Datei aus d3
     """
 
-    file_response = self.__get(f"/dms/r/{repository_id}/o2m/{file_id}", {
-      "sourceId": f"/dms/r/{repository_id}/source",
-    })
+    file_response = self.__get(
+      f'/dms/r/{repository_id}/o2m/{file_id}',
+      {
+        'sourceId': f'/dms/r/{repository_id}/source',
+      },
+    )
 
     if file_response.status_code >= 400:
-      self.logger.error("Datei konnte nicht geladen werden. Status code: " + str(file_response.status_code) + " Message: " + file_response.text + "")
-      raise Exception("Datei konnte nicht geladen werden. Status code: " + str(file_response.status_code) + " Message: " + file_response.text + "")
+      self.logger.error(
+        'Datei konnte nicht geladen werden. Status code: '
+        + str(file_response.status_code)
+        + ' Message: '
+        + file_response.text
+        + ''
+      )
+      raise Exception(
+        'Datei konnte nicht geladen werden. Status code: '
+        + str(file_response.status_code)
+        + ' Message: '
+        + file_response.text
+        + ''
+      )
 
-    content_url = file_response.json()["_links"]["mainblobcontent"]["href"]
+    content_url = file_response.json()['_links']['mainblobcontent']['href']
     file_name = None
     mime_type = None
 
-    for source_property in file_response.json()["sourceProperties"]:
-
-      if "property_filename" == source_property["key"]:
-        file_name = source_property["value"]
-      if "property_filemimetype" == source_property["key"]:
-        mime_type = source_property["value"]
+    for source_property in file_response.json()['sourceProperties']:
+      if 'property_filename' == source_property['key']:
+        file_name = source_property['value']
+      if 'property_filemimetype' == source_property['key']:
+        mime_type = source_property['value']
 
     content_response = self.__get(content_url, {})
 
     if content_response.status_code >= 400:
-      self.logger.error("Datei Content konnte nicht geladen werden. Status code: " + str(content_response.status_code) + " Message: " + content_response.text + "")
-      raise Exception("Datei Content konnte nicht geladen werden. Status code: " + str(content_response.status_code) + " Message: " + content_response.text + "")
+      self.logger.error(
+        'Datei Content konnte nicht geladen werden. Status code: '
+        + str(content_response.status_code)
+        + ' Message: '
+        + content_response.text
+        + ''
+      )
+      raise Exception(
+        'Datei Content konnte nicht geladen werden. Status code: '
+        + str(content_response.status_code)
+        + ' Message: '
+        + content_response.text
+        + ''
+      )
 
     return DateiInhalt(file_name, mime_type, content_response.content)
 
@@ -610,14 +772,18 @@ class D3Api:
       RequestException: Raised for underlying errors in obtaining the response.
     """
     request_headers = {
-      "User-Agent": APPLICATION_HTTP_USER_AGENT,
-      "Accept": "application/json",
+      'User-Agent': APPLICATION_HTTP_USER_AGENT,
+      'Accept': 'application/json',
     }
 
-    full_url = self.baseUrl + url + "?" + urlencode(params)
+    full_url = self.baseUrl + url + '?' + urlencode(params)
 
-    self.logger.debug("Sending request to " + full_url + " with Headers: " + request_headers.__str__())
-    return requests.get(full_url, headers = request_headers, cookies={"AuthSessionId": self.accessToken})
+    self.logger.debug(
+      'Sending request to ' + full_url + ' with Headers: ' + request_headers.__str__()
+    )
+    return requests.get(
+      full_url, headers=request_headers, cookies={'AuthSessionId': self.accessToken}
+    )
 
   def __post(self, url: str, json: any) -> Response:
     """
@@ -635,13 +801,26 @@ class D3Api:
     """
 
     request_headers = {
-      "User-Agent": APPLICATION_HTTP_USER_AGENT,
-      "Accept": "application/json",
-      "Content-Type": "application/json",
+      'User-Agent': APPLICATION_HTTP_USER_AGENT,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
     }
 
-    self.logger.debug("Sending request to " + self.baseUrl + url + " with Headers: " + request_headers.__str__() + " and JSON: " + json.__str__())
-    return requests.post(self.baseUrl + url, headers = request_headers, json = json, cookies={"AuthSessionId": self.accessToken})
+    self.logger.debug(
+      'Sending request to '
+      + self.baseUrl
+      + url
+      + ' with Headers: '
+      + request_headers.__str__()
+      + ' and JSON: '
+      + json.__str__()
+    )
+    return requests.post(
+      self.baseUrl + url,
+      headers=request_headers,
+      json=json,
+      cookies={'AuthSessionId': self.accessToken},
+    )
 
   def __put(self, url: str, json: any) -> Response:
     """
@@ -659,13 +838,26 @@ class D3Api:
     """
 
     request_headers = {
-      "User-Agent": APPLICATION_HTTP_USER_AGENT,
-      "Accept": "application/json",
-      "Content-Type": "application/json",
+      'User-Agent': APPLICATION_HTTP_USER_AGENT,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
     }
 
-    self.logger.debug("Sending request to " + self.baseUrl + url + " with Headers: " + request_headers.__str__() + " and JSON: " + json.__str__())
-    return requests.put(self.baseUrl + url, headers = request_headers, json = json, cookies={"AuthSessionId": self.accessToken})
+    self.logger.debug(
+      'Sending request to '
+      + self.baseUrl
+      + url
+      + ' with Headers: '
+      + request_headers.__str__()
+      + ' and JSON: '
+      + json.__str__()
+    )
+    return requests.put(
+      self.baseUrl + url,
+      headers=request_headers,
+      json=json,
+      cookies={'AuthSessionId': self.accessToken},
+    )
 
   def __post_file(self, url: str, file_content) -> Response:
     """
@@ -683,12 +875,17 @@ class D3Api:
     """
 
     request_headers = {
-      "User-Agent": APPLICATION_HTTP_USER_AGENT,
-      "Accept": "application/json",
-      "Content-Type": "application/octet-stream",
+      'User-Agent': APPLICATION_HTTP_USER_AGENT,
+      'Accept': 'application/json',
+      'Content-Type': 'application/octet-stream',
     }
 
-    return requests.post(self.baseUrl + url, headers = request_headers, data = file_content, cookies={"AuthSessionId": self.accessToken})
+    return requests.post(
+      self.baseUrl + url,
+      headers=request_headers,
+      data=file_content,
+      cookies={'AuthSessionId': self.accessToken},
+    )
 
   @staticmethod
   def __map_dms_object(json_object: any) -> DmsObject:
@@ -704,7 +901,9 @@ class D3Api:
 
     properties = []
 
-    for property_json in json_object["sourceProperties"]:
-      properties.append(SourcePropertyValue(property_json["key"], property_json["value"]))
+    for property_json in json_object['sourceProperties']:
+      properties.append(SourcePropertyValue(property_json['key'], property_json['value']))
 
-    return DmsObject(json_object["id"], properties, json_object["sourceCategories"], None, None, None)
+    return DmsObject(
+      json_object['id'], properties, json_object['sourceCategories'], None, None, None
+    )

@@ -55,7 +55,7 @@ urlpatterns = [
   path(route='accounts/', view=include('accounts.urls')),
   # ...Toolbox app
   path(route='toolbox/', view=include('toolbox.urls')),
-# ...d3 app
+  # ...d3 app
   path(route='d3/', view=include('d3.urls')),
   # ...Datenmanagement app
   path(route='datenmanagement/', view=include('datenmanagement.urls')),

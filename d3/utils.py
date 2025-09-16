@@ -1,13 +1,13 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.uploadedfile import UploadedFile
 from django.db.models import QuerySet
 
-from d3.api import D3Api, DmsObject
-from d3.api import DateiInhalt
-from d3.models import AktenOrdner, Akte, Metadaten, Vorgang, VorgangMetadaten, AktenOrdnerOption
-from datenwerft.settings import D3_REPOSITORY, D3_ENABLED
-from django.core.files.uploadedfile import UploadedFile
+from d3.api import D3Api, DateiInhalt, DmsObject
+from d3.models import Akte, AktenOrdner, AktenOrdnerOption, Metadaten, Vorgang, VorgangMetadaten
+from datenwerft.settings import D3_ENABLED, D3_REPOSITORY
 
-def lade_d3_session_id(request) -> str | None :
+
+def lade_d3_session_id(request) -> str | None:
   """
   Lese die D3 session id aus der Session des Clients.
 
@@ -22,6 +22,7 @@ def lade_d3_session_id(request) -> str | None :
 
   return request.session.get('d3_login')
 
+
 def lade_d3_api(request):
   """
   Initialisiert eine D3Api-Instanz mit einem geladenen Access-Token.
@@ -32,6 +33,7 @@ def lade_d3_api(request):
       D3Api: D3Api Client mit geladenen Access-Token
   """
   return D3Api(lade_d3_session_id(request))
+
 
 def lade_akten_ordner(content_type_id: int) -> AktenOrdner | None:
   """
@@ -50,7 +52,10 @@ def lade_akten_ordner(content_type_id: int) -> AktenOrdner | None:
   else:
     return akte[0]
 
-def lade_oder_erstelle_akte(request, content_type_id: int, object_id: str, akten_ordner: AktenOrdner) -> Akte:
+
+def lade_oder_erstelle_akte(
+  request, content_type_id: int, object_id: str, akten_ordner: AktenOrdner
+) -> Akte:
   """
   Lädt die d3 akte des objekts oder erstellt eine neue falls keine gefunden wurde.
 
@@ -64,10 +69,11 @@ def lade_oder_erstelle_akte(request, content_type_id: int, object_id: str, akten
       Akten: Die Akte für den content type
   """
   geladene_akten = Akte.objects.filter(model=content_type_id, object_id=object_id)
-  content_object = ContentType.objects.get_for_id(content_type_id).get_object_for_this_type(uuid=object_id)
+  content_object = ContentType.objects.get_for_id(content_type_id).get_object_for_this_type(
+    uuid=object_id
+  )
 
   if geladene_akten.count() == 0:
-
     d3_akte = erstelle_d3_akte(request, akten_ordner, content_object.__str__())
 
     akte = Akte()
@@ -79,14 +85,13 @@ def lade_oder_erstelle_akte(request, content_type_id: int, object_id: str, akten
   else:
     return geladene_akten[0]
 
-def erstelle_d3_akte(request, akten_ordner: AktenOrdner, name: str):
 
+def erstelle_d3_akte(request, akten_ordner: AktenOrdner, name: str):
   ordner_optionen = AktenOrdnerOption.objects.filter(akten_ordner=akten_ordner)
 
   properties = {}
 
   for option in ordner_optionen:
-
     if option.ist_namens_feld:
       properties[option.d3_id] = name
     else:
@@ -95,15 +100,13 @@ def erstelle_d3_akte(request, akten_ordner: AktenOrdner, name: str):
   api = lade_d3_api(request)
   return api.erstelle_akte(D3_REPOSITORY, properties)
 
-def fetch_processes(content_type_id: int, object_id: str) -> list[Vorgang]|None:
 
+def fetch_processes(content_type_id: int, object_id: str) -> list[Vorgang] | None:
   file = lade_akte(content_type_id, object_id)
 
   if file:
-
     processes = load_processes(file.id)
     if processes:
-
       return processes
 
   return None
@@ -128,7 +131,7 @@ def lade_akte(content_type_id: int, object_id: str) -> Akte | None:
     return files[0]
 
 
-def load_processes(akten_id:int) -> QuerySet[Vorgang]|None:
+def load_processes(akten_id: int) -> QuerySet[Vorgang] | None:
   """
   Lädt alle Vorgänge für die übergebene Akten ID.
 
@@ -145,6 +148,7 @@ def load_processes(akten_id:int) -> QuerySet[Vorgang]|None:
     return None
   else:
     return processes
+
 
 def lade_d3_properties(request, category_id: str) -> list[tuple[str, str]]:
   """
@@ -168,6 +172,7 @@ def lade_d3_properties(request, category_id: str) -> list[tuple[str, str]]:
 
   return options
 
+
 def suche_dateien(request, vorgangs_id: str) -> list[DmsObject]:
   """
   Suche alle Dateien für den vorgang mit der gegebenen ID im D3 DMS.
@@ -181,6 +186,7 @@ def suche_dateien(request, vorgangs_id: str) -> list[DmsObject]:
   """
   api = lade_d3_api(request)
   return api.suche_dokumente(D3_REPOSITORY, vorgangs_id)
+
 
 def lade_datei_inhalt(request, datei_id: str) -> DateiInhalt:
   """
@@ -196,7 +202,13 @@ def lade_datei_inhalt(request, datei_id: str) -> DateiInhalt:
   api = lade_d3_api(request)
   return api.lade_datei_inhalt(D3_REPOSITORY, datei_id)
 
-def erstelle_vorgang(request, vorgang: Vorgang, vorgang_metadaten: list[VorgangMetadaten], metadaten: QuerySet[Metadaten]) -> str:
+
+def erstelle_vorgang(
+  request,
+  vorgang: Vorgang,
+  vorgang_metadaten: list[VorgangMetadaten],
+  metadaten: QuerySet[Metadaten],
+) -> str:
   """
   Erstellt einen neuen Vorgang im D3 DMS mit den Daten aus dem Vorgang und deren Metadaten.
 
@@ -212,11 +224,9 @@ def erstelle_vorgang(request, vorgang: Vorgang, vorgang_metadaten: list[VorgangM
   properties = {}
 
   for metadaten_feld in metadaten:
-
     wert = None
 
     for metadaten_wert in vorgang_metadaten:
-
       if metadaten_wert.metadaten == metadaten_feld:
         wert = metadaten_wert.wert
         break
@@ -225,7 +235,10 @@ def erstelle_vorgang(request, vorgang: Vorgang, vorgang_metadaten: list[VorgangM
       properties[metadaten_feld.d3_id] = wert
 
   api = lade_d3_api(request)
-  return api.erstelle_vorgang(D3_REPOSITORY, vorgang.akten.d3_id, vorgang.titel, vorgang.vorgangs_typ, properties)
+  return api.erstelle_vorgang(
+    D3_REPOSITORY, vorgang.akten.d3_id, vorgang.titel, vorgang.vorgangs_typ, properties
+  )
+
 
 def lade_dokument(request, dokumenten_id: str) -> DmsObject:
   """
@@ -242,7 +255,10 @@ def lade_dokument(request, dokumenten_id: str) -> DmsObject:
   api = lade_d3_api(request)
   return api.lade_dokument(D3_REPOSITORY, dokumenten_id)
 
-def erstelle_dokument(request, vorgang: Vorgang, datei: UploadedFile, dokument_metadaten: dict[str, str]) -> str:
+
+def erstelle_dokument(
+  request, vorgang: Vorgang, datei: UploadedFile, dokument_metadaten: dict[str, str]
+) -> str:
   """
   Erstellt einen neuen Vorgang im D3 DMS mit den Daten aus dem Vorgang und deren Metadaten.
 
@@ -258,9 +274,18 @@ def erstelle_dokument(request, vorgang: Vorgang, datei: UploadedFile, dokument_m
 
   api = lade_d3_api(request)
   tmp_file_uri = api.lade_datei_hoch(D3_REPOSITORY, datei)
-  return api.erstelle_dokument(D3_REPOSITORY, vorgang.d3_id, datei.name, tmp_file_uri, dokument_metadaten)
+  return api.erstelle_dokument(
+    D3_REPOSITORY, vorgang.d3_id, datei.name, tmp_file_uri, dokument_metadaten
+  )
 
-def bearbeite_dokument(request, d3_id: str, vorgang: Vorgang, datei: UploadedFile | None, dokument_metadaten: dict[str, str]) -> str:
+
+def bearbeite_dokument(
+  request,
+  d3_id: str,
+  vorgang: Vorgang,
+  datei: UploadedFile | None,
+  dokument_metadaten: dict[str, str],
+) -> str:
   """
   Bearbeite das Dokument mit der gegebenen id im D3 DMS und lade ggf. eine neue Datei hoch.
 
@@ -284,7 +309,10 @@ def bearbeite_dokument(request, d3_id: str, vorgang: Vorgang, datei: UploadedFil
     tmp_file_uri = None
     datei_name = None
 
-  return api.bearbeite_dokument(D3_REPOSITORY, vorgang.d3_id, d3_id, datei_name, tmp_file_uri, dokument_metadaten)
+  return api.bearbeite_dokument(
+    D3_REPOSITORY, vorgang.d3_id, d3_id, datei_name, tmp_file_uri, dokument_metadaten
+  )
+
 
 def lade_alle_metadaten(category: str):
   """

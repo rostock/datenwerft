@@ -4,7 +4,6 @@ class DateiInhalt:
   content: bytes
 
   def __init__(self, name: str | None, mime_type: str | None, content: bytes):
-
     if name is None:
       name = 'download'
     if mime_type is None:
@@ -14,28 +13,27 @@ class DateiInhalt:
     self.mime_type = mime_type
     self.content = content
 
-class SourceProperty:
 
+class SourceProperty:
   key: str
   propertyType: str
   displayName: str
 
   def __init__(self, key: str, property_type: str, display_name: str):
-
     self.key = key
     self.propertyType = property_type
     self.displayName = display_name
 
-class ObjectDefinitionPropertyField:
 
+class ObjectDefinitionPropertyField:
   id: str
   uniqueId: str
   displayName: str
   isMandatory: bool
   dataType: int
 
-class ObjectDefinition:
 
+class ObjectDefinition:
   id: str
   uniqueId: str
   displayName: str
@@ -43,52 +41,54 @@ class ObjectDefinition:
   objectType: int
   propertyFields: list[ObjectDefinitionPropertyField]
 
-class SourceCategory:
 
+class SourceCategory:
   key: str
   displayName: str
 
   def __init__(self, key: str, display_name: str):
-
     self.key = key
     self.displayName = display_name
 
-class SourcePropertyValue:
 
+class SourcePropertyValue:
   key: str
   value: str
 
   def __init__(self, key: str, value: str):
-
     self.key = key
     self.value = value
 
-class Repository:
 
+class Repository:
   id: str
   name: str
 
   def __init__(self, id: str, name: str):
-
     self.id = id
     self.name = name
 
-class SourceMapping:
 
+class SourceMapping:
   id: str
   displayName: str
   properties: list[SourceProperty]
   categories: list[SourceCategory]
 
-  def __init__(self, id: str, display_name: str, properties: list[SourceProperty], categories: list[SourceCategory]):
-
+  def __init__(
+    self,
+    id: str,
+    display_name: str,
+    properties: list[SourceProperty],
+    categories: list[SourceCategory],
+  ):
     self.id = id
     self.displayName = display_name
     self.properties = properties
     self.categories = categories
 
-class DmsObject:
 
+class DmsObject:
   id: str
   sourceProperties: list[SourcePropertyValue]
   sourceCategories: list[str]
@@ -96,8 +96,15 @@ class DmsObject:
   pdfBlobUrl: str | None
   notes: str | None
 
-  def __init__(self, id: str, source_properties: list[SourcePropertyValue], source_categories: list[str], main_blob_url: str | None, pdf_blob_url: str | None, notes: str = None):
-
+  def __init__(
+    self,
+    id: str,
+    source_properties: list[SourcePropertyValue],
+    source_categories: list[str],
+    main_blob_url: str | None,
+    pdf_blob_url: str | None,
+    notes: str = None,
+  ):
     self.id = id
     self.sourceProperties = source_properties
     self.sourceCategories = source_categories
