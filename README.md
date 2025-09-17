@@ -488,7 +488,7 @@ uv run manage.py test toolbox
 ### Ablauf
 
 1. neuen Branch erstellen – Name des Branches:
-   - bei Features: `feature/<app-name>/<feature-name>` (Beispiel: `feature/datenmanagement/edit-photos`)
+   - bei Features: `feature/<app-name>/<feature-name>` (Beispiel: `feature/datenmanagement/edit-model-foobar`)
    - bei Bugfixes: `bugfix/<app-name>/<bugfix-name>` (Beispiel: `bugfix/accounts/emails`)
 2. Änderungen linten und testen (siehe oben)
 3. Änderungen committen und Commit(s) pushen
