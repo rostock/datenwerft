@@ -1,0 +1,70 @@
+name: "datenwerft_hro"
+
+services:
+
+  server:
+    build: docker/container/web
+    #image: python:3.11-alpine
+    working_dir: /srv/www
+    command: "python manage.py runserver 0.0.0.0:8000"
+    tty: true
+    volumes:
+      - ./:/srv/www
+      - venv:/srv/www/.venv
+    depends_on:
+      - db
+      - smtp
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SUPERUSER_USERNAME: "root"
+      DJANGO_SUPERUSER_PASSWORD: "root"
+      DJANGO_SUPERUSER_EMAIL: "test@example.org"
+      USER_ID: "${UID:-1000}"
+      GROUP_ID: "${GID:-1000}"
+
+#  rqWorker:
+#    build: docker/container/web
+#    working_dir: /srv/www
+#    command: "python manage.py rqworker default"
+#    tty: true
+#    volumes:
+#      - ./:/srv/www
+#      - .venv:/srv/www/.docker.venv
+#    depends_on:
+#      - db
+#      - smtp
+#    environment:
+#      DJANGO_SUPERUSER_USERNAME: "root"
+#      DJANGO_SUPERUSER_PASSWORD: "root"
+#      DJANGO_SUPERUSER_EMAIL: "test@example.org"
+#      USER_ID: "${UID:-1000}"
+#      GROUP_ID: "${GID:-1000}"
+
+  db:
+    build: docker/container/db
+    shm_size: 128mb
+    volumes:
+      - ./docker/data/db/initdb.d:/docker-entrypoint-initdb.d
+      - ./datenmanagement/sql/schema.sql:/opt/datenmanagement/schema.sql:ro
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "54321:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+
+  redis:
+    image: redis:8.0-alpine
+
+  smtp:
+    image: docker.brayn.io/docker/docker-hub/axllent/mailpit:v1.24
+    ports:
+      - "8025:8025"
+    environment:
+      TZ: "Europe/Berlin"
+
+volumes:
+  pgdata:
+  venv:

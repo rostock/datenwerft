@@ -1457,15 +1457,6 @@ class Erdwaermesonden(SimpleModel):
   Erdwärmesonden
   """
 
-  d3 = CharField(
-    verbose_name=' d.3',
-    max_length=16,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(regex=erdwaermesonden_d3_regex, message=erdwaermesonden_d3_message)
-    ],
-  )
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
     max_length=18,
@@ -1532,7 +1523,6 @@ class Erdwaermesonden(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'typ': 'Typ',
@@ -1547,7 +1537,6 @@ class Erdwaermesonden(SimpleModel):
     map_feature_tooltip_fields = ['aktenzeichen']
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'typ': 'Typ',

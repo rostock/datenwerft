@@ -1,0 +1,36 @@
+{% extends "form.html" %}
+{% load static %}
+
+{% block title %}{{ model_verbose_name }} – Vorgangs Formular | {% endblock %}
+
+{% block scripts %}
+  <!-- inherit from form.html -->
+  {{ block.super }}
+  <!-- add scripts for d3 -->
+  <script src="{% static "js/form.js" %}"></script>
+{% endblock %}
+
+{% block errors %}
+  {% if form.errors %}
+    {% include "d3/container_errors.html" %}
+  {% endif %}
+{% endblock %}
+
+{% block list %}
+  <div>
+    <table class="table">
+      {% for field in form %}
+          <tr{% if hidden_fields and field.name in hidden_fields %} style="display: none;"{% endif %}>
+            <td class="cell-label">
+              {{ field.label_tag }}
+            </td>
+            {% autoescape off %}
+              <td class="cell-field">
+                {{ field }}
+              </td>
+            {% endautoescape %}
+          </tr>
+      {% endfor %}
+    </table>
+  </div>
+{% endblock %}

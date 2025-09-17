@@ -1,0 +1,113 @@
+class DateiInhalt:
+  name: str
+  mime_type: str
+  content: bytes
+
+  def __init__(self, name: str | None, mime_type: str | None, content: bytes):
+    if name is None:
+      name = 'download'
+    if mime_type is None:
+      mime_type = 'application/octet-stream'
+
+    self.name = name
+    self.mime_type = mime_type
+    self.content = content
+
+
+class SourceProperty:
+  key: str
+  propertyType: str
+  displayName: str
+
+  def __init__(self, key: str, property_type: str, display_name: str):
+    self.key = key
+    self.propertyType = property_type
+    self.displayName = display_name
+
+
+class ObjectDefinitionPropertyField:
+  id: str
+  uniqueId: str
+  displayName: str
+  isMandatory: bool
+  dataType: int
+
+
+class ObjectDefinition:
+  id: str
+  uniqueId: str
+  displayName: str
+  writeAccess: bool
+  objectType: int
+  propertyFields: list[ObjectDefinitionPropertyField]
+
+
+class SourceCategory:
+  key: str
+  displayName: str
+
+  def __init__(self, key: str, display_name: str):
+    self.key = key
+    self.displayName = display_name
+
+
+class SourcePropertyValue:
+  key: str
+  value: str
+
+  def __init__(self, key: str, value: str):
+    self.key = key
+    self.value = value
+
+
+class Repository:
+  id: str
+  name: str
+
+  def __init__(self, _id: str, name: str):
+    self.id = _id
+    self.name = name
+
+
+class SourceMapping:
+  id: str
+  displayName: str
+  properties: list[SourceProperty]
+  categories: list[SourceCategory]
+
+  def __init__(
+    self,
+    _id: str,
+    display_name: str,
+    properties: list[SourceProperty],
+    categories: list[SourceCategory],
+  ):
+    self.id = _id
+    self.displayName = display_name
+    self.properties = properties
+    self.categories = categories
+
+
+class DmsObject:
+  id: str
+  sourceProperties: list[SourcePropertyValue]
+  sourceCategories: list[str]
+  mainBlobUrl: str | None
+  pdfBlobUrl: str | None
+  notes: str | None
+
+  def __init__(
+    self,
+    _id: str,
+    source_properties: list[SourcePropertyValue],
+    source_categories: list[str],
+    main_blob_url: str | None,
+    pdf_blob_url: str | None,
+    notes: str = None,
+  ):
+    self.id = _id
+    self.sourceProperties = source_properties
+    self.sourceCategories = source_categories
+    self.mainBlobUrl = main_blob_url
+    self.pdfBlobUrl = pdf_blob_url
+    self.notes = notes
