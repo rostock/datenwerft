@@ -77,7 +77,7 @@ class ListeDateienView(View):
 
     try:
       akte = lade_akte(self.content_type_id, kwargs['pk'])
-    except:
+    except Exception:
       error = 'Datenobjekt besitzt keine Akte.'
 
     if akte and vorgang.akten != akte:
@@ -96,7 +96,7 @@ class ListeDateienView(View):
             if 'property_caption' == source_property.key:
               datei['name'] = source_property.value
           dateien.append(datei)
-      except:
+      except Exception:
         error = (
           'Dateien konnten nicht geladen werden. Bitte kontaktieren Sie den Systemadministrator.'
         )
@@ -136,7 +136,8 @@ class DokumentenView:
 
   def lese_metadaten(self, form):
     """
-    lese die Metadaten aus dem Formular und gebe sie als dictionary zurück, welches an D3 gesendet werden kann.
+    lese die Metadaten aus dem Formular und gebe sie als dictionary zurück,
+    welches an D3 gesendet werden kann.
 
     Args:
         form (Form): validiertes Formular mit den aktuellen Daten
@@ -183,8 +184,8 @@ class DokumentenErstellenView(View, DokumentenView):
     object_id = kwargs['pk']
 
     try:
-      vorgang = Vorgang.objects.get(pk=kwargs['vorgang_id'])
-    except:
+      Vorgang.objects.get(pk=kwargs['vorgang_id'])
+    except Exception:
       error(
         self.request, 'Vorgang existiert nicht. Bitte kontaktieren Sie den Systemadministrator.'
       )
@@ -204,10 +205,10 @@ class DokumentenErstellenView(View, DokumentenView):
       try:
         erstelle_dokument(request, vorgang, form.cleaned_data['file'], properties)
         success(self.request, 'neues Dokument erfolgreich angelegt')
-      except:
+      except Exception:
         error(
           self.request,
-          'Beim Hochladen des Dokuments in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',
+          'Beim Hochladen des Dokuments in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
         )
 
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', object_id)
@@ -233,16 +234,16 @@ class DokumentenBearbeitenView(View, DokumentenView):
     if not D3_ENABLED:
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', object_id)
 
-    if None == lade_d3_session_id(request):
+    if lade_d3_session_id(request) is None:
       error(
         request,
-        'Die Authentifizierung zu D3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.',
+        'Die Authentifizierung zu D3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.',  # noqa: E501
       )
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', object_id)
 
     try:
       dokument = lade_dokument(request, dokumenten_id)
-    except:
+    except Exception:
       error(
         self.request,
         'Dokument konnte nicht geladen werden. Bitte kontaktieren Sie den Systemadministrator.',
@@ -279,10 +280,10 @@ class DokumentenBearbeitenView(View, DokumentenView):
       try:
         bearbeite_dokument(request, dokumenten_id, vorgang, form.cleaned_data['file'], properties)
         success(self.request, 'Das Dokument erfolgreich bearbeitet')
-      except:
+      except Exception:
         error(
           self.request,
-          'Beim Bearbeiten des Dokuments in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',
+          'Beim Bearbeiten des Dokuments in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
         )
 
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', object_id)

@@ -64,8 +64,8 @@ class Repository:
   id: str
   name: str
 
-  def __init__(self, id: str, name: str):
-    self.id = id
+  def __init__(self, _id: str, name: str):
+    self.id = _id
     self.name = name
 
 
@@ -77,12 +77,12 @@ class SourceMapping:
 
   def __init__(
     self,
-    id: str,
+    _id: str,
     display_name: str,
     properties: list[SourceProperty],
     categories: list[SourceCategory],
   ):
-    self.id = id
+    self.id = _id
     self.displayName = display_name
     self.properties = properties
     self.categories = categories
@@ -98,14 +98,14 @@ class DmsObject:
 
   def __init__(
     self,
-    id: str,
+    _id: str,
     source_properties: list[SourcePropertyValue],
     source_categories: list[str],
     main_blob_url: str | None,
     pdf_blob_url: str | None,
     notes: str = None,
   ):
-    self.id = id
+    self.id = _id
     self.sourceProperties = source_properties
     self.sourceCategories = source_categories
     self.mainBlobUrl = main_blob_url

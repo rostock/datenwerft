@@ -2,7 +2,6 @@ from json import dumps
 from time import time
 
 from django.apps import apps
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.messages import error, success
 from django.contrib.messages.views import SuccessMessageMixin
@@ -14,7 +13,6 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
-from d3.utils import fetch_processes
 from d3.views.views_process import D3ContextMixin
 from datenmanagement.utils import (
   get_field_name_for_address_type,

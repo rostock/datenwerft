@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import CASCADE, SET_NULL, ForeignKey, ManyToManyField, Model, OneToOneField
+from django.db.models import CASCADE, SET_NULL, ForeignKey, Model, OneToOneField
 from django.db.models.fields import AutoField, BooleanField, CharField, DateField, DateTimeField
 
 from d3.constants_vars import GUI_ELEMENTE
@@ -19,6 +19,9 @@ class Akte(Model):
     verbose_name_plural = 'Akten'
     db_table = 'd3_akte'
 
+  def __str__(self):
+    return f'{self.id})'
+
 
 class AktenOrdner(Model):
   id = AutoField(primary_key=True)
@@ -30,6 +33,9 @@ class AktenOrdner(Model):
     verbose_name = 'Akten Ordner'
     verbose_name_plural = 'Akten Ordner'
     db_table = 'd3_akten_ordner'
+
+  def __str__(self):
+    return f'{self.id})'
 
 
 class AktenOrdnerOption(Model):
@@ -43,6 +49,9 @@ class AktenOrdnerOption(Model):
     verbose_name = 'Akten Ordner Option'
     verbose_name_plural = 'Akten Ordner Optionen'
     db_table = 'd3_akten_ordner_option'
+
+  def __str__(self):
+    return f'{self.id})'
 
 
 class Vorgang(Model):
@@ -80,6 +89,9 @@ class Vorgang(Model):
     verbose_name_plural = 'Vorgänge'
     db_table = 'd3_vorgang'
 
+  def __str__(self):
+    return f'{self.id})'
+
 
 class Metadaten(Model):
   id = AutoField(primary_key=True)
@@ -106,6 +118,9 @@ class Metadaten(Model):
     verbose_name_plural = 'Metadaten'
     db_table = 'd3_metadaten'
 
+  def __str__(self):
+    return f'{self.id})'
+
 
 class MetadatenOption(Model):
   id = AutoField(primary_key=True)
@@ -116,6 +131,9 @@ class MetadatenOption(Model):
     verbose_name = 'Metadatenoption'
     verbose_name_plural = 'Metadatenoption'
     db_table = 'd3_metadaten_option'
+
+  def __str__(self):
+    return f'{self.id})'
 
 
 class VorgangMetadaten(Model):
@@ -132,6 +150,9 @@ class VorgangMetadaten(Model):
     verbose_name_plural = 'VorgangMetadaten'
     db_table = 'd3_vorgang_metadaten'
 
+  def __str__(self):
+    return f'{self.id})'
+
 
 class Massnahme(Model):
   id = AutoField(primary_key=True)
@@ -144,6 +165,9 @@ class Massnahme(Model):
     verbose_name_plural = 'Massnahmen'
     db_table = 'd3_massnahme'
 
+  def __str__(self):
+    return f'{self.id})'
+
 
 class Verfahren(Model):
   id = AutoField(primary_key=True)
@@ -155,3 +179,6 @@ class Verfahren(Model):
     verbose_name = 'Verfahren'
     verbose_name_plural = 'Verfahren'
     db_table = 'd3_verfahren'
+
+  def __str__(self):
+    return f'{self.id})'

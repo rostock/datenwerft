@@ -37,13 +37,15 @@ def lade_d3_api(request):
 
 def lade_akten_ordner(content_type_id: int) -> AktenOrdner | None:
   """
-  Lädt den d3 akten ordner für den content type mit der übergebenen id oder None, falls nicht gefunden.
+  Lädt den d3 akten ordner für den content type mit der übergebenen id oder None,
+  falls nicht gefunden.
 
   Parameters:
       content_type_id (int): Identifier des content types.
 
   Returns:
-      AktenOrdner | None: Der Aktenordner für den übergebenem content_type oder None, falls nicht gefunden.
+      AktenOrdner | None: Der Aktenordner für den übergebenem content_type oder None,
+      falls nicht gefunden.
   """
   akte = AktenOrdner.objects.filter(model=content_type_id)
 
@@ -152,8 +154,9 @@ def load_processes(akten_id: int) -> QuerySet[Vorgang] | None:
 
 def lade_d3_properties(request, category_id: str) -> list[tuple[str, str]]:
   """
-  lade alle d3 properties und gebe sie als list von tuple zurück, wobei der erste Wert der Key des properties
-  in d3 entspricht und der zweite Wert der Anzeigenamen des properties.
+  lade alle d3 properties und gebe sie als list von tuple zurück,
+  wobei der erste Wert der Key des properties in d3 entspricht
+  und der zweite Wert der Anzeigenamen des properties.
 
       Parameters:
         request: Request welcher die User-Session beinhaltet
@@ -266,7 +269,7 @@ def erstelle_dokument(
       request: Request welcher die User-Session beinhaltet
       vorgang (Vorgang): Vorgang zu welchem das Dokument hinzugefügt werden soll.
       datei (UploadedFile): Datei, welche neu hochgeladen werden soll
-      dokument_metadaten (dict[str, str]): metadaten, die in D3 zum Dokument gespeichert werden soll
+      dokument_metadaten (dict[str, str]): Metadaten, die in d.3 zum Dokument gespeichert werden
 
   Returns:
       DmsObject: The newly created document management system object for the process.
@@ -294,7 +297,7 @@ def bearbeite_dokument(
       d3_id (str): id des Dokuments, welches bearbeitet werden soll.
       vorgang (Vorgang): Vorgang zu welchem das Dokument zugeordnet ist.
       datei (UploadedFile | None): Datei, welche neu hochgeladen werden soll
-      dokument_metadaten (dict[str, str]): metadaten, die in D3 zum Dokument gespeichert werden soll
+      dokument_metadaten (dict[str, str]): Metadaten, die in d.3 zum Dokument gespeichert werden
 
   Returns:
       str: id des dokuments

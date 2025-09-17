@@ -67,7 +67,7 @@ class PreLoginView(LoginView):
         password = form.cleaned_data.get('password')
         authentication_api = D3AuthenticationApi()
         self.request.session['d3_login'] = authentication_api.lade_access_token(username, password)
-      except:
+      except Exception:
         pass
       return HttpResponseRedirect(self.get_success_url())
     else:

@@ -82,7 +82,7 @@ class D3ContextMixin:
   def get_d3_context(self, context, model, pk):
     if not D3_ENABLED:
       context['enabled'] = False
-    elif None == lade_d3_session_id(self.request):
+    elif lade_d3_session_id(self.request) is None:
       context['authentication_failed'] = True
     else:
       context['enabled'] = True

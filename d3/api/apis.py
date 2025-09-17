@@ -32,8 +32,9 @@ class D3AuthenticationApi:
     """
     Methode zum Laden eines Access tokens zur Authentifizierung gegenüber des D3 Backends.
 
-    Zur Authentifikation gegenüber des D3 Backends wird ein Basic Authentifizierungsheader mit dem username und password
-    an die URL zum Laden der Repository-Daten gesendet und der empfangene Cookie ausgelesen.
+    Zur Authentifikation gegenüber des D3 Backends wird ein Basic Authentifizierungsheader
+    mit dem username und password an die URL zum Laden der Repository-Daten gesendet
+    und der empfangene Cookie ausgelesen.
 
     Args:
         username (str): Nutzername des Nutzers für die Authentifizierung
@@ -84,8 +85,8 @@ class D3Api:
 
   def lade_objekt_definitionen(self, repository_id: str, category_id: str) -> ObjectDefinition:
     """
-    Lade die Objektdefinition von der Kategorie mit der übergebenen id im d3 repositories. Hiermit können die konfigurierten
-    Felder einer Kategorie abgefragt werden.
+    Lade die Objektdefinition von der Kategorie mit der übergebenen id im d3 repositories.
+    Hiermit können die konfigurierten Felder einer Kategorie abgefragt werden.
 
     Request: /dms/r/{repository_id}/objdef
 
@@ -160,9 +161,9 @@ class D3Api:
 
   def erstelle_akte(self, repository_id: str, properties: dict[str, str]) -> str:
     """
-    Erstellt eine neue Akte in der D3 API. Alle notwendigen properties müssen übergeben werden, da es sonst zu einem
-    Fehler in der D3 Api kommt. Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der
-    D3 API in der Response zurückgegeben wird.
+    Erstellt eine neue Akte in der D3 API. Alle notwendigen properties müssen übergeben werden,
+    da es sonst zu einem Fehler in der D3 Api kommt. Die Id des neuen DMS-Objektes wird aus dem
+    Location-Header ausgelesen, welcher von der D3 API in der Response zurückgegeben wird.
 
     Request: /dms/r/{repository_id}/o2m
     {
@@ -234,9 +235,10 @@ class D3Api:
     properties: dict[str, str | List[str]],
   ) -> str:
     """
-    Erstellt einen neuen Vorgang in der D3 API. Alle notwendigen properties müssen übergeben werden, da es sonst zu einem
-    Fehler in der D3 Api kommt. Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der
-    D3 API in der Response zurückgegeben wird.
+    Erstellt einen neuen Vorgang in der D3 API. Alle notwendigen properties
+    müssen übergeben werden, da es sonst zu einem Fehler in der D3 Api kommt.
+    Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen,
+    welcher von der D3 API in der Response zurückgegeben wird.
 
     Request: /dms/r/{repository_id}/o2m
     {
@@ -268,7 +270,7 @@ class D3Api:
 
     mapped_properties = [{'key': D3_VORGANGS_TITEL_ID, 'values': [name]}]
 
-    if None != D3_VORGANGS_TYP_ID:
+    if D3_VORGANGS_TYP_ID is not None:
       mapped_properties.append({'key': D3_VORGANGS_TYP_ID, 'values': [vorgangs_typ]})
 
     for key, value in properties.items():
@@ -331,7 +333,8 @@ class D3Api:
     {
       "_links": {
         "self": {
-            "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/o2m/T000018520?sourceid=%2fdms%2fr%250ad81f3-f1f0-45b7-a3bb-3412881fa9af%2fsource"
+            "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/o2m/T000018520?sourceid=\
+%2fdms%2fr%250ad81f3-f1f0-45b7-a3bb-3412881fa9af%2fsource"
         }
       },
       "id": "T000018520",
@@ -352,7 +355,8 @@ class D3Api:
         DmsObject: Vorgang aus dem d3 System
     """
     response = self.__get(
-      f'/dms/r/{repository_id}/o2m/{dokumenten_id}', {'sourceId': f'/dms/r/{repository_id}/source'}
+      url=f'/dms/r/{repository_id}/o2m/{dokumenten_id}',
+      params={'sourceId': f'/dms/r/{repository_id}/source'}
     )
 
     if response.status_code >= 400:
@@ -375,21 +379,25 @@ class D3Api:
     """
     Suche alle Dokumente, die zu dem übergebenen Vorgang gehören
 
-    Request: /dms/r/{repository_id}/srm?children_of={vorgangs_id}&sourceId=/dms/r/{repository_id}/source
+    Request: /dms/r/{repository_id}/srm?children_of={vorgangs_id}&sourceId=/dms/r/{repository_id}/\
+source
 
     Response: 200
 
     {
       "_links": {
           "self": {
-              "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/srm/?sourceid=%2Fdms%2Fr%2F0e2133c9-b9e1-5c56-bac3-2b2a75f81509%2Fsource&page=1&pagesize=25&children_of=T000008201"
+              "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/srm/?sourceid=\
+%2Fdms%2Fr%2F0e2133c9-b9e1-5c56-bac3-2b2a75f81509%2Fsource&page=1&pagesize=25&children_of=\
+T000008201"
           }
       },
       "items": [
         {
           "_links": {
             "self": {
-                "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/o2m/T000018520?sourceid=%2fdms%2fr%250ad81f3-f1f0-45b7-a3bb-3412881fa9af%2fsource"
+                "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/o2m/T000018520?sourceid=\
+%2fdms%2fr%250ad81f3-f1f0-45b7-a3bb-3412881fa9af%2fsource"
             }
           },
           "id": "T000018520",
@@ -442,8 +450,9 @@ class D3Api:
 
   def lade_datei_hoch(self, repository_id: str, file: UploadedFile) -> str | None:
     """
-    Lädt eine Datei in das D3 Repository hoch und gibt anschließend die content uri zurück, damit diese verwendet werden
-    kann, um neue DmsObjects anlegen zu können. Die Content-Uri ist im Location-Headers des ersten chunk uploads enthalten
+    Lädt eine Datei in das D3 Repository hoch und gibt anschließend die content uri zurück,
+    damit diese verwendet werden kann, um neue DmsObjects anlegen zu können.
+    Die Content-Uri ist im Location-Headers des ersten chunk uploads enthalten
 
     Request: /dms/r/{repository_id}/blob/chunk
 
@@ -463,7 +472,7 @@ class D3Api:
       content_location = None
 
       for chunk in file.chunks():
-        if None == content_location:
+        if content_location is None:
           response = self.__post_file(f'/dms/r/{repository_id}/blob/chunk/', chunk)
 
           if response.status_code >= 400:
@@ -497,15 +506,17 @@ class D3Api:
     properties: dict[str, str | List[str]],
   ) -> str:
     """
-    Erstellt ein neues Dokument in der D3 API und verlinkt die hochgeladene Datei mit dem Dokument. Die Id des neuen
-    DMS-Objektes wird aus dem Location-Header ausgelesen, welcher von der D3 API in der Response zurückgegeben wird.
+    Erstellt ein neues Dokument in der D3 API und verlinkt die hochgeladene Datei mit dem Dokument.
+    Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen,
+    welcher von der D3 API in der Response zurückgegeben wird.
 
     Request: /dms/r/{repository_id}/o2m
     {
       "sourceCategory": "9a2a6014-af3b-44d3-8166-1067bce68ed6",
       "sourceId": "/dms/r/16b3fa2e-3ae6-4b9b-b49e-e0199cece05b/source",
       "parentId": "7d72f307-def2-422f-85fb-04dcd1559a20",
-      "contentLocationUri": "/dms/r/dee1f3d3-eae8-5d9d-84d8-2d758c5ddc27/blob/chunk/2018-01-01_temp_master_file_user1_44f7-95a6-58b8400ecf43",
+      "contentLocationUri": "/dms/r/dee1f3d3-eae8-5d9d-84d8-2d758c5ddc27/blob/chunk/\
+2018-01-01_temp_master_file_user1_44f7-95a6-58b8400ecf43",
       "filename": "Testfile.xls",
       "sourceProperties": {
         "properties": [
@@ -600,7 +611,8 @@ class D3Api:
       "sourceCategory": "9a2a6014-af3b-44d3-8166-1067bce68ed6",
       "sourceId": "/dms/r/16b3fa2e-3ae6-4b9b-b49e-e0199cece05b/source",
       "parentId": "7d72f307-def2-422f-85fb-04dcd1559a20",
-      "contentLocationUri": "/dms/r/dee1f3d3-eae8-5d9d-84d8-2d758c5ddc27/blob/chunk/2018-01-01_temp_master_file_user1_44f7-95a6-58b8400ecf43",
+      "contentLocationUri": "/dms/r/dee1f3d3-eae8-5d9d-84d8-2d758c5ddc27/blob/chunk/\
+2018-01-01_temp_master_file_user1_44f7-95a6-58b8400ecf43",
       "filename": "Testfile.xls",
       "sourceProperties": {
         "properties": [
@@ -617,7 +629,8 @@ class D3Api:
     {
       "_links": {
         "self": {
-            "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/o2m/T000018520?sourceid=%2fdms%2fr%250ad81f3-f1f0-45b7-a3bb-3412881fa9af%2fsource"
+            "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/o2m/T000018520?sourceid=\
+%2fdms%2fr%250ad81f3-f1f0-45b7-a3bb-3412881fa9af%2fsource"
         }
       },
       "id": "T000018520",
@@ -766,7 +779,7 @@ class D3Api:
       url (str): Relative URL der Anfrage mit führendem /
 
     Returns:
-      Response: Das HTTP response Objekt, welches die Antwort auf die GET Anfrage des Servers beinhaltet
+      Response: HTTP-Response-Objekt, das die Antwort auf die GET-Anfrage des Servers beinhaltet
 
     Raises:
       RequestException: Raised for underlying errors in obtaining the response.
@@ -794,7 +807,7 @@ class D3Api:
       json (any): JSON objekt, welches an den Server gesendet werden soll
 
     Returns:
-      Response: Das HTTP response Objekt, welches die Antwort auf die POST Anfrage des Servers beinhaltet
+      Response: HTTP-Response-Objekt, das die Antwort auf die POST-Anfrage des Servers beinhaltet
 
     Raises:
       RequestException: Raised for underlying errors in obtaining the response.
@@ -831,7 +844,7 @@ class D3Api:
       json (any): JSON objekt, welches an den Server gesendet werden soll
 
     Returns:
-      Response: Das HTTP response Objekt, welches die Antwort auf die POST Anfrage des Servers beinhaltet
+      Response: HTTP-Response-Objekt, das die Antwort auf die POST-Anfrage des Servers beinhaltet
 
     Raises:
       RequestException: Raised for underlying errors in obtaining the response.
@@ -868,7 +881,7 @@ class D3Api:
       file_content (any): Datei-Content der hochgeladen werden soll
 
     Returns:
-      Response: Das HTTP response Objekt, welches die Antwort auf die POST Anfrage des Servers beinhaltet
+      Response: HTTP-Response-Objekt, das die Antwort auf die POST-Anfrage des Servers beinhaltet
 
     Raises:
       RequestException: Raised for underlying errors in obtaining the response.

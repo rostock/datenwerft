@@ -46,10 +46,10 @@ class ErstelleVorgangView(CreateView):
     if not D3_ENABLED:
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 
-    if None == lade_d3_session_id(self.request):
+    if lade_d3_session_id(self.request) is None:
       error(
         self.request,
-        'Die Authentifizierung zu D3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.',
+        'Die Authentifizierung zu D3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.',  # noqa: E501
       )
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 
@@ -57,14 +57,14 @@ class ErstelleVorgangView(CreateView):
       ContentType.objects.get_for_id(self.content_type_id).get_object_for_this_type(
         uuid=self.object_id
       )
-    except:
+    except Exception:
       error(self.request, self.datenmanagement_model + ' existiert nicht.')
       return redirect('datenmanagement:' + self.datenmanagement_model + '_start')
 
     if self.akten_ordner is None:
       error(
         self.request,
-        'Der D3-Ordner für Akten dieser Objektart ist nicht konfiguriert. Bitte kontaktieren Sie den Systemadministrator.',
+        'Der D3-Ordner für Akten dieser Objektart ist nicht konfiguriert. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
       )
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 
@@ -123,10 +123,10 @@ class ErstelleVorgangView(CreateView):
       form.instance.d3_id = erstelle_vorgang(
         self.request, form.instance, vorgang_metadaten, self.metadaten
       )
-    except:
+    except Exception:
       error(
         self.request,
-        'Beim Anlegen des Vorgangs in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',
+        'Beim Anlegen des Vorgangs in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
       )
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 

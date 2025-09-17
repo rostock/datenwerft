@@ -9,7 +9,8 @@ from d3.utils import lade_alle_metadaten
 class MetadatenMixin(forms.Form):
   def init_metadaten_felder(self, metadaten_felder):
     """
-    Fügt alle Metadaten Felder zum Formular hinzu, damit diese eingegeben und validiert werden können.
+    Fügt alle Metadaten Felder zum Formular hinzu,
+    damit diese eingegeben und validiert werden können.
 
     Parameters:
         metadaten_felder (list): Liste der Metadaten die eingegeben werden können
