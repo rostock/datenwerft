@@ -7,13 +7,13 @@ import requests
 from django.core.files.uploadedfile import UploadedFile
 from requests import Response
 
-from d3.api import (
+from d3.api.responses import (
   DateiInhalt,
+  DmsObject,
   ObjectDefinition,
   ObjectDefinitionPropertyField,
   SourcePropertyValue,
 )
-from d3.api.responses import DmsObject
 from datenwerft.settings import (
   APPLICATION_HTTP_USER_AGENT,
   D3_AKTEN_CATEGORY,
