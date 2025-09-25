@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.5
--- Dumped by pg_dump version 17.5
+-- Dumped from database version 17.6
+-- Dumped by pg_dump version 17.6
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -589,6 +589,18 @@ CREATE TABLE codelisten.arten_meldedienst_punkthaft (
 --
 
 CREATE TABLE codelisten.arten_naturdenkmale (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art character varying(255) NOT NULL
+);
+
+
+--
+-- Name: arten_notfalltreffpunkte; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.arten_notfalltreffpunkte (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -3761,6 +3773,27 @@ CREATE TABLE fachdaten_adressbezug.mobilfunkantennen_hro (
 
 
 --
+-- Name: notfalltreffpunkte_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.notfalltreffpunkte_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    adresse uuid,
+    art uuid NOT NULL,
+    standort character varying(255) NOT NULL,
+    ressource character varying(255) NOT NULL,
+    personal character varying(255) NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: parkmoeglichkeiten_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -4673,6 +4706,22 @@ ALTER TABLE ONLY codelisten.arten_naturdenkmale
 
 ALTER TABLE ONLY codelisten.arten_naturdenkmale
     ADD CONSTRAINT arten_naturdenkmale_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: arten_notfalltreffpunkte arten_notfalltreffpunkte_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_notfalltreffpunkte
+    ADD CONSTRAINT arten_notfalltreffpunkte_art_unique UNIQUE (art);
+
+
+--
+-- Name: arten_notfalltreffpunkte arten_notfalltreffpunkte_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_notfalltreffpunkte
+    ADD CONSTRAINT arten_notfalltreffpunkte_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7036,6 +7085,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.mobilfunkantennen_hro
 
 
 --
+-- Name: notfalltreffpunkte_hro notfalltreffpunkte_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.notfalltreffpunkte_hro
+    ADD CONSTRAINT notfalltreffpunkte_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: parkmoeglichkeiten_hro parkmoeglichkeiten_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -8640,6 +8697,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.meldedienst_punkthaft_hro
 
 
 --
+-- Name: notfalltreffpunkte_hro notfalltreffpunkte_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.notfalltreffpunkte_hro
+    ADD CONSTRAINT notfalltreffpunkte_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_notfalltreffpunkte(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: parkmoeglichkeiten_hro parkmoeglichkeiten_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -8958,7 +9023,7 @@ ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
 ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
     ADD CONSTRAINT strassenreinigung_hro_reinigungsrhythmen_fk FOREIGN KEY (reinigungsrhythmus) REFERENCES codelisten.reinigungsrhythmen_strassenreinigungssatzung_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
+
 --
 -- PostgreSQL database dump complete
 --
-
