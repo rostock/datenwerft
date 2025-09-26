@@ -356,7 +356,7 @@ class D3Api:
     """
     response = self.__get(
       url=f'/dms/r/{repository_id}/o2m/{dokumenten_id}',
-      params={'sourceId': f'/dms/r/{repository_id}/source'}
+      params={'sourceId': f'/dms/r/{repository_id}/source'},
     )
 
     if response.status_code >= 400:

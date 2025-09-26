@@ -4318,6 +4318,73 @@ class Naturdenkmale(SimpleModel):
 post_delete.connect(delete_pdf, sender=Naturdenkmale)
 
 
+class Notfalltreffpunkte(SimpleModel):
+  """
+  Notfalltreffpunkte/Wärmeinseln
+  """
+
+  adresse = ForeignKey(
+    to=Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True,
+  )
+  art = ForeignKey(
+    to=Arten_Notfalltreffpunkte,
+    verbose_name='Art',
+    on_delete=RESTRICT,
+    db_column='art',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_arten',
+  )
+  standort = CharField(verbose_name='Standort', max_length=255, validators=standard_validators)
+  ressource = CharField(verbose_name='Ressource', max_length=255, validators=standard_validators)
+  personal = CharField(verbose_name='Personal', max_length=255, validators=standard_validators)
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_adressbezug"."notfalltreffpunkte_hro'
+    verbose_name = 'Notfalltreffpunkt/Wärmeinsel'
+    verbose_name_plural = 'Notfalltreffpunkte/Wärmeinseln'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Notfalltreffpunkte/Wärmeinseln in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'art': 'Art',
+      'standort': 'Standort',
+      'ressource': 'Ressource',
+      'personal': 'Personal',
+    }
+    list_fields_with_foreign_key = {'adresse': 'adresse', 'art': 'art'}
+    map_feature_tooltip_fields = ['standort']
+    map_filter_fields = {
+      'art': 'Art',
+      'standort': 'Standort',
+      'ressource': 'Ressource',
+      'personal': 'Personal',
+    }
+    map_filter_fields_as_list = ['art']
+
+  def __str__(self):
+    return (
+      self.standort
+      + ' ['
+      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
+      + 'Art: '
+      + str(self.art)
+      + ']'
+    )
+
+
 class Parkmoeglichkeiten(SimpleModel):
   """
   Parkmöglichkeiten

@@ -550,6 +550,20 @@ class Arten_Naturdenkmale(Art):
     description = 'Arten von Naturdenkmalen'
 
 
+class Arten_Notfalltreffpunkte(Art):
+  """
+  Arten von Notfalltreffpunkten/Wärmeinseln
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten"."arten_notfalltreffpunkte'
+    verbose_name = 'Art eines/einer Notfalltreffpunkts/Wärmeinsel'
+    verbose_name_plural = 'Arten von Notfalltreffpunkten/Wärmeinseln'
+
+  class BasemodelMeta(Art.BasemodelMeta):
+    description = 'Arten von Notfalltreffpunkten/Wärmeinseln'
+
+
 class Arten_Parkmoeglichkeiten(Art):
   """
   Arten von Parkmöglichkeiten
