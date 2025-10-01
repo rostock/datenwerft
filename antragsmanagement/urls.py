@@ -67,23 +67,25 @@ urlpatterns = [
   # URLs only accessible after login
   #
   # main page
-  path('', view=login_required(IndexView.as_view()), name='index'),
+  path(route='', view=login_required(IndexView.as_view()), name='index'),
   # composing table data out of instances of general object:
   # authority (Behörde)
   path(
-    'authority/tabledata',
+    route='authority/tabledata',
     view=login_required(AuthorityTableDataView.as_view()),
     name='authority_tabledata',
   ),
   # table page for instances of general object:
   # authority (Behörde)
   path(
-    'authority/table', view=login_required(AuthorityTableView.as_view()), name='authority_table'
+    route='authority/table',
+    view=login_required(AuthorityTableView.as_view()),
+    name='authority_table',
   ),
   # form page for updating an instance of general object:
   # authority (Behörde)
   path(
-    'authority/update/<pk>',
+    route='authority/update/<pk>',
     view=login_required(
       AuthorityUpdateView.as_view(success_url=reverse_lazy('antragsmanagement:authority_table'))
     ),
@@ -92,15 +94,17 @@ urlpatterns = [
   # composing table data out of instances of general object:
   # email (E-Mail)
   path(
-    'email/tabledata', view=login_required(EmailTableDataView.as_view()), name='email_tabledata'
+    route='email/tabledata',
+    view=login_required(EmailTableDataView.as_view()),
+    name='email_tabledata',
   ),
   # table page for instances of general object:
   # email (E-Mail)
-  path('email/table', view=login_required(EmailTableView.as_view()), name='email_table'),
+  path(route='email/table', view=login_required(EmailTableView.as_view()), name='email_table'),
   # form page for updating an instance of general object:
   # email (E-Mail)
   path(
-    'email/update/<pk>',
+    route='email/update/<pk>',
     view=login_required(
       EmailUpdateView.as_view(success_url=reverse_lazy('antragsmanagement:email_table'))
     ),
@@ -109,7 +113,7 @@ urlpatterns = [
   # form page for creating an instance of general object:
   # requester (Antragsteller:in)
   path(
-    'requester/create',
+    route='requester/create',
     view=login_required(
       RequesterCreateView.as_view(success_url=reverse_lazy('antragsmanagement:index'))
     ),
@@ -118,7 +122,7 @@ urlpatterns = [
   # form page for updating an instance of general object:
   # requester (Antragsteller:in)
   path(
-    'requester/update/<pk>',
+    route='requester/update/<pk>',
     view=login_required(
       RequesterUpdateView.as_view(success_url=reverse_lazy('antragsmanagement:index'))
     ),
@@ -128,7 +132,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'ce-request/tabledata',
+    route='ce-request/tabledata',
     view=login_required(CleanupEventRequestTableDataView.as_view()),
     name='cleanupeventrequest_tabledata',
   ),
@@ -136,7 +140,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'ce-request/tabledata/read-only',
+    route='ce-request/tabledata/read-only',
     view=login_required(CleanupEventRequestTableDataView.as_view()),
     name='cleanupeventrequest_tabledata_readonly',
   ),
@@ -144,7 +148,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'ce-request/table',
+    route='ce-request/table',
     view=login_required(CleanupEventRequestTableView.as_view()),
     name='cleanupeventrequest_table',
   ),
@@ -152,7 +156,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'ce-request/table/read-only',
+    route='ce-request/table/read-only',
     view=login_required(CleanupEventRequestTableView.as_view()),
     name='cleanupeventrequest_table_readonly',
   ),
@@ -160,7 +164,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'ce-request/mapdata',
+    route='ce-request/mapdata',
     view=login_required(CleanupEventRequestMapDataView.as_view()),
     name='cleanupeventrequest_mapdata',
   ),
@@ -168,7 +172,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'ce-request/mapdata/read-only',
+    route='ce-request/mapdata/read-only',
     view=login_required(CleanupEventRequestMapDataView.as_view()),
     name='cleanupeventrequest_mapdata_readonly',
   ),
@@ -176,7 +180,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'ce-request/map',
+    route='ce-request/map',
     view=login_required(CleanupEventRequestMapView.as_view()),
     name='cleanupeventrequest_map',
   ),
@@ -184,7 +188,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'ce-request/map/read-only',
+    route='ce-request/map/read-only',
     view=login_required(CleanupEventRequestMapView.as_view()),
     name='cleanupeventrequest_map_readonly',
   ),
@@ -192,7 +196,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'ce-request/create',
+    route='ce-request/create',
     view=login_required(
       CleanupEventRequestCreateView.as_view(
         success_url=reverse_lazy('antragsmanagement:cleanupeventevent_create')
@@ -204,7 +208,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'ce-request/update/<pk>',
+    route='ce-request/update/<pk>',
     view=login_required(CleanupEventRequestUpdateView.as_view()),
     name='cleanupeventrequest_update',
   ),
@@ -212,7 +216,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'ce-request/authorative/update/<pk>',
+    route='ce-request/authorative/update/<pk>',
     view=login_required(CleanupEventRequestAuthorativeUpdateView.as_view()),
     name='cleanupeventrequest_authorative_update',
   ),
@@ -220,7 +224,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # event (Aktion)
   path(
-    'ce-request/event/create',
+    route='ce-request/event/create',
     view=login_required(
       CleanupEventEventCreateView.as_view(
         success_url=reverse_lazy('antragsmanagement:cleanupeventvenue_create')
@@ -232,7 +236,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # event (Aktion)
   path(
-    'ce-request/event/update/<pk>',
+    route='ce-request/event/update/<pk>',
     view=login_required(CleanupEventEventUpdateView.as_view()),
     name='cleanupeventevent_update',
   ),
@@ -240,7 +244,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # event (Aktion)
   path(
-    'ce-request/event/authorative/update/<pk>',
+    route='ce-request/event/authorative/update/<pk>',
     view=login_required(CleanupEventEventAuthorativeUpdateView.as_view()),
     name='cleanupeventevent_authorative_update',
   ),
@@ -248,7 +252,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # venue (Treffpunkt)
   path(
-    'ce-request/venue/create',
+    route='ce-request/venue/create',
     view=login_required(
       CleanupEventVenueCreateView.as_view(
         success_url=reverse_lazy('antragsmanagement:cleanupeventdetails_create')
@@ -260,7 +264,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # venue (Treffpunkt)
   path(
-    'ce-request/venue/update/<pk>',
+    route='ce-request/venue/update/<pk>',
     view=login_required(CleanupEventVenueUpdateView.as_view()),
     name='cleanupeventvenue_update',
   ),
@@ -268,7 +272,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # venue (Treffpunkt)
   path(
-    'ce-request/venue/authorative/update/<pk>',
+    route='ce-request/venue/authorative/update/<pk>',
     view=login_required(CleanupEventVenueAuthorativeUpdateView.as_view()),
     name='cleanupeventvenue_authorative_update',
   ),
@@ -276,7 +280,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # details (Detailangaben)
   path(
-    'ce-request/details/create',
+    route='ce-request/details/create',
     view=login_required(
       CleanupEventDetailsCreateView.as_view(
         success_url=reverse_lazy('antragsmanagement:cleanupeventcontainer_decision')
@@ -288,7 +292,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # details (Detailangaben)
   path(
-    'ce-request/details/update/<pk>',
+    route='ce-request/details/update/<pk>',
     view=login_required(CleanupEventDetailsUpdateView.as_view()),
     name='cleanupeventdetails_update',
   ),
@@ -296,7 +300,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # details (Detailangaben)
   path(
-    'ce-request/details/authorative/update/<pk>',
+    route='ce-request/details/authorative/update/<pk>',
     view=login_required(CleanupEventDetailsAuthorativeUpdateView.as_view()),
     name='cleanupeventdetails_authorative_update',
   ),
@@ -304,7 +308,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # container (Container)
   path(
-    'ce-request/container/decision',
+    route='ce-request/container/decision',
     view=login_required(CleanupEventContainerDecisionView.as_view()),
     name='cleanupeventcontainer_decision',
   ),
@@ -312,7 +316,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # container (Container)
   path(
-    'ce-request/container/create',
+    route='ce-request/container/create',
     view=login_required(
       CleanupEventContainerCreateView.as_view(success_url=reverse_lazy('antragsmanagement:index'))
     ),
@@ -322,7 +326,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # container (Container)
   path(
-    'ce-request/container/authorative/create/<request_id>',
+    route='ce-request/container/authorative/create/<request_id>',
     view=login_required(CleanupEventContainerAuthorativeCreateView.as_view()),
     name='cleanupeventcontainer_authorative_create',
   ),
@@ -330,14 +334,14 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # container (Container)
   path(
-    'ce-request/container/authorative/update/<pk>',
+    route='ce-request/container/authorative/update/<pk>',
     view=login_required(CleanupEventContainerAuthorativeUpdateView.as_view()),
     name='cleanupeventcontainer_authorative_update',
   ),
   # page for deleting an instance of object for request type clean-up events (Müllsammelaktionen):
   # container (Container)
   path(
-    'ce-request/container/delete/<pk>',
+    route='ce-request/container/delete/<pk>',
     view=login_required(CleanupEventContainerDeleteView.as_view()),
     name='cleanupeventcontainer_delete',
   ),
@@ -345,7 +349,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # dump (Müllablageplatz)
   path(
-    'ce-request/dump/authorative/create/<request_id>',
+    route='ce-request/dump/authorative/create/<request_id>',
     view=login_required(CleanupEventDumpAuthorativeCreateView.as_view()),
     name='cleanupeventdump_authorative_create',
   ),
@@ -353,14 +357,14 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # dump (Müllablageplatz)
   path(
-    'ce-request/dump/authorative/update/<pk>',
+    route='ce-request/dump/authorative/update/<pk>',
     view=login_required(CleanupEventDumpAuthorativeUpdateView.as_view()),
     name='cleanupeventdump_authorative_update',
   ),
   # page for deleting an instance of object for request type clean-up events (Müllsammelaktionen):
   # dump (Müllablageplatz)
   path(
-    'ce-request/dump/delete/<pk>',
+    route='ce-request/dump/delete/<pk>',
     view=login_required(CleanupEventDumpDeleteView.as_view()),
     name='cleanupeventdump_delete',
   ),
@@ -368,7 +372,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request comment (Kommentar zu Antrag)
   path(
-    'ce-request/comment/list/<request_id>',
+    route='ce-request/comment/list/<request_id>',
     view=login_required(compose_cleanupeventrequestcomment_list),
     name='cleanupeventrequestcomment_list',
   ),
@@ -376,7 +380,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request comment (Kommentar zu Antrag)
   path(
-    'ce-request/comment/create/<request_id>',
+    route='ce-request/comment/create/<request_id>',
     view=login_required(CleanupEventRequestCommentCreateView.as_view()),
     name='cleanupeventrequestcomment_create',
   ),
@@ -384,11 +388,11 @@ urlpatterns = [
   # URLs also accessible anonymously
   #
   # anonymous main page
-  path('public', view=IndexView.as_view(), name='anonymous_index'),
+  path(route='public', view=IndexView.as_view(), name='anonymous_index'),
   # anonymous form page for creating an instance of general object:
   # requester (Antragsteller:in)
   path(
-    'public/requester/create',
+    route='public/requester/create',
     view=RequesterCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_index')
     ),
@@ -397,7 +401,7 @@ urlpatterns = [
   # anonymous form page for updating an instance of general object:
   # requester (Antragsteller:in)
   path(
-    'public/requester/update/<pk>',
+    route='public/requester/update/<pk>',
     view=RequesterUpdateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_index')
     ),
@@ -407,7 +411,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'public/ce-request/data',
+    route='public/ce-request/data',
     view=CleanupEventRequestDataAnonymousView.as_view(),
     name='anonymous_cleanupeventrequest_data',
   ),
@@ -415,7 +419,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'public/ce-request/mapdata/<request_id>',
+    route='public/ce-request/mapdata/<request_id>',
     view=CleanupEventRequestMapDataAnonymousView.as_view(),
     name='anonymous_cleanupeventrequest_mapdata',
   ),
@@ -423,7 +427,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'public/ce-request/map/<request_id>',
+    route='public/ce-request/map/<request_id>',
     view=CleanupEventRequestMapAnonymousView.as_view(),
     name='anonymous_cleanupeventrequest_map',
   ),
@@ -431,7 +435,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'public/ce-request/create',
+    route='public/ce-request/create',
     view=CleanupEventRequestCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_cleanupeventevent_create')
     ),
@@ -441,7 +445,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'public/ce-request/update/<pk>',
+    route='public/ce-request/update/<pk>',
     view=CleanupEventRequestUpdateAnonymousView.as_view(),
     name='anonymous_cleanupeventrequest_update',
   ),
@@ -449,7 +453,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # event (Aktion)
   path(
-    'public/ce-request/event/create',
+    route='public/ce-request/event/create',
     view=CleanupEventEventCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_cleanupeventvenue_create')
     ),
@@ -459,7 +463,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # event (Aktion)
   path(
-    'public/ce-request/event/update/<pk>',
+    route='public/ce-request/event/update/<pk>',
     view=CleanupEventEventUpdateAnonymousView.as_view(),
     name='anonymous_cleanupeventevent_update',
   ),
@@ -467,7 +471,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # venue (Treffpunkt)
   path(
-    'public/ce-request/venue/create',
+    route='public/ce-request/venue/create',
     view=CleanupEventVenueCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_cleanupeventdetails_create')
     ),
@@ -477,7 +481,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # venue (Treffpunkt)
   path(
-    'public/ce-request/venue/update/<pk>',
+    route='public/ce-request/venue/update/<pk>',
     view=CleanupEventVenueUpdateAnonymousView.as_view(),
     name='anonymous_cleanupeventvenue_update',
   ),
@@ -485,7 +489,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # details (Detailangaben)
   path(
-    'public/ce-request/details/create',
+    route='public/ce-request/details/create',
     view=CleanupEventDetailsCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_cleanupeventcontainer_decision')
     ),
@@ -495,7 +499,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # details (Detailangaben)
   path(
-    'public/ce-request/details/update/<pk>',
+    route='public/ce-request/details/update/<pk>',
     view=CleanupEventDetailsUpdateAnonymousView.as_view(),
     name='anonymous_cleanupeventdetails_update',
   ),
@@ -503,7 +507,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # container (Container)
   path(
-    'public/ce-request/container/decision',
+    route='public/ce-request/container/decision',
     view=CleanupEventContainerDecisionAnonymousView.as_view(),
     name='anonymous_cleanupeventcontainer_decision',
   ),
@@ -511,7 +515,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # container (Container)
   path(
-    'public/ce-request/container/create',
+    route='public/ce-request/container/create',
     view=CleanupEventContainerCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_index')
     ),

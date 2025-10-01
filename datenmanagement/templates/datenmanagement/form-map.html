@@ -28,6 +28,8 @@
 {% endblock %}
 
 {% block content %}
+  {% include "datenmanagement/message_container.html" %}
+
   <h2>{{ model_verbose_name_plural }} - Formular</h2>
 
   {% block alerts %}
@@ -937,4 +939,7 @@
   {% block pc_management %}
 
   {% endblock %}
+
+  {% include "d3/object-process.html" with processes=d3_processes %}
+
 {% endblock %}

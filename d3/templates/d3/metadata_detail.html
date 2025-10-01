@@ -1,0 +1,31 @@
+<div class="p-2 rounded {% if request.COOKIES.theme == 'dark' %}bg-dark-subtle{% else %}bg-light-subtle{% endif %}">
+  <div>
+    {% if metadata %}
+      {% for entry in metadata %}
+        <div style="display: flex; width: 100%; margin-bottom: 0.5rem;">
+          <div style="width: 20%;">
+            <strong>{{ entry.titel }}:</strong>
+          </div>
+          <div style="width: 80%;">
+            {{ entry.wert }}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div>Keine Metadaten vorhanden.</div>
+    {% endif %}
+  </div>
+  <br />
+  <div id="{{ random_uuid }}">
+    <p>Dateien werden geladen...</p>
+    <script type="text/javascript">
+
+      var div_container = $('#{{ random_uuid }}');
+
+      $.get('{{ file_list_url }}', function(data) {
+
+        div_container.html(data);
+      });
+    </script>
+  </div>
+</div>

@@ -9,6 +9,8 @@
 {% endblock %}
 
 {% block content %}
+  {% include "datenmanagement/message_container.html" %}
+
   <h2>{{ model_verbose_name_plural }} - Formular</h2>
 
   {% block alerts %}
@@ -70,6 +72,20 @@
                         <div id="results-container" class="results"></div>
                       {% else %}
                         {{ field }}
+
+                        {% if thumb_urls_3d_models and field.name == "model_3d" %}
+                          <fieldset id="image-selector" class="d-flex flex-wrap justify-content-center">
+                            {% for thumb_key, thumb_url in thumb_urls_3d_models.items %}
+                              <div class="model-option">
+                                <label for="{{ thumb_key }}" onclick="toggleRadioButton('{{ thumb_key }}', event)">
+                                  <img src="{{ thumb_url }}" alt="{{ thumb_key }}" class="image-3d-model">
+                                  <p>{{ thumb_key }}</p>
+                                  <input type="radio" id="{{ thumb_key }}" name="model-selection" value="{{ thumb_key }}" class="form-check-input">
+                                </label>
+                              </div>
+                            {% endfor %}
+                          </fieldset>
+                        {% endif %}
                       {% endif %}
                     </td>
                   {% endautoescape %}
@@ -99,6 +115,64 @@
                   </div>
                 </td>
               </tr>
+            {% endif %}
+            {% if thumb_urls_3d_models %}
+             	<script>
+                /**
+                 * hide original input
+                 */
+                function hide3dModelInput() {
+                  const charInput = document.getElementById("id_model_3d");
+                  charInput.style.display = "none";
+                }
+
+                /**
+                 * remove jpg file extensions and replace underscores
+                 */
+                function manipulate3DModelNames() {
+                  const labels = document.querySelectorAll(".model-option > label > p")
+                  labels.forEach(label => {
+                    label.textContent = label.textContent.replace(/\.jpg$/, '').replace(/_/g, ' ');
+                  });
+                }
+
+                /**
+                 * This function selects the 3D model which is written in the text input field.
+                 */
+                function select3DModelOnLoad() {
+                  const labels = document.querySelectorAll(".model-option > label")
+                  const charInput = document.getElementById("id_model_3d");
+
+                  for (item of labels) {
+                    if (item.htmlFor == charInput.value) {
+                      item.lastElementChild.checked = true;
+                    }
+                  }
+                }
+
+                /**
+                 * update the original Input Field of 3D Model Selection
+                 */
+                function toggleRadioButton(radioId, event) {
+                  event.preventDefault(); // Verhindert das Standard-Verhalten
+                  const radioButton = document.getElementById(radioId);
+                  const inputField = document.getElementById('id_model_3d');
+
+                  if (radioButton.checked) {
+                    // Radio button was already checked, uncheck it and clear input field
+                    radioButton.checked = false;
+                    inputField.value = '';
+                  } else {
+                    // Radio button was not checked, check it and set input field value
+                    radioButton.checked = true;
+                    inputField.value = radioButton.value;
+                  }
+                }
+
+                hide3dModelInput();
+                manipulate3DModelNames()
+                select3DModelOnLoad();
+              </script>
             {% endif %}
           </table>
         </div>

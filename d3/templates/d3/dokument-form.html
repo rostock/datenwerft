@@ -1,0 +1,51 @@
+{% extends "d3/form.html" %}
+{% load static %}
+
+{% block title %}Dokument erstellen | {% endblock %}
+
+{% block content %}
+  <h2>Dokumentenerstellung</h2>
+
+  {% block alerts %}
+    {{ block.super }}
+  {% endblock %}
+
+  {% block errors %}
+    {% if form.errors %}
+      {% include "d3/container_errors.html" %}
+    {% endif %}
+  {% endblock %}
+
+  <form class="form flex-container-column" id="form" method="post" enctype="multipart/form-data">
+
+    {% csrf_token %}
+    <div class="flex-item" id="flex-list">
+      {% block list %}
+        <div>
+          <input type="hidden" name="original_url_back" value="{{ url_back }}">
+          <table class="table">
+            {% for field in form %}
+              <tr>
+                <td class="cell-label">
+                  {{ field.label_tag }}
+                </td>
+                {% autoescape off %}
+                  <td class="cell-field">
+                    {{ field }}
+                  </td>
+                {% endautoescape %}
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      {% endblock %}
+    </div>
+    <div class="flex-item" id="flex-action-buttons">
+      <button class="btn btn-primary" type="submit"><i class="fas fa-floppy-disk"></i> Dokument speichern</button>
+        <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
+    </div>
+  </form>
+  <script type="application/javascript">
+    $('.select2').select2({});
+  </script>
+{% endblock %}

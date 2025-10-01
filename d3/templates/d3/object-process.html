@@ -1,0 +1,114 @@
+{% load static %}
+{% block style %}
+  <link rel="stylesheet" type="text/css" href="{% static 'datatables/datatables.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/list.css' %}">
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'datatables/datatables.min.js' %}"></script>
+  <script src="{% static 'd3/js/list.js' %}"></script>
+{% endblock %}
+
+{% if authentication_failed %}
+  <hr />
+  <div class="alert alert-danger" role="alert">
+    Die Authentifizierung zu D3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.
+  </div>
+{% elif enabled %}
+
+  <hr />
+  <h2>Vorgänge</h2>
+
+  <div >
+
+    {% if url_process_add %}
+        <a class="btn btn-primary" role="button" href="{{ url_process_add }}"><i class="fas fa-circle-plus"></i> neuen Vorgang anlegen</a>
+    {% endif %}
+
+  </div>
+
+  <div style="padding-bottom: 50px">
+    <table id="datasets" class="table table-bordered table-striped">
+      <thead>
+          <tr>
+            {% for column_title in column_titles %}
+              <th>{{ column_title }}</th>
+            {% endfor %}
+            <th></th>
+          </tr>
+      </thead>
+    </table>
+  </div>
+
+  <script>
+    window.dataUrl = '{{ url_process_tabledata }}';
+    window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
+    window.checkAllTarget = true;
+    window.metaDataUrl = '{{ url_process_metadata }}';
+  </script>
+
+  <script>
+    setTimeout(function () {
+      $('.alert-success').alert('close');
+    }, 3000);
+
+    /**
+     * @function
+     *
+     * main function
+     */
+    $(document).ready(function() {
+
+      const table = initDataTable(window.dataUrl, window.languageUrl);
+
+      $('#datasets tbody').on('click', 'tr', function () {
+
+        const tr = $(this).closest('tr');
+        const table = $('#datasets').DataTable();
+        const row = table.row(tr);
+
+        if (row.length === 0) {
+          return;
+        }
+
+        const rowData = row.data();
+
+        const processId = rowData[0];
+
+        if (row.child.isShown()) {
+
+          row.child.hide();
+          tr.removeClass('shown');
+        } else {
+
+          tr.css('opacity', 0.5);
+          fetchMetadata(window.metaDataUrl, processId).then(data => {
+
+            row.child(data.html).show();
+            tr.css('opacity', 'initial')
+          }).catch(error => {
+
+            row.child('Error loading data').show();
+            tr.css('opacity', 'initial')
+          });
+
+          tr.addClass('shown');
+        }
+      });
+
+      table.on('xhr', function(e, settings, json) {
+        if (json && json.recordsTotal === 0) {
+          // Hide pagination and page size controls
+          $('.dataTables_paginate').hide();
+          $('.dataTables_length').hide();
+          $('.dataTables_info').hide();
+
+        } else {
+          $('.dataTables_paginate').show();
+          $('.dataTables_length').show();
+          $('.dataTables_info').show();
+        }
+      });
+    });
+  </script>
+{% endif %}
