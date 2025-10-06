@@ -36,9 +36,7 @@ LOCAL_APPS = [
   'fmm',
   'gdihrocodelists',
   'gdihrometadata',
-  'd3',
   'kiju',
-
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 LOGIN_REDIRECT_URL = '/'
@@ -101,15 +99,6 @@ AUTHENTICATION_BACKENDS = (
   'django.contrib.auth.backends.ModelBackend',
 )
 
-D3_HOST = ''
-D3_REPOSITORY = ''
-D3_ENABLED = False
-
-D3_AKTEN_CATEGORY = ''
-D3_VORGANG_CATEGORY = ''
-D3_DATEI_CATEGORY = ''
-D3_VORGANGS_TITEL_ID = ''
-D3_VORGANGS_TYP_ID = None
 
 # Datenwerft.HRO:
 # security
@@ -369,7 +358,6 @@ PDF_JINJASTRINGS = {
   'comment_end': '}',
 }
 
-APPLICATION_HTTP_USER_AGENT = 'HRO.Datenwerft/1.0'
 
 # configuration file with additional parameters
 # which must not fall under Git version control

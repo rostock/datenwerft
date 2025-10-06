@@ -36,7 +36,13 @@ dependencies = [
 # Development dependencies
 
 [dependency-groups]
-dev = ["djlint", "ruff"]
+dev = [
+    "basedpyright>=1.31.0",
+    "django-stubs[compatible-mypy]>=5.2.2",
+    "django-types>=0.22.0",
+    "djlint",
+    "ruff",
+]
 
 
 # djLint configuration

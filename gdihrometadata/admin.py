@@ -93,14 +93,15 @@ def mandatory_field_pairs(form, field_one_name, field_two_name, field_three_name
   field_two_data = form.cleaned_data.get(field_two_name, None)
   field_three_data = form.cleaned_data.get(field_three_name, None)
   if field_three_name:
-    if any([field_one_data, field_two_data, field_three_data]):
-      if not all([field_one_data, field_two_data, field_three_data]):
-        text = '{}, {} und {} müssen immer gemeinsam gesetzt sein.'.format(
-          form._meta.model._meta.get_field(field_one_name).verbose_name,
-          form._meta.model._meta.get_field(field_two_name).verbose_name,
-          form._meta.model._meta.get_field(field_three_name).verbose_name,
-        )
-        raise ValidationError(text)
+    if not (field_one_data is None and field_two_data is None and field_three_data is None) or (
+      field_one_data is not None and field_two_data is not None and field_three_data is not None
+    ):
+      text = '{}, {} und {} müssen immer gemeinsam gesetzt sein.'.format(
+        form._meta.model._meta.get_field(field_one_name).verbose_name,
+        form._meta.model._meta.get_field(field_two_name).verbose_name,
+        form._meta.model._meta.get_field(field_three_name).verbose_name,
+      )
+      raise ValidationError(text)
   else:
     if (field_two_data and not field_one_data) or (field_one_data and not field_two_data):
       text = '{} und {} müssen immer gemeinsam gesetzt sein.'.format(

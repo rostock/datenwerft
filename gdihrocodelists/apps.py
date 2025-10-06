@@ -4,3 +4,5 @@ from django.apps import AppConfig
 class GdiHroCodelistsConfig(AppConfig):
   name = 'gdihrocodelists'
   verbose_name = 'GDI.HRO Codelists'
+  description = 'System zur Administration von Codelisten im Rahmen der GDI.HRO'
+  admin_app = True

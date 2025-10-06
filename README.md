@@ -1,4 +1,4 @@
-# _Datenwerft.HRO_
+# Datenwerft.HRO
 
 Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https://www.djangoproject.com/) aufsetzt
 
@@ -20,7 +20,6 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
    - [Grundsätzliches](#grundsätzliches)
    - [Python](#python)
    - [JavaScript](#javascript)
-   - [Anpassungen Datenbankschema App _Datenmanagement_](#anpassungen-datenbankschema-app-_datenmanagement_)
 1. [Linting](#linting)
 1. [Tests](#tests)
 1. [CI/CD](#cicd)
@@ -311,15 +310,6 @@ Die entsprechende Konfigurationsdatei `pyproject.toml` für (zum Beispiel) _ruff
 
 JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc) dokumentiert, angelehnt an [diese Übersicht](https://devhints.io/jsdoc).
 
-### Anpassungen Datenbankschema App _Datenmanagement_
-
-```bash
-pg_dump -U [Datenbanknutzer] -O -x -s -N public -N topology -e postgis -e uuid-ossp -f datenmanagement/sql/schema.sql [Datenbankname]
-```
-
-> [!WARNING]
-> Sobald die Datei `datenmanagement/sql/schema.sql` überschrieben wurde, muss darin die Zeile `SELECT pg_catalog.set_config('search_path', '', false);` in `SELECT pg_catalog.set_config('search_path', 'public', false);` geändert werden!
-
 ## Linting
 
 - Python-Prüfungen mittels [_ruff_](https://docs.astral.sh/ruff/):
@@ -488,7 +478,7 @@ uv run manage.py test toolbox
 ### Ablauf
 
 1. neuen Branch erstellen – Name des Branches:
-   - bei Features: `feature/<app-name>/<feature-name>` (Beispiel: `feature/datenmanagement/edit-model-foobar`)
+   - bei Features: `feature/<app-name>/<feature-name>` (Beispiel: `feature/datenmanagement/edit-photos`)
    - bei Bugfixes: `bugfix/<app-name>/<bugfix-name>` (Beispiel: `bugfix/accounts/emails`)
 2. Änderungen linten und testen (siehe oben)
 3. Änderungen committen und Commit(s) pushen

@@ -4,79 +4,87 @@
 {% block title %}{% if user.is_authenticated %}Start{% else %}Willkommen{% endif %} | {% endblock %}
 
 {% block content %}
+  <div class="container-xxl">
   {% if user.is_authenticated %}
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-      <div class="col">
-        <div class="card h-100 text-white bg-primary">
-          <div class="card-body">
-            <h5 class="card-title"><em>BEMAS</em></h5>
-            <p class="card-text">Beschwerdemanagementsystem</p>
-            <a class="btn btn-lg btn-warning" role="button" href="{% url 'bemas:index' %}">
-              {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}<em>BEMAS</em> {% endif %}öffnen
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card h-100 text-white bg-primary">
-          <div class="card-body">
-            <h5 class="card-title">Datenmanagement</h5>
-            <p class="card-text">System zur Bearbeitung von Daten im Rahmen der GDI.HRO</p>
-            <a class="btn btn-lg btn-warning" role="button" href="{% url 'datenmanagement:index' %}">
-              {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}Datenmanagement {% endif %}öffnen
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card h-100 text-white bg-primary">
-          <div class="card-body">
-            <h5 class="card-title">Antragsmanagement</h5>
-            <p class="card-text">System zum Management von Anträgen</p>
-            <a class="btn btn-lg btn-warning" role="button" href="{% url 'antragsmanagement:index' %}">
-              {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}Antragsmanagement {% endif %}öffnen
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card h-100 text-white bg-primary">
-          <div class="card-body">
-            <h5 class="card-title"><em>FMM</em></h5>
-            <p class="card-text">Flächenmanagementsystem</p>
-            <a class="btn btn-lg btn-warning" role="button" href="{% url 'fmm:index' %}">
-              {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}<em>FMM</em> {% endif %}öffnen
-            </a>
-          </div>
-        </div>
-      </div>
-      {% if user.is_staff %}
+    <a class="text-black" data-bs-toggle="collapse" href="#yourApps" aria-expanded="true" aria-controls="yourApps">
+      <h1 class="mb-4">
+        <i class="fa-fw fa-solid fa-angle-down" id="caretIconYourApps"></i>
+        Deine Apps
+      </h1>
+    </a>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 g-4 text-center mb-5 collapse show" id="yourApps">
+      {% for app in apps %}
         <div class="col">
-          <div class="card h-100 text-white bg-secondary">
-            <div class="card-body">
-              <h5 class="card-title"><em>GDI.HRO Codelists</em></h5>
-              <p class="card-text">System zur Administration von Codelisten im Rahmen der GDI.HRO</p>
-              <a class="btn btn-lg btn-light" role="button" href="{% url 'admin:index' %}gdihrocodelists">
-                {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}<em>GDI.HRO Codelists</em> {% endif %}öffnen
-              </a>
+          <div class="card h-100 bg-primary-subtle border-primary shadow rounded text-black">
+            <div class="card-header bg-primary-subtle border-primary">
+              <h2>{{app.name}}</h2>
             </div>
+            <div class="card-body">
+              <p>{{app.description}}</p>
+            </div>
+            <ul class="list-group list-group-flush border-0">
+              <li class="list-group-item bg-primary-subtle">
+                <div class="d-grid">
+                  <a class="btn btn-primary text-white" href="{{app.url}}">App starten</a>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
-      {% endif %}
-      {% if user.is_staff %}
-        <div class="col">
-          <div class="card h-100 text-white bg-secondary">
-            <div class="card-body">
-              <h5 class="card-title"><em>GDI.HRO Metadata</em></h5>
-              <p class="card-text">System zur Administration von Metadaten im Rahmen der GDI.HRO</p>
-              <a class="btn btn-lg btn-light" role="button" href="{% url 'admin:index' %}gdihrometadata">
-                {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}<em>GDI.HRO Metadata</em> {% endif %}öffnen
-              </a>
-            </div>
-          </div>
-        </div>
-      {% endif %}
+      {% endfor %}
     </div>
+    <script>
+      // Icon Change for collapsed Section
+      document.getElementById('yourApps').addEventListener('show.bs.collapse', function () {
+        document.getElementById('caretIconYourApps').classList.remove('fa-angle-right');
+        document.getElementById('caretIconYourApps').classList.add('fa-angle-down');
+      });
+
+      document.getElementById('yourApps').addEventListener('hide.bs.collapse', function () {
+        document.getElementById('caretIconYourApps').classList.remove('fa-angle-down');
+        document.getElementById('caretIconYourApps').classList.add('fa-angle-right');
+      });
+    </script>
+    {% if user.is_staff %}
+      <a class="text-black" data-bs-toggle="collapse" href="#admin-apps" aria-expanded="false" aria-controls="admin-apps">
+        <h1 class="mb-4">
+          <i class="fa-fw fa-solid fa-angle-right" id="caretIconAdminApps"></i>
+          Deine Admin Apps
+        </h1>
+      </a>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 g-4 text-center mb-5 collapse" id="admin-apps">
+        {% for app in admin_apps %}
+          <div class="col">
+            <div class="card h-100 bg-danger-subtle border-danger shadow rounded text-black">
+              <div class="card-header bg-danger-subtle border-danger">
+                <h2>{{app.name}}</h2>
+              </div>
+              <div class="card-body">
+                <p>{{app.description}}</p>
+              </div>
+              <ul class="list-group list-group-flush border-0">
+                <li class="list-group-item bg-danger-subtle">
+                  <div class="d-grid">
+                    <a class="btn btn-danger text-white" href="{{app.url}}">Adminbereich öffnen</a>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <script>
+        document.getElementById('admin-apps').addEventListener('show.bs.collapse', function () {
+          document.getElementById('caretIconAdminApps').classList.remove('fa-angle-right');
+          document.getElementById('caretIconAdminApps').classList.add('fa-angle-down');
+        });
+
+        document.getElementById('admin-apps').addEventListener('hide.bs.collapse', function () {
+          document.getElementById('caretIconAdminApps').classList.remove('fa-angle-down');
+          document.getElementById('caretIconAdminApps').classList.add('fa-angle-right');
+        });
+      </script>
+    {% endif %}
   {% else %}
     <div class="mt-4 text-center">
       <img class="mx-auto col-{% if request.user_agent.is_mobile %}4{% else %}1{% endif %} me-2 main-logo" src="{% static 'img/logo.svg' %}" alt="Logo">
@@ -93,5 +101,6 @@
       <a class="btn btn-lg btn-primary" role="button" href="{% url 'accounts:login' %}"><i class="fas fa-right-to-bracket"></i> Anmeldung</a>
     </div>
   {% endif %}
+  </div>
 {% endblock %}
 admin/gdihrometadata/

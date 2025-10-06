@@ -46,7 +46,6 @@ class Basemodel(Model):
     :var address_mandatory: shall an address reference be mandatory for this model?
     :ivar thumbs: shall thumbnails be created from uploaded photos for this model?
     :ivar geojson_input: shall an upload field for a GeoJSON file be available in the form view?
-    :ivar git_repo_of_3d_models: shall 3d models be selected for this model?
     :ivar gpx_input: shall an upload field for a GPX file be available in the form view?
     :ivar associated_models: shall other models referencing this model?
     :ivar choices_models_for_choices_fields:
@@ -100,7 +99,6 @@ class Basemodel(Model):
     address_mandatory: bool = False
     thumbs: bool = True
     geojson_input: bool = False
-    git_repo_of_3d_models: str = None
     gpx_input: bool = False
 
     # shall other models (as keys), each referencing this model
@@ -283,12 +281,7 @@ class Art(Codelist):
   abstract model class for 'Art' codelists
   """
 
-  art = CharField(
-    verbose_name='Art',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
-  )
+  art = CharField(verbose_name='Art', max_length=255, unique=True, validators=standard_validators)
 
   class Meta(Codelist.Meta):
     abstract: bool = True
@@ -307,10 +300,7 @@ class Ausfuehrung(Codelist):
   """
 
   ausfuehrung = CharField(
-    verbose_name='Ausführung',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
+    verbose_name='Ausführung', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -330,10 +320,7 @@ class Befestigungsart(Codelist):
   """
 
   befestigungsart = CharField(
-    verbose_name='Befestigungsart',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
+    verbose_name='Befestigungsart', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -353,10 +340,7 @@ class Hersteller(Codelist):
   """
 
   bezeichnung = CharField(
-    verbose_name='Bezeichnung',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
+    verbose_name='Bezeichnung', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -376,10 +360,7 @@ class Material(Codelist):
   """
 
   material = CharField(
-    verbose_name='Material',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
+    verbose_name='Material', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -399,10 +380,7 @@ class Schlagwort(Codelist):
   """
 
   schlagwort = CharField(
-    verbose_name='Schlagwort',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
+    verbose_name='Schlagwort', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -422,10 +400,7 @@ class Status(Codelist):
   """
 
   status = CharField(
-    verbose_name='Status',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
+    verbose_name='Status', max_length=255, unique=True, validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
@@ -444,12 +419,7 @@ class Typ(Codelist):
   abstract model class for 'Typ' codelists
   """
 
-  typ = CharField(
-    verbose_name='Typ',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
-  )
+  typ = CharField(verbose_name='Typ', max_length=255, unique=True, validators=standard_validators)
 
   class Meta(Codelist.Meta):
     abstract: bool = True

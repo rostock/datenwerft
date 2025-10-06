@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.shortcuts import redirect, render
 from django.views.generic.base import TemplateView
 
@@ -39,6 +40,36 @@ class IndexView(TemplateView):
         return redirect('fmm:index')
 
     return super(IndexView, self).dispatch(request, *args, **kwargs)
+
+  def get_context_data(self, **kwargs):
+    # Initialize context from parent class
+    context = super().get_context_data(**kwargs)
+
+    # add installed apps to template context
+    context['apps'] = []
+    for app in apps.get_app_configs():
+      if hasattr(app, 'datenwerft_app') and app.datenwerft_app:
+        context['apps'].append(
+          {
+            'name': getattr(app, 'verbose_name', app.name),
+            'description': getattr(app, 'description', ''),
+            'url': getattr(app, 'url', f'/{app.name}/'),
+          }
+        )
+
+    # add installed admin apps to template context
+    context['admin_apps'] = []
+    for app in apps.get_app_configs():
+      if hasattr(app, 'admin_app') and app.admin_app:
+        context['admin_apps'].append(
+          {
+            'name': getattr(app, 'verbose_name', app.name),
+            'description': getattr(app, 'description', ''),
+            'url': getattr(app, 'url', f'/admin/{app.name}/'),
+          }
+        )
+
+    return context
 
 
 def error_400(request, exception=None):

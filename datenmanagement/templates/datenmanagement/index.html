@@ -10,105 +10,107 @@
 {% endblock %}
 
 {% block content %}
-  {% if models_meta or models_codelist or models_complex or models_simple %}
-    <h2>Datenthemen, die Ihnen zur Verfügung stehen:</h2>
-    <nav>
-      <div class="nav nav-pills" id="nav-tabs" role="tablist">
+  <div class="container-xxl">
+    {% if models_meta or models_codelist or models_complex or models_simple %}
+      <h2>Datenthemen, die Ihnen zur Verfügung stehen:</h2>
+      <nav>
+        <div class="nav nav-pills" id="nav-tabs" role="tablist">
+          {% if models_meta %}
+            <button class="nav-link active fs-5 py-3 px-4" id="nav-meta-themen-tab" data-bs-toggle="tab" data-bs-target="#nav-meta-themen" type="button" role="tab" aria-controls="nav-meta-themen" aria-selected="true">Meta-Datenthemen</button>
+          {% endif %}
+          {% if models_codelist %}
+            <button class="nav-link fs-5 py-3 px-4" id="nav-codelisten-tab" data-bs-toggle="tab" data-bs-target="#nav-codelisten" type="button" role="tab" aria-controls="nav-codelisten" aria-selected="false">Codelisten</button>
+          {% endif %}
+          {% if models_simple %}
+            <button class="nav-link fs-5 py-3 px-4" id="nav-einfache-themen-tab" data-bs-toggle="tab" data-bs-target="#nav-einfache-themen" type="button" role="tab" aria-controls="nav-einfache-themen" aria-selected="false">einfache Datenthemen</button>
+          {% endif %}
+          {% if models_complex %}
+            <button class="nav-link fs-5 py-3 px-4" id="nav-komplexe-themen-tab" data-bs-toggle="tab" data-bs-target="#nav-komplexe-themen" type="button" role="tab" aria-controls="nav-komplexe-themen" aria-selected="false">komplexe Datenthemen</button>
+          {% endif %}
+        </div>
+      </nav>
+      <div class="tab-content" id="nav-tabContent">
         {% if models_meta %}
-          <button class="nav-link active fs-5 py-3 px-4" id="nav-meta-themen-tab" data-bs-toggle="tab" data-bs-target="#nav-meta-themen" type="button" role="tab" aria-controls="nav-meta-themen" aria-selected="true">Meta-Datenthemen</button>
+          <div class="tab-pane fade show active" id="nav-meta-themen" role="tabpanel" aria-labelledby="nav-meta-themen-tab">
+            <h3 class="mt-3">Meta-Datenthemen</h3>
+            <div class="list-group mb-3">
+              {% for model in models_meta %}
+                {% if not model.not_listed %}
+                  <a class="list-group-item list-group-item-action list-group-item-info pt-3 pb-3" href="{{ model.url_start }}">
+                    <h4>{{ model.verbose_name_plural }}</h4>
+                    <small>{% if model.description %}{{ model.description }}{% endif %}</small>
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
         {% endif %}
         {% if models_codelist %}
-          <button class="nav-link fs-5 py-3 px-4" id="nav-codelisten-tab" data-bs-toggle="tab" data-bs-target="#nav-codelisten" type="button" role="tab" aria-controls="nav-codelisten" aria-selected="false">Codelisten</button>
+          <div class="tab-pane fade" id="nav-codelisten" role="tabpanel" aria-labelledby="nav-codelisten-tab">
+            <h3 class="mt-3">Codelisten</h3>
+            <div class="list-group mb-3">
+              {% for model in models_codelist %}
+                {% if not model.not_listed %}
+                  <a class="list-group-item list-group-item-action list-group-item-secondary pt-3 pb-3" href="{{ model.url_start }}">
+                    <h4>{{ model.verbose_name_plural }}</h4>
+                    <small>{% if model.description %}{{ model.description }}{% endif %}</small>
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
         {% endif %}
         {% if models_simple %}
-          <button class="nav-link fs-5 py-3 px-4" id="nav-einfache-themen-tab" data-bs-toggle="tab" data-bs-target="#nav-einfache-themen" type="button" role="tab" aria-controls="nav-einfache-themen" aria-selected="false">einfache Datenthemen</button>
+          <div class="tab-pane fade" id="nav-einfache-themen" role="tabpanel" aria-labelledby="nav-einfache-themen-tab">
+            <h3 class="mt-3">einfache Datenthemen</h3>
+            <div class="list-group mb-3">
+              {% for model in models_simple %}
+                {% if not model.not_listed %}
+                  <a class="list-group-item list-group-item-action list-group-item-primary pt-3 pb-3" href="{{ model.url_start }}">
+                    <h4>{{ model.verbose_name_plural }}</h4>
+                    <small>{% if model.description %}{{ model.description }}{% endif %}</small>
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
         {% endif %}
         {% if models_complex %}
-          <button class="nav-link fs-5 py-3 px-4" id="nav-komplexe-themen-tab" data-bs-toggle="tab" data-bs-target="#nav-komplexe-themen" type="button" role="tab" aria-controls="nav-komplexe-themen" aria-selected="false">komplexe Datenthemen</button>
+          <div class="tab-pane fade" id="nav-komplexe-themen" role="tabpanel" aria-labelledby="nav-komplexe-themen-tab">
+            <h3 class="mt-3">komplexe Datenthemen</h3>
+            <div class="list-group mb-3">
+              {% for model in models_complex %}
+                {% if not model.not_listed %}
+                  <a class="list-group-item list-group-item-action list-group-item-primary pt-3 pb-3" href="{{ model.url_start }}">
+                    <h4>{{ model.verbose_name_plural }}</h4>
+                    <small>{% if model.description %}{{ model.description }}{% endif %}</small>
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
         {% endif %}
       </div>
-    </nav>
-    <div class="tab-content" id="nav-tabContent">
-      {% if models_meta %}
-        <div class="tab-pane fade show active" id="nav-meta-themen" role="tabpanel" aria-labelledby="nav-meta-themen-tab">
-          <h3 class="mt-3">Meta-Datenthemen</h3>
-          <div class="list-group mb-3">
-            {% for model in models_meta %}
-              {% if not model.not_listed %}
-                <a class="list-group-item list-group-item-action list-group-item-info pt-3 pb-3" href="{{ model.url_start }}">
-                  <h4>{{ model.verbose_name_plural }}</h4>
-                  <small>{% if model.description %}{{ model.description }}{% endif %}</small>
-                </a>
-              {% endif %}
-            {% endfor %}
-          </div>
-        </div>
-      {% endif %}
-      {% if models_codelist %}
-        <div class="tab-pane fade" id="nav-codelisten" role="tabpanel" aria-labelledby="nav-codelisten-tab">
-          <h3 class="mt-3">Codelisten</h3>
-          <div class="list-group mb-3">
-            {% for model in models_codelist %}
-              {% if not model.not_listed %}
-                <a class="list-group-item list-group-item-action list-group-item-secondary pt-3 pb-3" href="{{ model.url_start }}">
-                  <h4>{{ model.verbose_name_plural }}</h4>
-                  <small>{% if model.description %}{{ model.description }}{% endif %}</small>
-                </a>
-              {% endif %}
-            {% endfor %}
-          </div>
-        </div>
-      {% endif %}
-      {% if models_simple %}
-        <div class="tab-pane fade" id="nav-einfache-themen" role="tabpanel" aria-labelledby="nav-einfache-themen-tab">
-          <h3 class="mt-3">einfache Datenthemen</h3>
-          <div class="list-group mb-3">
-            {% for model in models_simple %}
-              {% if not model.not_listed %}
-                <a class="list-group-item list-group-item-action list-group-item-primary pt-3 pb-3" href="{{ model.url_start }}">
-                  <h4>{{ model.verbose_name_plural }}</h4>
-                  <small>{% if model.description %}{{ model.description }}{% endif %}</small>
-                </a>
-              {% endif %}
-            {% endfor %}
-          </div>
-        </div>
-      {% endif %}
-      {% if models_complex %}
-        <div class="tab-pane fade" id="nav-komplexe-themen" role="tabpanel" aria-labelledby="nav-komplexe-themen-tab">
-          <h3 class="mt-3">komplexe Datenthemen</h3>
-          <div class="list-group mb-3">
-            {% for model in models_complex %}
-              {% if not model.not_listed %}
-                <a class="list-group-item list-group-item-action list-group-item-primary pt-3 pb-3" href="{{ model.url_start }}">
-                  <h4>{{ model.verbose_name_plural }}</h4>
-                  <small>{% if model.description %}{{ model.description }}{% endif %}</small>
-                </a>
-              {% endif %}
-            {% endfor %}
-          </div>
-        </div>
-      {% endif %}
-    </div>
-    <script>
-      $(document).ready(function () {
-        // restore active tab from localStorage if present there
-        const activeTab = localStorage.getItem('activeTab');
-        if (activeTab) {
-          const $tab = $(`[data-bs-target="${activeTab}"]`);
-          if ($tab.length) {
-            const bootstrapTab = new bootstrap.Tab($tab[0]);
-            bootstrapTab.show();
+      <script>
+        $(document).ready(function () {
+          // restore active tab from localStorage if present there
+          const activeTab = localStorage.getItem('activeTab');
+          if (activeTab) {
+            const $tab = $(`[data-bs-target="${activeTab}"]`);
+            if ($tab.length) {
+              const bootstrapTab = new bootstrap.Tab($tab[0]);
+              bootstrapTab.show();
+            }
           }
-        }
 
-        // save active tab to localStorage on tab change
-        $('[data-bs-toggle="tab"]').on('shown.bs.tab', function (event) {
-          localStorage.setItem('activeTab', $(event.target).data('bs-target'));
+          // save active tab to localStorage on tab change
+          $('[data-bs-toggle="tab"]').on('shown.bs.tab', function (event) {
+            localStorage.setItem('activeTab', $(event.target).data('bs-target'));
+          });
         });
-      });
-    </script>
-  {% else %}
-    <h2 class="text-center">Ihnen stehen leider (noch) keine Datenthemen zur Bearbeitung zur Verfügung.</h2>
-  {% endif %}
+      </script>
+    {% else %}
+      <h2 class="text-center">Ihnen stehen leider (noch) keine Datenthemen zur Bearbeitung zur Verfügung.</h2>
+    {% endif %}
+  </div>
 {% endblock %}

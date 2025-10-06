@@ -13,17 +13,12 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
-from d3.views.views_process import D3ContextMixin
 from datenmanagement.utils import (
   get_field_name_for_address_type,
   get_thumb_url,
   is_address_related_field,
 )
-from toolbox.utils import (
-  get_array_first_element,
-  is_geometry_field,
-  transform_geometry,
-)
+from toolbox.utils import get_array_first_element, is_geometry_field, transform_geometry
 
 from .forms import GenericForm
 from .functions import (
@@ -33,7 +28,6 @@ from .functions import (
   add_user_agent_context_elements,
   assign_widgets,
   generate_restricted_objects_list,
-  get_github_files,
   get_url_back,
   set_form_attributes,
 )
@@ -47,10 +41,7 @@ class DataAddView(CreateView):
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
     self.form_class = modelform_factory(
-      self.model,
-      form=GenericForm,
-      fields='__all__',
-      formfield_callback=assign_widgets,
+      self.model, form=GenericForm, fields='__all__', formfield_callback=assign_widgets
     )
     self.multi_file_upload = None
     self.multi_files = None
@@ -88,7 +79,6 @@ class DataAddView(CreateView):
     """
     model_name = self.model.__name__
     context = super().get_context_data(**kwargs)
-
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
     # add basic model related elements to context
@@ -100,10 +90,6 @@ class DataAddView(CreateView):
     context['geometry_calculation'] = self.model.BasemodelMeta.geometry_calculation
     referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
     context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
-    if self.model.BasemodelMeta.git_repo_of_3d_models:
-      context['thumb_urls_3d_models'] = get_github_files(
-        self.model.BasemodelMeta.git_repo_of_3d_models
-      )
     return context
 
   def get_initial(self):
@@ -203,14 +189,11 @@ class DataAddView(CreateView):
         geometry = form.data.get(field.name, None)
         if geometry and '0,0' not in geometry and '[]' not in geometry:
           context_data['geometry'] = geometry
-    context_data['form'], context_data['url_back'] = (
-      form,
-      form.data.get('original_url_back', None),
-    )
+    context_data['form'], context_data['url_back'] = form, form.data.get('original_url_back', None)
     return self.render_to_response(context_data)
 
 
-class DataChangeView(D3ContextMixin, UpdateView):
+class DataChangeView(UpdateView):
   """
   view for form page for updating an object of a model
   """
@@ -218,10 +201,7 @@ class DataChangeView(D3ContextMixin, UpdateView):
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
     self.form_class = modelform_factory(
-      self.model,
-      form=GenericForm,
-      fields='__all__',
-      formfield_callback=assign_widgets,
+      self.model, form=GenericForm, fields='__all__', formfield_callback=assign_widgets
     )
     self.file = None
     self.associated_objects = None
@@ -275,8 +255,7 @@ class DataChangeView(D3ContextMixin, UpdateView):
           foto = associated_object.foto if hasattr(associated_object, 'foto') else None
           if hasattr(associated_object, 'geometrie') and associated_object.geometrie is not None:
             geometry = transform_geometry(
-              geometry=GEOSGeometry(associated_object.geometrie),
-              target_srid=4326,
+              geometry=GEOSGeometry(associated_object.geometrie), target_srid=4326
             ).geojson
           else:
             geometry = {'type': 'Polygon', 'coordinates': []}
@@ -290,16 +269,14 @@ class DataChangeView(D3ContextMixin, UpdateView):
             except ValueError:
               pass
           api_link = reverse(
-            f'{associated_model.lower()}-detail',
-            kwargs={'pk': f'{associated_object.pk}'},
+            f'{associated_model.lower()}-detail', kwargs={'pk': f'{associated_object.pk}'}
           )
           associated_object_dict = {
             'title': title,
             'name': str(associated_object),
             'id': associated_object.pk,
             'link': reverse(
-              'datenmanagement:' + associated_model + '_change',
-              args=[associated_object.pk],
+              'datenmanagement:' + associated_model + '_change', args=[associated_object.pk]
             ),
             'preview_img_url': preview_img_url,
             'preview_thumb_url': preview_thumb_url,
@@ -358,10 +335,6 @@ class DataChangeView(D3ContextMixin, UpdateView):
         context['current_' + field_name_for_address_type] = self.object.strasse.pk
       elif field_name_for_address_type == 'district' and self.object.gemeindeteil:
         context['current_' + field_name_for_address_type] = self.object.gemeindeteil.pk
-    if self.model.BasemodelMeta.git_repo_of_3d_models:
-      context['thumb_urls_3d_models'] = get_github_files(
-        self.model.BasemodelMeta.git_repo_of_3d_models
-      )
     # prepare a dictionary for all array fields and their contents that contain more than one value
     array_fields_values = {}
     for field in self.model._meta.get_fields():
@@ -392,10 +365,6 @@ class DataChangeView(D3ContextMixin, UpdateView):
       )
     referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
     context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
-
-    # fetch d3 processes for this object
-    context = self.get_d3_context(context, self.model, self.kwargs['pk'])
-
     return context
 
   def get_initial(self):
@@ -480,10 +449,7 @@ class DataChangeView(D3ContextMixin, UpdateView):
         geometry = form.data.get(field.name, None)
         if geometry and '0,0' not in geometry and '[]' not in geometry:
           context_data['geometry'] = geometry
-    context_data['form'], context_data['url_back'] = (
-      form,
-      form.data.get('original_url_back', None),
-    )
+    context_data['form'], context_data['url_back'] = form, form.data.get('original_url_back', None)
     return self.render_to_response(context_data)
 
   def get_object(self, *args, **kwargs):

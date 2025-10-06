@@ -11,15 +11,11 @@ wie etwa zur An- und Abmeldung oder zur Navigation über die Titelleiste.
 
 ### [Navigation](datenwerft/usage/navigation.md)
 
-### [API](datenwerft/usage/api.md)
-
 ## Datenmanagement
 
 Hier finden Sie Hilfestellungen zur Standard-Umgebung der Anwendung *Datenwerft.HRO,*
 dem Datenmanagement – zum Beispiel: Wie können Datensätze übersichtlich angezeigt werden?
 Wie können neue Datensätze angelegt werden?
-
-### [Administration](datenmanagement/admin.md)
 
 ### [Berechtigungen](datenmanagement/permissions.md)
 

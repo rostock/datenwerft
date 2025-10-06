@@ -25,9 +25,4 @@ node_modules
 
 # Virtual Environments
 venv/
-.venv/
-
-# docker
-docker-compose.override.yml
-
 uv.lock

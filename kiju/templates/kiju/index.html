@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load bemas_tags %}
+{% load static %}
+
+{% block title %}KiJu | {% endblock %}
+
+{% block content %}
+  <div class="container-xxl">
+    <h1 class="mb-4">Kiju Angebotsdatenbank</h1>
+    <div class="row g-4">
+      <div class="col-4">
+        <div class="card h-100 bg-primary-subtle border-primary text-center">
+          <div class="card-body">
+            <h3><i class="fa-fw fa-regular fa-building me-2"></i>Organisationen</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-8">
+        <div class="card h-100">
+          <div class="card-header">
+            <h3><i class="fa-fw fa-regular fa-calendar me-2"></i>Anstehende Termine</h3>
+          </div>
+          <div class="card-body">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Angebot</th>
+                  <th scope="col">Datum</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for activity in next_activities %}
+                <tr>
+                  <th scope="row">{{ forloop.counter }}</th>
+                  <td>{{ activity.name }}</td>
+                  <td>{{ activity.time }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-1 row g-4">
+      <div class="col-4">
+        <div class="card bg-primary-subtle border-primary text-center">
+          <div class="card-body">
+            <h3><i class="fa-fw fa-solid fa-people-group me-2"></i>Angebot</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card bg-primary-subtle border-primary text-center">
+          <div class="card-body">
+            <h3><i class="fa-fw fa-solid fa-rocket me-2"></i>Ferienangebot</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card bg-primary-subtle border-primary text-center">
+          <div class="card-body">
+            <h3><i class="fa-fw fa-solid fa-list-ul me-2"></i>Codelisten</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

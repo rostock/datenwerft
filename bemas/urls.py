@@ -38,22 +38,16 @@ app_name = 'bemas'
 
 urlpatterns = [
   # main page
-  path(route='', view=login_required(IndexView.as_view()), name='index'),
+  path('', view=login_required(IndexView.as_view()), name='index'),
   # codelists entry page
-  path(route='codelists', view=login_required(CodelistsIndexView.as_view()), name='codelists'),
+  path('codelists', view=login_required(CodelistsIndexView.as_view()), name='codelists'),
   # map page
-  path(route='map', view=login_required(MapView.as_view()), name='map'),
+  path('map', view=login_required(MapView.as_view()), name='map'),
   # map page:
   # filter by model and subset
-  path(
-    route='map/<model>/<subset_pk>',
-    view=login_required(MapView.as_view()),
-    name='map_model_subset',
-  ),
+  path('map/<model>/<subset_pk>', view=login_required(MapView.as_view()), name='map_model_subset'),
   # orphaned data page
-  path(
-    route='orphaned-data', view=login_required(OrphanedDataView.as_view()), name='orphaned_data'
-  ),
+  path('orphaned-data', view=login_required(OrphanedDataView.as_view()), name='orphaned_data'),
 ]
 
 models = apps.get_app_config(app_name).get_models()
@@ -68,7 +62,7 @@ for model in models:
     # table data composition for a codelist
     urlpatterns.append(
       path(
-        route='codelists/' + codelist_name_lower + '/tabledata',
+        'codelists/' + codelist_name_lower + '/tabledata',
         view=login_required(GenericTableDataView.as_view(model=model)),
         name='codelists_' + codelist_name_lower + '_tabledata',
       )
@@ -77,7 +71,7 @@ for model in models:
     # table page for a codelist
     urlpatterns.append(
       path(
-        route='codelists/' + codelist_name_lower + '/table',
+        'codelists/' + codelist_name_lower + '/table',
         view=login_required(CodelistTableView.as_view(model=model)),
         name='codelists_' + codelist_name_lower + '_table',
       )
@@ -86,7 +80,7 @@ for model in models:
     # form page for creating a codelist instance
     urlpatterns.append(
       path(
-        route='codelists/' + codelist_name_lower + '/create',
+        'codelists/' + codelist_name_lower + '/create',
         view=login_required(
           CodelistCreateView.as_view(
             model=model,
@@ -100,7 +94,7 @@ for model in models:
     # form page for updating a codelist instance
     urlpatterns.append(
       path(
-        route='codelists/' + codelist_name_lower + '/update/<pk>',
+        'codelists/' + codelist_name_lower + '/update/<pk>',
         view=login_required(
           CodelistUpdateView.as_view(
             model=model,
@@ -114,7 +108,7 @@ for model in models:
     # form page for deleting a codelist instance
     urlpatterns.append(
       path(
-        route='codelists/' + codelist_name_lower + '/delete/<pk>',
+        'codelists/' + codelist_name_lower + '/delete/<pk>',
         view=login_required(
           CodelistDeleteView.as_view(
             model=model,
@@ -132,7 +126,7 @@ for model in models:
     # table data composition for object class organization
     urlpatterns.append(
       path(
-        route='organization/tabledata',
+        'organization/tabledata',
         view=login_required(GenericTableDataView.as_view(model=model)),
         name='organization_tabledata',
       )
@@ -141,7 +135,7 @@ for model in models:
     # table page for object class organization
     urlpatterns.append(
       path(
-        route='organization/table',
+        'organization/table',
         view=login_required(GenericObjectclassTableView.as_view(model=model)),
         name='organization_table',
       )
@@ -150,7 +144,7 @@ for model in models:
     # form page for creating an instance of object class organization
     urlpatterns.append(
       path(
-        route='organization/create',
+        'organization/create',
         view=login_required(GenericObjectclassCreateView.as_view(model=model)),
         name='organization_create',
       )
@@ -159,7 +153,7 @@ for model in models:
     # form page for updating an instance of object class organization
     urlpatterns.append(
       path(
-        route='organization/update/<pk>',
+        'organization/update/<pk>',
         view=login_required(GenericObjectclassUpdateView.as_view(model=model)),
         name='organization_update',
       )
@@ -168,7 +162,7 @@ for model in models:
     # form page for deleting an instance of object class organization
     urlpatterns.append(
       path(
-        route='organization/delete/<pk>',
+        'organization/delete/<pk>',
         view=login_required(OrganizationDeleteView.as_view(model=model)),
         name='organization_delete',
       )
@@ -181,7 +175,7 @@ for model in models:
     # table data composition for object class person
     urlpatterns.append(
       path(
-        route='person/tabledata',
+        'person/tabledata',
         view=login_required(GenericTableDataView.as_view(model=model)),
         name='person_tabledata',
       )
@@ -190,7 +184,7 @@ for model in models:
     # table page for object class person
     urlpatterns.append(
       path(
-        route='person/table',
+        'person/table',
         view=login_required(GenericObjectclassTableView.as_view(model=model)),
         name='person_table',
       )
@@ -199,7 +193,7 @@ for model in models:
     # form page for creating an instance of object class person
     urlpatterns.append(
       path(
-        route='person/create',
+        'person/create',
         view=login_required(GenericObjectclassCreateView.as_view(model=model)),
         name='person_create',
       )
@@ -208,7 +202,7 @@ for model in models:
     # form page for updating an instance of object class person
     urlpatterns.append(
       path(
-        route='person/update/<pk>',
+        'person/update/<pk>',
         view=login_required(GenericObjectclassUpdateView.as_view(model=model)),
         name='person_update',
       )
@@ -217,7 +211,7 @@ for model in models:
     # form page for deleting an instance of object class person
     urlpatterns.append(
       path(
-        route='person/delete/<pk>',
+        'person/delete/<pk>',
         view=login_required(PersonDeleteView.as_view(model=model)),
         name='person_delete',
       )
@@ -230,7 +224,7 @@ for model in models:
     # form page for creating an instance of object class contact
     urlpatterns.append(
       path(
-        route='contact/create',
+        'contact/create',
         view=login_required(GenericObjectclassCreateView.as_view(model=model)),
         name='contact_create',
       )
@@ -239,7 +233,7 @@ for model in models:
     # form page for updating an instance of object class contact
     urlpatterns.append(
       path(
-        route='contact/update/<pk>',
+        'contact/update/<pk>',
         view=login_required(GenericObjectclassUpdateView.as_view(model=model)),
         name='contact_update',
       )
@@ -248,7 +242,7 @@ for model in models:
     # form page for deleting an instance of object class contact
     urlpatterns.append(
       path(
-        route='contact/delete/<pk>',
+        'contact/delete/<pk>',
         view=login_required(GenericObjectclassDeleteView.as_view(model=model)),
         name='contact_delete',
       )
@@ -261,7 +255,7 @@ for model in models:
     # table data composition for object class originator
     urlpatterns.append(
       path(
-        route='originator/tabledata',
+        'originator/tabledata',
         view=login_required(GenericTableDataView.as_view(model=model)),
         name='originator_tabledata',
       )
@@ -271,7 +265,7 @@ for model in models:
     # filter by subset
     urlpatterns.append(
       path(
-        route='originator/tabledata/<subset_pk>',
+        'originator/tabledata/<subset_pk>',
         view=login_required(GenericTableDataView.as_view(model=model)),
         name='originator_tabledata_subset',
       )
@@ -280,7 +274,7 @@ for model in models:
     # table page for object class originator
     urlpatterns.append(
       path(
-        route='originator/table',
+        'originator/table',
         view=login_required(GenericObjectclassTableView.as_view(model=model)),
         name='originator_table',
       )
@@ -290,7 +284,7 @@ for model in models:
     # filter by subset
     urlpatterns.append(
       path(
-        route='originator/table/<subset_pk>',
+        'originator/table/<subset_pk>',
         view=login_required(GenericObjectclassTableView.as_view(model=model)),
         name='originator_table_subset',
       )
@@ -299,7 +293,7 @@ for model in models:
     # form page for creating an instance of object class originator
     urlpatterns.append(
       path(
-        route='originator/create',
+        'originator/create',
         view=login_required(GenericObjectclassCreateView.as_view(model=model)),
         name='originator_create',
       )
@@ -308,7 +302,7 @@ for model in models:
     # form page for updating an instance of object class originator
     urlpatterns.append(
       path(
-        route='originator/update/<pk>',
+        'originator/update/<pk>',
         view=login_required(GenericObjectclassUpdateView.as_view(model=model)),
         name='originator_update',
       )
@@ -317,7 +311,7 @@ for model in models:
     # form page for deleting an instance of object class originator
     urlpatterns.append(
       path(
-        route='originator/delete/<pk>',
+        'originator/delete/<pk>',
         view=login_required(GenericObjectclassDeleteView.as_view(model=model)),
         name='originator_delete',
       )
@@ -326,7 +320,7 @@ for model in models:
     # map data composition for object class originator
     urlpatterns.append(
       path(
-        route='originator/mapdata',
+        'originator/mapdata',
         view=login_required(GenericMapDataView.as_view(model=model)),
         name='originator_mapdata',
       )
@@ -336,7 +330,7 @@ for model in models:
     # filter by subset
     urlpatterns.append(
       path(
-        route='originator/mapdata/<subset_pk>',
+        'originator/mapdata/<subset_pk>',
         view=login_required(GenericMapDataView.as_view(model=model)),
         name='originator_mapdata_subset',
       )
@@ -349,7 +343,7 @@ for model in models:
     # table data composition for object class complaint
     urlpatterns.append(
       path(
-        route='complaint/tabledata',
+        'complaint/tabledata',
         view=login_required(GenericTableDataView.as_view(model=model)),
         name='complaint_tabledata',
       )
@@ -359,7 +353,7 @@ for model in models:
     # filter by subset
     urlpatterns.append(
       path(
-        route='complaint/tabledata/<subset_pk>',
+        'complaint/tabledata/<subset_pk>',
         view=login_required(GenericTableDataView.as_view(model=model)),
         name='complaint_tabledata_subset',
       )
@@ -368,7 +362,7 @@ for model in models:
     # table page for object class complaint
     urlpatterns.append(
       path(
-        route='complaint/table',
+        'complaint/table',
         view=login_required(GenericObjectclassTableView.as_view(model=model)),
         name='complaint_table',
       )
@@ -378,7 +372,7 @@ for model in models:
     # filter by subset
     urlpatterns.append(
       path(
-        route='complaint/table/<subset_pk>',
+        'complaint/table/<subset_pk>',
         view=login_required(GenericObjectclassTableView.as_view(model=model)),
         name='complaint_table_subset',
       )
@@ -387,7 +381,7 @@ for model in models:
     # form page for creating an instance of object class complaint
     urlpatterns.append(
       path(
-        route='complaint/create',
+        'complaint/create',
         view=login_required(GenericObjectclassCreateView.as_view(model=model)),
         name='complaint_create',
       )
@@ -396,7 +390,7 @@ for model in models:
     # form page for updating an instance of object class complaint
     urlpatterns.append(
       path(
-        route='complaint/update/<pk>',
+        'complaint/update/<pk>',
         view=login_required(GenericObjectclassUpdateView.as_view(model=model)),
         name='complaint_update',
       )
@@ -405,7 +399,7 @@ for model in models:
     # form page for deleting an instance of object class complaint
     urlpatterns.append(
       path(
-        route='complaint/delete/<pk>',
+        'complaint/delete/<pk>',
         view=login_required(ComplaintDeleteView.as_view(model=model)),
         name='complaint_delete',
       )
@@ -414,7 +408,7 @@ for model in models:
     # map data composition for object class complaint
     urlpatterns.append(
       path(
-        route='complaint/mapdata',
+        'complaint/mapdata',
         view=login_required(GenericMapDataView.as_view(model=model)),
         name='complaint_mapdata',
       )
@@ -424,7 +418,7 @@ for model in models:
     # filter by subset
     urlpatterns.append(
       path(
-        route='complaint/mapdata/<subset_pk>',
+        'complaint/mapdata/<subset_pk>',
         view=login_required(GenericMapDataView.as_view(model=model)),
         name='complaint_mapdata_subset',
       )
@@ -437,7 +431,7 @@ for model in models:
     # table data composition for object class log entry
     urlpatterns.append(
       path(
-        route='logentry/tabledata',
+        'logentry/tabledata',
         view=login_required(GenericTableDataView.as_view(model=model)),
         name='logentry_tabledata',
       )
@@ -447,7 +441,7 @@ for model in models:
     # filter by model
     urlpatterns.append(
       path(
-        route='logentry/tabledata/<model>',
+        'logentry/tabledata/<model>',
         view=login_required(GenericTableDataView.as_view(model=model)),
         name='logentry_tabledata_model',
       )
@@ -457,7 +451,7 @@ for model in models:
     # filter by model and object
     urlpatterns.append(
       path(
-        route='logentry/tabledata/<model>/<object_pk>',
+        'logentry/tabledata/<model>/<object_pk>',
         view=login_required(GenericTableDataView.as_view(model=model)),
         name='logentry_tabledata_model_object',
       )
@@ -466,7 +460,7 @@ for model in models:
     # table page for object class log entry
     urlpatterns.append(
       path(
-        route='logentry/table',
+        'logentry/table',
         view=login_required(GenericObjectclassTableView.as_view(model=model)),
         name='logentry_table',
       )
@@ -476,7 +470,7 @@ for model in models:
     # filter by model
     urlpatterns.append(
       path(
-        route='logentry/table/<model>',
+        'logentry/table/<model>',
         view=login_required(GenericObjectclassTableView.as_view(model=model)),
         name='logentry_table_model',
       )
@@ -486,7 +480,7 @@ for model in models:
     # filter by model and object
     urlpatterns.append(
       path(
-        route='logentry/table/<model>/<object_pk>',
+        'logentry/table/<model>/<object_pk>',
         view=login_required(GenericObjectclassTableView.as_view(model=model)),
         name='logentry_table_model_object',
       )
@@ -499,7 +493,7 @@ for model in models:
     # table data composition for object class event
     urlpatterns.append(
       path(
-        route='event/tabledata',
+        'event/tabledata',
         view=login_required(GenericTableDataView.as_view(model=model)),
         name='event_tabledata',
       )
@@ -509,7 +503,7 @@ for model in models:
     # filter by complaint
     urlpatterns.append(
       path(
-        route='event/tabledata/<complaint_pk>',
+        'event/tabledata/<complaint_pk>',
         view=login_required(GenericTableDataView.as_view(model=model)),
         name='event_tabledata_complaint',
       )
@@ -518,7 +512,7 @@ for model in models:
     # table page for object class event
     urlpatterns.append(
       path(
-        route='event/table',
+        'event/table',
         view=login_required(GenericObjectclassTableView.as_view(model=model)),
         name='event_table',
       )
@@ -528,7 +522,7 @@ for model in models:
     # filter by complaint
     urlpatterns.append(
       path(
-        route='event/table/<complaint_pk>',
+        'event/table/<complaint_pk>',
         view=login_required(GenericObjectclassTableView.as_view(model=model)),
         name='event_table_complaint',
       )
@@ -537,7 +531,7 @@ for model in models:
     # form page for creating an instance of object class event
     urlpatterns.append(
       path(
-        route='event/create',
+        'event/create',
         view=login_required(GenericObjectclassCreateView.as_view(model=model)),
         name='event_create',
       )
@@ -546,7 +540,7 @@ for model in models:
     # form page for updating an instance of object class event
     urlpatterns.append(
       path(
-        route='event/update/<pk>',
+        'event/update/<pk>',
         view=login_required(GenericObjectclassUpdateView.as_view(model=model)),
         name='event_update',
       )
@@ -555,7 +549,7 @@ for model in models:
     # form page for deleting an instance of object class event
     urlpatterns.append(
       path(
-        route='event/delete/<pk>',
+        'event/delete/<pk>',
         view=login_required(GenericObjectclassDeleteView.as_view(model=model)),
         name='event_delete',
       )

@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.core.validators import URLValidator
-from django.db.models import CASCADE, SET_NULL, OneToOneField
+from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, OneToOneField
 from django.db.models.fields import DateTimeField
 from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
@@ -1043,6 +1043,113 @@ class Brunnen(SimpleModel):
     return self.lagebeschreibung
 
 
+class Carsharing_Stationen(SimpleModel):
+  """
+  Carsharing-Stationen
+  """
+
+  adresse = ForeignKey(
+    to=Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True,
+  )
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung', max_length=255, validators=standard_validators
+  )
+  anbieter = ForeignKey(
+    to=Anbieter_Carsharing,
+    verbose_name='Anbieter',
+    on_delete=RESTRICT,
+    db_column='anbieter',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_anbieter',
+  )
+  anzahl_fahrzeuge = PositiveSmallIntegerMinField(
+    verbose_name='Anzahl der Fahrzeuge', min_value=1, blank=True, null=True
+  )
+  bemerkungen = NullTextField(
+    verbose_name='Bemerkungen',
+    max_length=500,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  telefon_festnetz = CharField(
+    verbose_name='Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)],
+  )
+  telefon_mobil = CharField(
+    verbose_name='Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)],
+  )
+  email = CharField(
+    verbose_name='E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[EmailValidator(message=email_message)],
+  )
+  website = CharField(
+    verbose_name='Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[URLValidator(message=url_message)],
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_adressbezug"."carsharing_stationen_hro'
+    verbose_name = 'Carsharing-Station'
+    verbose_name_plural = 'Carsharing-Stationen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Carsharing-Stationen in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bezeichnung': 'Bezeichnung',
+      'anbieter': 'Anbieter',
+      'anzahl_fahrzeuge': 'Anzahl der Fahrzeuge',
+    }
+    list_fields_with_foreign_key = {'adresse': 'adresse', 'anbieter': 'anbieter'}
+    list_actions_assign = [
+      {
+        'action_name': 'behinderteneinrichtungen-anbieter',
+        'action_title': 'ausgewählten Datensätzen Anbieter direkt zuweisen',
+        'field': 'anbieter',
+        'type': 'foreignkey',
+      }
+    ]
+    map_feature_tooltip_fields = ['bezeichnung']
+    map_filter_fields = {'bezeichnung': 'Bezeichnung', 'anbieter': 'Anbieter'}
+    map_filter_fields_as_list = ['anbieter']
+
+  def __str__(self):
+    return (
+      self.bezeichnung
+      + ' ['
+      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
+      + 'Anbieter: '
+      + str(self.anbieter)
+      + ']'
+    )
+
+
 class Containerstellplaetze(SimpleModel):
   """
   Containerstellplätze
@@ -1457,6 +1564,15 @@ class Erdwaermesonden(SimpleModel):
   Erdwärmesonden
   """
 
+  d3 = CharField(
+    verbose_name=' d.3',
+    max_length=16,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(regex=erdwaermesonden_d3_regex, message=erdwaermesonden_d3_message)
+    ],
+  )
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
     max_length=18,
@@ -1523,6 +1639,7 @@ class Erdwaermesonden(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
+      'd3': 'd.3',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'typ': 'Typ',
@@ -1537,6 +1654,7 @@ class Erdwaermesonden(SimpleModel):
     map_feature_tooltip_fields = ['aktenzeichen']
     map_filter_fields = {
       'aktiv': 'aktiv?',
+      'd3': 'd.3',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'typ': 'Typ',
@@ -3675,6 +3793,145 @@ class Kinder_Jugendbetreuung(SimpleModel):
     )
 
 
+class Kleinklaeranlagen(SimpleModel):
+  """
+  Kleinkläranlagen
+  """
+
+  adresse = ForeignKey(
+    to=Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True,
+  )
+  d3 = CharField(
+    verbose_name=' d.3',
+    max_length=16,
+    validators=[RegexValidator(regex=d3_regex, message=d3_message)],
+  )
+  we_datum = DateField(verbose_name='Datum der wasserrechtlichen Erlaubnis', default=date.today)
+  we_aktenzeichen = CharField(
+    verbose_name='Aktenzeichen der wasserrechtlichen Erlaubnis',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  we_befristung = DateField(
+    verbose_name='Befristung der wasserrechtlichen Erlaubnis', blank=True, null=True
+  )
+  typ = ForeignKey(
+    to=Typen_Kleinklaeranlagen,
+    verbose_name='Anlagetyp',
+    on_delete=RESTRICT,
+    db_column='typ',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_typen',
+  )
+  einleitstelle = CharField(
+    verbose_name='Einleitstelle', max_length=255, validators=standard_validators
+  )
+  gewaesser_berichtspflichtig = BooleanField(
+    verbose_name=' berichtspflichtiges Gewässer?',
+  )
+  umfang_einleitung = DecimalField(
+    verbose_name='Umfang der Einleitung (in m³/d)',
+    max_digits=3,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der <strong><em>Umfang der Einleitung</em></strong> muss mindestens 0,01 m³/d betragen.',
+      ),
+      MaxValueValidator(
+        Decimal('9.99'),
+        'Der <strong><em>Umfang der Einleitung</em></strong> darf höchstens 9,99 m³/d betragen.',
+      ),
+    ],
+    blank=True,
+    null=True,
+  )
+  einwohnerwert = DecimalField(
+    verbose_name='Einwohnerwert',
+    max_digits=3,
+    decimal_places=1,
+    validators=[
+      MinValueValidator(
+        Decimal('0.1'), 'Der <strong><em>Einwohnerwert</em></strong> muss mindestens 0,1 betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('99.9'),
+        'Der <strong><em>Einwohnerwert</em></strong> darf höchstens 99,9 betragen.',
+      ),
+    ],
+    blank=True,
+    null=True,
+  )
+  zulassung = CharField(
+    verbose_name='Zulassung',
+    max_length=11,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=kleinklaeranlagen_zulassung_regex, message=kleinklaeranlagen_zulassung_message
+      )
+    ],
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_adressbezug"."kleinklaeranlagen_hro'
+    verbose_name = 'Kleinkläranlage'
+    verbose_name_plural = 'Kleinkläranlagen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Kleinkläranlagen in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'd3': 'd.3',
+      'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
+      'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
+      'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
+      'typ': 'Anlagetyp',
+      'einleitstelle': 'Einleitstelle',
+      'adresse': 'Adresse',
+      'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
+      'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
+      'einwohnerwert': 'Einwohnerwert',
+      'zulassung': 'Zulassung',
+    }
+    list_fields_with_date = ['we_datum', 'we_befristung']
+    list_fields_with_decimal = ['umfang_einleitung', 'einwohnerwert']
+    list_fields_with_foreign_key = {'adresse': 'adresse', 'typ': 'typ'}
+    map_feature_tooltip_fields = ['d3']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'd3': 'd.3',
+      'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
+      'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
+      'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
+      'typ': 'Anlagetyp',
+      'einleitstelle': 'Einleitstelle',
+      'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
+      'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
+      'einwohnerwert': 'Einwohnerwert',
+      'zulassung': 'Zulassung',
+    }
+    map_filter_fields_as_list = ['typ']
+
+  def __str__(self):
+    return self.d3 + ' mit Datum der wasserrechtlichen Erlaubnis ' + str(self.we_datum)
+
+
 class Kunst_im_oeffentlichen_Raum(SimpleModel):
   """
   Kunst im öffentlichen Raum
@@ -4219,170 +4476,6 @@ class Mobilpunkte(SimpleModel):
 
   def __str__(self):
     return self.bezeichnung
-
-
-class Naturdenkmale(SimpleModel):
-  """
-  Naturdenkmale
-  """
-
-  typ = ForeignKey(
-    to=Typen_Naturdenkmale,
-    verbose_name='Typ',
-    on_delete=RESTRICT,
-    db_column='typ',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_typen',
-  )
-  nummer = PositiveSmallIntegerMinField(
-    verbose_name='Nummer',
-    min_value=1,
-    unique=True,
-  )
-  bezeichnung = CharField(
-    verbose_name='Bezeichnung', max_length=255, validators=standard_validators
-  )
-  rechtsvorschrift_festsetzung = CharField(
-    verbose_name='Rechtsvorschrift zur Festsetzung',
-    max_length=255,
-    validators=standard_validators,
-    blank=True,
-    null=True,
-  )
-  datum_rechtsvorschrift_festsetzung = DateField(
-    verbose_name='Datum der Rechtsvorschrift zur Festsetzung', blank=True, null=True
-  )
-  pdf = FileField(
-    verbose_name='Datenblatt',
-    storage=OverwriteStorage(),
-    upload_to=path_and_rename(settings.PDF_PATH_PREFIX_PUBLIC + '_naturdenkmale'),
-    max_length=255,
-  )
-  geometrie = point_field
-
-  class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten"."_naturdenkmale_hro'
-    verbose_name = 'Naturdenkmal'
-    verbose_name_plural = 'Naturdenkmale'
-
-  class BasemodelMeta(SimpleModel.BasemodelMeta):
-    description = 'Naturdenkmale in der Hanse- und Universitätsstadt Rostock'
-    geometry_type = 'Point'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'typ': 'Typ',
-      'nummer': 'Nummer',
-      'bezeichnung': 'Bezeichnung',
-      'rechtsvorschrift_festsetzung': 'Rechtsvorschrift zur Festsetzung',
-      'datum_rechtsvorschrift_festsetzung': 'Datum der Rechtsvorschrift zur Festsetzung',
-      'pdf': 'Datenblatt',
-    }
-    list_fields_with_date = ['datum_rechtsvorschrift_festsetzung']
-    list_fields_with_foreign_key = {
-      'typ': 'typ',
-    }
-    list_actions_assign = [
-      {
-        'action_name': 'naturdenkmale-typ',
-        'action_title': 'ausgewählten Datensätzen Typ direkt zuweisen',
-        'field': 'typ',
-        'type': 'foreignkey',
-      },
-      {
-        'action_name': 'naturdenkmale-rechtsvorschrift_festsetzung',
-        'action_title': 'ausgewählten Datensätzen Rechtsvorschrift zur Festsetzung direkt zuweisen',  # noqa: E501
-        'field': 'rechtsvorschrift_festsetzung',
-        'type': 'text',
-      },
-      {
-        'action_name': 'naturdenkmale-datum_rechtsvorschrift_festsetzung',
-        'action_title': 'ausgewählten Datensätzen Datum der Rechtsvorschrift zur Festsetzung direkt zuweisen',  # noqa: E501
-        'field': 'datum_rechtsvorschrift_festsetzung',
-        'type': 'date',
-      },
-    ]
-    map_feature_tooltip_fields = ['nummer']
-    map_filter_fields = {
-      'typ': 'Typ',
-      'nummer': 'Nummer',
-      'bezeichnung': 'Bezeichnung',
-      'rechtsvorschrift_festsetzung': 'Rechtsvorschrift zur Festsetzung',
-      'datum_rechtsvorschrift_festsetzung': 'Datum der Rechtsvorschrift zur Festsetzung',
-    }
-    map_filter_fields_as_list = ['typ']
-
-  def __str__(self):
-    return f'{self.nummer}'
-
-
-post_delete.connect(delete_pdf, sender=Naturdenkmale)
-
-
-class Notfalltreffpunkte(SimpleModel):
-  """
-  Notfalltreffpunkte/Wärmeinseln
-  """
-
-  adresse = ForeignKey(
-    to=Adressen,
-    verbose_name='Adresse',
-    on_delete=SET_NULL,
-    db_column='adresse',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_adressen',
-    blank=True,
-    null=True,
-  )
-  art = ForeignKey(
-    to=Arten_Notfalltreffpunkte,
-    verbose_name='Art',
-    on_delete=RESTRICT,
-    db_column='art',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten',
-  )
-  standort = CharField(verbose_name='Standort', max_length=255, validators=standard_validators)
-  ressource = CharField(verbose_name='Ressource', max_length=255, validators=standard_validators)
-  personal = CharField(verbose_name='Personal', max_length=255, validators=standard_validators)
-  geometrie = point_field
-
-  class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten_adressbezug"."notfalltreffpunkte_hro'
-    verbose_name = 'Notfalltreffpunkt/Wärmeinsel'
-    verbose_name_plural = 'Notfalltreffpunkte/Wärmeinseln'
-
-  class BasemodelMeta(SimpleModel.BasemodelMeta):
-    description = 'Notfalltreffpunkte/Wärmeinseln in der Hanse- und Universitätsstadt Rostock'
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'adresse': 'Adresse',
-      'art': 'Art',
-      'standort': 'Standort',
-      'ressource': 'Ressource',
-      'personal': 'Personal',
-    }
-    list_fields_with_foreign_key = {'adresse': 'adresse', 'art': 'art'}
-    map_feature_tooltip_fields = ['standort']
-    map_filter_fields = {
-      'art': 'Art',
-      'standort': 'Standort',
-      'ressource': 'Ressource',
-      'personal': 'Personal',
-    }
-    map_filter_fields_as_list = ['art']
-
-  def __str__(self):
-    return (
-      self.standort
-      + ' ['
-      + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '')
-      + 'Art: '
-      + str(self.art)
-      + ']'
-    )
 
 
 class Parkmoeglichkeiten(SimpleModel):
