@@ -1156,6 +1156,42 @@ class Bodenarten_Spielplaetze(Codelist):
     return self.bodenart
 
 
+class Dateiformate(Codelist):
+  """
+  Dateiformate
+  """
+
+  suffix = CharField(
+    verbose_name='Suffix',
+    max_length=4,
+    unique=True,
+    validators=[
+      RegexValidator(
+        regex=dateisuffix_regex,
+        message=dateisuffix_message,
+      )
+    ],
+  )
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    validators=standard_validators,
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten"."dateiformate'
+    ordering = ['bezeichnung']
+    verbose_name = 'Dateiformat'
+    verbose_name_plural = 'Dateiformate'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Dateiformate'
+    list_fields = {'suffix': 'Suffix', 'bezeichnung': 'Bezeichnung'}
+
+  def __str__(self):
+    return self.bezeichnung
+
+
 class DFI_Typen_Haltestellenkataster(Codelist):
   """
   Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters

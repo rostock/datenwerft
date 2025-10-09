@@ -1,10 +1,12 @@
+from decimal import Decimal
 from operator import itemgetter
 
 from django.apps import apps
 from django.contrib.auth.models import Group, User
+from django.contrib.gis.geos import Point
 from django.contrib.postgres.fields.array import ArrayField
 from django.db.models import F
-from django.forms import ChoiceField, ModelForm, TextInput, ValidationError
+from django.forms import ChoiceField, DecimalField, ModelForm, TextInput, ValidationError
 
 from datenmanagement.models import Ansprechpartner_Baustellen
 
@@ -44,6 +46,7 @@ class GenericForm(ModelForm):
     self.multi_files = multi_files
     self.address_type = self.instance.BasemodelMeta.address_type
     self.address_mandatory = self.instance.BasemodelMeta.address_mandatory
+    self.geometry_coordinates_input = self.instance.BasemodelMeta.geometry_coordinates_input
 
     if self.model is not None:
       for field in self.model._meta.get_fields():
@@ -143,6 +146,28 @@ class GenericForm(ModelForm):
             choices_model = apps.get_app_config('datenmanagement').get_model(choices_model_name)
             oo = choices_model.objects.all()
             self.fields[field.name].choices = [(o, o) for o in oo]
+      # conditionally add form fields for manually entering geometry coordinates
+      if self.geometry_coordinates_input:
+        x_25833_input = DecimalField(
+          label='Koordinate ETRS89/UTM-33N Ostwert',
+          max_value=325000,
+          min_value=303000,
+          max_digits=9,
+          decimal_places=3,
+          step_size=0.001,
+        )
+        x_25833_input.widget.attrs['class'] = 'form-control'
+        self.fields['x_25833_input'] = x_25833_input
+        y_25833_input = DecimalField(
+          label='Koordinate ETRS89/UTM-33N Nordwert',
+          max_value=6016000,
+          min_value=5992000,
+          max_digits=10,
+          decimal_places=3,
+          step_size=0.001,
+        )
+        y_25833_input.widget.attrs['class'] = 'form-control'
+        self.fields['y_25833_input'] = y_25833_input
 
     # customize messages
     for field in self.fields.values():
@@ -175,9 +200,23 @@ class GenericForm(ModelForm):
         'unique': unique_message,
       }
 
+  def clean(self):
+    """
+    general field cleaning
+
+    :return: cleaned fields
+    """
+    data = super().clean()
+    # conditionally build geometry from form fields for manually entering geometry coordinates
+    if self.geometry_coordinates_input:
+      x_25833, y_25833 = data.pop('x_25833_input', None), data.pop('y_25833_input', None)
+      if x_25833 is not None and y_25833 is not None:
+        data['geometrie'] = Point((x_25833, y_25833), srid=25833)
+    return data
+
   def clean_foto(self):
     """
-    cleans (multi-)photo file upload field...
+    cleans (multi-)photo file upload field
     (note: method will be ignored by Django if such a field does not exist)
 
     :return: cleaned (multi-)photo file upload field
