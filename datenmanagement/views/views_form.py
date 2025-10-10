@@ -406,9 +406,16 @@ class DataChangeView(D3ContextMixin, UpdateView):
     """
     # declare empty dictionary for initial field values in the view
     curr_dict = {}
+    # if geometry coordinates shall be entered and not taken from the map...
+    if self.model.BasemodelMeta.geometry_coordinates_input:
+      # add the appropriate initial field values
+      # for form fields for manually entering geometry coordinates
+      # to the dictionary
+      curr_dict['x_25833_input'] = self.object.geometrie.x
+      curr_dict['y_25833_input'] = self.object.geometrie.y
     # if address, street or district exists...
     if self.model.BasemodelMeta.address_type:
-      # add the appropriate initial field value for address, street or district to the dictionary
+      # add the appropriate initial field value for address, street, or district to the dictionary
       field_name_for_address_type = get_field_name_for_address_type(self.model)
       if field_name_for_address_type == 'adresse' and self.object.adresse:
         if self.model.BasemodelMeta.address_search_long_results:

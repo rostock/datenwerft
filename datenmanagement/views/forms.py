@@ -1,4 +1,3 @@
-from decimal import Decimal
 from operator import itemgetter
 
 from django.apps import apps
@@ -168,6 +167,8 @@ class GenericForm(ModelForm):
         )
         y_25833_input.widget.attrs['class'] = 'form-control'
         self.fields['y_25833_input'] = y_25833_input
+        # set geometry field to not required, otherwise saving will not be possible
+        self.fields['geometrie'].required = False
 
     # customize messages
     for field in self.fields.values():
@@ -199,20 +200,6 @@ class GenericForm(ModelForm):
         'required': required_message,
         'unique': unique_message,
       }
-
-  def clean(self):
-    """
-    general field cleaning
-
-    :return: cleaned fields
-    """
-    data = super().clean()
-    # conditionally build geometry from form fields for manually entering geometry coordinates
-    if self.geometry_coordinates_input:
-      x_25833, y_25833 = data.pop('x_25833_input', None), data.pop('y_25833_input', None)
-      if x_25833 is not None and y_25833 is not None:
-        data['geometrie'] = Point((x_25833, y_25833), srid=25833)
-    return data
 
   def clean_foto(self):
     """
@@ -287,3 +274,18 @@ class GenericForm(ModelForm):
       return None
     else:
       return data
+
+  def clean(self):
+    """
+    general field cleaning
+    (always executed after all the individual field cleaning methods above)
+
+    :return: cleaned fields
+    """
+    data = super().clean()
+    # conditionally build geometry from form fields for manually entering geometry coordinates
+    if self.geometry_coordinates_input:
+      x_25833, y_25833 = data.pop('x_25833_input', None), data.pop('y_25833_input', None)
+      if x_25833 is not None and y_25833 is not None and 'geometrie' in data:
+        data['geometrie'] = Point((x_25833, y_25833), srid=25833)
+    return data

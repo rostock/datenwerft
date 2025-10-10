@@ -5661,13 +5661,16 @@ class HoehenfestpunkteTest(DefaultSimpleModelTestCase):
       'aktiv': True,
       'punktkennung': 3,
       'skizze_dateiformat': str(dateiformat.pk),
-      'geometrie': VALID_POINT_VIEW,
+      'x_25833_input': VALID_X,
+      'y_25833_input': VALID_Y,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'punktkennung': 4,
       'skizze_dateiformat': str(dateiformat.pk),
       'geometrie': VALID_POINT_VIEW,
+      'x_25833_input': VALID_X,
+      'y_25833_input': VALID_Y,
     }
     cls.attributes_values_view_invalid = {'punktkennung': INVALID_INTEGER}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)

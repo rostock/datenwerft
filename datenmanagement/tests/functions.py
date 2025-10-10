@@ -16,9 +16,11 @@ def clean_object_filter(model, object_filter):
   :return: cleaned version of passed object filter
   """
   cleaned_object_filter = object_filter.copy()
-  # always remove geometry and file fields from passed object filter
+  # always remove several fields (e.g. file fields, geometry) from passed object filter
   cleaned_object_filter = remove_file_attributes_from_object_filter(cleaned_object_filter)
   cleaned_object_filter.pop('geometrie', None)
+  cleaned_object_filter.pop('x_25833_input', None)
+  cleaned_object_filter.pop('y_25833_input', None)
   # if one of the attributes in the passed object filter is among those attributes
   # which shall be rendered as read-only in the form views of the passed model...
   if model.BasemodelMeta.readonly_fields:
