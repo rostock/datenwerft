@@ -2662,6 +2662,98 @@ class Hausnummern(SimpleModel):
     )
 
 
+class Hoehenfestpunkte(SimpleModel):
+  """
+  Höhenfestpunkte
+  """
+
+  punktkennung = PositiveIntegerField(verbose_name='Punktkennung', unique=True)
+  hoehe_hn_ausg = DecimalField(
+    verbose_name='Höhe HN Ausgangswert (in m)',
+    max_digits=6,
+    decimal_places=3,
+    validators=[
+      MinValueValidator(
+        Decimal('0.001'),
+        'Die <strong><em>Höhe HN Ausgangswert</em></strong> muss mindestens 0,001 m betragen.',
+      ),
+      MaxValueValidator(
+        Decimal('999.999'),
+        'Die <strong><em>Höhe HN Ausgangswert</em></strong> darf höchstens 999,999 m betragen.',
+      ),
+    ],
+    blank=True,
+    null=True,
+  )
+  hoehe_hn_na = DecimalField(
+    verbose_name='Höhe HN Nachmessung (in m)',
+    max_digits=6,
+    decimal_places=3,
+    validators=[
+      MinValueValidator(
+        Decimal('0.001'),
+        'Die <strong><em>Höhe HN Nachmessung</em></strong> muss mindestens 0,001 m betragen.',
+      ),
+      MaxValueValidator(
+        Decimal('999.999'),
+        'Die <strong><em>Höhe HN Nachmessung</em></strong> darf höchstens 999,999 m betragen.',
+      ),
+    ],
+    blank=True,
+    null=True,
+  )
+  skizze_dateiformat = ForeignKey(
+    to=Dateiformate,
+    verbose_name='Dateiformat der Skizze unter K:/GDS/Festpunkte/Ap&tp/HP/Hp',
+    on_delete=RESTRICT,
+    db_column='skizze_dateiformat',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_skizzen_dateiformate',
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten"."hoehenfestpunkte_hro'
+    verbose_name = 'Höhenfestpunkt'
+    verbose_name_plural = 'Höhenfestpunkte'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Höhenfestpunkte in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = False
+    geometry_type = 'Point'
+    geometry_coordinates_input = True
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'punktkennung': 'Punktkennung',
+      'hoehe_hn_ausg': 'Höhe HN Ausgangswert (in m)',
+      'hoehe_hn_na': 'Höhe HN Nachmessung (in m)',
+      'skizze_dateiformat': 'Dateiformat der Skizze unter K:/GDS/Festpunkte/Ap&tp/HP/Hp',
+      'lagebeschreibung': 'Lagebeschreibung',
+    }
+    list_fields_with_decimal = ['hoehe_hn_ausg', 'hoehe_hn_na']
+    list_fields_with_foreign_key = {'skizze_dateiformat': 'bezeichnung'}
+    map_feature_tooltip_fields = ['punktkennung']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'punktkennung': 'Punktkennung',
+      'hoehe_hn_ausg': 'Höhe HN Ausgangswert (in m)',
+      'hoehe_hn_na': 'Höhe HN Nachmessung (in m)',
+      'skizze_dateiformat': 'Dateiformat der Skizze unter K:/GDS/Festpunkte/Ap&tp/HP/Hp',
+      'lagebeschreibung': 'Lagebeschreibung',
+    }
+    map_filter_fields_as_list = ['skizze_dateiformat']
+
+  def __str__(self):
+    return f'{self.punktkennung}'
+
+
 class Hospize(SimpleModel):
   """
   Hospize

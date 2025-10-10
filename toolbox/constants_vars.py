@@ -55,6 +55,8 @@ dateiname_message = (
   'und Unterstriche verwendet werden sowie optional am Ende eine oder zwei durch Punkt '
   'abgetrennte Dateiendung(en).'
 )
+dateisuffix_regex = r'^[a-z]+$'
+dateisuffix_message = 'Es dürfen ausschließlich Kleinbuchstaben verwendet werden.'
 doppelleerzeichen_regex = r'^(?!.*  ).*$'
 doppelleerzeichen_message = 'Texte dürfen keine doppelten Leerzeichen enthalten.'
 email_message = (

@@ -20,13 +20,11 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
 from httpx import get
-from leaflet.forms.widgets import LeafletWidget
 
 from datenmanagement.models.base import Basemodel
 from datenmanagement.models.fields import ChoiceArrayField
 from datenmanagement.utils import logger
 from toolbox.models import Subsets
-from toolbox.utils import is_geometry_field
 from toolbox.vcpub.DataBucket import DataBucket
 
 from .fields import ArrayDateField, ArrayDecimalField
@@ -184,9 +182,7 @@ def assign_widgets(field):
   elif issubclass(form_field.widget.__class__, Textarea):
     form_field.widget.attrs['class'] = 'form-control'
     form_field.widget.attrs['rows'] = 5
-  # handle geometry fields/widgets
-  elif is_geometry_field(field.__class__):
-    form_field = field.formfield(widget=LeafletWidget())
+  # handle color input fields/widgets
   elif issubclass(form_field.widget.__class__, TextInput) and field.name == 'farbe':
     form_field = field.formfield(
       widget=TextInput(attrs={'type': 'color', 'class': 'form-control-color'})
@@ -551,6 +547,7 @@ def set_form_template(model: Basemodel):
   if (
     model.__module__ == 'datenmanagement.models.models_codelist'
     or model.BasemodelMeta.geometry_type is None
+    or model.BasemodelMeta.geometry_coordinates_input is True
   ):
     return 'datenmanagement/form-list.html'
   elif model.__name__ == 'Punktwolken_Projekte':

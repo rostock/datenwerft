@@ -38,7 +38,10 @@ class Basemodel(Model):
     :ivar naming: name shown in map filters drop-down menus
     :ivar readonly_fields: shall fields be read-only?
     :ivar geometry_type: type of the geometry represented by this model
-    :ivar geometry_calculation: Shall the geometry not be editable because it is calculated?
+    :ivar geometry_calculation: shall the geometry not be editable
+        because it is calculated instead?
+    :ivar geometry_coordinates_input: shall the coordinates of the geometry be entered
+        and not taken from the map?
     :ivar address_search_class: address search class
     :ivar address_search_long_results: shall address search results be shown in long versions?
     :ivar address_type: type of the address represented by this model
@@ -94,6 +97,7 @@ class Basemodel(Model):
     readonly_fields: list[str] = None
     geometry_type: str = None
     geometry_calculation: bool = False
+    geometry_coordinates_input: bool = False
     address_search_class: str = 'address_hro'
     address_search_long_results: bool = False
     address_type: str = None

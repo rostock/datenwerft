@@ -947,6 +947,19 @@ CREATE TABLE codelisten.bodenarten_spielplaetze (
 
 
 --
+-- Name: dateiformate; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.dateiformate (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    suffix character varying(4) NOT NULL,
+    bezeichnung character varying(255) NOT NULL
+);
+
+
+--
 -- Name: dfi_typen_haltestellenkataster; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -2537,6 +2550,27 @@ CREATE TABLE fachdaten.haltestellenkataster_haltestellen_hro (
     hst_abfahrten smallint,
     hst_fahrgastzahl_einstieg smallint,
     hst_fahrgastzahl_ausstieg smallint
+);
+
+
+--
+-- Name: hoehenfestpunkte_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.hoehenfestpunkte_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    punktkennung integer NOT NULL,
+    hoehe_hn_ausg numeric(6,3),
+    hoehe_hn_na numeric(6,3),
+    skizze_dateiformat uuid NOT NULL,
+    lagebeschreibung character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL
 );
 
 
@@ -5157,6 +5191,22 @@ ALTER TABLE ONLY codelisten.bodenarten_spielplaetze
 
 
 --
+-- Name: dateiformate dateiformate_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.dateiformate
+    ADD CONSTRAINT dateiformate_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: dateiformate dateiformate_suffix_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.dateiformate
+    ADD CONSTRAINT dateiformate_suffix_unique UNIQUE (suffix);
+
+
+--
 -- Name: dfi_typen_haltestellenkataster dfi_typen_haltestellenkataster_dfi_typ_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -6586,6 +6636,22 @@ ALTER TABLE ONLY fachdaten.haltestellenkataster_haltestellen_hro
 
 ALTER TABLE ONLY fachdaten.haltestellenkataster_haltestellen_hro
     ADD CONSTRAINT haltestellenkataster_haltestellen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: hoehenfestpunkte_hro hoehenfestpunkte_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.hoehenfestpunkte_hro
+    ADD CONSTRAINT hoehenfestpunkte_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: hoehenfestpunkte_hro hoehenfestpunkte_hro_punktkennung_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.hoehenfestpunkte_hro
+    ADD CONSTRAINT hoehenfestpunkte_hro_punktkennung_unique UNIQUE (punktkennung);
 
 
 --
@@ -8113,6 +8179,14 @@ ALTER TABLE ONLY fachdaten.haltestellenkataster_haltestellen_hro
 
 
 --
+-- Name: hoehenfestpunkte_hro hoehenfestpunkte_hro_skizzen_dateiformate_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.hoehenfestpunkte_hro
+    ADD CONSTRAINT hoehenfestpunkte_hro_skizzen_dateiformate_fk FOREIGN KEY (skizze_dateiformat) REFERENCES codelisten.dateiformate(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: hundetoiletten_hro hundetoiletten_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -9027,3 +9101,4 @@ ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
 --
 -- PostgreSQL database dump complete
 --
+
