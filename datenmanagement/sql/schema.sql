@@ -116,7 +116,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -2565,6 +2565,7 @@ CREATE TABLE fachdaten.hoehenfestpunkte_hro (
     aktiv boolean DEFAULT true NOT NULL,
     id_zielsystem character varying(255),
     deaktiviert date,
+    bearbeiter character varying(255),
     punktkennung integer NOT NULL,
     hoehe_hn_ausg numeric(6,3),
     hoehe_hn_na numeric(6,3),

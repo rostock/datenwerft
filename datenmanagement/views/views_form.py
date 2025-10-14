@@ -411,8 +411,8 @@ class DataChangeView(D3ContextMixin, UpdateView):
       # add the appropriate initial field values
       # for form fields for manually entering geometry coordinates
       # to the dictionary
-      curr_dict['x_25833_input'] = self.object.geometrie.x
-      curr_dict['y_25833_input'] = self.object.geometrie.y
+      curr_dict['x_25833_input'] = round(self.object.geometrie.x, 3)
+      curr_dict['y_25833_input'] = round(self.object.geometrie.y, 3)
     # if address, street or district exists...
     if self.model.BasemodelMeta.address_type:
       # add the appropriate initial field value for address, street, or district to the dictionary

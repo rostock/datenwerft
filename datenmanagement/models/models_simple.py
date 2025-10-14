@@ -2667,6 +2667,10 @@ class Hoehenfestpunkte(SimpleModel):
   Höhenfestpunkte
   """
 
+  aktualisiert = DateField(verbose_name='letzte Änderung', editable=False, auto_now=True)
+  bearbeiter = CharField(
+    verbose_name=' letzte:r Bearbeiter:in', max_length=255, validators=standard_validators
+  )
   punktkennung = PositiveIntegerField(verbose_name='Punktkennung', unique=True)
   hoehe_hn_ausg = DecimalField(
     verbose_name='Höhe HN Ausgangswert (in m)',
@@ -2726,22 +2730,28 @@ class Hoehenfestpunkte(SimpleModel):
 
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Höhenfestpunkte in der Hanse- und Universitätsstadt Rostock'
+    group_with_users_for_choice_field = 'datenmanagement_hoehenfestpunkte_full'
     as_overlay = False
     geometry_type = 'Point'
     geometry_coordinates_input = True
     list_fields = {
       'aktiv': 'aktiv?',
+      'aktualisiert': 'letzte Änderung',
+      'bearbeiter': 'letzte:r Bearbeiter:in',
       'punktkennung': 'Punktkennung',
       'hoehe_hn_ausg': 'Höhe HN Ausgangswert (in m)',
       'hoehe_hn_na': 'Höhe HN Nachmessung (in m)',
       'skizze_dateiformat': 'Dateiformat der Skizze unter K:/GDS/Festpunkte/Ap&tp/HP/Hp',
       'lagebeschreibung': 'Lagebeschreibung',
     }
+    list_fields_with_date = ['aktualisiert']
     list_fields_with_decimal = ['hoehe_hn_ausg', 'hoehe_hn_na']
     list_fields_with_foreign_key = {'skizze_dateiformat': 'bezeichnung'}
     map_feature_tooltip_fields = ['punktkennung']
     map_filter_fields = {
       'aktiv': 'aktiv?',
+      'aktualisiert': 'letzte Änderung',
+      'bearbeiter': 'letzte:r Bearbeiter:in',
       'punktkennung': 'Punktkennung',
       'hoehe_hn_ausg': 'Höhe HN Ausgangswert (in m)',
       'hoehe_hn_na': 'Höhe HN Nachmessung (in m)',

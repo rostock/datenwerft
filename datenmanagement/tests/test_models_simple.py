@@ -5650,15 +5650,18 @@ class HoehenfestpunkteTest(DefaultSimpleModelTestCase):
     super().setUpTestData()
     dateiformat = Dateiformate.objects.create(suffix='abc', bezeichnung='Bezeichnung')
     cls.attributes_values_db_initial = {
+      'bearbeiter': 'Bearbeiter1',
       'punktkennung': 1,
       'skizze_dateiformat': dateiformat,
       'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
+      'bearbeiter': 'Bearbeiter2',
       'punktkennung': 2,
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
+      'bearbeiter': 'Bearbeiter3',
       'punktkennung': 3,
       'skizze_dateiformat': str(dateiformat.pk),
       'x_25833_input': VALID_X,
@@ -5666,6 +5669,7 @@ class HoehenfestpunkteTest(DefaultSimpleModelTestCase):
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
+      'bearbeiter': 'Bearbeiter4',
       'punktkennung': 4,
       'skizze_dateiformat': str(dateiformat.pk),
       'geometrie': VALID_POINT_VIEW,
