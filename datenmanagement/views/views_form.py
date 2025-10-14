@@ -436,6 +436,15 @@ class DataChangeView(D3ContextMixin, UpdateView):
         curr_dict[field.name] = get_array_first_element(
           getattr(self.model.objects.get(pk=self.object.pk), field.name)
         )
+      if field.name == 'bearbeiter':
+        curr_dict[field.name] = (
+          self.request.user.first_name
+          + ' '
+          + self.request.user.last_name
+          + ' ('
+          + self.request.user.email.lower()
+          + ')'
+        )
     return curr_dict
 
   def form_valid(self, form):
