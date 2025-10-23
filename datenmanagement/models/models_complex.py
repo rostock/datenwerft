@@ -2591,7 +2591,10 @@ class Kleinklaeranlagen(ComplexModel):
     map_filter_fields_as_list = ['typ']
 
   def __str__(self):
-    return self.d3 + ' mit Datum der wasserrechtlichen Erlaubnis ' + str(self.we_datum)
+    d3_str = f'{self.d3}'
+    we_datum_str = datetime.strptime(str(f'{self.we_datum}'), '%Y-%m-%d').strftime('%d.%m.%Y')
+    _str = d3_str + ', ' + we_datum_str
+    return f'{self.adresse}, {_str}' if self.adresse else _str
 
 
 class Kleinklaeranlagen_Gewaessereinleitungsorte(ComplexModel):
