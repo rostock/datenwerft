@@ -2560,15 +2560,15 @@ class Kleinklaeranlagen(ComplexModel):
     list_fields = {
       'aktiv': 'aktiv?',
       'd3': 'd.3',
-      'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
-      'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
-      'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
+      'we_datum': 'Datum WE',
+      'we_aktenzeichen': 'AZ WE',
+      'we_befristung': 'Befristung WE',
       'typ': 'Anlagetyp',
       'einleitstelle': 'Einleitstelle',
       'adresse': 'Adresse',
       'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
-      'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
-      'einwohnerwert': 'Einwohnerwert',
+      'umfang_einleitung': 'Umfang Einleitung (in m³/d)',
+      'einwohnerwert': 'EW',
       'zulassung': 'Zulassung',
     }
     list_fields_with_date = ['we_datum', 'we_befristung']
@@ -2578,14 +2578,14 @@ class Kleinklaeranlagen(ComplexModel):
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'd3': 'd.3',
-      'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
-      'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
-      'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
+      'we_datum': 'Datum WE',
+      'we_aktenzeichen': 'AZ WE',
+      'we_befristung': 'Befristung WE',
       'typ': 'Anlagetyp',
       'einleitstelle': 'Einleitstelle',
       'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
-      'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
-      'einwohnerwert': 'Einwohnerwert',
+      'umfang_einleitung': 'Umfang Einleitung (in m³/d)',
+      'einwohnerwert': 'EW',
       'zulassung': 'Zulassung',
     }
     map_filter_fields_as_list = ['typ']
