@@ -12,8 +12,8 @@ class TableProcessView(BaseDatatableView):
   object_id: str = ''
 
   """
-    View to return JSON data for the Vorgang model.
-    """
+  view to return JSON data for Vorgang model
+  """
 
   def __init__(self, model=None, *args, **kwargs):
     self.model = Vorgang
@@ -57,10 +57,10 @@ class TableProcessView(BaseDatatableView):
           value = value.strftime('%Y-%m-%d %H:%M')
         elif field == 'akten':
           url = f'{D3_HOST}/dms/r/{D3_REPOSITORY}/o2/{value.d3_id}'
-          value = f'<a target="_blank" href="{url}">d3 Akte</a>'
+          value = f'<a target="_blank" href="{url}">d.3-Akte</a>'
         elif field == 'd3_id':
           url = f'{D3_HOST}/dms/r/{D3_REPOSITORY}/o2/{value}'
-          value = f'<a target="_blank" href="{url}">d3 Vorgang</a>'
+          value = f'<a target="_blank" href="{url}">d.3-Vorgang</a>'
         elif value is None:
           value = ''
         else:
@@ -80,27 +80,26 @@ class TableProcessView(BaseDatatableView):
 
 class D3ContextMixin:
   def get_d3_context(self, context, model, pk):
-    if not D3_ENABLED:
-      context['enabled'] = False
-    elif lade_d3_session_id(self.request) is None:
-      context['authentication_failed'] = True
-    else:
-      context['enabled'] = True
+    context['enabled'] = D3_ENABLED
+    if D3_ENABLED:
+      if lade_d3_session_id(self.request) is None:
+        context['authentication_failed'] = True
+      else:
 
-      model_name = model.__name__
+        model_name = model.__name__
 
-      context['column_titles'] = list(Vorgang.BasemodelMeta.list_fields.values())
+        context['column_titles'] = list(Vorgang.BasemodelMeta.list_fields.values())
 
-      context['url_process_tabledata'] = reverse(
-        'd3:' + model_name + '_fetch_process_list', kwargs={'pk': pk}
-      )
+        context['url_process_tabledata'] = reverse(
+          'd3:' + model_name + '_fetch_process_list', kwargs={'pk': pk}
+        )
 
-      context['url_process_metadata'] = reverse(
-        'd3:' + model_name + '_fetch_metadata',
-      )
+        context['url_process_metadata'] = reverse(
+          'd3:' + model_name + '_fetch_metadata',
+        )
 
-      context['url_process_add'] = reverse(
-        'd3:' + model_name + '_d3_add_process', kwargs={'pk': pk}
-      )
+        context['url_process_add'] = reverse(
+          'd3:' + model_name + '_d3_add_process', kwargs={'pk': pk}
+        )
 
     return context

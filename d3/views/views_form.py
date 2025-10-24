@@ -64,7 +64,7 @@ class ErstelleVorgangView(CreateView):
     if self.akten_ordner is None:
       error(
         self.request,
-        'Der D3-Ordner für Akten dieser Objektart ist nicht konfiguriert. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
+        'Der d.3-Ordner für Akten dieser Objektart ist nicht konfiguriert. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
       )
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 

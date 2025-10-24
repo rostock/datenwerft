@@ -44,6 +44,5 @@ function initDataTable(dataUrl, languageUrl) {
 }
 
 async function fetchMetadata(dataUrl, processId) {
-
   return fetch(`${dataUrl}?processId=${processId}`).then(response => response.json())
 }
