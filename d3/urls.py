@@ -31,11 +31,11 @@ def permission_required(*perms):
   return user_passes_test(lambda u: any(u.has_perm(perm) for perm in perms))
 
 
-def datenmodel_permission_required(model_name_lower: str):
+def datenmodel_permission_required(_model_name_lower: str):
   return permission_required(
-    'datenmanagement.change_' + model_name_lower,
-    'datenmanagement.delete_' + model_name_lower,
-    'datenmanagement.view_' + model_name_lower,
+    'datenmanagement.change_' + _model_name_lower,
+    'datenmanagement.delete_' + _model_name_lower,
+    'datenmanagement.view_' + _model_name_lower,
   )
 
 
