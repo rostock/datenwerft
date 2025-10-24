@@ -49,7 +49,7 @@ class ErstelleVorgangView(CreateView):
     if lade_d3_session_id(self.request) is None:
       error(
         self.request,
-        'Die Authentifizierung zu D3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.',  # noqa: E501
+        'Die Anmeldung in d.3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.',  # noqa: E501
       )
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 
@@ -126,7 +126,7 @@ class ErstelleVorgangView(CreateView):
     except Exception:
       error(
         self.request,
-        'Beim Anlegen des Vorgangs in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
+        'Beim Anlegen des Vorgangs in d.3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
       )
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 

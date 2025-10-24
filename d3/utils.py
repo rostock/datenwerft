@@ -37,15 +37,15 @@ def lade_d3_api(request):
 
 def lade_akten_ordner(content_type_id: int) -> AktenOrdner | None:
   """
-  Lädt den d3 akten ordner für den content type mit der übergebenen id oder None,
-  falls nicht gefunden.
+  lädt den d.3-Aktenordner für den Content-Type mit der übergebenen ID oder None,
+  falls nicht gefunden
 
   Parameters:
-      content_type_id (int): Identifier des content types.
+      content_type_id (int): ID des Content-Types
 
   Returns:
-      AktenOrdner | None: Der Aktenordner für den übergebenem content_type oder None,
-      falls nicht gefunden.
+      AktenOrdner | None: d.3-Aktenordner für den Content-Type mit der übergebenen ID oder None,
+      falls nicht gefunden
   """
   akte = AktenOrdner.objects.filter(model=content_type_id)
 

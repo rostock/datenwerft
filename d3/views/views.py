@@ -137,13 +137,13 @@ class DokumentenView:
   def lese_metadaten(self, form):
     """
     lese die Metadaten aus dem Formular und gebe sie als dictionary zurück,
-    welches an D3 gesendet werden kann.
+    welches an d.3 gesendet werden kann.
 
     Args:
         form (Form): validiertes Formular mit den aktuellen Daten
 
     Returns:
-        dict: Dictionary mit den Metadaten, welche an D3 gesendet werden sollen.
+        dict: Dictionary mit den Metadaten, welche an d.3 gesendet werden sollen.
     """
     properties = {}
 
@@ -208,7 +208,7 @@ class DokumentenErstellenView(View, DokumentenView):
       except Exception:
         error(
           self.request,
-          'Beim Hochladen des Dokuments in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
+          'Beim Hochladen des Dokuments in d.3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
         )
 
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', object_id)
@@ -237,7 +237,7 @@ class DokumentenBearbeitenView(View, DokumentenView):
     if lade_d3_session_id(request) is None:
       error(
         request,
-        'Die Authentifizierung zu D3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.',  # noqa: E501
+        'Die Anmeldung in d.3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.',  # noqa: E501
       )
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', object_id)
 
@@ -283,7 +283,7 @@ class DokumentenBearbeitenView(View, DokumentenView):
       except Exception:
         error(
           self.request,
-          'Beim Bearbeiten des Dokuments in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
+          'Beim Bearbeiten des Dokuments in d.3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
         )
 
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', object_id)

@@ -8,10 +8,13 @@ from d3.constants_vars import GUI_ELEMENTE
 
 class Akte(Model):
   id = AutoField(primary_key=True)
-  d3_id = CharField(max_length=36)
-  object_id = CharField(max_length=36)
+  d3_id = CharField(verbose_name='d.3-ID', max_length=36)
+  object_id = CharField(verbose_name='Objekt-ID', max_length=36)
   model = ForeignKey(
-    ContentType, on_delete=CASCADE, limit_choices_to={'app_label': 'datenmanagement'}
+    ContentType,
+    verbose_name='Datenmodell',
+    on_delete=CASCADE,
+    limit_choices_to={'app_label': 'datenmanagement'},
   )
 
   class Meta:
@@ -30,8 +33,8 @@ class AktenOrdner(Model):
   )
 
   class Meta:
-    verbose_name = 'Akten Ordner'
-    verbose_name_plural = 'Akten Ordner'
+    verbose_name = 'Aktenordner'
+    verbose_name_plural = 'Aktenordner'
     db_table = 'd3_akten_ordner'
 
   def __str__(self):
@@ -46,8 +49,8 @@ class AktenOrdnerOption(Model):
   ist_namens_feld = BooleanField(default=False)
 
   class Meta:
-    verbose_name = 'Akten Ordner Option'
-    verbose_name_plural = 'Akten Ordner Optionen'
+    verbose_name = 'Aktenordner-Option'
+    verbose_name_plural = 'Aktenordner-Optionen'
     db_table = 'd3_akten_ordner_option'
 
   def __str__(self):
@@ -67,14 +70,14 @@ class Vorgang(Model):
   class BasemodelMeta:
     editable = True
     list_fields = {
-      'id': 'Id',
-      'vorgangs_typ': 'Vorgangs Typ',
+      'id': 'ID',
+      'vorgangs_typ': 'Vorgangstyp',
       'titel': 'Titel',
       'akten': 'Akte',
-      'd3_id': 'D3 Id',
-      'erstellt': 'Erstellt',
-      'erstellt_durch': 'Erstellt Durch',
-      'aktualisiert': 'Aktualisiert',
+      'd3_id': 'd.3-ID',
+      'erstellt': 'erstellt',
+      'erstellt_durch': 'erstellt durch',
+      'aktualisiert': 'aktualisiert',
     }
     list_fields_with_date = ['erstellt', 'aktualisiert']
     list_fields_with_datetime = ['erstellt', 'aktualisiert']
@@ -97,7 +100,7 @@ class Metadaten(Model):
   id = AutoField(primary_key=True)
   titel = CharField(verbose_name='Titel', max_length=255, unique=False)
   gui_element = CharField(
-    verbose_name='GUI Element',
+    verbose_name='GUI-Element',
     max_length=45,
     choices=GUI_ELEMENTE,
   )
@@ -105,17 +108,19 @@ class Metadaten(Model):
     verbose_name='Eingabe erforderlich?', default=False, blank=False, null=True
   )
   regex = CharField(
-    verbose_name='Validierung über Regex',
+    verbose_name='Validierung via Regex',
     max_length=255,
     blank=True,
     null=True,
   )
   d3_id = CharField(max_length=36, null=True, blank=True, default=None)
-  category = CharField(max_length=50, null=False, blank=False, default='vorgang')
+  category = CharField(
+    verbose_name='Kategorie', max_length=50, null=False, blank=False, default='vorgang'
+  )
 
   class Meta:
     verbose_name = 'Metadaten'
-    verbose_name_plural = 'Metadaten'
+    verbose_name_plural = 'Metadatum'
     db_table = 'd3_metadaten'
 
   def __str__(self):
@@ -129,7 +134,7 @@ class MetadatenOption(Model):
 
   class Meta:
     verbose_name = 'Metadatenoption'
-    verbose_name_plural = 'Metadatenoption'
+    verbose_name_plural = 'Metadatenoptionen'
     db_table = 'd3_metadaten_option'
 
   def __str__(self):
@@ -146,8 +151,8 @@ class VorgangMetadaten(Model):
   erstellt_durch = ForeignKey(User, on_delete=SET_NULL, null=True, blank=True, to_field='id')
 
   class Meta:
-    verbose_name = 'VorgangMetadaten'
-    verbose_name_plural = 'VorgangMetadaten'
+    verbose_name = 'Vorgang-Metadaten'
+    verbose_name_plural = 'Vorgänge-Metadaten'
     db_table = 'd3_vorgang_metadaten'
 
   def __str__(self):
@@ -161,8 +166,8 @@ class Massnahme(Model):
   aktualisiert = DateTimeField(auto_now=True)
 
   class Meta:
-    verbose_name = 'Massnahme'
-    verbose_name_plural = 'Massnahmen'
+    verbose_name = 'Maßnahme'
+    verbose_name_plural = 'Maßnahmen'
     db_table = 'd3_massnahme'
 
   def __str__(self):
