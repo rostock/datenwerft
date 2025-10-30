@@ -85,7 +85,6 @@ class D3ContextMixin:
       if lade_d3_session_id(self.request) is None:
         context['authentication_failed'] = True
       else:
-
         model_name = model.__name__
 
         context['column_titles'] = list(Vorgang.BasemodelMeta.list_fields.values())

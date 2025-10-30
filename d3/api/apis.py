@@ -506,7 +506,7 @@ T000008201"
     properties: dict[str, str | List[str]],
   ) -> str:
     """
-    Erstellt ein neues Dokument in der d.3-API und verlinkt die hochgeladene Datei mit dem Dokument.
+    Erstellt ein neues Dokument via d.3-API und verlinkt die hochgeladene Datei mit dem Dokument.
     Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen,
     welcher von der d.3-API in der Response zurückgegeben wird.
 
