@@ -1457,6 +1457,16 @@ class Erdwaermesonden(SimpleModel):
   Erdwärmesonden
   """
 
+  adresse = ForeignKey(
+    to=Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True,
+  )
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
     max_length=18,
@@ -1513,17 +1523,20 @@ class Erdwaermesonden(SimpleModel):
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten"."erdwaermesonden_hro'
+    db_table = 'fachdaten_adressbezug"."erdwaermesonden_hro'
     verbose_name = 'Erdwärmesonde'
     verbose_name_plural = 'Erdwärmesonden'
 
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Erdwärmesonden in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
+    address_type = 'Adresse'
+    address_mandatory = False
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'aktenzeichen': 'Aktenzeichen',
+      'adresse': 'Adresse',
       'art': 'Art',
       'typ': 'Typ',
       'awsv_anlage': 'AwSV-Anlage?',
@@ -1533,7 +1546,7 @@ class Erdwaermesonden(SimpleModel):
       'hinweis': 'Hinweis',
     }
     list_fields_with_decimal = ['endteufe']
-    list_fields_with_foreign_key = {'art': 'art', 'typ': 'typ'}
+    list_fields_with_foreign_key = {'adresse': 'adresse', 'art': 'art', 'typ': 'typ'}
     map_feature_tooltip_fields = ['aktenzeichen']
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -1549,7 +1562,8 @@ class Erdwaermesonden(SimpleModel):
     map_filter_fields_as_list = ['art', 'typ']
 
   def __str__(self):
-    return self.aktenzeichen
+    aktenzeichen_str = f'{self.aktenzeichen}'
+    return f'{self.adresse}, {aktenzeichen_str}' if self.adresse else aktenzeichen_str
 
 
 class Fahrradabstellanlagen(SimpleModel):
