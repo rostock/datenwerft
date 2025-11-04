@@ -176,6 +176,19 @@ function initDataTable(dataUrl, languageUrl, numberOfColumns) {
     },
     dom: '<Bfr<t>ilp>',
     fixedHeader: true,
+    initComplete: function() {
+      // START BRILLEHORSCHD
+      // TODO: erweitern um select-events und mode-events
+      this.api().columns().every(function() {
+        let column = this;
+        let columnFilterInput = $('input.column-filter-input', this.footer());
+        // listen on events of column filter input fields
+        columnFilterInput.on('keyup change clear search', function() {
+          column.search(this.value).draw();
+        });
+      });
+      // END BRILLEHORSCHD
+    },
     language: {
       url: languageUrl
     },
@@ -188,8 +201,7 @@ function initDataTable(dataUrl, languageUrl, numberOfColumns) {
     processing: true,
     searchDelay: 500,
     searching: true,
-    serverSide: true,
-    stateSave: true
+    serverSide: true
   });
 }
 

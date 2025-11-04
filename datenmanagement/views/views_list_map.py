@@ -50,6 +50,7 @@ class TableDataCompositionView(BaseDatatableView):
     self.columns_with_datetime = self.model.BasemodelMeta.list_fields_with_datetime
     self.columns_with_decimal = self.model.BasemodelMeta.list_fields_with_decimal
     self.columns_with_foreign_key = self.model.BasemodelMeta.list_fields_with_foreign_key
+    self.column_filters_as_input = self.model.BasemodelMeta.list_filters_as_input
     self.additional_foreign_key_column = self.model.BasemodelMeta.list_additional_foreign_key_field
     self.column_as_highlight_flag = self.model.BasemodelMeta.highlight_flag
     self.thumbs = self.model.BasemodelMeta.thumbs
@@ -285,6 +286,7 @@ class TableDataCompositionView(BaseDatatableView):
     :param qs: queryset
     :return: filtered queryset
     """
+    # global search
     current_search = self.request.GET.get('search[value]', None)
     if current_search:
       qs_params = None
@@ -316,6 +318,20 @@ class TableDataCompositionView(BaseDatatableView):
           )
         qs_params = qs_params & qs_params_inner if qs_params else qs_params_inner
       qs = qs.filter(qs_params)
+
+    # per-column search
+    columns = self.columns
+    for index, column_name in enumerate(columns):
+      column_search_value = self.request.GET.get(f'columns[{index}][search][value]', None)
+      if column_search_value:
+        # careful here!
+        # if there is a 0th column, the index of the search column is 0-based; otherwise 1-based
+        if self.model.BasemodelMeta.editable and self.request.user.has_perm(
+           'datenmanagement.delete_' + self.model_name_lower
+        ):
+         column_name = list(columns.keys())[index - 1]
+        qs = qs.filter(**{f'{column_name}__icontains': column_search_value})
+
     return qs
 
   def ordering(self, qs):

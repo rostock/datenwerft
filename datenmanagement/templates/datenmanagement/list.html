@@ -83,6 +83,23 @@
             {% endif %}
           </tr>
         </thead>
+        <!-- START BRILLEHORSCHD -->
+        <!-- TODO: filter-columns pro Model in models.py und views.py => list_filters_as_input -->
+        <!-- TODO: in for-loop testen, (1) ob current column auch in filter-columns und, wenn ja, (2) ob input oder select -->
+        <!-- TODO: mode-selects einbauen -->
+        <tfoot>
+          <tr>
+            {% if actions %}
+              <th></th>
+            {% endif %}
+            {% for column_title in column_titles %}
+              <th><input class="form-control form-control-sm column-filter-input" type="search" placeholder="Filterwert…" /></th>
+            {% endfor %}
+            {% if column_actions %}
+              <th></th>
+            {% endif %}
+        </tfoot>
+        <!-- END BRILLEHORSCHD -->
       </table>
     </div>
     {% if actions %}
