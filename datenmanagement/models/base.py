@@ -65,6 +65,8 @@ class Basemodel(Model):
     :ivar list_fields_with_datetime:
     :ivar list_fields_with_decimal:
     :ivar list_fields_with_foreign_key:
+    :ivar list_filters_as_input:
+    :ivar list_filters_as_select:
     :ivar list_additional_foreign_key_field:
     :ivar list_actions_assign:
     :ivar highlight_flag:
@@ -175,6 +177,16 @@ class Basemodel(Model):
     # for the table of the list view so that they can also be found and displayed
     # in the referenced table of the corresponding list view
     list_fields_with_foreign_key: dict[str, str] = None
+
+    # names of those fields of this model appearing in ``list_fields``
+    # which shall be equipped with per-column filters (via HTML input elements)
+    # in the table of the list view of this model
+    list_filters_as_input: list[str] = None
+
+    # names of those fields of this model appearing in ``list_fields``
+    # which shall be equipped with per-column filters (via HTML select elements)
+    # in the table of the list view of this model
+    list_filters_as_select: list[str] = None
 
     # details of a foreign key field of this model
     # which shall appear as an additional column in the table of the list view of this model

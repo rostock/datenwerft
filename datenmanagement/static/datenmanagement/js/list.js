@@ -176,6 +176,45 @@ function initDataTable(dataUrl, languageUrl, numberOfColumns) {
     },
     dom: '<Bfr<t>ilp>',
     fixedHeader: true,
+    initComplete: function() {
+      this.api().columns().every(function() {
+        let column = this;
+        let columnFilterModeSelect = $('select.column-filter-mode', this.footer());
+        let columnFilterInput = $('input.column-filter-input', this.footer());
+        // listen on events of column filter input fields
+        columnFilterInput.on('keyup change clear search', function() {
+          let columnFilterMode = columnFilterModeSelect.val();
+          // positive column filter
+          if (columnFilterMode === 'P') {
+            column.search(this.value).draw();
+          // negative column filter
+          } else {
+            column.search('!' + this.value).draw();
+          }
+        });
+        let columnFilterSelect = $('select.column-filter-select', this.footer());
+        // listen on events of column filter select fields
+        columnFilterSelect.on('change', function() {
+          let columnFilterMode = columnFilterModeSelect.val();
+          // positive column filter
+          if (columnFilterMode === 'P') {
+            column.search($(this).val()).draw();
+          // negative column filter
+          } else {
+            column.search('!' + $(this).val()).draw();
+          }
+        });
+        // listen on events of column filter mode select fields
+        columnFilterModeSelect.on('change', function() {
+          // trigger event of column filter input field if column filter input field exists
+          if (columnFilterInput.length !== 0)
+            columnFilterInput.trigger('change');
+          // trigger event of column filter select field if column filter select field exists
+          if (columnFilterSelect.length !== 0)
+            columnFilterSelect.trigger('change');
+        });
+      });
+    },
     language: {
       url: languageUrl
     },
@@ -188,8 +227,7 @@ function initDataTable(dataUrl, languageUrl, numberOfColumns) {
     processing: true,
     searchDelay: 500,
     searching: true,
-    serverSide: true,
-    stateSave: true
+    serverSide: true
   });
 }
 

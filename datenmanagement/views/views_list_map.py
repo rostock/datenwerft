@@ -285,10 +285,11 @@ class TableDataCompositionView(BaseDatatableView):
     :param qs: queryset
     :return: filtered queryset
     """
-    current_search = self.request.GET.get('search[value]', None)
-    if current_search:
+    # global search
+    search_value = self.request.GET.get('search[value]', None)
+    if search_value:
       qs_params = None
-      for search_element in current_search.lower().split():
+      for search_element in search_value.lower().split():
         qs_params_inner = None
         for column in self.columns:
           # take care of foreign key columns
@@ -316,6 +317,27 @@ class TableDataCompositionView(BaseDatatableView):
           )
         qs_params = qs_params & qs_params_inner if qs_params else qs_params_inner
       qs = qs.filter(qs_params)
+
+    # per-column search
+    columns = self.columns
+    for index, column in enumerate(columns):
+      column_search_value = self.request.GET.get(f'columns[{index}][search][value]', None)
+      if column_search_value:
+        # careful here!
+        # if there is a 0th column, the index of the search column is 0-based; otherwise 1-based
+        if self.model.BasemodelMeta.editable and self.request.user.has_perm(
+          'datenmanagement.delete_' + self.model_name_lower
+        ):
+          column = list(columns.keys())[index - 1]
+        # take care of foreign key columns
+        if self.columns_with_foreign_key and self.columns_with_foreign_key.get(column) is not None:
+          column = column + str('__') + self.columns_with_foreign_key.get(column)
+        # handle address strings
+        elif column == self.column_with_address_string:
+          column = self.address_string_fallback_column
+        qs_params = optimize_datatable_filter(column_search_value, column, None)
+        qs = qs.filter(qs_params)
+
     return qs
 
   def ordering(self, qs):
@@ -325,10 +347,7 @@ class TableDataCompositionView(BaseDatatableView):
     :param qs: queryset
     :return: sorted queryset
     """
-    # assume initial order since multiple column sorting is prohibited
-    if self.request.GET.get('order[1][column]') is not None:
-      return qs
-    elif self.request.GET.get('order[0][column]') is not None:
+    if self.request.GET.get('order[0][column]') is not None:
       order_column = self.request.GET.get('order[0][column]')
       order_dir = self.request.GET.get('order[0][dir]', None)
       column_names = []
@@ -358,6 +377,9 @@ class TableDataCompositionView(BaseDatatableView):
       column_name = column_names[int(order_column) - (1 if actions else 0)]
       directory = '-' if order_dir is not None and order_dir == 'desc' else ''
       return qs.order_by(directory + column_name)
+    # assume initial order since multiple column sorting is prohibited
+    else:
+      return qs
 
 
 class TableListView(TemplateView):
@@ -427,11 +449,37 @@ class TableListView(TemplateView):
         # add list of objects of suitable source models of all assignment actions to context
         if actions_assign_values:
           context['actions_assign_values'] = actions_assign_values
-    context['column_titles'] = (
-      list(self.model.BasemodelMeta.list_fields.values())
-      if (self.model.BasemodelMeta.list_fields)
+    # add list of column names to context
+    context['column_names'] = (
+      list(self.model.BasemodelMeta.list_fields.keys())
+      if self.model.BasemodelMeta.list_fields
       else None
     )
+    # add list of column titles to context
+    context['column_titles'] = (
+      list(self.model.BasemodelMeta.list_fields.values())
+      if self.model.BasemodelMeta.list_fields
+      else None
+    )
+    # add list of column filters to context
+    if self.model.BasemodelMeta.list_fields and (
+      self.model.BasemodelMeta.list_filters_as_input
+      or self.model.BasemodelMeta.list_filters_as_select
+    ):
+      list_filters_as_input = self.model.BasemodelMeta.list_filters_as_input or []
+      list_filters_as_select = self.model.BasemodelMeta.list_filters_as_select or []
+      context['column_filters'] = [
+        'input'
+        if key in list_filters_as_input
+        else 'select'
+        if key in list_filters_as_select
+        else ''
+        for key in self.model.BasemodelMeta.list_fields.keys()
+      ]
+    else:
+      context['column_filters'] = None
+    # add title of additional foreign key column to list of column titles in context
+    # and add corresponding empty entry to list of column filters in context
     if self.model.BasemodelMeta.list_additional_foreign_key_field:
       columns = self.model.BasemodelMeta.list_fields
       after_column = self.model.BasemodelMeta.list_additional_foreign_key_field[
@@ -442,6 +490,9 @@ class TableListView(TemplateView):
       ]
       index = list(columns).index(after_column) + 1
       context['column_titles'].insert(index, additional_column_title)
+      # no per-column filtering here!
+      if context['column_filters']:
+        context['column_filters'].insert(index, '')
     if self.model.BasemodelMeta.editable and (
       self.request.user.has_perm('datenmanagement.change_' + model_name_lower)
       or self.request.user.has_perm('datenmanagement.delete_' + model_name_lower)

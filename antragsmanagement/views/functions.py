@@ -310,13 +310,13 @@ def get_cleanupeventrequest_anonymous_feature(curr_request, curr_type):
 
 def get_cleanupeventrequest_email_body_information(request, curr_object, body):
   """
-  gathers all neccessary information of passed object of model CleanupEventRequest,
+  gathers all necessary information of passed object of model CleanupEventRequest,
   equips passed email body with it, and finally returns the equipped email body
 
   :param request: request
   :param curr_object: object of model CleanupEventRequest
   :param body: email body
-  :return: email body, equipped with all neccessary information
+  :return: email body, equipped with all necessary information
   of passed object of model CleanupEventRequest
   """
   # fetch responsibilities
@@ -745,7 +745,7 @@ def get_referer_url(referer, fallback, lazy=False):
 
 def send_cleanupeventrequest_email(request, email_key, curr_object, recipient_list):
   """
-  sends email with all neccessary information of passed object of model CleanupEventRequest
+  sends email with all necessary information of passed object of model CleanupEventRequest
   to passed list of email recipients
 
   :param request: request
