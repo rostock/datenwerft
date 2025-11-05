@@ -177,17 +177,22 @@ function initDataTable(dataUrl, languageUrl, numberOfColumns) {
     dom: '<Bfr<t>ilp>',
     fixedHeader: true,
     initComplete: function() {
-      // START BRILLEHORSCHD
-      // TODO: erweitern um select-events und mode-events
       this.api().columns().every(function() {
         let column = this;
         let columnFilterInput = $('input.column-filter-input', this.footer());
         // listen on events of column filter input fields
+        console.log(columnFilterInput)
         columnFilterInput.on('keyup change clear search', function() {
           column.search(this.value).draw();
         });
+        let columnFilterSelect = $('select.column-filter-select', this.footer());
+        // listen on events of column filter select fields
+        console.log(columnFilterSelect)
+        columnFilterSelect.on('change', function() {
+          let val = $.fn.dataTable.util.escapeRegex($(this).val());
+          column.search(val ? val : '', true, false).draw();
+        });
       });
-      // END BRILLEHORSCHD
     },
     language: {
       url: languageUrl

@@ -682,10 +682,10 @@ class Baustellen_geplant(ComplexModel):
       'bezeichnung',
       'verkehrliche_lagen',
       'sparten',
-      'auftraggeber',
       'ansprechpartner',
     ]
     list_filters_as_select = [
+      'auftraggeber',
       'status',
     ]
     list_actions_assign = [

@@ -68,6 +68,27 @@ def get_class_name(value):
 
 
 @register.filter
+def get_distinct_field_values(field_name, model_name):
+  """
+  returns distinct values of passed field of passed model
+
+  :param field_name: field name
+  :param model_name: model class name
+  :return: distinct values of passed field of passed model
+  """
+  model = apps.get_app_config('datenmanagement').get_model(model_name)
+
+  # get all related objects via foreign key
+  # (use select_related to avoid N+1 queries)
+  objects = model.objects.select_related(field_name).all()
+  # build a set of distinct string representations
+  distinct_values = {str(getattr(obj, field_name)) for obj in objects}
+  # convert to a sorted list
+  distinct_values_list = sorted(distinct_values)
+  return distinct_values_list
+
+
+@register.filter
 @stringfilter
 def get_field_verbose_name(field_name, model_name):
   """
