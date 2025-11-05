@@ -330,9 +330,7 @@ class TableDataCompositionView(BaseDatatableView):
         ):
           column = list(columns.keys())[index - 1]
         # take care of foreign key columns
-        if (
-          self.columns_with_foreign_key and self.columns_with_foreign_key.get(column) is not None
-        ):
+        if self.columns_with_foreign_key and self.columns_with_foreign_key.get(column) is not None:
           column = column + str('__') + self.columns_with_foreign_key.get(column)
         # handle address strings
         elif column == self.column_with_address_string:
