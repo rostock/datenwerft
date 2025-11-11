@@ -136,7 +136,7 @@ class ErstelleVorgangView(CreateView):
       'datenmanagement:' + self.datenmanagement_model + '_change', args=[self.object_id]
     )
 
-    success(self.request, 'neuer Vorgang erfolgreich angelegt')
+    success(self.request, 'neuer d.3-Vorgang erfolgreich angelegt')
     response = super().form_valid(form)
 
     for vorgang_metadaten_object in vorgang_metadaten:

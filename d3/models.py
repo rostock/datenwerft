@@ -46,7 +46,7 @@ class AktenOrdnerOption(Model):
   akten_ordner = ForeignKey(AktenOrdner, on_delete=CASCADE)
   d3_id = CharField(max_length=36)
   wert = CharField(max_length=255, null=True, blank=True)
-  ist_namens_feld = BooleanField(default=False)
+  ist_namens_feld = BooleanField(verbose_name='ist Namensfeld?', default=False)
 
   class Meta:
     verbose_name = 'Aktenordner-Option'
@@ -62,7 +62,7 @@ class Vorgang(Model):
   titel = CharField(max_length=255)
   akten = ForeignKey(Akte, on_delete=CASCADE)
   d3_id = CharField(max_length=36)
-  vorgangs_typ = CharField(max_length=50)
+  vorgangs_typ = CharField(verbose_name='Vorgangstyp', max_length=50)
   erstellt = DateTimeField(auto_now_add=True)
   erstellt_durch = ForeignKey(User, on_delete=SET_NULL, null=True, blank=True, to_field='id')
   aktualisiert = DateTimeField(auto_now=True)
@@ -73,19 +73,11 @@ class Vorgang(Model):
       'id': 'ID',
       'vorgangs_typ': 'Vorgangstyp',
       'titel': 'Titel',
-      'akten': 'Akte',
       'd3_id': 'd.3-ID',
-      'erstellt': 'erstellt',
-      'erstellt_durch': 'erstellt durch',
-      'aktualisiert': 'aktualisiert',
+      'erstellt': 'Erstellungszeitpunkt',
+      'erstellt_durch': 'Ersteller:in',
+      'aktualisiert': 'Aktualisierungszeitpunkt',
     }
-    list_fields_with_date = ['erstellt', 'aktualisiert']
-    list_fields_with_datetime = ['erstellt', 'aktualisiert']
-    list_fields_with_decimal = []
-    list_fields_with_foreign_key = ['akten', 'erstellt_durch']
-    list_additional_foreign_key_field = None
-    highlight_flag = None
-    thumbs = []
 
   class Meta:
     verbose_name = 'Vorgang'
@@ -108,14 +100,19 @@ class Metadaten(Model):
     verbose_name='Eingabe erforderlich?', default=False, blank=False, null=True
   )
   regex = CharField(
-    verbose_name='Validierung via Regex',
+    verbose_name='RegExp zur Validierung',
     max_length=255,
     blank=True,
     null=True,
   )
   d3_id = CharField(max_length=36, null=True, blank=True, default=None)
   category = CharField(
-    verbose_name='Kategorie', max_length=50, null=False, blank=False, default='vorgang'
+    editable=False,
+    verbose_name='Kategorie',
+    max_length=50,
+    null=False,
+    blank=False,
+    default='vorgang',
   )
 
   class Meta:

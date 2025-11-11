@@ -11,8 +11,7 @@
   {% endblock %}
 
   <hr/>
-  <h4><em>d.3-</em>Integration</h4>
-
+  <h4><em>d.3-</em>Vorgänge</h4>
   {% if authentication_failed %}
     <div class="alert alert-danger" role="alert">
       Die Anmeldung in <em>d.3</em> ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.
@@ -30,7 +29,7 @@
               {% for column_title in column_titles %}
                 <th>{{ column_title }}</th>
               {% endfor %}
-              <th></th>
+              <th class="no-export no-search no-sort"><em>Redaktion</em></th>
             </tr>
         </thead>
       </table>

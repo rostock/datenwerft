@@ -20,7 +20,7 @@ from d3.utils import (
   suche_dateien,
 )
 from d3.views.forms import BearbeiteDokumentForm, UploadDokumentForm
-from datenwerft.settings import D3_ENABLED
+from datenwerft.settings import D3_ENABLED, D3_HOST, D3_REPOSITORY
 
 
 class FetchMetaDataRequestView(JsonView):
@@ -97,11 +97,11 @@ class ListeDateienView(View):
               datei['name'] = source_property.value
           dateien.append(datei)
       except Exception:
-        error = (
-          'Dateien konnten nicht geladen werden. Bitte kontaktieren Sie den Systemadministrator.'
-        )
+        error = 'Die Dokumente konnten nicht geladen werden.'
+        error += ' Bitte kontaktieren Sie den Systemadministrator.'
 
     view_params = {
+      'd3_document_base_url': f'{D3_HOST}/dms/r/{D3_REPOSITORY}/o2/',
       'file_download_view': f'd3:{self.datenmanagement_model}_file_download',
       'file_change_view': f'd3:{self.datenmanagement_model}_change_file',
       'object_id': kwargs['pk'],
@@ -204,7 +204,7 @@ class DokumentenErstellenView(View, DokumentenView):
 
       try:
         erstelle_dokument(request, vorgang, form.cleaned_data['file'], properties)
-        success(self.request, 'neues Dokument erfolgreich angelegt')
+        success(self.request, 'neues d.3-Dokument erfolgreich angelegt')
       except Exception:
         error(
           self.request,

@@ -1,35 +1,34 @@
 <div>
-
   {% if error %}
     <p>{{ error }}</p>
   {% else %}
+    <h5>Dokumente zu Vorgang</h5>
     {% if dateien %}
       <table class="table table-bordered table-striped no-footer">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Dokumentenname</th>
-            <th>Dateiname</th>
-            <th>Aktionen</th>
+            <th>d.3-ID</th>
+            <th>Betreff</th>
+            <th>originaler Dateiname</th>
+            <th class="no-export no-search no-sort"><em>Redaktion</em></th>
           </tr>
         </thead>
         <tbody>
           {% for entry in dateien %}
             <tr>
-
-              <td>{{ entry.id }}</td>
+              <td><a title="Dokument in d.3 öffnen…" target="_blank" href="{{ d3_document_base_url }}{{ entry.id }}">{{ entry.id }}</a></td>
               <td>{{ entry.name }}</td>
               <td>{{ entry.filename }}</td>
               <td class="text-right">
-                <a href="{% url file_download_view object_id entry.id %}" title="Datei herunterladen" target="_blank"><i class="fa fa-download"></i></a>
-                <a style="padding-left: 5px;" href="{% url file_change_view object_id vorgang_id entry.id %}" title="Datei bearbeiten"><i class="fa fa-edit"></i></a>
+                <a href="{% url file_download_view object_id entry.id %}" title="Datei herunterladen…" target="_blank"><i class="fa fa-download"></i></a>
+                <a style="padding-left: 5px;" href="{% url file_change_view object_id vorgang_id entry.id %}" title="Dokument bearbeiten…"><i class="fa fa-edit"></i></a>
               </td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
     {% else %}
-      <div>Keine Dateien vorhanden.</div>
+      <div>Keine Dokumente zu Vorgang vorhanden!</div>
     {% endif %}
   {% endif %}
 </div>

@@ -84,7 +84,7 @@ class VorgangForm(ModelForm, MetadatenMixin):
       vorgangs_optionen.append((massnahme.titel, massnahme.titel))
 
     vorgangs_optionen.sort()
-    vorgangs_typ = ChoiceField(choices=vorgangs_optionen)
+    vorgangs_typ = ChoiceField(label='Vorgangstyp', choices=vorgangs_optionen)
     vorgangs_typ.widget.attrs.update({'class': 'select2'})
 
     self.fields['vorgangs_typ'] = vorgangs_typ
