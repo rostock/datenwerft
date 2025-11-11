@@ -300,6 +300,12 @@ def optimize_datatable_filter(search_element, search_column, qs_params_inner):
   :param qs_params_inner: queryset parameters
   :return: optimized datatables queryset filter based on passed parameters
   """
+  # handle possible negation if search_element starts with an '!'
+  if match(r'^!', search_element):
+    negation = True
+    search_element = sub('^!', '', search_element)
+  else:
+    negation = False
   case_a = search('^[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$', search_element)
   case_b = search('^[0-9]{2}\\.[0-9]{4}$', search_element)
   case_c = search('^[0-9]{2}\\.[0-9]{2}$', search_element)
@@ -321,7 +327,11 @@ def optimize_datatable_filter(search_element, search_column, qs_params_inner):
     kwargs = {'{0}__{1}'.format(search_column, 'icontains'): sub(',', '.', search_element)}
   else:
     kwargs = {'{0}__{1}'.format(search_column, 'icontains'): search_element}
-  q = Q(**kwargs)
+  # negate queryset filter if necessary
+  if negation:
+    q = ~Q(**kwargs)
+  else:
+    q = Q(**kwargs)
   return qs_params_inner | q if qs_params_inner else q
 
 

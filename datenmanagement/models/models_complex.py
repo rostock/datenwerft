@@ -677,6 +677,17 @@ class Baustellen_geplant(ComplexModel):
       'auftraggeber': 'auftraggeber',
       'status': 'status',
     }
+    list_filters_as_input = [
+      'strasse',
+      'bezeichnung',
+      'verkehrliche_lagen',
+      'sparten',
+      'ansprechpartner',
+    ]
+    list_filters_as_select = [
+      'auftraggeber',
+      'status',
+    ]
     list_actions_assign = [
       {
         'action_name': 'baustellen_geplant-auftraggeber',
@@ -2560,15 +2571,15 @@ class Kleinklaeranlagen(ComplexModel):
     list_fields = {
       'aktiv': 'aktiv?',
       'd3': 'd.3',
-      'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
-      'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
-      'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
+      'we_datum': 'Datum WE',
+      'we_aktenzeichen': 'AZ WE',
+      'we_befristung': 'Befristung WE',
       'typ': 'Anlagetyp',
       'einleitstelle': 'Einleitstelle',
       'adresse': 'Adresse',
       'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
-      'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
-      'einwohnerwert': 'Einwohnerwert',
+      'umfang_einleitung': 'Umfang Einleitung (in m³/d)',
+      'einwohnerwert': 'EW',
       'zulassung': 'Zulassung',
     }
     list_fields_with_date = ['we_datum', 'we_befristung']
@@ -2578,20 +2589,23 @@ class Kleinklaeranlagen(ComplexModel):
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'd3': 'd.3',
-      'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
-      'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
-      'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
+      'we_datum': 'Datum WE',
+      'we_aktenzeichen': 'AZ WE',
+      'we_befristung': 'Befristung WE',
       'typ': 'Anlagetyp',
       'einleitstelle': 'Einleitstelle',
       'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
-      'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
-      'einwohnerwert': 'Einwohnerwert',
+      'umfang_einleitung': 'Umfang Einleitung (in m³/d)',
+      'einwohnerwert': 'EW',
       'zulassung': 'Zulassung',
     }
     map_filter_fields_as_list = ['typ']
 
   def __str__(self):
-    return self.d3 + ' mit Datum der wasserrechtlichen Erlaubnis ' + str(self.we_datum)
+    d3_str = f'{self.d3}'
+    we_datum_str = datetime.strptime(str(f'{self.we_datum}'), '%Y-%m-%d').strftime('%d.%m.%Y')
+    _str = d3_str + ', ' + we_datum_str
+    return f'{self.adresse}, {_str}' if self.adresse else _str
 
 
 class Kleinklaeranlagen_Gewaessereinleitungsorte(ComplexModel):
