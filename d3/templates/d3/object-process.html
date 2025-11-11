@@ -1,114 +1,108 @@
-{% load static %}
-{% block style %}
-  <link rel="stylesheet" type="text/css" href="{% static 'datatables/datatables.min.css' %}">
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/list.css' %}">
-{% endblock %}
+{% if enabled %}
+  {% load static %}
+  {% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables/datatables.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/list.css' %}">
+  {% endblock %}
 
-{% block scripts %}
-  <script src="{% static 'datatables/datatables.min.js' %}"></script>
-  <script src="{% static 'd3/js/list.js' %}"></script>
-{% endblock %}
+  {% block scripts %}
+    <script src="{% static 'datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'd3/js/list.js' %}"></script>
+  {% endblock %}
 
-{% if authentication_failed %}
-  <hr />
-  <div class="alert alert-danger" role="alert">
-    Die Authentifizierung zu D3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.
-  </div>
-{% elif enabled %}
-
-  <hr />
-  <h2>Vorgänge</h2>
-
-  <div >
-
-    {% if url_process_add %}
+  <hr/>
+  <h4><em>d.3-</em>Vorgänge</h4>
+  {% if authentication_failed %}
+    <div class="alert alert-danger" role="alert">
+      Die Anmeldung in <em>d.3</em> ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.
+    </div>
+  {% else %}
+    <div >
+      {% if url_process_add %}
         <a class="btn btn-primary" role="button" href="{{ url_process_add }}"><i class="fas fa-circle-plus"></i> neuen Vorgang anlegen</a>
-    {% endif %}
+      {% endif %}
+    </div>
+    <div style="padding-bottom: 50px">
+      <table id="datasets" class="table table-bordered table-striped">
+        <thead>
+            <tr>
+              {% for column_title in column_titles %}
+                <th>{{ column_title }}</th>
+              {% endfor %}
+              <th class="no-export no-search no-sort"><em>Redaktion</em></th>
+            </tr>
+        </thead>
+      </table>
+    </div>
+    <script>
+      window.dataUrl = '{{ url_process_tabledata }}';
+      window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
+      window.checkAllTarget = true;
+      window.metaDataUrl = '{{ url_process_metadata }}';
+    </script>
+    <script>
+      setTimeout(function () {
+        $('.alert-success').alert('close');
+      }, 3000);
 
-  </div>
+      /**
+       * @function
+       *
+       * main function
+       */
+      $(document).ready(function() {
 
-  <div style="padding-bottom: 50px">
-    <table id="datasets" class="table table-bordered table-striped">
-      <thead>
-          <tr>
-            {% for column_title in column_titles %}
-              <th>{{ column_title }}</th>
-            {% endfor %}
-            <th></th>
-          </tr>
-      </thead>
-    </table>
-  </div>
+        const table = initDataTable(window.dataUrl, window.languageUrl);
 
-  <script>
-    window.dataUrl = '{{ url_process_tabledata }}';
-    window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
-    window.checkAllTarget = true;
-    window.metaDataUrl = '{{ url_process_metadata }}';
-  </script>
+        $('#datasets tbody').on('click', 'tr', function () {
 
-  <script>
-    setTimeout(function () {
-      $('.alert-success').alert('close');
-    }, 3000);
+          const tr = $(this).closest('tr');
+          const table = $('#datasets').DataTable();
+          const row = table.row(tr);
 
-    /**
-     * @function
-     *
-     * main function
-     */
-    $(document).ready(function() {
+          if (row.length === 0) {
+            return;
+          }
 
-      const table = initDataTable(window.dataUrl, window.languageUrl);
+          const rowData = row.data();
 
-      $('#datasets tbody').on('click', 'tr', function () {
+          const processId = rowData[0];
 
-        const tr = $(this).closest('tr');
-        const table = $('#datasets').DataTable();
-        const row = table.row(tr);
+          if (row.child.isShown()) {
 
-        if (row.length === 0) {
-          return;
-        }
+            row.child.hide();
+            tr.removeClass('shown');
+          } else {
 
-        const rowData = row.data();
+            tr.css('opacity', 0.5);
+            fetchMetadata(window.metaDataUrl, processId).then(data => {
 
-        const processId = rowData[0];
+              row.child(data.html).show();
+              tr.css('opacity', 'initial')
+            }).catch(error => {
 
-        if (row.child.isShown()) {
+              row.child('Error loading data').show();
+              tr.css('opacity', 'initial')
+            });
 
-          row.child.hide();
-          tr.removeClass('shown');
-        } else {
+            tr.addClass('shown');
+          }
+        });
 
-          tr.css('opacity', 0.5);
-          fetchMetadata(window.metaDataUrl, processId).then(data => {
+        table.on('xhr', function(e, settings, json) {
+          if (json && json.recordsTotal === 0) {
+            // Hide pagination and page size controls
+            $('.dataTables_paginate').hide();
+            $('.dataTables_length').hide();
+            $('.dataTables_info').hide();
 
-            row.child(data.html).show();
-            tr.css('opacity', 'initial')
-          }).catch(error => {
-
-            row.child('Error loading data').show();
-            tr.css('opacity', 'initial')
-          });
-
-          tr.addClass('shown');
-        }
+          } else {
+            $('.dataTables_paginate').show();
+            $('.dataTables_length').show();
+            $('.dataTables_info').show();
+          }
+        });
       });
-
-      table.on('xhr', function(e, settings, json) {
-        if (json && json.recordsTotal === 0) {
-          // Hide pagination and page size controls
-          $('.dataTables_paginate').hide();
-          $('.dataTables_length').hide();
-          $('.dataTables_info').hide();
-
-        } else {
-          $('.dataTables_paginate').show();
-          $('.dataTables_length').show();
-          $('.dataTables_info').show();
-        }
-      });
-    });
-  </script>
+    </script>
+  {% endif %}
 {% endif %}

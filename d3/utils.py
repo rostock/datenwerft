@@ -9,13 +9,13 @@ from datenwerft.settings import D3_ENABLED, D3_REPOSITORY
 
 def lade_d3_session_id(request) -> str | None:
   """
-  Lese die D3 session id aus der Session des Clients.
+  Lese die d.3-session id aus der Session des Clients.
 
   Args:
       request: http request des clients welches die Client-Session beinhaltet
 
   Returns:
-      str | None: Entweder die session id des D3 logins oder None
+      str | None: Entweder die session id des d.3-logins oder None
   """
   if not D3_ENABLED:
     return None
@@ -25,27 +25,27 @@ def lade_d3_session_id(request) -> str | None:
 
 def lade_d3_api(request):
   """
-  Initialisiert eine D3Api-Instanz mit einem geladenen Access-Token.
+  Initialisiert eine d.3-API-Instanz mit einem geladenen Access-Token.
 
   Zum Initialisieren wird ein access token von der Authentifizierungssystem API geladen.
 
   Returns:
-      D3Api: D3Api Client mit geladenen Access-Token
+      D3Api: d.3-API-Client mit geladenen Access-Token
   """
   return D3Api(lade_d3_session_id(request))
 
 
 def lade_akten_ordner(content_type_id: int) -> AktenOrdner | None:
   """
-  Lädt den d3 akten ordner für den content type mit der übergebenen id oder None,
-  falls nicht gefunden.
+  lädt den d.3-Aktenordner für den Content-Type mit der übergebenen ID oder None,
+  falls nicht gefunden
 
   Parameters:
-      content_type_id (int): Identifier des content types.
+      content_type_id (int): ID des Content-Types
 
   Returns:
-      AktenOrdner | None: Der Aktenordner für den übergebenem content_type oder None,
-      falls nicht gefunden.
+      AktenOrdner | None: d.3-Aktenordner für den Content-Type mit der übergebenen ID oder None,
+      falls nicht gefunden
   """
   akte = AktenOrdner.objects.filter(model=content_type_id)
 
@@ -59,7 +59,7 @@ def lade_oder_erstelle_akte(
   request, content_type_id: int, object_id: str, akten_ordner: AktenOrdner
 ) -> Akte:
   """
-  Lädt die d3 akte des objekts oder erstellt eine neue falls keine gefunden wurde.
+  Lädt die d.3-akte des objekts oder erstellt eine neue falls keine gefunden wurde.
 
   Parameters:
       request: Request welcher die User-Session beinhaltet
@@ -116,7 +116,7 @@ def fetch_processes(content_type_id: int, object_id: str) -> list[Vorgang] | Non
 
 def lade_akte(content_type_id: int, object_id: str) -> Akte | None:
   """
-  Lädt die d3 akte des objekts oder None, falls keine gefunden wurde.
+  Lädt die d.3-akte des objekts oder None, falls keine gefunden wurde.
 
   Parameters:
       content_type_id (int): Identifier des content types.
@@ -154,8 +154,8 @@ def load_processes(akten_id: int) -> QuerySet[Vorgang] | None:
 
 def lade_d3_properties(request, category_id: str) -> list[tuple[str, str]]:
   """
-  lade alle d3 properties und gebe sie als list von tuple zurück,
-  wobei der erste Wert der Key des properties in d3 entspricht
+  lade alle d.3-properties und gebe sie als list von tuple zurück,
+  wobei der erste Wert der Key des properties in d.3 entspricht
   und der zweite Wert der Anzeigenamen des properties.
 
       Parameters:
@@ -178,7 +178,7 @@ def lade_d3_properties(request, category_id: str) -> list[tuple[str, str]]:
 
 def suche_dateien(request, vorgangs_id: str) -> list[DmsObject]:
   """
-  Suche alle Dateien für den vorgang mit der gegebenen ID im D3 DMS.
+  Suche alle Dateien für den vorgang mit der gegebenen ID im d.3-DMS.
 
   Args:
       request: Request welcher die User-Session beinhaltet
@@ -193,7 +193,7 @@ def suche_dateien(request, vorgangs_id: str) -> list[DmsObject]:
 
 def lade_datei_inhalt(request, datei_id: str) -> DateiInhalt:
   """
-  Lade den Inhalt der Datei mit der gegebenen id im D3 DMS.
+  Lade den Inhalt der Datei mit der gegebenen id im d.3-DMS.
 
   Args:
       request: Request welcher die User-Session beinhaltet
@@ -213,7 +213,7 @@ def erstelle_vorgang(
   metadaten: QuerySet[Metadaten],
 ) -> str:
   """
-  Erstellt einen neuen Vorgang im D3 DMS mit den Daten aus dem Vorgang und deren Metadaten.
+  Erstellt einen neuen Vorgang im d.3-DMS mit den Daten aus dem Vorgang und deren Metadaten.
 
   Args:
       request: Request welcher die User-Session beinhaltet
@@ -245,7 +245,7 @@ def erstelle_vorgang(
 
 def lade_dokument(request, dokumenten_id: str) -> DmsObject:
   """
-  Lade das dokument mit der gegebenen id im D3 DMS.
+  Lade das dokument mit der gegebenen id im d.3-DMS.
 
   Args:
       request: Request welcher die User-Session beinhaltet
@@ -263,7 +263,7 @@ def erstelle_dokument(
   request, vorgang: Vorgang, datei: UploadedFile, dokument_metadaten: dict[str, str]
 ) -> str:
   """
-  Erstellt einen neuen Vorgang im D3 DMS mit den Daten aus dem Vorgang und deren Metadaten.
+  Erstellt einen neuen Vorgang im d.3-DMS mit den Daten aus dem Vorgang und deren Metadaten.
 
   Args:
       request: Request welcher die User-Session beinhaltet
@@ -290,7 +290,7 @@ def bearbeite_dokument(
   dokument_metadaten: dict[str, str],
 ) -> str:
   """
-  Bearbeite das Dokument mit der gegebenen id im D3 DMS und lade ggf. eine neue Datei hoch.
+  Bearbeite das Dokument mit der gegebenen id im d.3-DMS und lade ggf. eine neue Datei hoch.
 
   Args:
       request: Request welcher die User-Session beinhaltet

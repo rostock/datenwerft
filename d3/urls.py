@@ -31,11 +31,11 @@ def permission_required(*perms):
   return user_passes_test(lambda u: any(u.has_perm(perm) for perm in perms))
 
 
-def datenmodel_permission_required(model_name_lower: str):
+def datenmodel_permission_required(_model_name_lower: str):
   return permission_required(
-    'datenmanagement.change_' + model_name_lower,
-    'datenmanagement.delete_' + model_name_lower,
-    'datenmanagement.view_' + model_name_lower,
+    'datenmanagement.change_' + _model_name_lower,
+    'datenmanagement.delete_' + _model_name_lower,
+    'datenmanagement.view_' + _model_name_lower,
   )
 
 
@@ -47,7 +47,7 @@ for model in models:
   model_name = model.__name__
   model_name_lower = model_name.lower()
 
-  # form page for adding new d3 processes to a model
+  # form page for adding new d.3 processes to a model
   urlpatterns.append(
     path(
       model_name + '/<str:pk>/process/add',
@@ -60,7 +60,7 @@ for model in models:
     )
   )
 
-  # view to retrieve a list of files from a d3 process
+  # view to retrieve a list of files from a d.3 process
   urlpatterns.append(
     path(
       model_name + '/<str:pk>/process/<int:id>/file',
@@ -71,7 +71,7 @@ for model in models:
     )
   )
 
-  # view to download a file from a d3 process
+  # view to download a file from a d.3 process
   urlpatterns.append(
     path(
       model_name + '/<str:pk>/file/download/<str:file_id>',
@@ -82,7 +82,7 @@ for model in models:
     )
   )
 
-  # form page for adding new files to a d3 processes
+  # form page for adding new files to a d.3 processes
   urlpatterns.append(
     path(
       model_name + '/<str:pk>/process/<int:vorgang_id>/file/create',
@@ -93,7 +93,7 @@ for model in models:
     )
   )
 
-  # form page for editing files if a d3 process
+  # form page for editing files if a d.3 process
   urlpatterns.append(
     path(
       model_name + '/<str:pk>/process/<int:vorgang_id>/file/change/<str:file_id>',

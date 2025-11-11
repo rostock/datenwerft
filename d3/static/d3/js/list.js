@@ -1,5 +1,3 @@
-
-
 /**
  * @function
  * @name initDataTable
@@ -43,7 +41,16 @@ function initDataTable(dataUrl, languageUrl) {
   });
 }
 
+/**
+ * @function
+ * @name fetchMetadata
+ *
+ * fetches metadata and returns it
+ *
+ * @param {string} dataUrl - data URL
+ * @param {string} processId - process ID
+ * @returns {Object} - metadata
+ */
 async function fetchMetadata(dataUrl, processId) {
-
   return fetch(`${dataUrl}?processId=${processId}`).then(response => response.json())
 }

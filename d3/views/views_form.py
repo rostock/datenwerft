@@ -49,7 +49,7 @@ class ErstelleVorgangView(CreateView):
     if lade_d3_session_id(self.request) is None:
       error(
         self.request,
-        'Die Authentifizierung zu D3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.',  # noqa: E501
+        'Die Anmeldung in d.3 ist fehlgeschlagen. Bitte versuchen Sie sich erneut einzuloggen oder kontaktieren Sie den Systemadministrator.',  # noqa: E501
       )
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 
@@ -64,7 +64,7 @@ class ErstelleVorgangView(CreateView):
     if self.akten_ordner is None:
       error(
         self.request,
-        'Der D3-Ordner für Akten dieser Objektart ist nicht konfiguriert. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
+        'Der d.3-Ordner für Akten dieser Objektart ist nicht konfiguriert. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
       )
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 
@@ -126,7 +126,7 @@ class ErstelleVorgangView(CreateView):
     except Exception:
       error(
         self.request,
-        'Beim Anlegen des Vorgangs in D3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
+        'Beim Anlegen des Vorgangs in d.3 ist ein Fehler aufgetreten. Bitte kontaktieren Sie den Systemadministrator.',  # noqa: E501
       )
       return redirect('datenmanagement:' + self.datenmanagement_model + '_change', self.object_id)
 
@@ -136,7 +136,7 @@ class ErstelleVorgangView(CreateView):
       'datenmanagement:' + self.datenmanagement_model + '_change', args=[self.object_id]
     )
 
-    success(self.request, 'neuer Vorgang erfolgreich angelegt')
+    success(self.request, 'neuer d.3-Vorgang erfolgreich angelegt')
     response = super().form_valid(form)
 
     for vorgang_metadaten_object in vorgang_metadaten:

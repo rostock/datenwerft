@@ -54,6 +54,7 @@ ignore_case = true
 [tool.ruff]
 exclude = [
   ".github",
+  "docker/container/web/secrets.py",
   "docs",
   "linting",
   "logs",

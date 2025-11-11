@@ -1,7 +1,7 @@
-from pathlib import Path
-
 import ldap
-from django_auth_ldap.config import GroupOfNamesType, LDAPSearch
+
+from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
+from pathlib import Path
 
 BASE_DIR_CUSTOM = Path(__file__).resolve().parent.parent
 
@@ -10,29 +10,19 @@ BASE_DIR_CUSTOM = Path(__file__).resolve().parent.parent
 # global application definition
 
 DEBUG = True
-INSTANCE_STATUS = 'DEVEL'  # PRODUCTION | TESTING | DEVEL
+INSTANCE_STATUS = 'DEVEL'
 SECRET_KEY = 'abcdefghijklmnopqrstuvwxyz0123456789-#(!$&%abcdefg'
-ALLOWED_HOSTS = ['datenwerft.hro.localhost', 'localhost', '127.0.0.1', '::1']
-CSRF_TRUSTED_ORIGINS = ['http://datenwerft.hro.localhost']
-
-LOGIN_REDIRECT_URL = '/'
+ALLOWED_HOSTS = [
+  'datenwerft.hro.localhost',
+  'localhost',
+  '127.0.0.1',
+  '::1'
+]
+CSRF_TRUSTED_ORIGINS = [
+  'http://datenwerft.hro.localhost'
+]
+LOGIN_REDIRECT_URL = '/datenwerft/'
 LOGIN_URL = '/datenwerft/accounts/login/'
-
-D3_HOST = ''
-D3_REPOSITORY = ''
-D3_ENABLED = False
-
-D3_AKTEN_CATEGORY = ''
-D3_VORGANG_CATEGORY = ''
-D3_DATEI_CATEGORY = ''
-D3_VORGANGS_TITEL_ID = ''
-D3_VORGANGS_TYP_ID = None
-
-# Datenwerft.HRO:
-# reverse proxy settings
-
-# USE_X_FORWARDED_HOST = True
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Datenwerft.HRO:
@@ -43,30 +33,49 @@ LOGGING = {
   'version': 1,
   'disable_existing_loggers': False,
   'handlers': {
-    'console': {'class': 'logging.StreamHandler', 'level': 'WARNING'},
+    'console': {
+      'class': 'logging.StreamHandler',
+      'level': 'WARNING'
+    },
     'datenmanagement-file': {
       'class': 'logging.FileHandler',
       'filename': 'logs/datenmanagement.log',
-      'level': 'WARNING',
+      'level': 'WARNING'
     },
     'celery-file': {
       'class': 'logging.FileHandler',
       'filename': 'logs/celery.log',
-      'level': 'WARNING',
+      'level': 'WARNING'
     },
     'VCPub-file': {
       'class': 'logging.FileHandler',
       'filename': 'logs/VCPub.log',
-      'level': 'WARNING',
+      'level': 'WARNING'
     },
-    'error-file': {'class': 'logging.FileHandler', 'filename': 'logs/error.log', 'level': 'ERROR'},
+    'error-file': {
+      'class': 'logging.FileHandler',
+      'filename': 'logs/error.log',
+      'level': 'ERROR'
+    }
   },
   'loggers': {
-    '': {'handlers': ['console', 'error-file'], 'level': 'WARNING'},
-    'datenmanagement': {'handlers': ['console', 'datenmanagement-file'], 'level': 'WARNING'},
-    'celery': {'handlers': ['console', 'celery-file'], 'level': 'WARNING'},
-    'VCPub': {'handlers': ['console', 'VCPub-file'], 'level': 'WARNING'},
-  },
+    '': {
+      'handlers': ['console', 'error-file'],
+      'level': 'WARNING'
+    },
+    'datenmanagement': {
+      'handlers': ['console', 'datenmanagement-file'],
+      'level': 'WARNING'
+    },
+    'celery': {
+      'handlers': ['console', 'celery-file'],
+      'level': 'WARNING'
+    },
+    'VCPub': {
+      'handlers': ['console', 'VCPub-file'],
+      'level': 'WARNING'
+    }
+  }
 }
 
 
@@ -80,7 +89,7 @@ DATABASES = {
     'USER': 'postgres',
     'PASSWORD': 'postgres',
     'HOST': 'db',
-    'PORT': '5432',
+    'PORT': '5432'
   },
   'antragsmanagement': {
     'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -88,7 +97,7 @@ DATABASES = {
     'USER': 'postgres',
     'PASSWORD': 'postgres',
     'HOST': 'db',
-    'PORT': '5432',
+    'PORT': '5432'
   },
   'bemas': {
     'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -96,7 +105,7 @@ DATABASES = {
     'USER': 'postgres',
     'PASSWORD': 'postgres',
     'HOST': 'db',
-    'PORT': '5432',
+    'PORT': '5432'
   },
   'datenmanagement': {
     'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -104,7 +113,23 @@ DATABASES = {
     'USER': 'postgres',
     'PASSWORD': 'postgres',
     'HOST': 'db',
-    'PORT': '5432',
+    'PORT': '5432'
+  },
+  'fmm': {
+    'ENGINE': 'django.contrib.gis.db.backends.postgis',
+    'NAME': 'fmm',
+    'USER': 'postgres',
+    'PASSWORD': 'postgres',
+    'HOST': 'db',
+    'PORT': '5432'
+  },
+  'gdihrocodelists': {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': 'gdihrocodelists',
+    'USER': 'postgres',
+    'PASSWORD': 'postgres',
+    'HOST': 'db',
+    'PORT': '5432'
   },
   'gdihrometadata': {
     'ENGINE': 'django.db.backends.postgresql',
@@ -112,30 +137,45 @@ DATABASES = {
     'USER': 'postgres',
     'PASSWORD': 'postgres',
     'HOST': 'db',
-    'PORT': '5432',
-  },
+    'PORT': '5432'
+  }
 }
-POSTGIS_VERSION = (3, 5, 0)
+POSTGIS_VERSION = (3, 5, 2)
 
 
 # Accounts app:
 # authentication
 
-AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES = ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']
-
+AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES = [
+  '10.0.0.0/8',
+  '172.16.0.0/12',
+  '192.168.0.0/16'
+]
 AUTH_LDAP_EXTENSION_ACCESS_TOKEN_LIFETIME = 300
-AUTH_LDAP_GLOBAL_OPTIONS = {ldap.OPT_X_TLS_REQUIRE_CERT: ldap.OPT_X_TLS_NEVER}
+AUTH_LDAP_GLOBAL_OPTIONS = {
+  ldap.OPT_X_TLS_REQUIRE_CERT: ldap.OPT_X_TLS_NEVER
+}
 AUTH_LDAP_SERVER_URI = 'ldap://localhost:1389'
 AUTH_LDAP_BIND_DN = 'cn=admin,dc=example,dc=org'
 AUTH_LDAP_BIND_PASSWORD = 'password'
 AUTH_LDAP_ALWAYS_UPDATE_USER = True
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
-  'ou=Abteilung,ou=Amt,o=Stadt', ldap.SCOPE_SUBTREE, '(objectClass=groupOfNames)'
+  'ou=Abteilung,ou=Amt,o=Stadt',
+  ldap.SCOPE_SUBTREE,
+  '(objectClass=groupOfNames)'
 )
 AUTH_LDAP_GROUP_TYPE = GroupOfNamesType()
 AUTH_LDAP_REQUIRE_GROUP = None
-AUTH_LDAP_USER_SEARCH = LDAPSearch('o=Stadt', ldap.SCOPE_SUBTREE, '(uid=%(user)s)')
-AUTH_LDAP_USER_ATTR_MAP = {'first_name': 'givenName', 'last_name': 'sn', 'email': 'mail'}
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+  'o=Stadt',
+  ldap.SCOPE_SUBTREE,
+  '(uid=%(user)s)'
+)
+AUTH_LDAP_USER_ATTR_MAP = {
+  'first_name': 'givenName',
+  'last_name': 'sn',
+  'email': 'mail'
+}
 
 
 # Antragsmanagement app:
@@ -144,7 +184,7 @@ AUTH_LDAP_USER_ATTR_MAP = {'first_name': 'givenName', 'last_name': 'sn', 'email'
 ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME = 'antragsmanagement_requester'
 ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES = [
   'antragsmanagement_authority_1',
-  'antragsmanagement_authority_2',
+  'antragsmanagement_authority_2'
 ]
 ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME = 'antragsmanagement_admin'
 
@@ -160,6 +200,31 @@ BEMAS_USERS_GROUP_NAME = 'bemas_users'
 # data privacy
 
 BEMAS_STATUS_CHANGE_DEADLINE_DAYS = 365
+
+
+# d.3 app:
+# configuration
+
+D3_ENABLED = False
+D3_HOST = ''
+D3_REPOSITORY = ''
+D3_AKTEN_CATEGORY = ''
+D3_VORGANG_CATEGORY = ''
+D3_DATEI_CATEGORY = ''
+D3_VORGANGS_TITEL_ID = ''
+D3_VORGANGS_TYP_ID = None
+
+
+# FMM app:
+# authentication
+
+FMM_GROUP_NAME = 'fmm'
+
+
+# GDI.HRO Codelists app:
+# authentication
+
+GDIHROCODELISTS_GROUP_NAME = 'gdihrocodelists'
 
 
 # GDI.HRO Metadata app:
@@ -213,7 +278,10 @@ REVERSE_SEARCH_RADIUS = 200  # m
 # Toolbox app:
 # OWS proxy
 
-OWS_PROXY_PROXIES = {'http': 'http://1.2.3.4:8080', 'https': 'http://1.2.3.4:8090'}
+OWS_PROXY_PROXIES = {
+  'http': 'http://1.2.3.4:8080',
+  'https': 'http://1.2.3.4:8090'
+}
 
 
 # Datenmanagement app:

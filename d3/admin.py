@@ -24,7 +24,7 @@ class AktenOrdnerOptionenForInline(admin.StackedInline):
 
   def get_formset(self, request, obj=None, **kwargs):
     d3_properties = [('', '---------')] + lade_d3_properties(request, D3_AKTEN_CATEGORY)
-    d3_field = ChoiceField(label='D3 Feld', choices=d3_properties)
+    d3_field = ChoiceField(label='d.3-Feld', choices=d3_properties)
     d3_field.required = False
 
     self.form.base_fields['d3_id'] = d3_field
@@ -41,14 +41,14 @@ class MetadatenOptionenForInline(admin.StackedInline):
 class VorgangMetadatenProxy(Metadaten):
   class Meta:
     proxy = True
-    verbose_name = 'Metadaten (Vorgang)'
+    verbose_name = 'Metadatum (Vorgang)'
     verbose_name_plural = 'Metadaten (Vorgang)'
 
 
 class DokumentMetadatenProxy(Metadaten):
   class Meta:
     proxy = True
-    verbose_name = 'Metadaten (Dokument)'
+    verbose_name = 'Metadatum (Dokument)'
     verbose_name_plural = 'Metadaten (Dokument)'
 
 
@@ -79,7 +79,7 @@ class VorgangMetadatenProxyForm(ModelForm):
       d3_properties = [('', '---------')] + lade_d3_properties(
         self.user_request, D3_VORGANG_CATEGORY
       )
-      d3_field = ChoiceField(label='D3 Feld', choices=d3_properties)
+      d3_field = ChoiceField(label='d.3-Feld', choices=d3_properties)
       d3_field.widget.attrs.update({'class': 'select2'})
       d3_field.required = False
 
@@ -101,7 +101,7 @@ class DokumentMetadatenProxyForm(ModelForm):
       d3_properties = [('', '---------')] + lade_d3_properties(
         self.user_request, D3_DATEI_CATEGORY
       )
-      d3_field = ChoiceField(label='D3 Feld', choices=d3_properties)
+      d3_field = ChoiceField(label='d.3-Feld', choices=d3_properties)
       d3_field.widget.attrs.update({'class': 'select2'})
       d3_field.required = False
 
@@ -128,7 +128,7 @@ class VorgangMetadatenForAdmin(admin.ModelAdmin):
       and 'd3_id' in kwargs.get('fields')
       and lade_d3_session_id(request) is None
     ):
-      warning(request, 'Die Metadaten konnten nicht über die D3 API geladen werden.')
+      warning(request, 'Die Metadaten konnten nicht über die d.3-API geladen werden.')
 
     return form
 
@@ -156,7 +156,7 @@ class DokumentenMetadatenForAdmin(admin.ModelAdmin):
       and 'd3_id' in kwargs.get('fields')
       and lade_d3_session_id(request) is None
     ):
-      warning(request, 'Die Metadaten konnten nicht über die D3 API geladen werden.')
+      warning(request, 'Die Metadaten konnten nicht über die d.3-API geladen werden.')
 
     return form
 
