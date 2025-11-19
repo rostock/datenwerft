@@ -8,7 +8,7 @@ db.sqlite3
 # Datenwerft.HRO
 datenwerft/secrets.py
 toolbox/mkpdf/tmp_*
-static
+static/*
 logs/*
 !logs/.gitkeep
 uploads/*
