@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_tags %}
+
+{% block title %}Karte | KiJu {% endblock %}
+
+{% block style %}
+  {{ block.super }}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.locatecontrol/0.79.0/L.Control.Locate.min.css" />
+  <style></style>
+    #leaflet-map {
+      height: 600px;
+      width: 100%;
+    }
+    
+    .side {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      z-index: 1000;
+      width: 300px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    
+    @media (max-width: 768px) {
+      .side {
+        position: relative;
+        width: 100%;
+        right: auto;
+        top: auto;
+        margin-bottom: 20px;
+      }
+      
+      #leaflet-map {
+        height: 400px;
+      }
+    }
+    
+    .legend {
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+  </style>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.locatecontrol/0.79.0/L.Control.Locate.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.2/proj4.js"></script>
+  <script src="https://unpkg.com/proj4leaflet@1.0.2/src/proj4leaflet.js"></script>
+  
+  <script>
+    let map;
+    let markersLayers = {};
+    
+    // Configuration
+    const config = {
+      defaultCenter: [{{ LEAFLET_CONFIG.DEFAULT_CENTER.0 }}, {{ LEAFLET_CONFIG.DEFAULT_CENTER.1 }}],
+      defaultZoom: {{ LEAFLET_CONFIG.DEFAULT_ZOOM }},
+      minZoom: {{ LEAFLET_CONFIG.MIN_ZOOM }},
+      maxZoom: {{ LEAFLET_CONFIG.MAX_ZOOM }},
+      services: {
+        service: {
+          color: '{{ services_color }}',
+          url: '{{ services_mapdata_url }}',
+          name: 'Dienstleistungen'
+        },
+        holidayservice: {
+          color: '{{ holiday_services_color }}',
+          url: '{{ holiday_services_mapdata_url }}',
+          name: 'Ferienangebote'
+        },
+        preventionservice: {
+          color: '{{ prevention_services_color }}',
+          url: '{{ prevention_services_mapdata_url }}',
+          name: 'Präventionsangebote'
+        }
+      }
+    };
+    
+    function initializeMap() {
+      // Initialize map
+      map = L.map('leaflet-map').setView(config.defaultCenter, config.defaultZoom);
+      
+      // Add tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: config.maxZoom,
+        minZoom: config.minZoom
+      }).addTo(map);
+      
+      // Add locate control
+      L.control.locate({
+        position: 'topleft',
+        flyTo: true,
+        showCompass: true
+      }).addTo(map);
+      
+      // Initialize marker clusters for each service type
+      Object.keys(config.services).forEach(serviceType => {
+        markersLayers[serviceType] = L.markerClusterGroup({
+          iconCreateFunction: function(cluster) {
+            return L.divIcon({
+              html: '<div style="background-color: ' + config.services[serviceType].color + '; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;">' + cluster.getChildCount() + '</div>',
+              className: 'custom-cluster-icon',
+              iconSize: [30, 30]
+            });
+          }
+        });
+        map.addLayer(markersLayers[serviceType]);
+      });
+      
+      // Load data for all service types
+      Object.keys(config.services).forEach(serviceType => {
+        loadServiceData(serviceType);
+      });
+    }
+    
+    function loadServiceData(serviceType) {
+      fetch(config.services[serviceType].url)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.features) {
+            data.features.forEach(feature => {
+              createMarker(feature, serviceType);
+            });
+          }
+        })
+        .catch(error => console.error('Error loading', serviceType, 'data:', error));
+    }
+    
+    function createMarker(feature, serviceType) {
+      if (!feature.geometry) return;
+      
+      const coordinates = feature.geometry.coordinates;
+      const lat = coordinates[1];
+      const lng = coordinates[0];
+      
+      // Create custom icon
+      const icon = L.divIcon({
+        html: '<div style="background-color: ' + config.services[serviceType].color + '; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
+        iconSize: [16, 16],
+        className: 'custom-marker'
+      });
+      
+      // Create marker
+      const marker = L.marker([lat, lng], { icon: icon });
+      
+      // Create popup content
+      const popupContent = createPopupContent(feature);
+      marker.bindPopup(popupContent);
+      
+      // Add to appropriate layer
+      markersLayers[serviceType].addLayer(marker);
+    }
+    
+    function createPopupContent(feature) {
+      const properties = feature.properties;
+      let content = '<div style="min-width: 200px;">';
+      content += '<h5 style="margin: 0 0 10px 0; color: #333;">' + properties._tooltip + '</h5>';
+      content += '<p style="margin: 0 0 5px 0; font-weight: bold; color: #666;">' + properties._title + '</p>';
+      
+      // Add properties
+      Object.keys(properties).forEach(key => {
+        if (!key.startsWith('_') && properties[key]) {
+          content += '<p style="margin: 2px 0;"><strong>' + key + ':</strong> ' + properties[key] + '</p>';
+        }
+      });
+      
+      // Add action links
+      content += '<div style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">';
+      content += '<a href="' + properties._link_update + '" class="btn btn-sm btn-outline-primary me-1">Bearbeiten</a>';
+      content += '<a href="' + properties._link_delete + '" class="btn btn-sm btn-outline-danger">Löschen</a>';
+      content += '</div>';
+      
+      content += '</div>';
+      return content;
+    }
+    
+    function toggleServiceLayer(serviceType, show) {
+      if (show) {
+        map.addLayer(markersLayers[serviceType]);
+      } else {
+        map.removeLayer(markersLayers[serviceType]);
+      }
+    }
+    
+    function filterServices() {
+      const selectedTopics = Array.from(document.querySelectorAll('input[name="topics"]:checked')).map(cb => cb.value);
+      const selectedTargetGroups = Array.from(document.querySelectorAll('input[name="target_groups"]:checked')).map(cb => cb.value);
+      const selectedHosts = Array.from(document.querySelectorAll('input[name="hosts"]:checked')).map(cb => cb.value);
+      
+      // This would require implementing server-side filtering
+      // For now, we'll just reload all data
+      Object.keys(config.services).forEach(serviceType => {
+        markersLayers[serviceType].clearLayers();
+        loadServiceData(serviceType);
+      });
+    }
+    
+    // Initialize map when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeMap();
+      
+      // Add event listeners for checkboxes
+      document.querySelectorAll('input[name="service_types"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          toggleServiceLayer(this.value, this.checked);
+        });
+      });
+      
+      // Add event listener for filter button
+      const filterBtn = document.getElementById('apply-filters');
+      if (filterBtn) {
+        filterBtn.addEventListener('click', filterServices);
+      }
+      
+      // Add event listener for reset filter button
+      const resetBtn = document.getElementById('reset-filters');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+          // Reset all checkboxes
+          document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.checked = cb.id.includes('check'); // Keep service type checkboxes checked
+          });
+          // Reload data
+          filterServices();
+        });
+      }
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+  <div class="container-xxl">
+    <a href="{% url 'kiju:index' %}">
+      <i class="fa-solid fa-angle-left me"></i>
+      Zurück zum KiJu-Dashboard
+    </a>
+    
+    <h2 class="mt-3"><i class="fa-solid fa-map-marked-alt me-2"></i>Karte der Angebote</h2>
+    <h5><small>Karte mit allen <span style="color:{{ services_color }}">Dienstleistungen</span>, <span style="color:{{ holiday_services_color }}">Ferienangeboten</span> und <span style="color:{{ prevention_services_color }}">Präventionsangeboten</span></small></h5>
+    
+    {% if objects_count == 0 %}
+      <h4 class="mt-3">
+        <em>Keine Angebote vorhanden!</em>
+      </h4>
+    {% endif %}
+    
+    <div class="d-grid mt-3 mb-3 gap-2 d-md-block">
+      <a class="btn btn-secondary" role="button" href="{% url 'kiju:service_list' %}">
+        <i class="fa-solid fa-list me-1"></i> Alle Dienstleistungen
+      </a>
+      <a class="btn btn-secondary" role="button" href="{% url 'kiju:holidayservice_list' %}">
+        <i class="fa-solid fa-list me-1"></i> Alle Ferienangebote
+      </a>
+      <a class="btn btn-secondary" role="button" href="{% url 'kiju:preventionservice_list' %}">
+        <i class="fa-solid fa-list me-1"></i> Alle Präventionsangebote
+      </a>
+      <a class="btn btn-warning" role="button" href="{% url 'kiju:index' %}">
+        <i class="fa-solid fa-home me-1"></i> Startseite
+      </a>
+    </div>
+    
+    {% if objects_count > 0 %}
+      <div id="map-side-container" class="mb-3">
+        <div id="leaflet-map"></div>
+        
+        <!-- Legend and Controls -->
+        <div class="accordion accordion-flush side">
+          <!-- Legend -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-legend">
+                Legende & Ebenen
+              </button>
+            </h2>
+            <div id="collapse-legend" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <div class="legend">
+                  <h6>Angebotstypen:</h6>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="service_types" value="service" id="service-check" checked>
+                    <label class="form-check-label" for="service-check">
+                      <div class="legend-item">
+                        <div class="legend-color" style="background-color: {{ services_color }};"></div>
+                        <span>Dienstleistungen</span>
+                      </div>
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="service_types" value="holidayservice" id="holidayservice-check" checked>
+                    <label class="form-check-label" for="holidayservice-check">
+                      <div class="legend-item">
+                        <div class="legend-color" style="background-color: {{ holiday_services_color }};"></div>
+                        <span>Ferienangebote</span>
+                      </div>
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="service_types" value="preventionservice" id="preventionservice-check" checked>
+                    <label class="form-check-label" for="preventionservice-check">
+                      <div class="legend-item">
+                        <div class="legend-color" style="background-color: {{ prevention_services_color }};"></div>
+                        <span>Präventionsangebote</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Filter -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-filter">
+                Filter
+              </button>
+            </h2>
+            <div id="collapse-filter" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <div class="mb-3">
+                  <h6>Kategorien:</h6>
+                  {% for topic in topics %}
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="topics" value="{{ topic }}" id="topic-{{ forloop.counter }}">
+                      <label class="form-check-label" for="topic-{{ forloop.counter }}">{{ topic }}</label>
+                    </div>
+                  {% endfor %}
+                </div>
+                
+                <div class="mb-3">
+                  <h6>Zielgruppen:</h6>
+                  {% for target_group in target_groups %}
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="target_groups" value="{{ target_group }}" id="target-group-{{ forloop.counter }}">
+                      <label class="form-check-label" for="target-group-{{ forloop.counter }}">{{ target_group }}</label>
+                    </div>
+                  {% endfor %}
+                </div>
+                
+                <div class="mb-3">
+                  <h6>Anbieter:</h6>
+                  {% for host in hosts %}
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="hosts" value="{{ host }}" id="host-{{ forloop.counter }}">
+                      <label class="form-check-label" for="host-{{ forloop.counter }}">{{ host }}</label>
+                    </div>
+                  {% endfor %}
+                </div>
+                
+                <button id="apply-filters" class="btn btn-primary btn-sm">Filter anwenden</button>
+                <button id="reset-filters" class="btn btn-secondary btn-sm">Filter zurücksetzen</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
