@@ -10,6 +10,7 @@
 {% block scripts %}
   <!-- inherits from form.html -->
   {{ block.super }}
+  <script src="{% static 'kiju/js/dashboard.js' %}"></script>
 {% endblock %}
 
 {% block title %}AngebotsDB | {% endblock %}
@@ -20,7 +21,14 @@
       <i class="fa-solid fa-angle-left"></i>
       Zurück zur App-Übersicht
     </a>
-    <h1 class="mb-4">Dashboard</h1>
+
+    <!-- Dashboard Header with Edit Layout Button -->
+    <div class="dashboard-header">
+      <h1 class="dashboard-title">Dashboard</h1>
+      <button class="edit-layout-btn" id="edit-layout-btn" title="Layout bearbeiten">
+        <i class="fa-solid fa-grip-vertical"></i>
+      </button>
+    </div>
 
     <div class="row mb-4">
       <div class="col-12">
@@ -32,7 +40,7 @@
     </div>
 
     <!-- Grid-Container -->
-    <div class="grid-container mt-4">
+    <div class="grid-container mt-4" id="grid-container">
 
       <!-- Card 1: Einrichtungen -->
       <div id="grid-item-1" class="grid-item">
@@ -123,6 +131,6 @@
     <!-- End of Grid Container -->
     </div>
 
-  <!-- End of XXL Conatiner -->
+  <!-- End of XXL Container -->
   </div>
 {% endblock %}
