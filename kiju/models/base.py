@@ -1,4 +1,3 @@
-from django.contrib.gis.db.models.fields import PointField
 from django.db.models import (
   CASCADE,
   AutoField,
@@ -7,7 +6,7 @@ from django.db.models import (
   EmailField,
   ForeignKey,
   ImageField,
-  ManyToManyField,
+  IntegerField,
   Model,
   TextField,
 )
@@ -15,7 +14,11 @@ from django.db.models import (
 
 class Base(Model):
   id = AutoField(verbose_name='ID', primary_key=True, editable=False)
-  created_at = DateTimeField(verbose_name='Erstellung', auto_now_add=True, editable=False)
+  created_at = DateTimeField(
+    verbose_name='Erstellung',
+    auto_now_add=True,
+    editable=False,
+  )
   updated_at = DateTimeField(verbose_name='letzte Änderung', auto_now=True, editable=False)
 
   class Meta:
@@ -25,44 +28,139 @@ class Base(Model):
 
 
 class Topic(Base):
+  icon = 'fa-solid fa-tags'
   name = CharField(max_length=255, verbose_name='Bezeichnung')
 
   class Meta:  # type: ignore
     db_table = 'topic'
-    verbose_name = 'Kategorie'
-    verbose_name_plural = 'Kategorien'
+    verbose_name = 'Themenfeld'
+    verbose_name_plural = 'Themenfelder'
+
+  def __str__(self):
+    return str(self.name)
+
+
+class Provider(Base):
+  icon = 'fa-solid fa-handshake'
+  name = CharField(max_length=255, verbose_name='Bezeichnung')
+  description = TextField(
+    verbose_name='Beschreibung',
+    null=True,
+    blank=True,
+  )
+  address = CharField(
+    max_length=255,
+    verbose_name='Adresse',
+    null=True,
+    blank=True,
+  )
+  street = CharField(
+    max_length=150,
+    verbose_name='Straße und Hausnummer',
+    null=True,
+    blank=True,
+  )
+  zip = IntegerField(
+    verbose_name='PLZ',
+    null=True,
+    blank=True,
+  )
+  city = CharField(
+    max_length=100,
+    verbose_name='Stadt',
+    null=True,
+    blank=True,
+  )
+  email = EmailField(
+    max_length=255,
+    verbose_name='E-Mail',
+    null=True,
+    blank=True,
+  )
+  phone = CharField(max_length=255, verbose_name='Telefonnummer', null=True, blank=True)
+
+  class Meta:  # type: ignore
+    db_table = 'provider'
+    verbose_name = 'Träger'
+    verbose_name_plural = 'Träger'
 
   def __str__(self):
     return str(self.name)
 
 
 class Host(Base):
+  icon = 'fa-regular fa-building'
   name = CharField(max_length=255, verbose_name='Bezeichnung')
-  description = TextField(verbose_name='Beschreibung')
-  logo = ImageField(upload_to='hosts/', verbose_name='Logo')
-  address = CharField(max_length=255, verbose_name='Adresse')
-  contact_person = CharField(max_length=255, verbose_name='Ansprechpartner')
-  email = EmailField(max_length=255, verbose_name='E-Mail')
-  phone = CharField(max_length=255, verbose_name='Telefonnummer')
+  provider = ForeignKey(
+    'Provider',
+    on_delete=CASCADE,
+    related_name='hosts',
+    verbose_name='Träger',
+    null=True,
+    blank=True,
+  )
+  description = TextField(
+    verbose_name='Beschreibung',
+    null=True,
+    blank=True,
+  )
+  logo = ImageField(
+    upload_to='hosts/',
+    verbose_name='Logo',
+    null=True,
+    blank=True,
+  )
+  address = CharField(max_length=255, verbose_name='Adresse', null=True, blank=True)
+  contact_person = CharField(max_length=255, verbose_name='Ansprechpartner', null=True, blank=True)
+  email = EmailField(max_length=255, verbose_name='E-Mail', null=True, blank=True)
+  phone = CharField(max_length=255, verbose_name='Telefonnummer', null=True, blank=True)
 
   class Meta:  # type: ignore
     db_table = 'host'
-    verbose_name = 'Anbietender'
-    verbose_name_plural = 'Anbietende'
+    verbose_name = 'Einrichtung'
+    verbose_name_plural = 'Einrichtungen'
 
   def __str__(self):
     return str(self.name)
 
 
-class Service(Base):
-  name = CharField(max_length=255, verbose_name='Name')
-  description = TextField(verbose_name='Beschreibung', blank=True, null=True)
-  image = ImageField(upload_to='services/', verbose_name='Bild', blank=True, null=True)
-  # topic = ForeignKey(to=Topic, on_delete=CASCADE)
-  topics = ManyToManyField(verbose_name='Kategorien', to=Topic, blank=True)
-  geometrie = PointField('Geometrie', srid=25833, default='POINT(0 0)')
-  email = EmailField(max_length=255, verbose_name='E-Mail')
-  host = ForeignKey(to=Host, on_delete=CASCADE)
+class Law(Base):
+  icon = 'fa-solid fa-scale-balanced'
+  law_book = CharField(
+    verbose_name='Gesetzesbuch (Abkürzung, z.B. SGB VIII)',
+    max_length=25,
+    blank=False,
+    null=False,
+  )
+  paragraph = CharField(
+    verbose_name='Paragraph (ohne §, z.B. 8a)',
+    max_length=25,
+    blank=False,
+    null=False,
+  )
+
+  class Meta:
+    db_table = 'law'
+    verbose_name = 'Gesetz'
+    verbose_name_plural = 'Gesetze'
 
   def __str__(self):
-    return str(self.name)
+    return f'§{self.paragraph} {self.law_book}'
+
+
+class TargetGroup(Base):
+  icon = 'fa-solid fa-users-viewfinder'
+  name = CharField(
+    verbose_name='Zielgruppe',
+    max_length=100,
+    blank=False,
+    null=False,
+  )
+
+  class Meta:
+    db_table = 'target_group'
+    verbose_name = 'Zielgruppe'
+    verbose_name_plural = 'Zielgruppen'
+
+  def __str__(self):
+    return self.name
