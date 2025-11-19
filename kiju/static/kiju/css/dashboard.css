@@ -1,0 +1,112 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(325px, 1fr));
+  grid-auto-rows: minmax(200px, auto);
+  gap: 20px;
+}
+
+.grid-item {
+  background-color: lightgoldenrodyellow;
+  place-self: stretch stretch;
+}
+
+.grid-item.use2columns {
+  grid-column: span 2 !important;
+}
+
+.grid-item.use2rows {
+  grid-row: span 2 !important;
+}
+
+.grid-item.use3rows {
+  grid-row: span 3 !important;
+}
+
+#map {
+  height: calc(100% - 1.75rem);
+  width: 100%;
+  background-color: darkseagreen;
+}
+
+/* CSS für Layout-Bearbeitung */
+.grid-container.edit-mode .grid-item {
+  position: relative;
+  transition: none;
+}
+
+.grid-container.edit-mode .grid-item.draggable {
+  cursor: move;
+  border: 2px dashed #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.grid-container.edit-mode .grid-item.dragging {
+  opacity: 0.5;
+}
+
+.resize-handle {
+  position: absolute;
+  background-color: #007bff;
+  z-index: 10;
+}
+
+.resize-handle-top {
+  top: 0;
+  left: 5px;
+  right: 5px;
+  height: 10px;
+  cursor: ns-resize;
+}
+
+.resize-handle-right {
+  top: 5px;
+  right: 0;
+  bottom: 5px;
+  width: 10px;
+  cursor: ew-resize;
+}
+
+.resize-handle-bottom {
+  bottom: 0;
+  left: 5px;
+  right: 5px;
+  height: 10px;
+  cursor: ns-resize;
+}
+
+.resize-handle-left {
+  top: 5px;
+  left: 0;
+  bottom: 5px;
+  width: 10px;
+  cursor: ew-resize;
+}
+
+.resize-handle:hover {
+  background-color: #0056b3;
+}
+
+/* Visuelle Hinweise im Bearbeitungsmodus */
+.grid-container.edit-mode {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Animationen für das Ein- und Ausblenden des Bearbeitungsmodus */
+.grid-container {
+  transition: background-color 0.3s ease;
+}
+
+.grid-item {
+  transition:
+    border 0.3s ease,
+    background-color 0.3s ease;
+}
+
+/* Grid-Info-Overlay */
+#grid-info-overlay {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

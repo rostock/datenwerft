@@ -1,0 +1,5 @@
+#leaflet-map {
+  height: 50vh;
+  min-height: 300px;
+  max-height: 1000px;
+}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_tags %}
+
+{% block title %}KiJu | {% endblock %}
+
+{% block content %}
+  <div class="container-xxl">
+    <a href="{% url 'kiju:index' %}">
+      <i class="fa-solid fa-angle-left me"></i>
+      Zurück zum KiJu-Dashboard
+    </a>
+    <h1 class="mb-4">{{ model_verbose_name|default:model_name }}</h1>
+    <div class="mb-3">
+      <a href="{% dynamic_url model_lower 'create' %}" class="btn btn-primary me-2">{{model_verbose_name}} hinzufügen</a>
+      {% if model_lower == 'service' or model_lower == 'holidayservice' or model_lower == 'preventionservice' %}
+        <a href="{% url 'kiju:map' %}" class="btn btn-outline-secondary">
+          <i class="fa-solid fa-map-marked-alt me-1"></i> Zur Kartenansicht
+        </a>
+      {% endif %}
+    </div>
+    {% if model_dict %}
+      <div class="alert alert-light border mb-4">
+        <h2 class="h5 mb-2">Verfügbare Felder</h2>
+        <pre class="mb-0">{{ model_dict }}</pre>
+      </div>
+    {% endif %}
+    {% if object_list %}
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">{{ model_verbose_name|default:model_name }}</th>
+            <th scope="col">Zuletzt aktualisiert</th>
+            <th scope="col">Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for obj in object_list %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ obj }}</td>
+              <td>{{ obj.updated_at|date:"d.m.Y H:i" }}</td>
+              <td>
+                <a href="{% dynamic_url model_lower 'update' obj.pk %}" class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Bearbeiten">
+                  <i class="fa-solid fa-edit"></i>
+                </a>
+                <span data-bs-toggle="modal" data-bs-target="#deleteModal">
+                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Löschen" data-object-id="{{ obj.pk }}" data-object-name="{{ obj }}" data-model-name="{{ model_verbose_name|default:model_name }}" data-model-lower="{{ model_lower }}" data-delete-url="{% dynamic_url model_lower 'delete' obj.pk %}" data-list-url="{% dynamic_url model_lower 'list' %}" data-object-data='{{ obj|to_json }}'>
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-muted">Keine Einträge vorhanden.</p>
+    {% endif %}
+
+    <!-- Löschen-Modal -->
+    {% include "kiju/includes/delete_modal.html" %}
+    
+    <!-- JavaScript für Tooltips -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Bootstrap Tooltips initialisieren
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+      });
+    </script>
+  </div>
+{% endblock %}

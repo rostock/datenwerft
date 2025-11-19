@@ -32,6 +32,20 @@ def is_field_geometry_field(field):
 
 
 @register.filter
+def has_geometry_field(form):
+  """
+  checks if passed form has any geometry related fields
+
+  :param form: form
+  :return: passed form has geometry related fields?
+  """
+  for field in form:
+    if is_field_geometry_field(field):
+      return True
+  return False
+
+
+@register.filter
 def is_list(value):
   """
   checks if passed value is a list
