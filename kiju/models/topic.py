@@ -1,8 +1,8 @@
-from django.db import models
+from django.db.models import CharField, Model
 
 
-class Topic(models.Model):
-  name = models.CharField(max_length=255, verbose_name='Bezeichnung')
+class Topic(Model):
+  name = CharField(max_length=255, verbose_name='Bezeichnung')
 
   def __str__(self):
     return self.name

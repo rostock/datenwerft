@@ -3,8 +3,8 @@ from django.db.models import CharField, EmailField, ImageField, Model, SmallAuto
 
 class Host(Model):
   class Meta:
-    verbose_name = 'Anbietender'
-    verbose_name_plural = 'Anbietende'
+    verbose_name: str = 'Anbietender'
+    verbose_name_plural: str = 'Anbietende'
 
   id = SmallAutoField(primary_key=True, verbose_name='ID')
   name = CharField(max_length=255, verbose_name='Bezeichnung')
