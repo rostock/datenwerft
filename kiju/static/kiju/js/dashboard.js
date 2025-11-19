@@ -6,12 +6,12 @@
 document.addEventListener('DOMContentLoaded', function() {
   const gridContainer = document.getElementById('grid-container');
   const editLayoutBtn = document.getElementById('edit-layout-btn');
+  const editLayoutText = document.getElementById('edit-layout-text');
+  const editLayoutIcon = editLayoutBtn.querySelector('i');
   const gridItems = Array.from(document.querySelectorAll('.grid-item'));
 
   let isEditMode = false;
   let draggedItem = null;
-
-  const STORAGE_KEY = 'dashboard_grid_layout_order';
 
   /**
    * Toggle between edit and normal mode
@@ -23,9 +23,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (isEditMode) {
       editLayoutBtn.title = 'Layout-Bearbeitung beenden';
+      editLayoutText.textContent = 'Speichern & Beenden';
+      editLayoutIcon.className = 'fa-solid fa-check me-2';
+      editLayoutBtn.classList.remove('btn-outline-secondary');
+      editLayoutBtn.classList.add('btn-primary');
       enableDragDrop();
     } else {
       editLayoutBtn.title = 'Layout bearbeiten';
+      editLayoutText.textContent = 'Layout anpassen';
+      editLayoutIcon.className = 'fa-solid fa-pen-to-square me-2';
+      editLayoutBtn.classList.add('btn-outline-secondary');
+      editLayoutBtn.classList.remove('btn-primary');
       disableDragDrop();
       saveGridLayout();
     }
@@ -136,24 +144,36 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   /**
-   * Save grid layout order to localStorage
+   * Save grid layout order to server
    */
   function saveGridLayout() {
     const order = Array.from(gridContainer.children)
       .filter(child => child.classList.contains('grid-item'))
       .map(item => item.id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(order));
+
+    fetch(saveLayoutUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken
+      },
+      body: JSON.stringify({
+        layout: order
+      })
+    }).catch(error => console.error('Fehler beim Speichern des Layouts:', error));
   }
 
   /**
-   * Load grid layout order from localStorage
+   * Load grid layout order from server data
    */
   function loadGridLayout() {
-    const savedOrder = localStorage.getItem(STORAGE_KEY);
-    if (!savedOrder) return;
+    const layoutDataElement = document.getElementById('dashboard-layout-data');
+    if (!layoutDataElement) return;
 
     try {
-      const order = JSON.parse(savedOrder);
+      const order = JSON.parse(layoutDataElement.textContent);
+      if (!order || order.length === 0) return;
+
       const itemMap = {};
 
       gridItems.forEach(item => {

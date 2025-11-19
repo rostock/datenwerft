@@ -5,7 +5,7 @@ from rest_framework import routers
 
 from .views.base import GenericMapDataView, MapView
 from .views.forms import GenericCreateView, GenericDeleteView, GenericUpdateView
-from .views.indexView import IndexView
+from .views.indexView import IndexView, save_dashboard_layout
 from .views.listView import ListView
 
 router = routers.DefaultRouter()
@@ -17,6 +17,7 @@ app_name = 'kiju'
 urlpatterns = [
   # main page
   path('', view=login_required(IndexView.as_view()), name='index'),
+  path('save-layout/', view=save_dashboard_layout, name='save_layout'),
   # map page
   path('map', view=login_required(MapView.as_view()), name='map'),
 ]

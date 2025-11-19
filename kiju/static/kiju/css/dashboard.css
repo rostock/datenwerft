@@ -180,12 +180,12 @@
 }
 
 .grid-container.edit-mode .grid-item.draggable {
-  border: 2px dashed #3b82f6;
+  border: 2px dashed #eab308;
   border-radius: 0.5rem;
   background: linear-gradient(
     135deg,
-    rgba(59, 130, 246, 0.03) 0%,
-    rgba(59, 130, 246, 0.01) 100%
+    rgba(255, 253, 208, 0.6) 0%,
+    rgba(255, 250, 205, 0.4) 100%
   );
 }
 
@@ -253,12 +253,12 @@
 .grid-container.edit-mode {
   background: linear-gradient(
     135deg,
-    rgba(59, 130, 246, 0.05) 0%,
-    rgba(59, 130, 246, 0.02) 100%
+    rgba(255, 249, 196, 0.15) 0%,
+    rgba(255, 245, 157, 0.05) 100%
   );
   border-radius: 0.75rem;
   padding: 0.75rem;
-  border: 1.5px dashed rgba(59, 130, 246, 0.2);
+  border: 1.5px dashed rgba(234, 179, 8, 0.3);
   transition: all 0.3s ease;
 }
 

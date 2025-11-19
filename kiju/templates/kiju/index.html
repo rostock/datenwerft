@@ -10,6 +10,11 @@
 {% block scripts %}
   <!-- inherits from form.html -->
   {{ block.super }}
+  {{ dashboard_layout|json_script:"dashboard-layout-data" }}
+  <script>
+    const saveLayoutUrl = "{% url 'kiju:save_layout' %}";
+    const csrfToken = "{{ csrf_token }}";
+  </script>
   <script src="{% static 'kiju/js/dashboard.js' %}"></script>
 {% endblock %}
 
@@ -25,8 +30,9 @@
     <!-- Dashboard Header with Edit Layout Button -->
     <div class="dashboard-header">
       <h1 class="dashboard-title">Dashboard</h1>
-      <button class="edit-layout-btn" id="edit-layout-btn" title="Layout bearbeiten">
-        <i class="fa-solid fa-grip-vertical"></i>
+      <button class="btn btn-outline-secondary d-flex align-items-center" id="edit-layout-btn" title="Layout bearbeiten">
+        <i class="fa-solid fa-pen-to-square me-2"></i>
+        <span id="edit-layout-text">Layout anpassen</span>
       </button>
     </div>
 
