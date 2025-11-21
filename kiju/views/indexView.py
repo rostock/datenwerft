@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
@@ -7,6 +8,8 @@ from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
 from ..models.services import HolidayService
+
+logger = logging.getLogger(__name__)
 
 
 class IndexView(TemplateView):
@@ -39,8 +42,10 @@ def save_dashboard_layout(request):
   """
   try:
     data = json.loads(request.body)
-    layout = data.get('layout', [])
-    request.session['dashboard_layout'] = layout
+    logger.info(f'Saving dashboard layout for user {request.user}: {data}')
+    request.session['dashboard_layout'] = data
+    request.session.modified = True
     return JsonResponse({'status': 'success'})
   except Exception as e:
+    logger.error(f'Error saving dashboard layout: {e}')
     return JsonResponse({'status': 'error', 'message': str(e)}, status=400)

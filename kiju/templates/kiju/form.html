@@ -63,19 +63,17 @@
       {% endif %}
       <div class="flex-item" id="flex-list">
         <div {% if form|has_geometry_field %}id="custom-form"{% endif %}>
-          <table class="table">
-        <tbody>
           {% for field in form %}
             {#{% if not field|is_field_geometry_field %}#}
-              <tr>
-                <td>
+              <div class="row mb-3">
+                <div class="col-md-4">
                   {% if field.field.required %}
-                    <strong>{{ field.label_tag }}</strong>
+                    <strong>{{ field.label_tag }}*</strong>
                   {% else %}
                     {{ field.label_tag }}
                   {% endif %}
-                </td>
-                <td>
+                </div>
+                <div class="col-md-8">
                   {% if field.name == 'paragraph' %}
                     <div class="input-group">
                       <span class="input-group-text">§</span>
@@ -84,6 +82,11 @@
                   {% elif field.name == 'costs' %}
                     <div class="input-group">
                       <span class="input-group-text">€</span>
+                      {{ field }}
+                    </div>
+                  {% elif field.name == 'tags' %}
+                    <div class="input-group flex-nowrap">
+                      <span class="input-group-text">#</span>
                       {{ field }}
                     </div>
                   {% elif field.type == 'file' %}
@@ -124,17 +127,15 @@
                   {% else %}
                     {{ field }}
                   {% endif %}
-                </td>
-                {% if field.errors %}
-                <td>
-                  {{ field.errors }}
-                </td>
-                {% endif %}
-              </tr>
+                  {% if field.errors %}
+                    <div class="text-danger mt-1">
+                      {{ field.errors }}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
             {#{% endif %}#}
           {% endfor %}
-        </tbody>
-      </table>
         </div>
       </div>
       <div class="flex-item" id="flex-action-buttons">
@@ -261,7 +262,8 @@
             width: element.dataset.width ? element.dataset.width : element.classList.contains('w-100') ? '100%' : 'style',
             placeholder: element.dataset.placeholder || 'Bitte wählen...',
             closeOnSelect: false,
-            allowClear: true
+            allowClear: true,
+            tags: element.dataset.tags === 'true'
           });
         });
       });

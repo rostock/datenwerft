@@ -30,9 +30,8 @@
     <!-- Dashboard Header with Edit Layout Button -->
     <div class="dashboard-header">
       <h1 class="dashboard-title">Dashboard</h1>
-      <button class="btn btn-outline-secondary d-flex align-items-center" id="edit-layout-btn" title="Layout bearbeiten">
-        <i class="fa-solid fa-pen-to-square me-2"></i>
-        <span id="edit-layout-text">Layout anpassen</span>
+      <button class="btn btn-outline-secondary d-flex align-items-center" id="edit-layout-btn" data-bs-toggle="tooltip" title="Dashboard Layout bearbeiten">
+        <i class="fa-fw fa-solid fa-grip"></i>
       </button>
     </div>
 
@@ -51,7 +50,7 @@
       <!-- Card 1: Einrichtungen -->
       <div id="grid-item-1" class="grid-item">
         <div class="card bg-primary-subtle border-primary text-center h-100">
-          <div class="card-body">
+          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
             <h3><i class="fa-fw fa-regular fa-building me-2"></i>Einrichtungen</h3>
             <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
               <div class="col d-grid">
@@ -68,7 +67,7 @@
       <!-- Card 2: Map -->
       <div id="grid-item-2" class="grid-item use2columns use3rows">
         <div class="card text-center h-100">
-          <div class="card-body">
+          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
             <h3><i class="fa-fw fa-regular fa-map me-2"></i>Karte</h3>
             <div class="map-wrapper">
               <div id="map"></div>
@@ -80,7 +79,7 @@
       <!-- Card 3: Präventionsangebote -->
       <div id="grid-item-3" class="grid-item">
         <div class="card bg-primary-subtle border-primary text-center h-100">
-          <div class="card-body">
+          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
             <h3><i class="fa-fw fa-solid fa-hand-holding-heart me-2"></i>Präventionsangebote</h3>
             <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
               <div class="col d-grid">
@@ -96,8 +95,8 @@
 
       <!-- Card 4: Freiplatzfinder -->
       <div id="grid-item-4" class="grid-item">
-        <div class="card bg-primary-subtle border-primary text-center h-100">
-          <div class="card-body">
+        <div class="card bg-secondary-subtle border-primary text-center h-100">
+          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
             <h3><i class="fa-fw fa-solid fa-people-roof me-2"></i>Freiplatzfinder</h3>
             <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
               <div class="col d-grid">
@@ -114,7 +113,7 @@
       <!-- Card 5: Codelisten -->
       <div id="grid-item-5" class="grid-item">
         <div class="card bg-primary-subtle border-primary text-center h-100">
-          <div class="card-body">
+          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
             <h3><i class="fa-fw fa-solid fa-list-ul me-2"></i>Zusätzliche Tabellen</h3>
             <div class="row row-cols-1 row-cols-md-2 g-2 mt-4">
               <div class="col d-grid">

@@ -13,7 +13,7 @@ from django.db.models import (
   TextField,
 )
 
-from .base import Base, Host, Law, TargetGroup, Topic
+from .base import Base, Host, Law, Tag, TargetGroup, Topic
 
 
 class Service(Base):
@@ -34,6 +34,12 @@ class Service(Base):
   target_group = ManyToManyField(
     to=TargetGroup,
     verbose_name='Zielgruppe(n)',
+    blank=True,
+    related_name='services',
+  )
+  tags = ManyToManyField(
+    to=Tag,
+    verbose_name='Schlagworte',
     blank=True,
     related_name='services',
   )

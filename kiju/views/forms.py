@@ -1,10 +1,47 @@
 import json
 
 from django.conf import settings
-from django.forms import ModelForm, widgets
+from django.forms import ModelForm, ModelMultipleChoiceField, widgets
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
+
+
+class TagMultipleChoiceField(ModelMultipleChoiceField):
+  def _check_values(self, value):
+    from ..models.base import Tag
+
+    key = self.to_field_name or 'pk'
+    value = list(set(value))
+    pks = []
+    names = []
+
+    for item in value:
+      if str(item).isdigit():
+        pks.append(str(item))
+      else:
+        names.append(item)
+
+    qs = self.queryset.filter(**{'%s__in' % key: pks})
+    found_tags_map = {str(getattr(t, key)): t for t in qs}
+    found_tags = list(found_tags_map.values())
+
+    for pk in pks:
+      if pk not in found_tags_map:
+        names.append(pk)
+
+    for name in names:
+      if str(name).strip():
+        tag, created = Tag.objects.get_or_create(name=name)
+        if tag not in found_tags:
+          found_tags.append(tag)
+
+    return found_tags
+
+  def to_python(self, value):
+    if not value:
+      return []
+    return list(self._check_values(value))
 
 
 class DynamicStyledModelForm(ModelForm):
@@ -123,6 +160,19 @@ class GenericCreateView(CreateView):
 
           self.fields['geometry'].widget = LeafletWidget()
 
+        if 'tags' in self.fields:
+          from ..models.base import Tag
+
+          current_field = self.fields['tags']
+          self.fields['tags'] = TagMultipleChoiceField(
+            queryset=Tag.objects.all(),
+            label=current_field.label,
+            required=current_field.required,
+            widget=widgets.SelectMultiple(
+              attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
+            ),
+          )
+
     return StyledForm
 
   def get_context_data(self, **kwargs):
@@ -176,6 +226,19 @@ class GenericUpdateView(UpdateView):
           from leaflet.forms.widgets import LeafletWidget
 
           self.fields['geometry'].widget = LeafletWidget()
+
+        if 'tags' in self.fields:
+          from ..models.base import Tag
+
+          current_field = self.fields['tags']
+          self.fields['tags'] = TagMultipleChoiceField(
+            queryset=Tag.objects.all(),
+            label=current_field.label,
+            required=current_field.required,
+            widget=widgets.SelectMultiple(
+              attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
+            ),
+          )
 
     return StyledForm
 

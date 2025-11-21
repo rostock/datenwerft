@@ -164,3 +164,16 @@ class TargetGroup(Base):
 
   def __str__(self):
     return self.name
+
+
+class Tag(Base):
+  icon = 'fa-solid fa-tag'
+  name = CharField(max_length=100, verbose_name='Bezeichnung', unique=True)
+
+  class Meta:
+    db_table = 'tag'
+    verbose_name = 'Schlagwort'
+    verbose_name_plural = 'Schlagworte'
+
+  def __str__(self):
+    return self.name
