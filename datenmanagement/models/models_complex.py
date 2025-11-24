@@ -3106,13 +3106,13 @@ class Punktwolken(ComplexModel):
     if not self.vcp_object_key and is_broker_available():
       # If point cloud database entry has no object key attribute, then point cloud must still be
       # uploaded to the VC Publisher.
-      # lazy import of celery task -> must remain here to avoid circular import errors
+      # lazy import of RQ-task -> must remain here to avoid circular import errors
       from ..tasks import (
         calculate_2d_bounding_box_for_pointcloud,
         send_pointcloud_to_vcpub,
       )
 
-      # run celery task delayed
+      # run RQ-task delayed
       if not self.geometrie:
         # calculate 2D bounding box for point cloud, asynchron
         enqueue(
