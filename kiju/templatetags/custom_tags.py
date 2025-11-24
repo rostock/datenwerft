@@ -53,3 +53,17 @@ def to_json(obj):
     return json.dumps(data, cls=DjangoJSONEncoder)
   except Exception as e:
     return json.dumps({'error': str(e)})
+
+
+@register.filter
+def get_attribute(obj, attr):
+  """
+  Returns the value of the attribute of the object.
+  """
+  try:
+    attribute = getattr(obj, attr)
+    if callable(attribute):
+      return attribute()
+    return attribute
+  except AttributeError:
+    return None

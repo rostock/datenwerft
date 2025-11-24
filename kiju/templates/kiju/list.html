@@ -30,8 +30,14 @@
         <thead>
           <tr>
             <th scope="col">#</th>
-            <th scope="col">{{ model_verbose_name|default:model_name }}</th>
-            <th scope="col">Zuletzt aktualisiert</th>
+            {% if list_fields %}
+              {% for key, value in list_fields.items %}
+                <th scope="col">{{ value }}</th>
+              {% endfor %}
+            {% else %}
+              <th scope="col">{{ model_verbose_name|default:model_name }}</th>
+              <th scope="col">Zuletzt aktualisiert</th>
+            {% endif %}
             <th scope="col">Aktionen</th>
           </tr>
         </thead>
@@ -39,8 +45,22 @@
           {% for obj in object_list %}
             <tr>
               <td>{{ forloop.counter }}</td>
-              <td>{{ obj }}</td>
-              <td>{{ obj.updated_at|date:"d.m.Y H:i" }}</td>
+              {% if list_fields %}
+                {% for key, value in list_fields.items %}
+                  <td>
+                    {% if key == '__str__' %}
+                      {{ obj }}
+                    {% elif key == 'updated_at' or key == 'created_at' %}
+                      {{ obj|get_attribute:key|date:"d.m.Y H:i" }}
+                    {% else %}
+                      {{ obj|get_attribute:key|default_if_none:"" }}
+                    {% endif %}
+                  </td>
+                {% endfor %}
+              {% else %}
+                <td>{{ obj }}</td>
+                <td>{{ obj.updated_at|date:"d.m.Y H:i" }}</td>
+              {% endif %}
               <td>
                 <a href="{% dynamic_url model_lower 'update' obj.pk %}" class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Bearbeiten">
                   <i class="fa-solid fa-edit"></i>
@@ -61,7 +81,7 @@
 
     <!-- Löschen-Modal -->
     {% include "kiju/includes/delete_modal.html" %}
-    
+
     <!-- JavaScript für Tooltips -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {

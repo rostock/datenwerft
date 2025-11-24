@@ -21,6 +21,11 @@ class Base(Model):
   )
   updated_at = DateTimeField(verbose_name='letzte Änderung', auto_now=True, editable=False)
 
+  list_fields = {
+    '__str__': 'Bezeichnung',
+    'updated_at': 'Zuletzt aktualisiert',
+  }
+
   class Meta:
     abstract = True
     get_latest_by = 'updated_at'

@@ -52,4 +52,6 @@ class ListView(TemplateView):
       context['model_dict'] = self.model_dict or {}
       context['object_list'] = queryset
       context['objects'] = queryset
+      if hasattr(self.model, 'list_fields'):
+        context['list_fields'] = self.model.list_fields
     return context
