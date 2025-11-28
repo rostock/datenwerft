@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
     updateResizeButtonState(item);
   });
 
+  /**
+   * Update resize button states based on item classes
+   */
   function updateResizeButtonState(item) {
     const widthBtn = item.querySelector('[data-action="toggle-width"]');
     const heightBtn = item.querySelector('[data-action="toggle-height"]');
@@ -60,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!isEditMode) return;
     const btn = e.target.closest('.resize-btn');
     if (!btn) return;
-    
+
     e.stopPropagation();
     e.preventDefault();
 
@@ -233,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function saveGridLayout() {
     const items = Array.from(gridContainer.children)
       .filter(child => child.classList.contains('grid-item'));
-    
+
     const order = items.map(item => item.id);
     const sizes = {};
 
@@ -242,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (item.classList.contains('use2columns')) itemSizes.push('use2columns');
       if (item.classList.contains('use2rows')) itemSizes.push('use2rows');
       if (item.classList.contains('use3rows')) itemSizes.push('use3rows');
-      
+
       if (itemSizes.length > 0) {
         sizes[item.id] = itemSizes;
       }
