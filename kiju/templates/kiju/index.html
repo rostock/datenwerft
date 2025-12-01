@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 {% load static %}
+{% load leaflet_tags %}
 
 {% block style %}
-  <!-- inherits from form.html -->
+  <!-- inherits from base.html -->
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'kiju/css/dashboard.css' %}">
+  {% leaflet_css plugins="locatecontrol,markercluster" %}
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map.css' %}">
 {% endblock %}
 
 {% block scripts %}
-  <!-- inherits from form.html -->
+  <!-- inherits from base.html -->
   {{ block.super }}
   {{ dashboard_layout|json_script:"dashboard-layout-data" }}
   <script>
@@ -16,6 +19,11 @@
     const csrfToken = "{{ csrf_token }}";
   </script>
   <script src="{% static 'kiju/js/dashboard.js' %}"></script>
+  {% leaflet_js plugins="locatecontrol,markercluster" %}
+  <script src="{% static 'proj4/proj4.js' %}"></script>
+  <script src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
 {% endblock %}
 
 {% block title %}AngebotsDB | {% endblock %}
@@ -33,15 +41,6 @@
       <button class="btn btn-outline-secondary d-flex align-items-center" id="edit-layout-btn" data-bs-toggle="tooltip" title="Dashboard Layout bearbeiten">
         <i class="fa-fw fa-solid fa-grip"></i>
       </button>
-    </div>
-
-    <div class="row mb-4">
-      <div class="col-12">
-        <a href="{% url 'kiju:map' %}" class="btn btn-primary btn-lg">
-          <i class="fa-solid fa-map-marked-alt me-2"></i>
-          Karte der Angebote
-        </a>
-      </div>
     </div>
 
     <!-- Grid-Container -->
@@ -67,10 +66,10 @@
       <!-- Card 2: Map -->
       <div id="grid-item-2" class="grid-item use2columns use3rows">
         <div class="card text-center h-100">
-          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
+          <div class="card-body">
             <h3><i class="fa-fw fa-regular fa-map me-2"></i>Karte</h3>
             <div class="map-wrapper">
-              <div id="map"></div>
+              {% leaflet_map "map" callback="window.dashboardMapCallback" %}
             </div>
           </div>
         </div>
@@ -138,4 +137,166 @@
 
   <!-- End of XXL Container -->
   </div>
+
+  <!-- Leaflet Map Initialization Script -->
+  <script>
+    /**
+     * @function
+     * @name dashboardMapCallback
+     *
+     * Callback function for initializing the dashboard Leaflet map
+     *
+     * @param {Object} map - Leaflet map instance
+     */
+    function dashboardMapCallback(map) {
+      // Set map constants
+      setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
+
+      // Configure map with OWS proxy
+      configureMap(map, '{% url "toolbox:owsproxy" %}');
+
+      // Store map reference globally
+      window.dashboardMap = map;
+
+      // Define marker icon
+      const defaultMarker = new L.Icon({
+        shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
+        iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+
+      // Create marker cluster group
+      const markers = L.markerClusterGroup({
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        maxClusterRadius: 50
+      });
+
+      // Load GeoJSON data from the API
+      fetch('{{ mapdata_url }}')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data && data.features && data.features.length > 0) {
+            // Create GeoJSON layer
+            const geoJsonLayer = L.geoJSON(data, {
+              pointToLayer: function(feature, latlng) {
+                return L.marker(latlng, { icon: defaultMarker });
+              },
+              onEachFeature: function(feature, layer) {
+                // Build popup content
+                let popupContent = '<div class="map-popup">';
+
+                if (feature.properties._title) {
+                  popupContent += '<h6>' + feature.properties._title + '</h6>';
+                }
+
+                if (feature.properties._tooltip) {
+                  popupContent += '<strong>' + feature.properties._tooltip + '</strong><br>';
+                }
+
+                // Add additional properties
+                const skipProps = ['_model', '_pk', '_tooltip', '_title', '_link_update', '_link_delete'];
+                for (const [key, value] of Object.entries(feature.properties)) {
+                  if (!skipProps.includes(key) && value) {
+                    popupContent += '<small><strong>' + key + ':</strong> ' + value + '</small><br>';
+                  }
+                }
+
+                // Add action links
+                if (feature.properties._link_update) {
+                  popupContent += '<div class="mt-2">';
+                  popupContent += '<a href="' + feature.properties._link_update + '" class="btn btn-sm btn-primary me-1">';
+                  popupContent += '<i class="fa-solid fa-pen-to-square"></i> Bearbeiten</a>';
+                  popupContent += '</div>';
+                }
+
+                popupContent += '</div>';
+
+                layer.bindPopup(popupContent, {
+                  maxWidth: 300,
+                  className: 'custom-popup'
+                });
+
+                // Bind tooltip
+                if (feature.properties._tooltip) {
+                  layer.bindTooltip(feature.properties._tooltip);
+                }
+              }
+            });
+
+            // Add to marker cluster and then to map
+            markers.addLayer(geoJsonLayer);
+            map.addLayer(markers);
+
+            // Fit bounds to show all markers
+            if (markers.getBounds().isValid()) {
+              map.fitBounds(markers.getBounds(), { padding: [20, 20] });
+            }
+          } else {
+            console.log('No map data available');
+          }
+        })
+        .catch(error => {
+          console.error('Error loading map data:', error);
+        });
+
+      // Invalidate size after a short delay to ensure proper rendering
+      setTimeout(function() {
+        map.invalidateSize();
+      }, 100);
+
+      // Additional invalidation after short delays to handle CSS transitions
+      setTimeout(function() {
+        map.invalidateSize();
+      }, 300);
+
+      setTimeout(function() {
+        map.invalidateSize();
+      }, 500);
+    }
+
+    // Re-invalidate map size when grid layout changes
+    document.addEventListener('DOMContentLoaded', function() {
+      const observer = new MutationObserver(function(mutations) {
+        if (window.dashboardMap) {
+          setTimeout(function() {
+            window.dashboardMap.invalidateSize();
+          }, 100);
+        }
+      });
+
+      const gridContainer = document.getElementById('grid-container');
+      if (gridContainer) {
+        observer.observe(gridContainer, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['class']
+        });
+      }
+
+      // Invalidate on window load
+      window.addEventListener('load', function() {
+        if (window.dashboardMap) {
+          window.dashboardMap.invalidateSize();
+        }
+      });
+
+      // Invalidate on window resize
+      window.addEventListener('resize', function() {
+        if (window.dashboardMap) {
+          window.dashboardMap.invalidateSize();
+        }
+      });
+    });
+  </script>
 {% endblock %}

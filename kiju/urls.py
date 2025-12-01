@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 from rest_framework import routers
 
-from .views.base import GenericMapDataView, MapView
+from .views.base import GenericMapDataView
 from .views.forms import GenericCreateView, GenericDeleteView, GenericUpdateView
 from .views.indexView import IndexView, save_dashboard_layout
 from .views.listView import ListView
@@ -18,8 +18,6 @@ urlpatterns = [
   # main page
   path('', view=login_required(IndexView.as_view()), name='index'),
   path('save-layout/', view=save_dashboard_layout, name='save_layout'),
-  # map page
-  path('map', view=login_required(MapView.as_view()), name='map'),
 ]
 
 models = apps.get_app_config(app_name).get_models()
@@ -56,7 +54,7 @@ for model in models:
   )
 
   # Add map data URLs for models with geometry
-  if model_name in ['service', 'holidayservice', 'preventionservice']:
+  if model_name in ['preventionservice']:
     urlpatterns.append(
       path(
         route=f'{model_name}/mapdata',

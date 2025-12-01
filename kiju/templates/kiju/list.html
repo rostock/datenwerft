@@ -13,11 +13,6 @@
     <h1 class="mb-4">{{ model_verbose_name|default:model_name }}</h1>
     <div class="mb-3">
       <a href="{% dynamic_url model_lower 'create' %}" class="btn btn-primary me-2">{{model_verbose_name}} hinzufügen</a>
-      {% if model_lower == 'service' or model_lower == 'holidayservice' or model_lower == 'preventionservice' %}
-        <a href="{% url 'kiju:map' %}" class="btn btn-outline-secondary">
-          <i class="fa-solid fa-map-marked-alt me-1"></i> Zur Kartenansicht
-        </a>
-      {% endif %}
     </div>
     {% if model_dict %}
       <div class="alert alert-light border mb-4">

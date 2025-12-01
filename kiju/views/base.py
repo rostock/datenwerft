@@ -3,9 +3,8 @@ from json import loads
 from django.http import JsonResponse
 from django.urls import reverse
 from django.views import View
-from django.views.generic import TemplateView
 
-from ..models.services import HolidayService, PreventionService, Service
+from ..models.services import HolidayService, PreventionService
 
 
 class JsonView(View):
@@ -38,19 +37,23 @@ def create_geojson_feature(curr_object):
   :param curr_object: object
   :return: GeoJSON feature based on passed object
   """
-  # GeoJSON-serialize object
-  from django.core.serializers import serialize
-
-  object_geojson_serialized = loads(serialize('geojson', [curr_object]))
   model = curr_object.__class__.__name__.lower()
   pk = curr_object.pk
 
+  # Transform geometry from source SRID to WGS84 (4326) for GeoJSON
+  geometry = curr_object.geometry
+  if geometry.srid != 4326:
+    geometry = geometry.transform(4326, clone=True)
+
+  # Convert geometry to GeoJSON format
+  geometry_json = loads(geometry.geojson)
+
   # define GeoJSON feature:
-  # get geometry from GeoJSON-serialized object,
+  # get geometry transformed to WGS84,
   # get (meta) properties directly from object
   geojson_feature = {
     'type': 'Feature',
-    'geometry': object_geojson_serialized['features'][0]['geometry'],
+    'geometry': geometry_json,
     'properties': {
       '_model': model,
       '_pk': pk,
@@ -130,8 +133,11 @@ class GenericMapDataView(JsonView):
       # declare empty GeoJSON feature collection
       feature_collection = {'type': 'FeatureCollection', 'features': []}
       for curr_object in objects:
-        # only include objects with valid geometry
-        if hasattr(curr_object, 'geometrie') and curr_object.geometrie:
+        # only include objects with valid geometry (not default POINT(0 0))
+        if hasattr(curr_object, 'geometry') and curr_object.geometry:
+          # skip default/empty geometry
+          if curr_object.geometry.wkt == 'POINT (0 0)':
+            continue
           # create GeoJSON feature
           feature = create_geojson_feature(curr_object)
           # add GeoJSON feature to GeoJSON feature collection
@@ -142,65 +148,3 @@ class GenericMapDataView(JsonView):
   def get(self, request, *args, **kwargs):
     context = self.get_context_data(**kwargs)
     return self.render_to_response(context)
-
-
-class MapView(TemplateView):
-  """
-  view for map page
-  """
-
-  template_name = 'kiju/map.html'
-
-  def get_context_data(self, **kwargs):
-    """
-    returns a dictionary with all context elements for this view
-
-    :param kwargs:
-    :return: dictionary with all context elements for this view
-    """
-    context = super().get_context_data(**kwargs)
-
-    # add map related information to context
-    from django.conf import settings
-
-    context['LEAFLET_CONFIG'] = getattr(
-      settings,
-      'LEAFLET_CONFIG',
-      {
-        'DEFAULT_CENTER': (51.0, 10.0),
-        'DEFAULT_ZOOM': 6,
-        'MIN_ZOOM': 3,
-        'MAX_ZOOM': 18,
-      },
-    )
-
-    # add map data URLs for each service type
-    context['services_mapdata_url'] = reverse('kiju:service_mapdata')
-    context['holiday_services_mapdata_url'] = reverse('kiju:holidayservice_mapdata')
-    context['prevention_services_mapdata_url'] = reverse('kiju:preventionservice_mapdata')
-
-    # add filter related information to context
-    context['topics'] = list(
-      Service.objects.order_by('topic').values_list('topic__name', flat=True).distinct()
-    )
-    context['target_groups'] = list(
-      Service.objects.order_by('target_group')
-      .values_list('target_group__name', flat=True)
-      .distinct()
-    )
-    context['hosts'] = list(
-      Service.objects.order_by('host').values_list('host__name', flat=True).distinct()
-    )
-
-    # add miscellaneous information to context
-    services_count = get_model_objects(Service, True)
-    holiday_services_count = get_model_objects(HolidayService, True)
-    prevention_services_count = get_model_objects(PreventionService, True)
-    context['objects_count'] = services_count + holiday_services_count + prevention_services_count
-
-    # define colors for different service types
-    context['services_color'] = '#007bff'  # blue
-    context['holiday_services_color'] = '#28a745'  # green
-    context['prevention_services_color'] = '#ffc107'  # yellow
-
-    return context

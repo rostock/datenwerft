@@ -1,7 +1,7 @@
 .grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(325px, 1fr));
-  grid-auto-rows: minmax(200px, auto);
+  grid-auto-rows: minmax(200px, 1fr);
   gap: 20px;
 }
 
@@ -33,10 +33,90 @@
   grid-row: span 3;
 }
 
+/* Map Card specific styles */
+#grid-item-2 {
+  min-height: 450px;
+}
+
+#grid-item-2 .card {
+  height: 100%;
+}
+
+#grid-item-2 .card-body {
+  position: relative !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+  padding: 1rem !important;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#grid-item-2 .card-body > h3 {
+  flex-shrink: 0;
+  margin-bottom: 1rem;
+}
+
+#grid-item-2 .map-wrapper {
+  flex: 1;
+  min-height: 350px;
+  position: relative;
+}
+
+/* Leaflet map container - target the generated div */
+#grid-item-2 .map-wrapper > div,
+#grid-item-2 .map-wrapper .leaflet-container {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100% !important;
+  width: 100% !important;
+  border-radius: 0.375rem;
+}
+
 #map {
-  height: calc(100% - 1.75rem);
-  width: 100%;
+  height: 100% !important;
+  width: 100% !important;
   background-color: darkseagreen;
+}
+
+/* Map popup styles */
+.leaflet-popup-content .btn-primary,
+.leaflet-popup-content .btn-sm {
+  color: #fff !important;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.leaflet-popup-content .btn-primary:hover,
+.leaflet-popup-content .btn-sm:hover {
+  color: #fff !important;
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.leaflet-popup-content .map-popup h6 {
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.leaflet-popup-content .map-popup {
+  font-size: 0.9rem;
+}
+
+/* Leaflet layer control - fix alignment */
+.leaflet-control-layers-list {
+  text-align: left;
+}
+
+.leaflet-control-layers-list label {
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 /* ===== DASHBOARD HEADER ===== */

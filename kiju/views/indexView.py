@@ -2,12 +2,14 @@ import json
 import logging
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
-from ..models.services import HolidayService
+from ..models.services import HolidayService, PreventionService
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +32,29 @@ class IndexView(TemplateView):
       'time'
     )[:5]
     context['dashboard_layout'] = self.request.session.get('dashboard_layout', [])
+
+    # Leaflet configuration for the dashboard map
+    context['LEAFLET_CONFIG'] = getattr(
+      settings,
+      'LEAFLET_CONFIG',
+      {
+        'DEFAULT_CENTER': (54.14775, 12.14945),
+        'DEFAULT_ZOOM': 11,
+        'MIN_ZOOM': 11,
+        'MAX_ZOOM': 19,
+      },
+    )
+
+    # Map data URL for PreventionService
+    context['mapdata_url'] = reverse('kiju:preventionservice_mapdata')
+
+    # Count of objects for the map
+    context['preventionservice_count'] = (
+      PreventionService.objects.filter(geometry__isnull=False)
+      .exclude(geometry__equals='POINT(0 0)')
+      .count()
+    )
+
     return context
 
 
