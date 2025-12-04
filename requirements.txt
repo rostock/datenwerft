@@ -1,4 +1,4 @@
-Django
+Django<6
 django-auth-ldap
 django-datatables-view
 django-filter
