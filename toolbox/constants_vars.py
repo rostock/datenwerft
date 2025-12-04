@@ -44,10 +44,12 @@ apostroph_message = (
 )
 bindestrich_leerzeichen_regex = r'^(?!.*- ).*$'
 bindestrich_leerzeichen_message = 'Im Text darf nach einem Bindestrich kein Leerzeichen stehen.'
-d3_regex = r'^[0-9]{3}\.[0-9]{1,5}(-[0-9]{3}(\/[0-9]{3})?)?$'
+d3_regex = r'^[0-9]{3}\.[0-9]{1,5}(\.[0-9]{1,5})?(-[0-9]{3}(\/[0-9]{3})?)?$'
 d3_message = (
-  'Der <strong><em>d.3</em></strong>-Vorgang muss folgendes Format aufweisen '
-  '(Beispiele): 512.431-003/002 oder 002.13 oder 114.521-025'
+  'Die <strong><em>d.3</em></strong>-Nummer muss folgendes Format aufweisen '
+  '(Beispiele): 002.13 (für eine Betreffeinheit) oder 522.13.018 (für eine Betreffeinheit) '
+  'oder 114.521-025 (für eine Akte) oder 554.311.01-008 (für eine Akte) '
+  'oder 512.431-003/002 (für einen Vorgang) oder 554.311.01-008/002 (für einen Vorgang).'
 )
 dateiname_regex = r'^[0-9A-z_:-]*(\.?[a-z]*?)(\.?[a-z]*?)$'
 dateiname_message = (
