@@ -161,12 +161,17 @@ def get_orphaned_persons(complaint, contact, originator, person):
   act_cpls_ps_ids = person.objects.none().values('id')
   for act_cpl in act_cpls:
     act_cpls_ps_ids = act_cpls_ps_ids | act_cpl.complainers_persons.all().values('id')
+  # get all persons last edited less than 30 days ago
+  thirty_days_ago = tz.now() - timedelta(days=30)
+  old_ps_ids = person.objects.filter(updated_at__gte=thirty_days_ago).values('id')
   # get orphaned persons
-  # (i.e. persons not connected to any contacts and any originators and any active complaints)
+  # (i.e. persons not connected to any contacts, originators, or active complaints
+  #  and last edited more than 30 days ago)
   return (
     person.objects.exclude(id__in=con_ps_ids)
     .exclude(id__in=oris_ps_ids)
     .exclude(id__in=act_cpls_ps_ids)
+    .exclude(id__in=old_ps_ids)
   )
 
 
