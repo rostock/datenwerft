@@ -107,6 +107,19 @@ def get_json_data(curr_object, field, for_filters=False):
   return value
 
 
+def get_old_data_deadline_timestamp(format_timestamp=False):
+  """
+  returns deadline timestamp before which data is considered "old"
+
+  :param format_timestamp: format timestamp?
+  :return: deadline timestamp before which data is considered "old"
+  """
+  deadline_timestamp = tz.now() - timedelta(days=settings.BEMAS_DATA_CONSIDERED_OLD_AFTER_DAYS)
+  return (
+    deadline_timestamp.strftime('%d.%m.%Y, %H:%M Uhr') if format_timestamp else deadline_timestamp
+  )
+
+
 def get_orphaned_organizations(originator, complaint, organization):
   """
   returns orphaned organizations based on passed originator, complaint
@@ -161,17 +174,16 @@ def get_orphaned_persons(complaint, contact, originator, person):
   act_cpls_ps_ids = person.objects.none().values('id')
   for act_cpl in act_cpls:
     act_cpls_ps_ids = act_cpls_ps_ids | act_cpl.complainers_persons.all().values('id')
-  # get all persons last edited less than 30 days ago
-  thirty_days_ago = tz.now() - timedelta(days=30)
-  old_ps_ids = person.objects.filter(updated_at__gte=thirty_days_ago).values('id')
+  # get all persons considered "new"
+  new_ps_ids = person.objects.filter(updated_at__gt=get_old_data_deadline_timestamp()).values('id')
   # get orphaned persons
   # (i.e. persons not connected to any contacts, originators, or active complaints
-  #  and last edited more than 30 days ago)
+  # and last edited before "old" data deadline timestamp)
   return (
     person.objects.exclude(id__in=con_ps_ids)
     .exclude(id__in=oris_ps_ids)
     .exclude(id__in=act_cpls_ps_ids)
-    .exclude(id__in=old_ps_ids)
+    .exclude(id__in=new_ps_ids)
   )
 
 
