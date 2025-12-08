@@ -91,17 +91,16 @@ class D3ContextMixin:
   def get_d3_context(self, context, model, pk):
     context['enabled'] = False
     if D3_ENABLED:
-      if lade_d3_session_id(self.request) is None:
+      model_name = model.__name__
+      content_type_id = ContentType.objects.get(
+        app_label='datenmanagement', model=model_name.lower()
+      ).id
+      akten_ordner = lade_akten_ordner(content_type_id)
+      if akten_ordner is not None:
         context['enabled'] = True
-        context['authentication_failed'] = True
-      else:
-        model_name = model.__name__
-        content_type_id = ContentType.objects.get(
-          app_label='datenmanagement', model=model_name.lower()
-        ).id
-        akten_ordner = lade_akten_ordner(content_type_id)
-        if akten_ordner is not None:
-          context['enabled'] = True
+        if lade_d3_session_id(self.request) is None:
+          context['authentication_failed'] = True
+        else:
           context['column_titles'] = list(Vorgang.BasemodelMeta.list_fields.values())
           context['url_process_tabledata'] = reverse(
             'd3:' + model_name + '_fetch_process_list', kwargs={'pk': pk}
