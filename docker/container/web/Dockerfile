@@ -1,4 +1,4 @@
-FROM python:3.11-alpine
+FROM python:3.13-alpine
 
 RUN apk --no-cache add nodejs npm gcc g++ openldap-dev gdal-dev geos-dev
 
