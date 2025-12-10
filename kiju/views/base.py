@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.views import View
 
-from ..models.services import HolidayService, PreventionService
+from ..models.services import PreventionService
 
 
 class JsonView(View):
@@ -89,13 +89,7 @@ def create_geojson_feature(curr_object):
         geojson_feature['properties'][field.verbose_name] = value
 
   # Handle specific fields for different service types
-  if isinstance(curr_object, HolidayService):
-    for field in ['time', 'maximum_participants', 'costs', 'meeting_point']:
-      if getattr(curr_object, field):
-        geojson_feature['properties'][
-          getattr(curr_object.__class__._meta.get_field(field), 'verbose_name', field)
-        ] = str(getattr(curr_object, field))
-  elif isinstance(curr_object, PreventionService):
+  if isinstance(curr_object, PreventionService):
     for field in ['setting', 'phone', 'costs', 'application_needed']:
       if getattr(curr_object, field):
         geojson_feature['properties'][

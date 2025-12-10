@@ -1,6 +1,5 @@
 import json
 import logging
-from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -9,7 +8,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
-from ..models.services import HolidayService, PreventionService
+from ..models.services import PreventionService
 
 logger = logging.getLogger(__name__)
 
@@ -27,10 +26,6 @@ class IndexView(TemplateView):
     Also retrieves the dashboard layout from the session.
     """
     context = super().get_context_data(**kwargs)
-    # hole die 5 nächsten anstehenden Angebote. nutze das das feld "time"
-    context['next_activities'] = HolidayService.objects.filter(time__gte=datetime.now()).order_by(
-      'time'
-    )[:5]
     context['dashboard_layout'] = self.request.session.get('dashboard_layout', [])
 
     # Leaflet configuration for the dashboard map

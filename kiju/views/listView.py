@@ -54,4 +54,6 @@ class ListView(TemplateView):
       context['objects'] = queryset
       if hasattr(self.model, 'list_fields'):
         context['list_fields'] = self.model.list_fields
+      context['model_icon'] = getattr(self.model, 'icon', None)
+      context['model_icon_plural'] = getattr(self.model, 'icon_plural', None)
     return context

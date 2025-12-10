@@ -332,6 +332,52 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  /**
+   * Check content height and auto-assign use2rows if needed
+   */
+  function checkContentHeight() {
+    gridItems.forEach(item => {
+      // Only check items that are not already 3 rows
+      if (item.classList.contains('use3rows')) return;
+
+      const cardBody = item.querySelector('.card-body');
+      if (!cardBody) return;
+
+      // Calculate total height of children including margins
+      let contentHeight = 0;
+      Array.from(cardBody.children).forEach(child => {
+        const style = window.getComputedStyle(child);
+        contentHeight += child.offsetHeight + (parseInt(style.marginTop) || 0) + (parseInt(style.marginBottom) || 0);
+      });
+
+      // Add padding of card-body
+      const bodyStyle = window.getComputedStyle(cardBody);
+      const padding = (parseInt(bodyStyle.paddingTop) || 0) + (parseInt(bodyStyle.paddingBottom) || 0);
+      const totalHeight = contentHeight + padding;
+
+      // Threshold: Grid row min-height is 200px.
+      // If content is significantly larger (e.g. > 225px), upgrade to 2 rows.
+      if (totalHeight > 225) {
+        if (!item.classList.contains('use2rows')) {
+          item.classList.add('use2rows');
+          updateResizeButtonState(item);
+        }
+      }
+    });
+  }
+
+  // Run check on load and resize
+  window.addEventListener('load', checkContentHeight);
+
+  let resizeTimeout;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(checkContentHeight, 200);
+  });
+
   // Initialize: Load saved layout on page load
   loadGridLayout();
+
+  // Run check after layout load to ensure content fits
+  setTimeout(checkContentHeight, 100);
 });

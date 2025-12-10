@@ -94,7 +94,7 @@
 
       <!-- Card 4: Freiplatzfinder -->
       <div id="grid-item-4" class="grid-item">
-        <div class="card bg-secondary-subtle border-primary text-center h-100">
+        <div class="card bg-secondary-subtle border-secondary text-center h-100">
           <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
             <h3><i class="fa-fw fa-solid fa-people-roof me-2"></i>Freiplatzfinder</h3>
             <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
@@ -109,8 +109,25 @@
         </div>
       </div>
 
-      <!-- Card 5: Codelisten -->
+      <!-- Card 5: Inbox -->
       <div id="grid-item-5" class="grid-item">
+        <div class="card bg-primary-subtle border-primary text-center h-100">
+          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
+            <h3><i class="fa-fw fa-solid fa-inbox me-2"></i>Inbox</h3>
+            <p class="text-muted mt-3 mb-0">
+              <span class="badge fs-6 {% if inbox_count and inbox_count > 0 %}bg-warning{% else %}bg-success{% endif %}">{{ inbox_count|default:0 }} offene Aufträge</span>
+            </p>
+            <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
+              <div class="col d-grid">
+                <button class="btn btn-primary" disabled><i class="fa-solid fa-list-check me-2"></i>Aufträge auflisten</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 6: Codelisten -->
+      <div id="grid-item-6" class="grid-item">
         <div class="card bg-primary-subtle border-primary text-center h-100">
           <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
             <h3><i class="fa-fw fa-solid fa-list-ul me-2"></i>Zusätzliche Tabellen</h3>
@@ -119,7 +136,7 @@
                 <a href="{% url 'kiju:provider_list' %}" class="btn btn-primary w-100"><i class="fa-fw fa-solid fa-handshake me-2"></i>Träger</a>
               </div>
               <div class="col d-grid">
-                <a href="{% url 'kiju:topic_list' %}" class="btn btn-primary w-100"><i class="fa-fw fa-solid fa-tags me-2"></i>Kategorien</a>
+                <a href="{% url 'kiju:topic_list' %}" class="btn btn-primary w-100"><i class="fa-fw fa-solid fa-folder-tree me-2"></i>Kategorien</a>
               </div>
               <div class="col d-grid">
                 <a href="{% url 'kiju:law_list' %}" class="btn btn-primary w-100"><i class="fa-fw fa-solid fa-scale-balanced me-2"></i>Gesetze</a>

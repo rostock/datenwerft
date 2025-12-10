@@ -183,6 +183,7 @@ class GenericCreateView(CreateView):
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_name'] = self.model.__name__
     context['model_lower'] = self.model.__name__.lower()
+    context['model_icon'] = getattr(self.model, 'icon', None)
 
     context['LEAFLET_CONFIG'] = getattr(
       settings,
@@ -250,6 +251,7 @@ class GenericUpdateView(UpdateView):
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_name'] = self.model.__name__
     context['model_lower'] = self.model.__name__.lower()
+    context['model_icon'] = getattr(self.model, 'icon', None)
     context['is_update'] = True  # Kennzeichnung für Update-Operation
 
     context['LEAFLET_CONFIG'] = getattr(

@@ -50,7 +50,7 @@
       </a>
     {% endif %}
     <h1 class="mb-4">
-      {% if is_update %}
+      {% if model_icon %}<i class="{{ model_icon }}"></i> {% endif %}{% if is_update %}
         {{ model_verbose_name|default:model_name }} bearbeiten
       {% else %}
         {{ model_verbose_name|default:model_name }} hinzufügen
@@ -220,12 +220,12 @@
          *
          * main function
          */
-        document.addEventListener('DOMContentLoaded', function() {
+        $(document).ready(function() {
 
           // initialize address search (and make its results globally available)
-          window.results = document.querySelector('div.results');
+          window.results = $('div.results');
           window.addressType = 'Adresse';
-          window.searchField = document.getElementById('id_address');
+          window.searchField = $('#id_address');
           initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType);
 
           // on clicking the map reference (i.e. address to map) button...

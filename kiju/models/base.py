@@ -33,13 +33,14 @@ class Base(Model):
 
 
 class Topic(Base):
-  icon = 'fa-solid fa-tags'
+  icon = 'fa-solid fa-folder'
+  icon_plural = 'fa-solid fa-folder-tree'
   name = CharField(max_length=255, verbose_name='Bezeichnung')
 
   class Meta:  # type: ignore
     db_table = 'topic'
-    verbose_name = 'Themenfeld'
-    verbose_name_plural = 'Themenfelder'
+    verbose_name = 'Kategorie'
+    verbose_name_plural = 'Kategorien'
 
   def __str__(self):
     return str(self.name)
@@ -50,12 +51,6 @@ class Provider(Base):
   name = CharField(max_length=255, verbose_name='Bezeichnung')
   description = TextField(
     verbose_name='Beschreibung',
-    null=True,
-    blank=True,
-  )
-  address = CharField(
-    max_length=255,
-    verbose_name='Adresse',
     null=True,
     blank=True,
   )
@@ -173,6 +168,7 @@ class TargetGroup(Base):
 
 class Tag(Base):
   icon = 'fa-solid fa-tag'
+  icon_plural = 'fa-solid fa-tags'
   name = CharField(max_length=100, verbose_name='Bezeichnung', unique=True)
 
   class Meta:

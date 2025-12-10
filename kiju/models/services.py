@@ -3,13 +3,12 @@ from django.db.models import (
   CASCADE,
   BooleanField,
   CharField,
-  DateTimeField,
   EmailField,
   FloatField,
   ForeignKey,
   ImageField,
+  IntegerField,
   ManyToManyField,
-  SmallIntegerField,
   TextField,
 )
 
@@ -44,6 +43,23 @@ class Service(Base):
     related_name='services',
   )
   geometry = PointField('Geometrie', srid=25833, default='POINT(0 0)')
+  street = CharField(
+    max_length=150,
+    verbose_name='Straße und Hausnummer',
+    null=True,
+    blank=True,
+  )
+  zip = IntegerField(
+    verbose_name='PLZ',
+    null=True,
+    blank=True,
+  )
+  city = CharField(
+    max_length=100,
+    verbose_name='Stadt',
+    null=True,
+    blank=True,
+  )
   email = EmailField(max_length=255, verbose_name='E-Mail')
   host = ForeignKey(to=Host, verbose_name='Anbieter', on_delete=CASCADE)
 
@@ -51,31 +67,18 @@ class Service(Base):
     return self.name
 
 
-class HolidayService(Service):
-  icon = 'fa-solid fa-people-roof'
-  time = DateTimeField(verbose_name='Zeitpunkt')
-  maximum_participants = SmallIntegerField(verbose_name='max. Teilnehmende')
-  costs = FloatField(verbose_name='Teilnehmerbetrag in €')
-  meeting_point = CharField(verbose_name='Treffpunkt', max_length=255)
-
-  class Meta:
-    db_table: str = 'ferienangebote'
-    verbose_name: str = 'Ferienangebot'
-    verbose_name_plural: str = 'Ferienangebote'
-
-
 class PreventionService(Service):
   icon = 'fa-solid fa-hand-holding-heart'
   setting = TextField(verbose_name='Beratungssetting')
-  phone = CharField(max_length=255, verbose_name='Telefonnummer')
   legal_basis = ManyToManyField(
     to=Law,
     verbose_name='Gesetzliche Grundlage',
     blank=True,
     related_name='prevention_services',
   )
-  costs = FloatField(verbose_name='Kosten in Euro')
   application_needed = BooleanField(verbose_name='Antrag erforderlich?')
+  phone = CharField(max_length=255, verbose_name='Telefonnummer')
+  costs = FloatField(verbose_name='Kosten in Euro')
 
   class Meta:
     verbose_name = 'Präventionsangebot'

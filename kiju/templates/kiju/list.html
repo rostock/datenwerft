@@ -10,16 +10,10 @@
       <i class="fa-solid fa-angle-left me"></i>
       Zurück zum KiJu-Dashboard
     </a>
-    <h1 class="mb-4">{{ model_verbose_name|default:model_name }}</h1>
+    <h1 class="mb-4">{% if model_icon_plural %}<i class="{{ model_icon_plural }}"></i> {% elif model_icon %}<i class="{{ model_icon }}"></i> {% endif %}{{ model_verbose_name|default:model_name }}</h1>
     <div class="mb-3">
       <a href="{% dynamic_url model_lower 'create' %}" class="btn btn-primary me-2">{{model_verbose_name}} hinzufügen</a>
     </div>
-    {% if model_dict %}
-      <div class="alert alert-light border mb-4">
-        <h2 class="h5 mb-2">Verfügbare Felder</h2>
-        <pre class="mb-0">{{ model_dict }}</pre>
-      </div>
-    {% endif %}
     {% if object_list %}
       <table class="table table-striped align-middle">
         <thead>
