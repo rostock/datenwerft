@@ -29,7 +29,7 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
 
 ## Voraussetzungen
 
-- [_Python_](https://www.python.org/) (>=3.11)
+- [_Python_](https://www.python.org/) (>=3.13)
 - [_pip_](https://pip.pypa.io/)
 - [_GDAL_](https://gdal.org/)
 - [_PostgreSQL_](https://www.postgresql.org/) mit der Erweiterung [_PostGIS_](https://postgis.net/)
