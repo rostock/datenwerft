@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.6
--- Dumped by pg_dump version 17.6
+-- Dumped from database version 17.7
+-- Dumped by pg_dump version 17.7
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2089,7 +2089,8 @@ CREATE TABLE fachdaten.brunnen_hro (
     in_betrieb boolean,
     endteufe numeric(3,1)[],
     entnahmemenge integer,
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    d3_link character varying(255)
 );
 
 
@@ -3543,7 +3544,8 @@ CREATE TABLE fachdaten_adressbezug.erdwaermesonden_hro (
     sondenfeldgroesse smallint,
     endteufe numeric(5,2),
     hinweis character varying(255),
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    d3_link character varying(255)
 );
 
 
@@ -3727,7 +3729,8 @@ CREATE TABLE fachdaten_adressbezug.kleinklaeranlagen_hro (
     einwohnerwert numeric(3,1),
     zulassung character varying(11),
     geometrie public.geometry(Point,25833) NOT NULL,
-    bemerkungen character varying(1000)
+    bemerkungen character varying(1000),
+    d3_link character varying(255)
 );
 
 

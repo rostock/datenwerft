@@ -2473,9 +2473,16 @@ class Kleinklaeranlagen(ComplexModel):
     null=True,
   )
   d3 = CharField(
-    verbose_name=' d.3',
+    verbose_name=' d.3-Nummer',
     max_length=16,
     validators=[RegexValidator(regex=d3_regex, message=d3_message)],
+  )
+  d3_link = CharField(
+    verbose_name=' d.3-Link',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[URLValidator(message=url_message)],
   )
   we_datum = DateField(verbose_name='Datum der wasserrechtlichen Erlaubnis', default=date.today)
   we_aktenzeichen = CharField(
@@ -2570,7 +2577,8 @@ class Kleinklaeranlagen(ComplexModel):
     associated_models = {'Kleinklaeranlagen_Gewaessereinleitungsorte': 'kleinklaeranlage'}
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
+      'd3': 'd.3-Nummer',
+      'd3_link': 'd.3-Link',
       'we_datum': 'Datum WE',
       'we_aktenzeichen': 'AZ WE',
       'we_befristung': 'Befristung WE',
@@ -2588,7 +2596,7 @@ class Kleinklaeranlagen(ComplexModel):
     map_feature_tooltip_fields = ['d3']
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
+      'd3': 'd.3-Nummer',
       'we_datum': 'Datum WE',
       'we_aktenzeichen': 'AZ WE',
       'we_befristung': 'Befristung WE',

@@ -945,11 +945,18 @@ class Brunnen(SimpleModel):
   """
 
   d3 = CharField(
-    verbose_name=' d.3',
+    verbose_name=' d.3-Nummer',
     max_length=16,
     blank=True,
     null=True,
     validators=[RegexValidator(regex=brunnen_d3_regex, message=brunnen_d3_message)],
+  )
+  d3_link = CharField(
+    verbose_name=' d.3-Link',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[URLValidator(message=url_message)],
   )
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
@@ -1010,7 +1017,8 @@ class Brunnen(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
+      'd3': 'd.3-Nummer',
+      'd3_link': 'd.3-Link',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'datum_bescheid': 'Datum des Bescheids',
@@ -1026,7 +1034,7 @@ class Brunnen(SimpleModel):
     map_feature_tooltip_fields = ['lagebeschreibung']
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
+      'd3': 'd.3-Nummer',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'datum_bescheid': 'Datum des Bescheids',
@@ -1467,6 +1475,20 @@ class Erdwaermesonden(SimpleModel):
     blank=True,
     null=True,
   )
+  d3 = CharField(
+    verbose_name=' d.3-Nummer',
+    max_length=16,
+    blank=True,
+    null=True,
+    validators=[RegexValidator(regex=d3_regex, message=d3_message)],
+  )
+  d3_link = CharField(
+    verbose_name=' d.3-Link',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[URLValidator(message=url_message)],
+  )
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
     max_length=18,
@@ -1535,6 +1557,8 @@ class Erdwaermesonden(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
+      'd3': 'd.3-Nummer',
+      'd3_link': 'd.3-Link',
       'aktenzeichen': 'Aktenzeichen',
       'adresse': 'Adresse',
       'art': 'Art',
@@ -1550,6 +1574,7 @@ class Erdwaermesonden(SimpleModel):
     map_feature_tooltip_fields = ['aktenzeichen']
     map_filter_fields = {
       'aktiv': 'aktiv?',
+      'd3': 'd.3-Nummer',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'typ': 'Typ',
