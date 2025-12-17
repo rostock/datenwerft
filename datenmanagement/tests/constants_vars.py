@@ -56,6 +56,7 @@ VALID_MULTIPOLYGON_VIEW = 'MULTIPOLYGON(' + VALID_POLYGON_VIEW.replace('POLYGON'
 # definitions of other valid and invalid datatypes
 VALID_DATE = date.today()
 VALID_DATETIME = timezone.now().replace(second=0, microsecond=0)
+VALID_URL = 'https://rudi.xy/'
 INVALID_DECIMAL = -0.01
 INVALID_INTEGER = -1
 INVALID_EMAIL = 'worsch@supp'
