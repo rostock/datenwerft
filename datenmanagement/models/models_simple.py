@@ -1489,6 +1489,7 @@ class Erdwaermesonden(SimpleModel):
     null=True,
     validators=[URLValidator(message=url_message)],
   )
+  bohrprofil = BooleanField(verbose_name='Bohrprofil?', blank=True, null=True)
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
     max_length=18,
@@ -1559,6 +1560,7 @@ class Erdwaermesonden(SimpleModel):
       'aktiv': 'aktiv?',
       'd3': 'd.3-Nummer',
       'd3_link': 'd.3-Link',
+      'bohrprofil': 'Bohrprofil?',
       'aktenzeichen': 'Aktenzeichen',
       'adresse': 'Adresse',
       'art': 'Art',
@@ -1575,6 +1577,7 @@ class Erdwaermesonden(SimpleModel):
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'd3': 'd.3-Nummer',
+      'bohrprofil': 'Bohrprofil?',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'typ': 'Typ',

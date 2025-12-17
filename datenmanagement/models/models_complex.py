@@ -2480,8 +2480,6 @@ class Kleinklaeranlagen(ComplexModel):
   d3_link = CharField(
     verbose_name=' d.3-Link',
     max_length=255,
-    blank=True,
-    null=True,
     validators=[URLValidator(message=url_message)],
   )
   we_datum = DateField(verbose_name='Datum der wasserrechtlichen Erlaubnis', default=date.today)

@@ -3545,7 +3545,8 @@ CREATE TABLE fachdaten_adressbezug.erdwaermesonden_hro (
     endteufe numeric(5,2),
     hinweis character varying(255),
     geometrie public.geometry(Point,25833) NOT NULL,
-    d3_link character varying(255)
+    d3_link character varying(255),
+    bohrprofil boolean
 );
 
 
@@ -3730,7 +3731,7 @@ CREATE TABLE fachdaten_adressbezug.kleinklaeranlagen_hro (
     zulassung character varying(11),
     geometrie public.geometry(Point,25833) NOT NULL,
     bemerkungen character varying(1000),
-    d3_link character varying(255)
+    d3_link character varying(255) NOT NULL
 );
 
 
