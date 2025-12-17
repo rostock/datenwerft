@@ -90,10 +90,8 @@ function filterApplication(model) {
   } else if (model === 'originators') {
     window.currentOriginatorsFilterPrimaryKeys = [];
     window.currentOriginatorsFilterExtent = [];
+    window.currentOriginatorsFilterComplaintsPrimaryKeys = [];
   }
-
-  // show filter alert
-  $('#' + model + '-filter-alert').show();
 
   // create filter objects list
   let filterObjectsList = [];
@@ -112,7 +110,27 @@ function filterApplication(model) {
   });
 
   // apply filters
-  applyFilters(model, filterObjectsList);
+  if (model === 'complaints') {
+    applyFilters(model, filterObjectsList);
+    // hide all originators not connected to remaining complaints:
+    // create and apply filter which matches the primary keys of all originators
+    // against all originator primary keys of remaining complaints
+    filterObjectsList = [
+        createFilterObject('_pk', 'array', window.currentComplaintsFilterOriginatorsPrimaryKeys)
+    ];
+    applyFilters('originators', filterObjectsList);
+  } else if (model === 'originators') {
+    applyFilters(model, filterObjectsList);
+    // hide all complaints not connected to remaining originators:
+    // create and apply filter which matches the primary keys of all complaints
+    // against all complaint primary keys of remaining originators
+    filterObjectsList = [
+        createFilterObject('_pk', 'array', window.currentOriginatorsFilterComplaintsPrimaryKeys)
+    ];
+    applyFilters('complaints', filterObjectsList);
+  } else {
+    applyFilters(model, filterObjectsList);
+  }
 }
 
 /**
@@ -194,9 +212,6 @@ function filterReset(model) {
   // disable button to transfer currently filtered data to table
   $('#' + model + '-subsetter').prop('disabled', true);
 
-  // hide filter alert
-  $('#' + model + '-filter-alert').hide();
-
   // empty all filter fields
   $('[id^=filter-input-' + model + ']').each(function() {
     $(this).val('');
@@ -210,6 +225,7 @@ function filterReset(model) {
   } else if (model === 'originators') {
     window.currentOriginatorsFilterPrimaryKeys = [];
     window.currentOriginatorsFilterExtent = [];
+    window.currentOriginatorsFilterComplaintsPrimaryKeys = [];
   }
 
   // show all GeoJSON features
@@ -314,6 +330,9 @@ function updateCurrentlyFilteredDataVariables(model, layer) {
     }
   } else if (model === 'originators') {
     window.currentOriginatorsFilterPrimaryKeys.push(layer.feature.properties._pk);
+    layer.feature.properties._complaints__ids_.forEach(item => {
+      window.currentOriginatorsFilterComplaintsPrimaryKeys.push(item);
+    });
     if (window.currentOriginatorsFilterExtent.length === 0) {
       window.currentOriginatorsFilterExtent[0] = [];
       window.currentOriginatorsFilterExtent[0][0] = y;
