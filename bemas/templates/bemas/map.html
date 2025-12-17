@@ -59,8 +59,8 @@
             <div id="collapse-filter-one-click" class="accordion-collapse collapse" aria-labelledby="heading-filter-one-click">
               <div class="accordion-body">
                 <div id="filter-one-click-buttons" class="btn-group-vertical">
-                  <button id="complaints-in-progress" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> nur Beschwerden in Bearbeitung</button>
-                  <button id="complaints-in-progress-with-originators" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Beschwerden in Bearbeitung und deren Verursacher</button>
+                  <button id="complaints-in-progress" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> nur Beschwerden in Bearbeitung (ohne Verursacher)</button>
+                  <button id="complaints-in-progress-with-originators" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> nur Beschwerden in Bearbeitung und deren Verursacher</button>
                 </div>
                 <div class="d-grid mt-4">
                   <button id="filter-one-click-reset" class="btn btn-warning" disabled><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Ein-Klick-Filter zurücksetzen</button>
@@ -76,7 +76,8 @@
             </h2>
             <div id="collapse-complaints-filter" class="accordion-collapse collapse" aria-labelledby="heading-complaints-filter">
               <div class="accordion-body">
-                <div id="complaints-filter-alert" class="alert alert-warning" role="alert">Filter für Beschwerden wirken <strong>additiv</strong> (wie „UND“)</div>
+                <div class="alert alert-warning" role="alert">Filter für Beschwerden wirken <strong>additiv</strong> (wie „UND“)</div>
+                <div class="alert alert-danger" role="alert">Achtung: Verursacher werden bis auf <strong>verknüpfte</strong> Verursacher ebenfalls herausgefiltert!</div>
                 <div class="d-grid mb-3">
                   <label for="filter-input-complaints-id" class="form-label"><em>ID</em></label>
                   <div class="input-group">
@@ -162,7 +163,8 @@
             </h2>
             <div id="collapse-originators-filter" class="accordion-collapse collapse" aria-labelledby="heading-originators-filter">
               <div class="accordion-body">
-                <div id="originators-filter-alert" class="alert alert-warning" role="alert">Filter für Verursacher wirken <strong>additiv</strong> (wie „UND“)</div>
+                <div class="alert alert-warning" role="alert">Filter für Verursacher wirken <strong>additiv</strong> (wie „UND“)</div>
+                <div class="alert alert-danger" role="alert">Achtung: Beschwerden werden bis auf <strong>verknüpfte</strong> Beschwerden ebenfalls herausgefiltert!</div>
                 <div class="d-grid mb-3">
                   <label for="filter-input-originators-sector" class="form-label"><em>Branche</em></label>
                   <div class="input-group">
@@ -389,6 +391,7 @@
           window.currentComplaintsFilterOriginatorsPrimaryKeys = [];
           window.currentOriginatorsFilterPrimaryKeys = [];
           window.currentOriginatorsFilterExtent = [];
+          window.currentOriginatorsFilterComplaintsPrimaryKeys = [];
 
           // initialize address search (and make its results globally available)
           window.results = $('div.results');
@@ -485,8 +488,9 @@
 
           // on clicking the button to reset complaints filters...
           $('#complaints-filter-reset').on('click', function() {
-            // reset filters
+            // reset all filters
             filterReset('complaints');
+            filterReset('originators');
           });
 
           // on clicking the button to apply originators filters...
@@ -497,8 +501,9 @@
 
           // on clicking the button to reset originators filters...
           $('#originators-filter-reset').on('click', function() {
-            // reset filters
+            // reset all filters
             filterReset('originators');
+            filterReset('complaints');
           });
 
           // on clicking the button to set map extent to that of currently filtered complaints...

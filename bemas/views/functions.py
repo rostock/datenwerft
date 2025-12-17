@@ -395,6 +395,12 @@ def create_geojson_feature(curr_object):
     geojson_feature['properties']['_originator__id_'] = get_json_data(
       curr_object.originator, 'id', True
     )
+  elif issubclass(curr_object.__class__, Originator):
+    if curr_object.complaint_set.count() > 0:
+      complaints = []
+      for complaint in curr_object.complaint_set.all():
+        complaints.append(get_json_data(complaint, 'id', True))
+      geojson_feature['properties']['_complaints__ids_'] = complaints
   return geojson_feature
 
 
