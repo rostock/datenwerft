@@ -1480,7 +1480,9 @@ class Erdwaermesonden(SimpleModel):
     max_length=16,
     blank=True,
     null=True,
-    validators=[RegexValidator(regex=d3_regex, message=d3_message)],
+    validators=[
+      RegexValidator(regex=erdwaermesonden_d3_regex, message=erdwaermesonden_d3_message)
+    ],
   )
   d3_link = CharField(
     verbose_name=' d.3-Link',
