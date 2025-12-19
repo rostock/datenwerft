@@ -48,6 +48,7 @@ class Organization {
   + email_addresses: ArrayField [0..1]
   + telephone_numbers: ArrayField [0..1]
   + dms_link: CharField [0..1]
+  + dms_link_url: CharField [0..1]
 }
 
 class Person {
@@ -77,6 +78,7 @@ class Originator {
   + emission_point: PointField
   + address: CharField [0..1]
   + dms_link: CharField [0..1]
+  + dms_link_url: CharField [0..1]
 }
 
 class Complaint {
@@ -91,6 +93,7 @@ class Complaint {
   # complainers_persons: ManyToManyField [0..1]
   + description: TextField
   + dms_link: CharField [0..1]
+  + dms_link_url: CharField [0..1]
   + storage_location: CharField [0..1]
 }
 
@@ -101,6 +104,7 @@ class Event {
   + user: CharField
   + description: NullTextField [0..1]
   + dms_link: CharField [0..1]
+  + dms_link_url: CharField [0..1]
 }
 
 class LogEntry {

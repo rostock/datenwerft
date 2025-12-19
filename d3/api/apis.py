@@ -328,6 +328,85 @@ class D3Api:
     query_start = d3_id_with_query.find('?')
     return d3_id_with_query[:query_start]
 
+  def suche_id_zu_kennzeichen(
+    self, repository_id: str, rubrik_id: str, kennzeichen_key: str, kennzeichen: str
+  ) -> str | None:
+    """
+    Suche ID zu übergebenem Kennzeichen und gib diese zurück
+
+    Request: /dms/r/{repository_id}/srm?sourceCategory={rubrik_id}&sourceProperties=\
+{{kennzeichen_key}:[{kennzeichen}]}&sourceId=/dms/r/{repository_id}/source
+
+    Response: 200
+
+    {
+      "_links": {
+          "self": {
+              "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/srm/?sourceid=\
+%2Fdms%2Fr%2F0e2133c9-b9e1-5c56-bac3-2b2a75f81509%2Fsource&page=1&pagesize=25&children_of=\
+T000008201"
+          }
+      },
+      "items": [
+        {
+          "_links": {
+            "self": {
+                "href": "/dms/r/0e2133c9-b9e1-5c56-bac3-2b2a75f81509/o2m/P004597487?sourceid=\
+%2fdms%2fr%250ad81f3-f1f0-45b7-a3bb-3412881fa9af%2fsource"
+            }
+          },
+          "id": "P004597487",
+          "sourceProperties": [
+            {
+                "key": "property_last_modified_date",
+                "value": "2025-07-08T09:21:28.000+02:00"
+            }
+          ],
+          "sourceCategories": ["AVORG", "855517a3-e303-438a-a585-7fbaf331168f"]
+        }
+      ],
+      "page": 1
+    }
+
+    Args:
+      repository_id (str): ID des Repositories
+      rubrik_id (str): ID der Rubrik
+      kennzeichen_key (str): Key des Kennzeichens
+      kennzeichen (str): gesuchtes Kennzeichen
+
+    Returns:
+        str | None: ID zu übergebenem Kennzeichen
+    """
+
+    params = {
+      'sourceCategories': [rubrik_id],
+      'sourceProperties': {kennzeichen_key: [kennzeichen]},
+      'sourceId': f'/dms/r/{repository_id}/source',
+    }
+
+    response = self.__get(f'/dms/r/{repository_id}/srm', params)
+
+    if response.status_code >= 400:
+      self.logger.error(
+        'Suche nach ID zu übergebenem Kennzeichen ist fehlgeschlagen. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+      )
+      raise Exception(
+        'Suche nach ID zu übergebenem Kennzeichen ist fehlgeschlagen. Status code: '
+        + str(response.status_code)
+        + ' Message: '
+        + response.text
+      )
+
+    try:
+      response_json = response.json()
+      item_id = response_json['items'][0]['id']
+      return item_id
+    except (KeyError, IndexError, TypeError):
+      return None
+
   def lade_dokument(self, repository_id: str, dokumenten_id: str):
     """
     Lade das Dokument mit der gesuchten ID aus dem d.3-System.

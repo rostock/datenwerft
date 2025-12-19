@@ -84,11 +84,17 @@ class Organization(Objectclass):
     null=True,
   )
   dms_link = CharField(
-    verbose_name=' d.3',
+    verbose_name=' d.3-Nummer',
     max_length=255,
     blank=True,
     null=True,
     validators=[RegexValidator(regex=d3_regex, message=d3_message)],
+  )
+  dms_link_url = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False,
   )
 
   class Meta(Objectclass.Meta):
@@ -354,11 +360,17 @@ class Originator(GeometryObjectclass):
   emission_point = PointField(verbose_name='Emissionsort')
   address = CharField(verbose_name='Adresse', max_length=255, blank=True, null=True)
   dms_link = CharField(
-    verbose_name=' d.3',
+    verbose_name=' d.3-Nummer',
     max_length=255,
     blank=True,
     null=True,
     validators=[RegexValidator(regex=d3_regex, message=d3_message)],
+  )
+  dms_link_url = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False,
   )
 
   class Meta(GeometryObjectclass.Meta):
@@ -446,11 +458,17 @@ class Complaint(GeometryObjectclass):
   )
   description = TextField(verbose_name='Beschreibung', validators=standard_validators)
   dms_link = CharField(
-    verbose_name=' d.3',
+    verbose_name=' d.3-Nummer',
     max_length=255,
     blank=True,
     null=True,
     validators=[RegexValidator(regex=d3_regex, message=d3_message)],
+  )
+  dms_link_url = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False,
   )
   storage_location = CharField(
     verbose_name='Ablageort analog',
@@ -528,11 +546,17 @@ class Event(Objectclass):
   user = CharField(verbose_name='Benutzer:in', max_length=255)
   description = NullTextField(verbose_name='Beschreibung', blank=True, null=True)
   dms_link = CharField(
-    verbose_name=' d.3',
+    verbose_name=' d.3-Nummer',
     max_length=255,
     blank=True,
     null=True,
     validators=[RegexValidator(regex=d3_regex, message=d3_message)],
+  )
+  dms_link_url = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False,
   )
 
   class Meta(Objectclass.Meta):
