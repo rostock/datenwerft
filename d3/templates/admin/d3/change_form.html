@@ -1,8 +1,8 @@
 {% extends 'admin/change_form.html' %}
 {% load static %}
 
-{% block extrahead %}{{ block.super }}
-
+{% block extrahead %}
+  {{ block.super }}
   <script src="{% static 'jquery/jquery.min.js' %}"></script>
   <script src="{% static 'select2/select2.js' %}"></script>
   <link rel="stylesheet" type="text/css" href="{% static 'select2/select2.min.css' %}">
@@ -13,21 +13,15 @@
   {{ block.super }}
   <script type="application/javascript">
     $('.select2').select2({});
-
     $('#id_gui_element').change(function(event) {
-
-        let metadatenOptionenFieldset = $('#metadatenoption_set-group');
-
-        if ('select' === event.target.value) {
-
-            metadatenOptionenFieldset.show();
-        } else {
-
-            $('.dynamic-metadatenoption_set', metadatenOptionenFieldset).remove()
-            metadatenOptionenFieldset.hide();
-        }
+      let metadatenOptionenFieldset = $('#metadatenoption_set-group');
+      if ('select' === event.target.value) {
+        metadatenOptionenFieldset.show();
+      } else {
+        $('.dynamic-metadatenoption_set', metadatenOptionenFieldset).remove()
+        metadatenOptionenFieldset.hide();
+      }
     });
-
     $('#id_gui_element').change();
   </script>
 {% endblock %}

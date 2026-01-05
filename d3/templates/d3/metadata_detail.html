@@ -1,5 +1,6 @@
 <div class="p-2 rounded {% if request.COOKIES.theme == 'dark' %}bg-dark-subtle{% else %}bg-light-subtle{% endif %}">
   <div>
+    <h5>weitere Attribute des Vorgangs</h5>
     {% if metadata %}
       {% for entry in metadata %}
         <div style="display: flex; width: 100%; margin-bottom: 0.5rem;">
@@ -12,12 +13,12 @@
         </div>
       {% endfor %}
     {% else %}
-      <div>Keine Metadaten vorhanden.</div>
+      <div>Keine weiteren Attribute vorhanden!</div>
     {% endif %}
   </div>
   <br />
   <div id="{{ random_uuid }}">
-    <p>Dateien werden geladen...</p>
+    <p>Dokumente werden geladen…</p>
     <script type="text/javascript">
 
       var div_container = $('#{{ random_uuid }}');

@@ -38,7 +38,10 @@ class Basemodel(Model):
     :ivar naming: name shown in map filters drop-down menus
     :ivar readonly_fields: shall fields be read-only?
     :ivar geometry_type: type of the geometry represented by this model
-    :ivar geometry_calculation: Shall the geometry not be editable because it is calculated?
+    :ivar geometry_calculation: shall the geometry not be editable
+        because it is calculated instead?
+    :ivar geometry_coordinates_input: shall the coordinates of the geometry be entered
+        and not taken from the map?
     :ivar address_search_class: address search class
     :ivar address_search_long_results: shall address search results be shown in long versions?
     :ivar address_type: type of the address represented by this model
@@ -61,6 +64,8 @@ class Basemodel(Model):
     :ivar list_fields_with_datetime:
     :ivar list_fields_with_decimal:
     :ivar list_fields_with_foreign_key:
+    :ivar list_filters_as_input:
+    :ivar list_filters_as_select:
     :ivar list_additional_foreign_key_field:
     :ivar list_actions_assign:
     :ivar highlight_flag:
@@ -93,6 +98,7 @@ class Basemodel(Model):
     readonly_fields: list[str] = None
     geometry_type: str = None
     geometry_calculation: bool = False
+    geometry_coordinates_input: bool = False
     address_search_class: str = 'address_hro'
     address_search_long_results: bool = False
     address_type: str = None
@@ -169,6 +175,16 @@ class Basemodel(Model):
     # for the table of the list view so that they can also be found and displayed
     # in the referenced table of the corresponding list view
     list_fields_with_foreign_key: dict[str, str] = None
+
+    # names of those fields of this model appearing in ``list_fields``
+    # which shall be equipped with per-column filters (via HTML input elements)
+    # in the table of the list view of this model
+    list_filters_as_input: list[str] = None
+
+    # names of those fields of this model appearing in ``list_fields``
+    # which shall be equipped with per-column filters (via HTML select elements)
+    # in the table of the list view of this model
+    list_filters_as_select: list[str] = None
 
     # details of a foreign key field of this model
     # which shall appear as an additional column in the table of the list view of this model

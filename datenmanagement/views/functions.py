@@ -179,6 +179,7 @@ def assign_widgets(field):
   # handle geometry fields/widgets
   elif is_geometry_field(field.__class__):
     form_field = field.formfield(widget=LeafletWidget())
+  # handle color input fields/widgets
   elif issubclass(form_field.widget.__class__, TextInput) and field.name == 'farbe':
     form_field = field.formfield(
       widget=TextInput(attrs={'type': 'color', 'class': 'form-control-color'})
@@ -434,6 +435,7 @@ def set_form_template(model: Basemodel):
   if (
     model.__module__ == 'datenmanagement.models.models_codelist'
     or model.BasemodelMeta.geometry_type is None
+    or model.BasemodelMeta.geometry_coordinates_input is True
   ):
     return 'datenmanagement/form-list.html'
   elif model.__name__ == 'Punktwolken_Projekte':

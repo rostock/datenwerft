@@ -1,10 +1,12 @@
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import resolve_url
 from django.urls import reverse
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
+from bemas.utils import generate_user_string
 from d3.models import Vorgang
-from d3.utils import fetch_processes, lade_d3_session_id
+from d3.utils import fetch_processes, lade_akten_ordner, lade_d3_session_id
 from datenwerft.settings import D3_ENABLED, D3_HOST, D3_REPOSITORY
 
 
@@ -12,8 +14,8 @@ class TableProcessView(BaseDatatableView):
   object_id: str = ''
 
   """
-    View to return JSON data for the Vorgang model.
-    """
+  view to return JSON data for Vorgang model
+  """
 
   def __init__(self, model=None, *args, **kwargs):
     self.model = Vorgang
@@ -54,13 +56,18 @@ class TableProcessView(BaseDatatableView):
           continue
         value = getattr(obj, field)
         if hasattr(value, 'strftime'):
-          value = value.strftime('%Y-%m-%d %H:%M')
+          value = value.strftime('%d.%m.%Y, %H:%M:%S Uhr')
         elif field == 'akten':
           url = f'{D3_HOST}/dms/r/{D3_REPOSITORY}/o2/{value.d3_id}'
-          value = f'<a target="_blank" href="{url}">d3 Akte</a>'
+          title = 'Akte in d.3 öffnen…'
+          value = f'<a title="{title}" target="_blank" href="{url}">{value.d3_id}</a>'
         elif field == 'd3_id':
           url = f'{D3_HOST}/dms/r/{D3_REPOSITORY}/o2/{value}'
-          value = f'<a target="_blank" href="{url}">d3 Vorgang</a>'
+          title = 'Vorgang in d.3 öffnen…'
+          value = f'<a title="{title}" target="_blank" href="{url}">{value}</a>'
+        elif field == 'erstellt_durch':
+          user = User.objects.get(username=value)
+          value = generate_user_string(user)
         elif value is None:
           value = ''
         else:
@@ -70,8 +77,10 @@ class TableProcessView(BaseDatatableView):
       upload_url = resolve_url(
         'd3:' + self.datenmanagement_model_name + '_d3_add_file', self.object_id, obj.id
       )
-      expand_element = '<i class="fa fa-chevron-down text-secondary" style="cursor:pointer"></i>'
-      upload_link = f'<a href="{upload_url}"><i class="fa fa-upload text-secondary"></i></a>'
+      expand_element = '<i class="fa fa-circle-info" style="cursor:pointer" '
+      expand_element += 'title="Details zu Vorgang anzeigen…"></i>'
+      upload_link = f'<a href="{upload_url}" title="Dokument anlegen…"'
+      upload_link += '<i class="fa fa-file-import"></i></a>'
       row.append(f'<div class="dt-control">{upload_link} {expand_element}</div>')
       results.append(row)
 
@@ -80,27 +89,27 @@ class TableProcessView(BaseDatatableView):
 
 class D3ContextMixin:
   def get_d3_context(self, context, model, pk):
-    if not D3_ENABLED:
-      context['enabled'] = False
-    elif lade_d3_session_id(self.request) is None:
-      context['authentication_failed'] = True
-    else:
-      context['enabled'] = True
-
+    context['enabled'] = False
+    if D3_ENABLED:
       model_name = model.__name__
-
-      context['column_titles'] = list(Vorgang.BasemodelMeta.list_fields.values())
-
-      context['url_process_tabledata'] = reverse(
-        'd3:' + model_name + '_fetch_process_list', kwargs={'pk': pk}
-      )
-
-      context['url_process_metadata'] = reverse(
-        'd3:' + model_name + '_fetch_metadata',
-      )
-
-      context['url_process_add'] = reverse(
-        'd3:' + model_name + '_d3_add_process', kwargs={'pk': pk}
-      )
+      content_type_id = ContentType.objects.get(
+        app_label='datenmanagement', model=model_name.lower()
+      ).id
+      akten_ordner = lade_akten_ordner(content_type_id)
+      if akten_ordner is not None:
+        context['enabled'] = True
+        if lade_d3_session_id(self.request) is None:
+          context['authentication_failed'] = True
+        else:
+          context['column_titles'] = list(Vorgang.BasemodelMeta.list_fields.values())
+          context['url_process_tabledata'] = reverse(
+            'd3:' + model_name + '_fetch_process_list', kwargs={'pk': pk}
+          )
+          context['url_process_metadata'] = reverse(
+            'd3:' + model_name + '_fetch_metadata',
+          )
+          context['url_process_add'] = reverse(
+            'd3:' + model_name + '_d3_add_process', kwargs={'pk': pk}
+          )
 
     return context

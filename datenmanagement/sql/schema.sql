@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.13
--- Dumped by pg_dump version 16.9
+-- Dumped from database version 17.7
+-- Dumped by pg_dump version 17.7
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -918,6 +918,19 @@ CREATE TABLE codelisten.bodenarten_spielplaetze (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     bodenart character varying(255) NOT NULL
+);
+
+
+--
+-- Name: dateiformate; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.dateiformate (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    suffix character varying(4) NOT NULL,
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -2015,7 +2028,8 @@ CREATE TABLE fachdaten.brunnen_hro (
     in_betrieb boolean,
     endteufe numeric(3,1)[],
     entnahmemenge integer,
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    d3_link character varying(255)
 );
 
 
@@ -2145,31 +2159,6 @@ CREATE TABLE fachdaten.durchlaesse_fotos_hro (
     foto character varying(255) NOT NULL,
     aufnahmedatum date,
     bemerkungen character varying(255)
-);
-
-
---
--- Name: erdwaermesonden_hro; Type: TABLE; Schema: fachdaten; Owner: -
---
-
-CREATE TABLE fachdaten.erdwaermesonden_hro (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    id_fachsystem character varying(255),
-    id_zielsystem character varying(255),
-    aktiv boolean DEFAULT true NOT NULL,
-    deaktiviert date,
-    d3 character varying(16),
-    aktenzeichen character varying(18) NOT NULL,
-    art uuid NOT NULL,
-    typ uuid,
-    awsv_anlage boolean,
-    anzahl_sonden smallint,
-    sondenfeldgroesse smallint,
-    endteufe numeric(5,2),
-    hinweis character varying(255),
-    geometrie public.geometry(Point,25833) NOT NULL
 );
 
 
@@ -2476,6 +2465,28 @@ CREATE TABLE fachdaten.haltestellenkataster_haltestellen_hro (
     hst_abfahrten smallint,
     hst_fahrgastzahl_einstieg smallint,
     hst_fahrgastzahl_ausstieg smallint
+);
+
+
+--
+-- Name: hoehenfestpunkte_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.hoehenfestpunkte_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    punktkennung integer NOT NULL,
+    hoehe_hn_ausg numeric(6,3),
+    hoehe_hn_na numeric(6,3),
+    skizze_dateiformat uuid NOT NULL,
+    lagebeschreibung character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL,
+    bearbeiter character varying(255)
 );
 
 
@@ -3434,6 +3445,34 @@ CREATE TABLE fachdaten_adressbezug.denksteine_hro (
 
 
 --
+-- Name: erdwaermesonden_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.erdwaermesonden_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    adresse uuid,
+    d3 character varying(16),
+    aktenzeichen character varying(18) NOT NULL,
+    art uuid NOT NULL,
+    typ uuid,
+    awsv_anlage boolean,
+    anzahl_sonden smallint,
+    sondenfeldgroesse smallint,
+    endteufe numeric(5,2),
+    hinweis character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL,
+    d3_link character varying(255),
+    bohrprofil boolean
+);
+
+
+--
 -- Name: feuerwachen_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -3612,7 +3651,9 @@ CREATE TABLE fachdaten_adressbezug.kleinklaeranlagen_hro (
     umfang_einleitung numeric(3,2),
     einwohnerwert numeric(3,1),
     zulassung character varying(11),
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    bemerkungen character varying(1000),
+    d3_link character varying(255) NOT NULL
 );
 
 
@@ -5025,6 +5066,22 @@ ALTER TABLE ONLY codelisten.bodenarten_spielplaetze
 
 
 --
+-- Name: dateiformate dateiformate_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.dateiformate
+    ADD CONSTRAINT dateiformate_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: dateiformate dateiformate_suffix_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.dateiformate
+    ADD CONSTRAINT dateiformate_suffix_unique UNIQUE (suffix);
+
+
+--
 -- Name: dfi_typen_haltestellenkataster dfi_typen_haltestellenkataster_dfi_typ_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -6305,14 +6362,6 @@ ALTER TABLE ONLY fachdaten.durchlaesse_fotos_hro
 
 
 --
--- Name: erdwaermesonden_hro erdwaermesonden_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.erdwaermesonden_hro
-    ADD CONSTRAINT erdwaermesonden_hro_pk PRIMARY KEY (uuid);
-
-
---
 -- Name: fallwildsuchen_kontrollgebiete_hro fallwildsuchen_kontrollgebiete_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6422,6 +6471,22 @@ ALTER TABLE ONLY fachdaten.haltestellenkataster_haltestellen_hro
 
 ALTER TABLE ONLY fachdaten.haltestellenkataster_haltestellen_hro
     ADD CONSTRAINT haltestellenkataster_haltestellen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: hoehenfestpunkte_hro hoehenfestpunkte_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.hoehenfestpunkte_hro
+    ADD CONSTRAINT hoehenfestpunkte_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: hoehenfestpunkte_hro hoehenfestpunkte_hro_punktkennung_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.hoehenfestpunkte_hro
+    ADD CONSTRAINT hoehenfestpunkte_hro_punktkennung_unique UNIQUE (punktkennung);
 
 
 --
@@ -6806,6 +6871,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.carsharing_stationen_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.denksteine_hro
     ADD CONSTRAINT denksteine_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: erdwaermesonden_hro erdwaermesonden_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.erdwaermesonden_hro
+    ADD CONSTRAINT erdwaermesonden_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7709,22 +7782,6 @@ ALTER TABLE ONLY fachdaten.durchlaesse_fotos_hro
 
 
 --
--- Name: erdwaermesonden_hro erdwaermesonden_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.erdwaermesonden_hro
-    ADD CONSTRAINT erdwaermesonden_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_erdwaermesonden(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: erdwaermesonden_hro erdwaermesonden_hro_typen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.erdwaermesonden_hro
-    ADD CONSTRAINT erdwaermesonden_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_erdwaermesonden(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
 -- Name: fallwildsuchen_kontrollgebiete_hro fallwildsuchen_kontrollgebiete_hro_tierseuchen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -7914,6 +7971,14 @@ ALTER TABLE ONLY fachdaten.haltestellenkataster_haltestellen_hro
 
 ALTER TABLE ONLY fachdaten.haltestellenkataster_haltestellen_hro
     ADD CONSTRAINT haltestellenkataster_haltestellen_hro_tl_leitstreifen_ausfuehru FOREIGN KEY (tl_leitstreifen_ausfuehrung) REFERENCES codelisten.ausfuehrungen_haltestellenkataster(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: hoehenfestpunkte_hro hoehenfestpunkte_hro_skizzen_dateiformate_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.hoehenfestpunkte_hro
+    ADD CONSTRAINT hoehenfestpunkte_hro_skizzen_dateiformate_fk FOREIGN KEY (skizze_dateiformat) REFERENCES codelisten.dateiformate(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -8410,6 +8475,22 @@ ALTER TABLE ONLY fachdaten_adressbezug.denksteine_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.denksteine_hro
     ADD CONSTRAINT denksteine_hro_titel_fk FOREIGN KEY (titel) REFERENCES codelisten.personentitel(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: erdwaermesonden_hro erdwaermesonden_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.erdwaermesonden_hro
+    ADD CONSTRAINT erdwaermesonden_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_erdwaermesonden(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: erdwaermesonden_hro erdwaermesonden_hro_typen_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.erdwaermesonden_hro
+    ADD CONSTRAINT erdwaermesonden_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_erdwaermesonden(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

@@ -35,7 +35,8 @@ INVALID_GPX_FILE = TEST_DIR / 'data' / 'gpx_invalid.gpx'
 INVALID_POINTCLOUD_FILE = TEST_DIR / 'data' / 'las_invalid.las'
 
 # definitions of valid geometries
-VALID_POINT_DB = Point(307845, 6005103)
+VALID_X, VALID_Y = 307845.387, 6005103.052
+VALID_POINT_DB = Point(VALID_X, VALID_Y)
 VALID_POINT_VIEW = 'POINT(12.057 54.158)'
 VALID_LINE_DB = LineString((307845, 6005103), (307847, 6005105))
 VALID_LINE_VIEW = 'LINESTRING(12.057 54.158, 12.058 54.159)'
@@ -55,6 +56,7 @@ VALID_MULTIPOLYGON_VIEW = 'MULTIPOLYGON(' + VALID_POLYGON_VIEW.replace('POLYGON'
 # definitions of other valid and invalid datatypes
 VALID_DATE = date.today()
 VALID_DATETIME = timezone.now().replace(second=0, microsecond=0)
+VALID_URL = 'https://rudi.xy/'
 INVALID_DECIMAL = -0.01
 INVALID_INTEGER = -1
 INVALID_EMAIL = 'worsch@supp'

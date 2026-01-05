@@ -945,11 +945,18 @@ class Brunnen(SimpleModel):
   """
 
   d3 = CharField(
-    verbose_name=' d.3',
+    verbose_name=' d.3-Nummer',
     max_length=16,
     blank=True,
     null=True,
     validators=[RegexValidator(regex=brunnen_d3_regex, message=brunnen_d3_message)],
+  )
+  d3_link = CharField(
+    verbose_name=' d.3-Link',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[URLValidator(message=url_message)],
   )
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
@@ -1010,7 +1017,8 @@ class Brunnen(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
+      'd3': 'd.3-Nummer',
+      'd3_link': 'd.3-Link',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'datum_bescheid': 'Datum des Bescheids',
@@ -1026,7 +1034,7 @@ class Brunnen(SimpleModel):
     map_feature_tooltip_fields = ['lagebeschreibung']
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
+      'd3': 'd.3-Nummer',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'datum_bescheid': 'Datum des Bescheids',
@@ -1564,8 +1572,18 @@ class Erdwaermesonden(SimpleModel):
   Erdwärmesonden
   """
 
+  adresse = ForeignKey(
+    to=Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True,
+  )
   d3 = CharField(
-    verbose_name=' d.3',
+    verbose_name=' d.3-Nummer',
     max_length=16,
     blank=True,
     null=True,
@@ -1573,6 +1591,14 @@ class Erdwaermesonden(SimpleModel):
       RegexValidator(regex=erdwaermesonden_d3_regex, message=erdwaermesonden_d3_message)
     ],
   )
+  d3_link = CharField(
+    verbose_name=' d.3-Link',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[URLValidator(message=url_message)],
+  )
+  bohrprofil = BooleanField(verbose_name='Bohrprofil?', blank=True, null=True)
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
     max_length=18,
@@ -1629,18 +1655,23 @@ class Erdwaermesonden(SimpleModel):
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten"."erdwaermesonden_hro'
+    db_table = 'fachdaten_adressbezug"."erdwaermesonden_hro'
     verbose_name = 'Erdwärmesonde'
     verbose_name_plural = 'Erdwärmesonden'
 
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Erdwärmesonden in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
+    address_type = 'Adresse'
+    address_mandatory = False
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
+      'd3': 'd.3-Nummer',
+      'd3_link': 'd.3-Link',
+      'bohrprofil': 'Bohrprofil?',
       'aktenzeichen': 'Aktenzeichen',
+      'adresse': 'Adresse',
       'art': 'Art',
       'typ': 'Typ',
       'awsv_anlage': 'AwSV-Anlage?',
@@ -1650,11 +1681,12 @@ class Erdwaermesonden(SimpleModel):
       'hinweis': 'Hinweis',
     }
     list_fields_with_decimal = ['endteufe']
-    list_fields_with_foreign_key = {'art': 'art', 'typ': 'typ'}
+    list_fields_with_foreign_key = {'adresse': 'adresse', 'art': 'art', 'typ': 'typ'}
     map_feature_tooltip_fields = ['aktenzeichen']
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
+      'd3': 'd.3-Nummer',
+      'bohrprofil': 'Bohrprofil?',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'typ': 'Typ',
@@ -1667,7 +1699,8 @@ class Erdwaermesonden(SimpleModel):
     map_filter_fields_as_list = ['art', 'typ']
 
   def __str__(self):
-    return self.aktenzeichen
+    aktenzeichen_str = f'{self.aktenzeichen}'
+    return f'{self.adresse}, {aktenzeichen_str}' if self.adresse else aktenzeichen_str
 
 
 class Fahrradabstellanlagen(SimpleModel):
@@ -2778,6 +2811,108 @@ class Hausnummern(SimpleModel):
       + self.postleitzahl
       + ']'
     )
+
+
+class Hoehenfestpunkte(SimpleModel):
+  """
+  Höhenfestpunkte
+  """
+
+  aktualisiert = DateField(verbose_name='letzte Änderung', editable=False, auto_now=True)
+  bearbeiter = CharField(
+    verbose_name=' letzte:r Bearbeiter:in', max_length=255, validators=standard_validators
+  )
+  punktkennung = PositiveIntegerField(verbose_name='Punktkennung', unique=True)
+  hoehe_hn_ausg = DecimalField(
+    verbose_name='Höhe HN Ausgangswert (in m)',
+    max_digits=6,
+    decimal_places=3,
+    validators=[
+      MinValueValidator(
+        Decimal('0.001'),
+        'Die <strong><em>Höhe HN Ausgangswert</em></strong> muss mindestens 0,001 m betragen.',
+      ),
+      MaxValueValidator(
+        Decimal('999.999'),
+        'Die <strong><em>Höhe HN Ausgangswert</em></strong> darf höchstens 999,999 m betragen.',
+      ),
+    ],
+    blank=True,
+    null=True,
+  )
+  hoehe_hn_na = DecimalField(
+    verbose_name='Höhe HN Nachmessung (in m)',
+    max_digits=6,
+    decimal_places=3,
+    validators=[
+      MinValueValidator(
+        Decimal('0.001'),
+        'Die <strong><em>Höhe HN Nachmessung</em></strong> muss mindestens 0,001 m betragen.',
+      ),
+      MaxValueValidator(
+        Decimal('999.999'),
+        'Die <strong><em>Höhe HN Nachmessung</em></strong> darf höchstens 999,999 m betragen.',
+      ),
+    ],
+    blank=True,
+    null=True,
+  )
+  skizze_dateiformat = ForeignKey(
+    to=Dateiformate,
+    verbose_name='Dateiformat der Skizze unter K:/GDS/Festpunkte/Ap&tp/HP/Hp',
+    on_delete=RESTRICT,
+    db_column='skizze_dateiformat',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_skizzen_dateiformate',
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten"."hoehenfestpunkte_hro'
+    verbose_name = 'Höhenfestpunkt'
+    verbose_name_plural = 'Höhenfestpunkte'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Höhenfestpunkte in der Hanse- und Universitätsstadt Rostock'
+    group_with_users_for_choice_field = 'datenmanagement_hoehenfestpunkte_full'
+    as_overlay = False
+    geometry_type = 'Point'
+    geometry_coordinates_input = True
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'aktualisiert': 'letzte Änderung',
+      'bearbeiter': 'letzte:r Bearbeiter:in',
+      'punktkennung': 'Punktkennung',
+      'hoehe_hn_ausg': 'Höhe HN Ausgangswert (in m)',
+      'hoehe_hn_na': 'Höhe HN Nachmessung (in m)',
+      'skizze_dateiformat': 'Dateiformat der Skizze unter K:/GDS/Festpunkte/Ap&tp/HP/Hp',
+      'lagebeschreibung': 'Lagebeschreibung',
+    }
+    list_fields_with_date = ['aktualisiert']
+    list_fields_with_decimal = ['hoehe_hn_ausg', 'hoehe_hn_na']
+    list_fields_with_foreign_key = {'skizze_dateiformat': 'bezeichnung'}
+    map_feature_tooltip_fields = ['punktkennung']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'aktualisiert': 'letzte Änderung',
+      'bearbeiter': 'letzte:r Bearbeiter:in',
+      'punktkennung': 'Punktkennung',
+      'hoehe_hn_ausg': 'Höhe HN Ausgangswert (in m)',
+      'hoehe_hn_na': 'Höhe HN Nachmessung (in m)',
+      'skizze_dateiformat': 'Dateiformat der Skizze unter K:/GDS/Festpunkte/Ap&tp/HP/Hp',
+      'lagebeschreibung': 'Lagebeschreibung',
+    }
+    map_filter_fields_as_list = ['skizze_dateiformat']
+
+  def __str__(self):
+    return f'{self.punktkennung}'
 
 
 class Hospize(SimpleModel):

@@ -85,7 +85,7 @@ class Organization(Objectclass):
   )
   dms_link = CharField(
     verbose_name=' d.3',
-    max_length=16,
+    max_length=255,
     blank=True,
     null=True,
     validators=[RegexValidator(regex=d3_regex, message=d3_message)],
@@ -355,7 +355,7 @@ class Originator(GeometryObjectclass):
   address = CharField(verbose_name='Adresse', max_length=255, blank=True, null=True)
   dms_link = CharField(
     verbose_name=' d.3',
-    max_length=16,
+    max_length=255,
     blank=True,
     null=True,
     validators=[RegexValidator(regex=d3_regex, message=d3_message)],
@@ -447,7 +447,7 @@ class Complaint(GeometryObjectclass):
   description = TextField(verbose_name='Beschreibung', validators=standard_validators)
   dms_link = CharField(
     verbose_name=' d.3',
-    max_length=16,
+    max_length=255,
     blank=True,
     null=True,
     validators=[RegexValidator(regex=d3_regex, message=d3_message)],
@@ -529,7 +529,7 @@ class Event(Objectclass):
   description = NullTextField(verbose_name='Beschreibung', blank=True, null=True)
   dms_link = CharField(
     verbose_name=' d.3',
-    max_length=16,
+    max_length=255,
     blank=True,
     null=True,
     validators=[RegexValidator(regex=d3_regex, message=d3_message)],

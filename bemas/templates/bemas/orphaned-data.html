@@ -27,7 +27,8 @@
       {% if orphaned_persons %}
         Folgende Person(en) ist/sind nicht als Ansprechpartner:in(nen) mit Organisationen, nicht
         als Betreiber:in(nen) mit Verursachern und auch nicht als Beschwerdeführer:in(nen) mit
-        <strong><em>aktiven</em></strong> Beschwerden verbunden:
+        <strong><em>aktiven</em></strong> Beschwerden verbunden
+        und wurden zuletzt vor mehr als 30 Tagen bearbeitet:
         <ul class="object-list">
           {% for orphaned_person in orphaned_persons %}
             <li>
@@ -48,7 +49,7 @@
         <ul class="object-list">
           {% for orphaned_originator in orphaned_originators %}
             <li>
-              <a href="{{ orphaned_originator.link }}" title="Person ansehen oder bearbeiten">{{ orphaned_originator.text }}</a>
+              <a href="{{ orphaned_originator.link }}" title="Verursacher ansehen oder bearbeiten">{{ orphaned_originator.text }}</a>
             </li>
           {% endfor %}
         </ul>

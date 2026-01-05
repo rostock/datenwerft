@@ -1,10 +1,10 @@
 {% extends "d3/form.html" %}
 {% load static %}
 
-{% block title %}Vorgang erstellen | {% endblock %}
+{% block title %}d.3-Vorgang | {% endblock %}
 
 {% block content %}
-  <h2>Vorgangserstellung</h2>
+  <h2><em>d.3-</em>Vorgang</h2>
 
   {% block alerts %}
     {{ block.super }}
@@ -41,7 +41,7 @@
       {% endblock %}
     </div>
     <div class="flex-item" id="flex-action-buttons">
-      <button class="btn btn-primary" type="submit"><i class="fas fa-floppy-disk"></i> Vorgang speichern</button>
+      <button class="btn btn-primary" type="submit"><i class="fas fa-floppy-disk"></i> <em>d.3-</em>Vorgang speichern</button>
         <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
     </div>
   </form>

@@ -18,15 +18,14 @@ jobs:
     runs-on: ubuntu-latest
     services:
       openldap:
-        image: bitnami/openldap:latest
+        image: osixia/openldap
         env:
-          LDAP_ROOT: dc=example,dc=org
-          LDAP_ADMIN_USERNAME: admin
+          LDAP_DOMAIN: example.org
+          LDAP_BASE_DN: dc=example,dc=org
           LDAP_ADMIN_PASSWORD: password
-          LDAP_USERS: user01,user02
-          LDAP_PASSWORDS: password1,password2
         ports:
-          - 1389:1389
+          - 389:389
+          - 636:636
       postgres:
         image: postgis/postgis
         env:
@@ -42,15 +41,15 @@ jobs:
           --health-retries 5
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '18'
+          node-version: '24'
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.13'
           cache: 'pip'
       - name: Install prerequisites for Python dependencies
         run: |

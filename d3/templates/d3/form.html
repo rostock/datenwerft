@@ -1,12 +1,12 @@
 {% extends "form.html" %}
 {% load static %}
 
-{% block title %}{{ model_verbose_name }} – Vorgangs Formular | {% endblock %}
+{% block title %}{{ model_verbose_name }} – Vorgangsformular | {% endblock %}
 
 {% block scripts %}
   <!-- inherit from form.html -->
   {{ block.super }}
-  <!-- add scripts for d3 -->
+  <!-- add scripts for d.3 -->
   <script src="{% static "js/form.js" %}"></script>
 {% endblock %}
 

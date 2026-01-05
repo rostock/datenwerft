@@ -90,6 +90,40 @@
             {% endif %}
           </tr>
         </thead>
+        {% if column_filters %}
+          <tfoot>
+            <tr>
+              {% if actions %}
+                <th></th>
+              {% endif %}
+              {% for column_filter in column_filters %}
+                <th>
+                  {% with field=column_names|get_list_item_by_index:forloop.counter0 %}
+                    {% if column_filter == 'input' %}
+                      <label hidden for="column-filter-mode-{{ field }}" class="form-label"></label>
+                      <select class="form-select form-select-sm column-filter-mode" id="column-filter-mode-{{ field }}"><option value="P">enthält</option><option value="N">enthält nicht</option></select>
+                      <label hidden for="column-filter-input-{{ field }}" class="form-label"></label>
+                      <input class="form-control form-control-sm column-filter-input" id="column-filter-input-{{ field }}" type="search" placeholder="Filterwert…" />
+                    {% elif column_filter == 'select' %}
+                      <label hidden for="column-filter-mode-{{ field }}" class="form-label"></label>
+                      <select class="form-select form-select-sm column-filter-mode" id="column-filter-mode-{{ field }}"><option value="P">ist gleich</option><option value="N">ist ungleich</option></select>
+                      <label hidden for="column-filter-select-{{ field }}" class="form-label"></label>
+                      <select class="form-select form-select-sm column-filter-select" id="column-filter-select-{{ field }}">
+                        <option value="">Filterwert…</option>
+                        {% for value in field|get_distinct_field_values:model_name %}
+                          <option value="{{ value }}">{{ value }}</option>
+                        {% endfor %}
+                      </select>
+                    {% endif %}
+                  {% endwith %}
+                </th>
+              {% endfor %}
+              {% if column_actions %}
+                <th></th>
+              {% endif %}
+            </tr>
+          </tfoot>
+        {% endif %}
       </table>
     </div>
     {% if actions %}

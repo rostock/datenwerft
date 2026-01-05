@@ -30,9 +30,9 @@ class D3AuthenticationApi:
 
   def lade_access_token(self, username: str, password: str) -> str | None:
     """
-    Methode zum Laden eines Access tokens zur Authentifizierung gegenüber des D3 Backends.
+    Methode zum Laden eines Access tokens zur Authentifizierung gegenüber des d.3-Backends.
 
-    Zur Authentifikation gegenüber des D3 Backends wird ein Basic Authentifizierungsheader
+    Zur Authentifikation gegenüber des d.3-Backends wird ein Basic Authentifizierungsheader
     mit dem username und password an die URL zum Laden der Repository-Daten gesendet
     und der empfangene Cookie ausgelesen.
 
@@ -52,9 +52,15 @@ class D3AuthenticationApi:
     }
 
     self.logger.debug(
-      'Sending request to ' + D3_HOST + '/dms/r/ with Headers: ' + request_headers.__str__()
+      'Sending request to '
+      + D3_HOST
+      + '/identityprovider/login/ with Headers: '
+      + request_headers.__str__()
     )
-    response = requests.get(D3_HOST + '/dms/r/', headers=request_headers, timeout=5)
+
+    response = requests.get(
+      D3_HOST + '/identityprovider/login/', headers=request_headers, timeout=5
+    )
 
     if response.status_code >= 400:
       self.logger.error(
@@ -85,7 +91,7 @@ class D3Api:
 
   def lade_objekt_definitionen(self, repository_id: str, category_id: str) -> ObjectDefinition:
     """
-    Lade die Objektdefinition von der Kategorie mit der übergebenen id im d3 repositories.
+    Lade die Objektdefinition von der Kategorie mit der übergebenen id im d.3-repositories.
     Hiermit können die konfigurierten Felder einer Kategorie abgefragt werden.
 
     Request: /dms/r/{repository_id}/objdef
@@ -161,9 +167,9 @@ class D3Api:
 
   def erstelle_akte(self, repository_id: str, properties: dict[str, str]) -> str:
     """
-    Erstellt eine neue Akte in der D3 API. Alle notwendigen properties müssen übergeben werden,
-    da es sonst zu einem Fehler in der D3 Api kommt. Die Id des neuen DMS-Objektes wird aus dem
-    Location-Header ausgelesen, welcher von der D3 API in der Response zurückgegeben wird.
+    Erstellt eine neue Akte in der d.3-API. Alle notwendigen properties müssen übergeben werden,
+    da es sonst zu einem Fehler in der d.3-Api kommt. Die Id des neuen DMS-Objektes wird aus dem
+    Location-Header ausgelesen, welcher von der d.3-API in der Response zurückgegeben wird.
 
     Request: /dms/r/{repository_id}/o2m
     {
@@ -235,10 +241,10 @@ class D3Api:
     properties: dict[str, str | List[str]],
   ) -> str:
     """
-    Erstellt einen neuen Vorgang in der D3 API. Alle notwendigen properties
-    müssen übergeben werden, da es sonst zu einem Fehler in der D3 Api kommt.
+    Erstellt einen neuen Vorgang in der d.3-API. Alle notwendigen properties
+    müssen übergeben werden, da es sonst zu einem Fehler in der d.3-Api kommt.
     Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen,
-    welcher von der D3 API in der Response zurückgegeben wird.
+    welcher von der d.3-API in der Response zurückgegeben wird.
 
     Request: /dms/r/{repository_id}/o2m
     {
@@ -324,7 +330,7 @@ class D3Api:
 
   def lade_dokument(self, repository_id: str, dokumenten_id: str):
     """
-    Lade das Dokument mit der gesuchten ID aus dem D3 System.
+    Lade das Dokument mit der gesuchten ID aus dem d.3-System.
 
     Request: /dms/r/{repository_id}/o2m/{dokumenten_id}?sourceId=/dms/r/{repository_id}/source
 
@@ -352,7 +358,7 @@ class D3Api:
       dokumenten_id (str): id des Dokuments
 
     Returns:
-        DmsObject: Vorgang aus dem d3 System
+        DmsObject: Vorgang aus dem d.3-System
     """
     response = self.__get(
       url=f'/dms/r/{repository_id}/o2m/{dokumenten_id}',
@@ -418,7 +424,7 @@ T000008201"
       vorgangs_id (str): id des Vorgangs
 
     Returns:
-        DmsObject: Vorgang aus dem d3 System
+        DmsObject: Vorgang aus dem d.3-System
     """
 
     params = {
@@ -450,7 +456,7 @@ T000008201"
 
   def lade_datei_hoch(self, repository_id: str, file: UploadedFile) -> str | None:
     """
-    Lädt eine Datei in das D3 Repository hoch und gibt anschließend die content uri zurück,
+    Lädt eine Datei in das d.3-Repository hoch und gibt anschließend die content uri zurück,
     damit diese verwendet werden kann, um neue DmsObjects anlegen zu können.
     Die Content-Uri ist im Location-Headers des ersten chunk uploads enthalten
 
@@ -459,7 +465,7 @@ T000008201"
     Response: 201 | 200
 
     Parameters:
-      repository_id (str): id des d3 repositories
+      repository_id (str): id des d.3-repositories
       file (UploadedFile): Die Datei die hochgeladen werden soll
 
     Returns:
@@ -506,9 +512,9 @@ T000008201"
     properties: dict[str, str | List[str]],
   ) -> str:
     """
-    Erstellt ein neues Dokument in der D3 API und verlinkt die hochgeladene Datei mit dem Dokument.
+    Erstellt ein neues Dokument via d.3-API und verlinkt die hochgeladene Datei mit dem Dokument.
     Die Id des neuen DMS-Objektes wird aus dem Location-Header ausgelesen,
-    welcher von der D3 API in der Response zurückgegeben wird.
+    welcher von der d.3-API in der Response zurückgegeben wird.
 
     Request: /dms/r/{repository_id}/o2m
     {
@@ -708,7 +714,7 @@ T000008201"
 
   def lade_datei_inhalt(self, repository_id: str, file_id: str) -> DateiInhalt:
     """
-    Lade die Datei mit Inhalt aus dem d3 System.
+    Lade die Datei mit Inhalt aus dem d.3-System.
 
     Args:
       repository_id (str): id des repositories
@@ -773,7 +779,7 @@ T000008201"
 
   def __get(self, url: str, params: dict[str, str]) -> Response:
     """
-    Methode zum Senden einer HTTP GET Anfrage an den D3 Webserver.
+    Methode zum Senden einer HTTP GET Anfrage an den d.3-Webserver.
 
     Args:
       url (str): Relative URL der Anfrage mit führendem /
@@ -800,7 +806,7 @@ T000008201"
 
   def __post(self, url: str, json: any) -> Response:
     """
-    Methode zum Senden einer HTTP POST Anfrage an den D3 Webserver.
+    Methode zum Senden einer HTTP POST Anfrage an den d.3-Webserver.
 
     Args:
       url (str): Relative URL der Anfrage mit führendem /
@@ -837,7 +843,7 @@ T000008201"
 
   def __put(self, url: str, json: any) -> Response:
     """
-    Methode zum Senden einer HTTP PUT Anfrage an den D3 Webserver.
+    Methode zum Senden einer HTTP PUT Anfrage an den d.3-Webserver.
 
     Args:
       url (str): Relative URL der Anfrage mit führendem /
@@ -874,7 +880,7 @@ T000008201"
 
   def __post_file(self, url: str, file_content) -> Response:
     """
-    Methode zum Senden einer HTTP POST Anfrage an den D3 Webserver.
+    Methode zum Senden einer HTTP POST Anfrage an den d.3-Webserver.
 
     Args:
       url (str): Relative URL der Anfrage mit führendem /
