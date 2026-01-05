@@ -9,7 +9,7 @@ from django.db.models.fields import DateTimeField
 from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
 
-from datenmanagement.utils import get_current_year, path_and_rename
+from datenmanagement.utils import create_d3_link, get_current_year, path_and_rename
 from toolbox.fields import NullTextField
 
 from .base import SimpleModel
@@ -952,11 +952,10 @@ class Brunnen(SimpleModel):
     validators=[RegexValidator(regex=brunnen_d3_regex, message=brunnen_d3_message)],
   )
   d3_link = CharField(
-    verbose_name=' d.3-Link',
     max_length=255,
     blank=True,
     null=True,
-    validators=[URLValidator(message=url_message)],
+    editable=False,
   )
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
@@ -1017,8 +1016,7 @@ class Brunnen(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3-Nummer',
-      'd3_link': 'd.3-Link',
+      'd3': 'd.3',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'datum_bescheid': 'Datum des Bescheids',
@@ -1049,6 +1047,11 @@ class Brunnen(SimpleModel):
 
   def __str__(self):
     return self.lagebeschreibung
+
+  def d3_element(self):
+    if self.d3_link:
+      return create_d3_link(self.d3, self.d3_link)
+    return self.d3
 
 
 class Containerstellplaetze(SimpleModel):
@@ -1485,11 +1488,10 @@ class Erdwaermesonden(SimpleModel):
     ],
   )
   d3_link = CharField(
-    verbose_name=' d.3-Link',
     max_length=255,
     blank=True,
     null=True,
-    validators=[URLValidator(message=url_message)],
+    editable=False,
   )
   bohrprofil = BooleanField(verbose_name='Bohrprofil?', blank=True, null=True)
   aktenzeichen = CharField(
@@ -1560,8 +1562,7 @@ class Erdwaermesonden(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3-Nummer',
-      'd3_link': 'd.3-Link',
+      'd3': 'd.3',
       'bohrprofil': 'Bohrprofil?',
       'aktenzeichen': 'Aktenzeichen',
       'adresse': 'Adresse',
@@ -1594,6 +1595,11 @@ class Erdwaermesonden(SimpleModel):
   def __str__(self):
     aktenzeichen_str = f'{self.aktenzeichen}'
     return f'{self.adresse}, {aktenzeichen_str}' if self.adresse else aktenzeichen_str
+
+  def d3_element(self):
+    if self.d3_link:
+      return create_d3_link(self.d3, self.d3_link)
+    return self.d3
 
 
 class Fahrradabstellanlagen(SimpleModel):

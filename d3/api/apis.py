@@ -334,7 +334,7 @@ class D3Api:
     """
     Suche ID zu übergebenem Kennzeichen und gib diese zurück
 
-    Request: /dms/r/{repository_id}/srm?sourceCategory={rubrik_id}&sourceProperties=\
+    Request: /dms/r/{repository_id}/srm?sourceCategories=[{rubrik_id}]&sourceProperties=\
 {{kennzeichen_key}:[{kennzeichen}]}&sourceId=/dms/r/{repository_id}/source
 
     Response: 200

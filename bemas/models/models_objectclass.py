@@ -24,7 +24,7 @@ from toolbox.constants_vars import (
   standard_validators,
 )
 from toolbox.fields import NullTextField
-from toolbox.utils import concat_address
+from toolbox.utils import concat_address, create_dms_link
 
 from .base import GeometryObjectclass, Objectclass
 from .functions import store_complaint_search_content
@@ -119,6 +119,11 @@ class Organization(Objectclass):
     return concat_address(
       self.address_street, self.address_house_number, self.address_postal_code, self.address_place
     )
+
+  def dms(self):
+    if self.dms_link_url:
+      return create_dms_link(self.dms_link, self.dms_link_url)
+    return self.dms_link
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # store search content in designated field
@@ -404,6 +409,11 @@ class Originator(GeometryObjectclass):
       operator += ' mit der/dem Betreiber:in ' + str(self.operator_person)
     return str(self.sector) + operator + ' (' + shorten_string(self.description) + ')'
 
+  def dms(self):
+    if self.dms_link_url:
+      return create_dms_link(self.dms_link, self.dms_link_url)
+    return self.dms_link
+
   def sector_and_operator(self):
     operator = ' (unbekannte Betreiberverhältnisse'
     if self.operator_organization:
@@ -505,6 +515,11 @@ class Complaint(GeometryObjectclass):
       + ')'
     )
 
+  def dms(self):
+    if self.dms_link_url:
+      return create_dms_link(self.dms_link, self.dms_link_url)
+    return self.dms_link
+
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # on creation:
     if not self.pk and Status.get_default_status():
@@ -575,6 +590,11 @@ class Event(Objectclass):
   def __str__(self):
     description = ' (' + shorten_string(self.description) + ')' if self.description else ''
     return str(self.type_of_event) + ' zur Beschwerde ' + str(self.complaint) + description
+
+  def dms(self):
+    if self.dms_link_url:
+      return create_dms_link(self.dms_link, self.dms_link_url)
+    return self.dms_link
 
   def type_of_event_and_complaint(self):
     return str(self.type_of_event) + ' (Beschwerde: ' + str(self.complaint) + ')'

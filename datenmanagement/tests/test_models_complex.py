@@ -4491,7 +4491,6 @@ class KleinklaeranlagenTest(DefaultComplexModelTestCase):
     typ = Typen_Kleinklaeranlagen.objects.create(typ='Typ')
     cls.attributes_values_db_initial = {
       'd3': '538.111-047',
-      'd3_link': VALID_URL,
       'we_datum': VALID_DATE,
       'typ': typ,
       'einleitstelle': 'Einleitstelle1',
@@ -4501,7 +4500,6 @@ class KleinklaeranlagenTest(DefaultComplexModelTestCase):
     cls.attributes_values_db_updated = {'einleitstelle': 'Einleitstelle2'}
     cls.attributes_values_view_initial = {
       'd3': '538.111-047',
-      'd3_link': VALID_URL,
       'we_datum': VALID_DATE,
       'typ': str(typ.pk),
       'einleitstelle': 'Einleitstelle3',
@@ -4510,7 +4508,6 @@ class KleinklaeranlagenTest(DefaultComplexModelTestCase):
     }
     cls.attributes_values_view_updated = {
       'd3': '538.111-047',
-      'd3_link': VALID_URL,
       'we_datum': VALID_DATE,
       'typ': str(typ.pk),
       'einleitstelle': 'Einleitstelle4',

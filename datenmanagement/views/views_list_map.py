@@ -83,9 +83,26 @@ class TableDataCompositionView(BaseDatatableView):
           + str(item_pk)
           + '">'
         )
+      address_handled, d3_handled = False, False
       for column in self.columns:
-        # handle all columns except address strings!
-        if not self.column_with_address_string or column != self.column_with_address_string:
+        # handle DMS links
+        if column.startswith('d3'):
+          if not d3_handled:
+            # append d.3 link once
+            # instead of appending individual strings and/or URL for all d.3 related values
+            item_data.append(item.d3_element())
+            d3_handled = True
+        # handle address strings
+        elif self.column_with_address_string and column == self.column_with_address_string:
+          if not address_handled:
+            # append address string once
+            # instead of appending individual strings for all address related values
+            item_data.append(item.address())
+            address_handled = True
+        # handle all other columns
+        elif not column.startswith('d3') and (
+          not self.column_with_address_string or column != self.column_with_address_string
+        ):
           value, data = getattr(item, column), None
           # take care of methods
           if value.__class__.__name__ == 'method':
@@ -226,14 +243,6 @@ class TableDataCompositionView(BaseDatatableView):
             else:
               data = escape(value)
           item_data.append(data)
-        # handle address strings
-        elif column == self.column_with_address_string:
-          # append address string once
-          # instead of appending individual strings for all address related values
-          address_string = getattr(item, self.address_string_fallback_column)
-          if hasattr(item, 'address'):
-            address_string = item.address()
-          item_data.append(address_string)
         # handle additional foreign key columns (if any)
         if (
           self.additional_foreign_key_column
@@ -354,13 +363,23 @@ class TableDataCompositionView(BaseDatatableView):
       # careful here!
       # use the same clauses as in prepare_results() above since otherwise,
       # the wrong order columns could be chosen
+      address_handled, d3_handled = False, False
       for column in self.columns:
-        # handle all columns except address strings!
-        if not self.column_with_address_string or column != self.column_with_address_string:
-          column_names.append(column)
+        # handle DMS links
+        if column.startswith('d3'):
+          if not d3_handled:
+            column_names.append(column)
+            d3_handled = True
         # handle address strings
-        elif column == self.column_with_address_string:
-          column_names.append(self.address_string_fallback_column)
+        elif self.column_with_address_string and column == self.column_with_address_string:
+          if not address_handled:
+            column_names.append(self.address_string_fallback_column)
+            address_handled = True
+        # handle all other columns
+        elif not column.startswith('d3') and (
+          not self.column_with_address_string or column != self.column_with_address_string
+        ):
+          column_names.append(column)
         if (
           self.additional_foreign_key_column
           and column == self.additional_foreign_key_column['insert_after_field']
