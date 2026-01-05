@@ -17,9 +17,8 @@ bevollmaechtigte_bezirksschornsteinfeger_bezirk_message = (
 )
 brunnen_d3_regex = r'^[0-9]{2,3}\.[0-9]#[0-9]{2}-[0-9]{3}\/[0-9]{3}$'
 brunnen_d3_message = (
-  'Die <strong><em>d.3</em></strong>-Nummer muss eines der folgenden '
-  'Formate aufweisen (Beispiele): 552.6#04-004/008 (für einen Vorgang) '
-  'oder 55.2#02-002/009 (für einen Vorgang).'
+  'Die <strong><em>d.3</em></strong>-Vorgangsnummer muss eines der folgenden '
+  'Formate aufweisen (Beispiele): 552.6#04-004/008 oder 55.2#02-002/009.'
 )
 denksteine_nummer_regex = r'^[0-9]+[a-z]*$'
 denksteine_nummer_message = (
@@ -59,8 +58,8 @@ erdwaermesonden_aktenzeichen_message = (
 )
 erdwaermesonden_d3_regex = r'^[0-9]{3}\.[0-9]#[0-9]{2}-[0-9]{3}\/[0-9]{3}$'
 erdwaermesonden_d3_message = (
-  'Die <strong><em>d.3</em></strong>-Nummer muss folgendes '
-  'Format aufweisen (Beispiel): 552.6#04-004/008 (für einen Vorgang).'
+  'Die <strong><em>d.3</em></strong>-Vorgangsnummer muss folgendes '
+  'Format aufweisen (Beispiel): 552.6#04-004/008.'
 )
 fahrbahnwinterdienst_code_regex = r'^[A-C]$'
 fahrbahnwinterdienst_code_message = (

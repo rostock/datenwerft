@@ -945,7 +945,7 @@ class Brunnen(SimpleModel):
   """
 
   d3 = CharField(
-    verbose_name=' d.3-Nummer',
+    verbose_name=' d.3-Vorgangsnummer',
     max_length=16,
     blank=True,
     null=True,
@@ -1016,7 +1016,7 @@ class Brunnen(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
+      'd3': 'd.3-Vorgang',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'datum_bescheid': 'Datum des Bescheids',
@@ -1032,7 +1032,7 @@ class Brunnen(SimpleModel):
     map_feature_tooltip_fields = ['lagebeschreibung']
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3-Nummer',
+      'd3': 'd.3-Vorgangsnummer',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
       'datum_bescheid': 'Datum des Bescheids',
@@ -1479,7 +1479,7 @@ class Erdwaermesonden(SimpleModel):
     null=True,
   )
   d3 = CharField(
-    verbose_name=' d.3-Nummer',
+    verbose_name=' d3-Vorgangsnummer',
     max_length=16,
     blank=True,
     null=True,
@@ -1562,7 +1562,7 @@ class Erdwaermesonden(SimpleModel):
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3',
+      'd3': 'd.3-Vorgang',
       'bohrprofil': 'Bohrprofil?',
       'aktenzeichen': 'Aktenzeichen',
       'adresse': 'Adresse',
@@ -1579,7 +1579,7 @@ class Erdwaermesonden(SimpleModel):
     map_feature_tooltip_fields = ['aktenzeichen']
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3-Nummer',
+      'd3': 'd.3-Vorgangsnummer',
       'bohrprofil': 'Bohrprofil?',
       'aktenzeichen': 'Aktenzeichen',
       'art': 'Art',
