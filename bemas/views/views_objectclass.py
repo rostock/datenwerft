@@ -21,6 +21,7 @@ from bemas.models import (
   Status,
 )
 from bemas.utils import generate_user_string, shorten_string
+from d3.utils import generiere_link_zu_kennzeichen, lade_d3_session_id
 from toolbox.utils import get_array_first_element, is_geometry_field
 
 from .forms import GenericForm
@@ -158,10 +159,17 @@ class GenericObjectclassCreateView(CreateView):
         obj_str,
       ),
     )
+    curr_object = form.save()
+    curr_object.save()
+    # set corresponding DMS link URL to DMS link
+    if lade_d3_session_id(self.request) is not None:
+      if hasattr(self.model, 'dms_link') and hasattr(self.model, 'dms_link_url'):
+        if curr_object.dms_link:
+          curr_object.dms_link_url = generiere_link_zu_kennzeichen(
+            self.request, curr_object.dms_link
+          )
     # create new log entry (except for object class log entry itself, of course)
     if not issubclass(self.model, LogEntry):
-      curr_object = form.save()
-      curr_object.save()
       create_log_entry(self.model, curr_object.pk, 'created', str(curr_object), self.request.user)
     return super().form_valid(form)
 
@@ -310,6 +318,8 @@ class GenericObjectclassUpdateView(UpdateView):
     :param form: form
     :return: HTTP response if passed form is valid
     """
+    # temporarily keep original object
+    original_object = self.get_object()
     # return to either the original referer or a default page
     referer = form.data.get('original_referer', None)
     if issubclass(self.model, Contact):
@@ -326,11 +336,20 @@ class GenericObjectclassUpdateView(UpdateView):
       ),
     )
     if form.has_changed():
+      curr_object = form.save()
+      curr_object.save()
+      # set corresponding DMS link URL to DMS link
+      if lade_d3_session_id(self.request) is not None:
+        if hasattr(self.model, 'dms_link') and hasattr(self.model, 'dms_link_url'):
+          if curr_object.dms_link and curr_object.dms_link != original_object.dms_link:
+            curr_object.dms_link_url = generiere_link_zu_kennzeichen(
+              self.request, curr_object.dms_link
+            )
+          elif not curr_object.dms_link:
+            curr_object.dms_link_url = None
       # create new log entry for the following object classes:
       # Complaint, Originator
       if issubclass(self.model, Complaint) or issubclass(self.model, Originator):
-        curr_object = form.save()
-        curr_object.save()
         # loop changed data in order to create individual log entries
         for changed_attribute in form.changed_data:
           log_action, content = set_log_action_and_content(

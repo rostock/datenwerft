@@ -9,6 +9,20 @@ from django.conf import settings
 logger = logging.getLogger('datenmanagement')
 
 
+def create_d3_link(d3=None, d3_link=None):
+  """
+  creates HTML link element out of passed d.3 link attributes and returns it
+
+  :param d3: d.3 link text
+  :param d3_link: d.3 link URL
+  :return: HTML link element, created out of passed d.3 link attributes
+  """
+  if d3 and d3_link:
+    return '<a href="{0}" target="_blank" title="in d.3 öffnen">{1}</a>'.format(d3_link, d3)
+  else:
+    return None
+
+
 def get_current_year():
   """
   returns current year as a number

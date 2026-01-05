@@ -18,7 +18,7 @@ from django_rq import enqueue
 from pyblisher import Bucket, Project, Source, Task, get_project
 from pyblisher import settings as pyblisher_settings
 
-from datenmanagement.utils import get_current_year, logger, path_and_rename
+from datenmanagement.utils import create_d3_link, get_current_year, logger, path_and_rename
 from toolbox.fields import NullTextField
 from toolbox.utils import format_filesize, is_broker_available
 
@@ -2478,9 +2478,10 @@ class Kleinklaeranlagen(ComplexModel):
     validators=[RegexValidator(regex=d3_regex, message=d3_message)],
   )
   d3_link = CharField(
-    verbose_name=' d.3-Link',
     max_length=255,
-    validators=[URLValidator(message=url_message)],
+    blank=True,
+    null=True,
+    editable=False,
   )
   we_datum = DateField(verbose_name='Datum der wasserrechtlichen Erlaubnis', default=date.today)
   we_aktenzeichen = CharField(
@@ -2575,8 +2576,7 @@ class Kleinklaeranlagen(ComplexModel):
     associated_models = {'Kleinklaeranlagen_Gewaessereinleitungsorte': 'kleinklaeranlage'}
     list_fields = {
       'aktiv': 'aktiv?',
-      'd3': 'd.3-Nummer',
-      'd3_link': 'd.3-Link',
+      'd3': 'd.3',
       'we_datum': 'Datum WE',
       'we_aktenzeichen': 'AZ WE',
       'we_befristung': 'Befristung WE',
@@ -2612,6 +2612,11 @@ class Kleinklaeranlagen(ComplexModel):
     we_datum_str = datetime.strptime(str(f'{self.we_datum}'), '%Y-%m-%d').strftime('%d.%m.%Y')
     _str = d3_str + ', ' + we_datum_str
     return f'{self.adresse}, {_str}' if self.adresse else _str
+
+  def d3_element(self):
+    if self.d3_link:
+      return create_d3_link(self.d3, self.d3_link)
+    return self.d3
 
 
 class Kleinklaeranlagen_Gewaessereinleitungsorte(ComplexModel):
