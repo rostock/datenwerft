@@ -38,6 +38,7 @@ LOCAL_APPS = [
   'gdihrocodelists',
   'gdihrometadata',
   'kiju',
+  'd3',
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 LOGIN_REDIRECT_URL = '/'
@@ -359,6 +360,7 @@ PDF_JINJASTRINGS = {
   'comment_end': '}',
 }
 
+APPLICATION_HTTP_USER_AGENT = 'HRO.Datenwerft/1.0'
 
 # configuration file with additional parameters
 # which must not fall under Git version control
