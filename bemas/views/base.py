@@ -67,7 +67,7 @@ class GenericTableDataView(BaseDatatableView):
       for item in qs:
         item_data = []
         item_pk = getattr(item, self.model._meta.pk.name)
-        address_handled = False
+        address_handled, dms_handled = False, False
         for column in self.columns:
           # handle included fields only!
           if column.name not in self.model.BasemodelMeta.table_exclusion_fields:
@@ -131,7 +131,7 @@ class GenericTableDataView(BaseDatatableView):
               else:
                 item_data.append(escape(value))
             # ordinary columns
-            elif not column.name.startswith('address_'):
+            elif not column.name.startswith('address_') and not column.name.startswith('dms_'):
               if value is not None:
                 # format dates and datetimes
                 if isinstance(value, date) or isinstance(value, datetime):
@@ -143,12 +143,19 @@ class GenericTableDataView(BaseDatatableView):
                   data = escape(value)
               item_data.append(data)
             # handle addresses
-            elif column.name.startswith('address_') and not address_handled:
-              # append address string once
-              # instead of appending individual strings for all address related values
-              data = self.model.objects.get(pk=item_pk).address()
-              address_handled = True
-              item_data.append(data)
+            elif column.name.startswith('address_'):
+              if not address_handled:
+                # append address string once
+                # instead of appending individual strings for all address related values
+                item_data.append(item.address())
+                address_handled = True
+            # handle DMS links
+            elif column.name.startswith('dms_'):
+              if not dms_handled:
+                # append DMS link once
+                # instead of appending individual strings and/or URL for all DMS related values
+                item_data.append(item.dms())
+                dms_handled = True
         # object class organization:
         # add column which lists contact(s)
         if issubclass(self.model, Organization):
@@ -308,19 +315,27 @@ class GenericTableDataView(BaseDatatableView):
       # careful here!
       # use the same clauses as in prepare_results() above since otherwise,
       # the wrong order columns could be chosen
-      address_handled = False
+      address_handled, dms_handled = False, False
       for column in self.columns:
         # handle included fields only!
         if column.name not in self.model.BasemodelMeta.table_exclusion_fields:
           # ordinary columns
-          if not column.name.startswith('address_'):
+          if not column.name.startswith('address_') and not column.name.startswith('dms_'):
             column_names.append(column.name)
           # handle addresses
-          elif column.name.startswith('address_') and not address_handled:
-            # append one column for address string
-            # instead of appending individual columns for all address related values
-            column_names.append(column.name)
-            address_handled = True
+          elif column.name.startswith('address_'):
+            if not address_handled:
+              # append one column for address string
+              # instead of appending individual columns for all address related values
+              column_names.append(column.name)
+              address_handled = True
+          # handle DMS links
+          elif column.name.startswith('dms_'):
+            if not dms_handled:
+              # append one column for DMS link
+              # instead of appending individual columns for all DMS related values
+              column_names.append(column.name)
+              dms_handled = True
       column_name = column_names[int(order_column)]
       directory = '-' if order_dir is not None and order_dir == 'desc' else ''
       return qs.order_by(directory + column_name)

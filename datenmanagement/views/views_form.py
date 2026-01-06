@@ -13,6 +13,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
+from d3.utils import generiere_link_zu_kennzeichen, lade_d3_session_id
+from d3.views.views_process import D3ContextMixin
 from datenmanagement.utils import (
   get_field_name_for_address_type,
   get_thumb_url,
@@ -161,8 +163,14 @@ class DataAddView(CreateView):
       self.request.session['object_just_created_pk'] = str(object_just_created.pk)
       self.request.session['original_url_back'] = form.data.get('original_url_back', None)
     success(self.request, 'neuer Datensatz erfolgreich angelegt')
-    response = super().form_valid(form)
-    return response
+    curr_object = form.save()
+    curr_object.save()
+    # set corresponding d.3 link URL to d.3 link
+    if hasattr(self.request, 'session') and lade_d3_session_id(self.request) is not None:
+      if hasattr(self.model, 'd3') and hasattr(self.model, 'd3_link'):
+        if curr_object.d3:
+          curr_object.d3_link = generiere_link_zu_kennzeichen(self.request, curr_object.d3)
+    return super().form_valid(form)
 
   def form_invalid(self, form, **kwargs):
     """
@@ -423,6 +431,8 @@ class DataChangeView(UpdateView):
     :param form: form
     :return: HTTP response if passed form is valid
     """
+    # temporarily keep original object
+    original_object = self.get_object()
     form.instance.user = self.request.user
     # return to either the original referer or a default page
     referer = form.data.get('original_url_back', None)
@@ -435,8 +445,16 @@ class DataChangeView(UpdateView):
       self.request,
       'Datensatz <strong><em>%s</em></strong> erfolgreich geändert' % str(form.instance),
     )
-    response = super().form_valid(form)
-    return response
+    curr_object = form.save()
+    curr_object.save()
+    # set corresponding d.3 link URL to d.3 link
+    if hasattr(self.request, 'session') and lade_d3_session_id(self.request) is not None:
+      if hasattr(self.model, 'd3') and hasattr(self.model, 'd3_link'):
+        if curr_object.d3 and curr_object.d3 != original_object.d3:
+          curr_object.d3_link = generiere_link_zu_kennzeichen(self.request, curr_object.d3)
+        elif not curr_object.d3:
+          curr_object.d3_link = None
+    return super().form_valid(form)
 
   def form_invalid(self, form, **kwargs):
     """

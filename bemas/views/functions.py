@@ -121,19 +121,25 @@ def add_table_context_elements(context, model, kwargs=None):
   """
   context['objects_count'] = get_model_objects(model, True, kwargs)
   column_titles = []
-  address_handled = False
+  address_handled, dms_handled = False, False
   for field in model._meta.fields:
     # handle included fields only!
     if field.name not in model.BasemodelMeta.table_exclusion_fields:
-      # ordinary columns
-      if not field.name.startswith('address_'):
-        column_titles.append('Zeitpunkt' if field.name == 'created_at' else field.verbose_name)
       # handle addresses
-      elif field.name.startswith('address_') and not address_handled:
-        # append one column for address string
-        # instead of appending individual columns for all address related values
+      if field.name.startswith('address_') and not address_handled:
+        # append one column title for address string
+        # instead of appending individual column titles for all address related values
         column_titles.append('Anschrift')
         address_handled = True
+      # handle DMS links
+      elif field.name.startswith('dms_') and not dms_handled:
+        # append one column title for DMS link
+        # instead of appending individual column titles for all DMS related values
+        column_titles.append('d.3')
+        dms_handled = True
+      # ordinary columns
+      elif not field.name.startswith('address_') and not field.name.startswith('dms_'):
+        column_titles.append('Zeitpunkt' if field.name == 'created_at' else field.verbose_name)
   context['column_titles'] = column_titles
   # determine initial order
   initial_order = []

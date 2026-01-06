@@ -49,6 +49,22 @@ def concat_address(street=None, house_number=None, postal_code=None, place=None)
     return None
 
 
+def create_dms_link(dms_link=None, dms_link_url=None):
+  """
+  creates HTML link element out of passed DMS link attributes and returns it
+
+  :param dms_link: DMS link text
+  :param dms_link_url: DMS link URL
+  :return: HTML link element, created out of passed DMS link attributes
+  """
+  if dms_link and dms_link_url:
+    return '<a href="{0}" target="_blank" title="in d.3 öffnen">{1}</a>'.format(
+      dms_link_url, dms_link
+    )
+  else:
+    return None
+
+
 def find_in_wfs_features(string, search_element, wfs_features):
   """
   returns true if passed search string is found in passed search element of passed WFS features

@@ -4,7 +4,15 @@ from django.db.models import QuerySet
 
 from d3.api import D3Api, DateiInhalt, DmsObject
 from d3.models import Akte, AktenOrdner, AktenOrdnerOption, Metadaten, Vorgang, VorgangMetadaten
-from datenwerft.settings import D3_ENABLED, D3_REPOSITORY
+from datenwerft.settings import (
+  D3_AKTEN_RUBRIK,
+  D3_AKTEN_ZEICHEN_ID,
+  D3_ENABLED,
+  D3_HOST,
+  D3_REPOSITORY,
+  D3_VORGANG_RUBRIK,
+  D3_VORGANGS_ZEICHEN_ID,
+)
 
 
 def lade_d3_session_id(request) -> str | None:
@@ -241,6 +249,60 @@ def erstelle_vorgang(
   return api.erstelle_vorgang(
     D3_REPOSITORY, vorgang.akten.d3_id, vorgang.titel, vorgang.vorgangs_typ, properties
   )
+
+
+def suche_id_zu_kennzeichen(
+  request, rubrik_id: str, kennzeichen_key: str, kennzeichen: str
+) -> str | None:
+  """
+  Suche ID zu übergebenem Kennzeichen und gib diese zurück
+
+  Args:
+      request: Request welcher die User-Session beinhaltet
+      rubrik_id (str): ID der Rubrik
+      kennzeichen_key (str): Key des Kennzeichens
+      kennzeichen (str): gesuchtes Kennzeichen
+
+  Returns:
+      str | None: ID zu übergebenem Kennzeichen
+  """
+
+  api = lade_d3_api(request)
+  return api.suche_id_zu_kennzeichen(D3_REPOSITORY, rubrik_id, kennzeichen_key, kennzeichen)
+
+
+def generiere_link_zu_id(_id: str) -> str | None:
+  """
+  Generiere passenden Link zu übergebener ID und gib diesen zurück
+
+  Args:
+      _id (str): ID
+
+  Returns:
+      str | None: passender Link mit übergebener ID
+  """
+
+  return f'{D3_HOST}/dms/r/{D3_REPOSITORY}/o2/{_id}' if _id else None
+
+
+def generiere_link_zu_kennzeichen(request, kennzeichen: str) -> str | None:
+  """
+  Suche ID zu übergebenem Kennzeichen, generiere dazu den passenden Link und gib diesen dann zurück
+
+  Args:
+      request: Request welcher die User-Session beinhaltet
+      kennzeichen (str): gesuchtes Kennzeichen
+
+  Returns:
+      str | None: passender Link mit ID zu übergebenem Kennzeichen
+  """
+
+  # annehmen, das gesuchte Kennzeichen ist ein Vorgangszeichen
+  _id = suche_id_zu_kennzeichen(request, D3_VORGANG_RUBRIK, D3_VORGANGS_ZEICHEN_ID, kennzeichen)
+  # annehmen, das gesuchte Kennzeichen ist ein Aktenzeichen
+  if _id is None:
+    _id = suche_id_zu_kennzeichen(request, D3_AKTEN_RUBRIK, D3_AKTEN_ZEICHEN_ID, kennzeichen)
+  return generiere_link_zu_id(_id) if _id else None
 
 
 def lade_dokument(request, dokumenten_id: str) -> DmsObject:
