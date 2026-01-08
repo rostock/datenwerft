@@ -246,6 +246,14 @@ class Abstellflaechen_E_Tretroller(SimpleModel):
       ),
     ],
   )
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'abstellflaechen_e_tretroller'),
+    max_length=255,
+    blank=True,
+    null=True,
+  )
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
@@ -268,6 +276,7 @@ class Abstellflaechen_E_Tretroller(SimpleModel):
       'erstmarkierung': 'Erstmarkierung',
       'breite': 'Breite (in m)',
       'laenge': 'Länge (in m)',
+      'foto': 'Foto',
     }
     list_fields_with_decimal = ['breite', 'laenge']
     list_fields_with_foreign_key = {'strasse': 'strasse'}
@@ -285,6 +294,15 @@ class Abstellflaechen_E_Tretroller(SimpleModel):
 
   def __str__(self):
     return self.id
+
+
+pre_save.connect(set_pre_save_instance, sender=Abstellflaechen_E_Tretroller)
+
+post_save.connect(photo_post_processing, sender=Abstellflaechen_E_Tretroller)
+
+post_save.connect(delete_photo_after_emptied, sender=Abstellflaechen_E_Tretroller)
+
+post_delete.connect(delete_photo, sender=Abstellflaechen_E_Tretroller)
 
 
 class Anerkennungsgebuehren_herrschend(SimpleModel):
@@ -1929,6 +1947,14 @@ class Fahrradreparatursets(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_eigentuemer',
   )
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'fahrradreparatursets'),
+    max_length=255,
+    blank=True,
+    null=True,
+  )
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
@@ -1951,6 +1977,7 @@ class Fahrradreparatursets(SimpleModel):
       'lagebeschreibung': 'Lagebeschreibung',
       'baujahr': 'Baujahr',
       'eigentuemer': 'Eigentümer',
+      'foto': 'Foto',
     }
     list_fields_with_foreign_key = {
       'strasse': 'strasse',
@@ -1985,6 +2012,15 @@ class Fahrradreparatursets(SimpleModel):
 
   def __str__(self):
     return self.id
+
+
+pre_save.connect(set_pre_save_instance, sender=Fahrradreparatursets)
+
+post_save.connect(photo_post_processing, sender=Fahrradreparatursets)
+
+post_save.connect(delete_photo_after_emptied, sender=Fahrradreparatursets)
+
+post_delete.connect(delete_photo, sender=Fahrradreparatursets)
 
 
 class Fahrradstaender(SimpleModel):
@@ -2340,6 +2376,14 @@ class Fussgaengerueberwege(SimpleModel):
     verbose_name='Baujahr', min_value=1900, max_value=get_current_year(), blank=True, null=True
   )
   kreisverkehr = BooleanField(verbose_name='Kreisverkehr?', blank=True, null=True)
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'fussgaengerueberwege'),
+    max_length=255,
+    blank=True,
+    null=True,
+  )
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
@@ -2365,6 +2409,7 @@ class Fussgaengerueberwege(SimpleModel):
       'lagebeschreibung': 'Lagebeschreibung',
       'baujahr': 'Baujahr',
       'kreisverkehr': 'Kreisverkehr?',
+      'foto': 'Foto',
     }
     list_fields_with_decimal = ['breite', 'laenge']
     list_fields_with_foreign_key = {'strasse': 'strasse', 'beleuchtungsart': 'bezeichnung'}
@@ -2399,6 +2444,15 @@ class Fussgaengerueberwege(SimpleModel):
 
   def __str__(self):
     return self.id
+
+
+pre_save.connect(set_pre_save_instance, sender=Fussgaengerueberwege)
+
+post_save.connect(photo_post_processing, sender=Fussgaengerueberwege)
+
+post_save.connect(delete_photo_after_emptied, sender=Fussgaengerueberwege)
+
+post_delete.connect(delete_photo, sender=Fussgaengerueberwege)
 
 
 class Gemeinbedarfsflaechen(SimpleModel):

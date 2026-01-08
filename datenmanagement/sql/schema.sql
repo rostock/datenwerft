@@ -4107,7 +4107,8 @@ CREATE TABLE fachdaten_strassenbezug.abstellflaechen_e_tretroller_hro (
     erstmarkierung smallint NOT NULL,
     breite numeric(3,2) NOT NULL,
     laenge numeric(4,2) NOT NULL,
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    foto character varying(255)
 );
 
 
@@ -4252,7 +4253,8 @@ CREATE TABLE fachdaten_strassenbezug.fahrradreparatursets_hro (
     lagebeschreibung character varying(255),
     baujahr smallint,
     eigentuemer uuid NOT NULL,
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    foto character varying(255)
 );
 
 
@@ -4301,7 +4303,8 @@ CREATE TABLE fachdaten_strassenbezug.fussgaengerueberwege_hro (
     geometrie public.geometry(Point,25833) NOT NULL,
     lagebeschreibung character varying(255),
     baujahr smallint,
-    kreisverkehr boolean
+    kreisverkehr boolean,
+    foto character varying(255)
 );
 
 
@@ -7615,6 +7618,13 @@ CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_adres
 
 
 --
+-- Name: abstellflaechen_e_tretroller_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug.abstellflaechen_e_tretroller_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: fahrradabstellanlagen_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -7629,10 +7639,24 @@ CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug
 
 
 --
+-- Name: fahrradreparatursets_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug.fahrradreparatursets_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: fahrradstaender_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
 CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug.fahrradstaender_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: fussgaengerueberwege_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug.fussgaengerueberwege_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
 
 
 --
@@ -7720,6 +7744,13 @@ CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_strassenbezug.stra
 
 
 --
+-- Name: abstellflaechen_e_tretroller_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_strassenbezug.abstellflaechen_e_tretroller_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: fahrradabstellanlagen_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -7734,10 +7765,24 @@ CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_stras
 
 
 --
+-- Name: fahrradreparatursets_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_strassenbezug.fahrradreparatursets_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: fahrradstaender_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
 CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_strassenbezug.fahrradstaender_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: fussgaengerueberwege_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_strassenbezug.fussgaengerueberwege_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
 
 
 --
