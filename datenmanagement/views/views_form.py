@@ -175,15 +175,14 @@ class DataAddView(CreateView):
       self.request.session['object_just_created'] = str(object_just_created)
       self.request.session['object_just_created_pk'] = str(object_just_created.pk)
       self.request.session['original_url_back'] = form.data.get('original_url_back', None)
-    success(self.request, 'neuer Datensatz erfolgreich angelegt')
-    curr_object = form.save()
-    curr_object.save()
     # set corresponding d.3 link URL to d.3 link
     if hasattr(self.request, 'session') and lade_d3_session_id(self.request) is not None:
       if hasattr(self.model, 'd3') and hasattr(self.model, 'd3_link'):
-        if curr_object.d3:
-          curr_object.d3_link = generiere_link_zu_kennzeichen(self.request, curr_object.d3)
-    return super().form_valid(form)
+        if form.instance.d3:
+          form.instance.d3_link = generiere_link_zu_kennzeichen(self.request, form.instance.d3)
+    success(self.request, 'neuer Datensatz erfolgreich angelegt')
+    response = super().form_valid(form)
+    return response
 
   def form_invalid(self, form, **kwargs):
     """
@@ -464,6 +463,13 @@ class DataChangeView(D3ContextMixin, UpdateView):
     # temporarily keep original object
     original_object = self.get_object()
     form.instance.user = self.request.user
+    # set corresponding d.3 link URL to d.3 link
+    if hasattr(self.request, 'session') and lade_d3_session_id(self.request) is not None:
+      if hasattr(self.model, 'd3') and hasattr(self.model, 'd3_link'):
+        if form.instance.d3 and form.instance.d3 != original_object.d3:
+          form.instance.d3_link = generiere_link_zu_kennzeichen(self.request, form.instance.d3)
+        elif not form.instance.d3:
+          form.instance.d3_link = None
     # return to either the original referer or a default page
     referer = form.data.get('original_url_back', None)
     self.success_url = get_url_back(
@@ -475,16 +481,8 @@ class DataChangeView(D3ContextMixin, UpdateView):
       self.request,
       'Datensatz <strong><em>%s</em></strong> erfolgreich geändert' % str(form.instance),
     )
-    curr_object = form.save()
-    curr_object.save()
-    # set corresponding d.3 link URL to d.3 link
-    if hasattr(self.request, 'session') and lade_d3_session_id(self.request) is not None:
-      if hasattr(self.model, 'd3') and hasattr(self.model, 'd3_link'):
-        if curr_object.d3 and curr_object.d3 != original_object.d3:
-          curr_object.d3_link = generiere_link_zu_kennzeichen(self.request, curr_object.d3)
-        elif not curr_object.d3:
-          curr_object.d3_link = None
-    return super().form_valid(form)
+    response = super().form_valid(form)
+    return response
 
   def form_invalid(self, form, **kwargs):
     """
