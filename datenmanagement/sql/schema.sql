@@ -1182,6 +1182,18 @@ CREATE TABLE codelisten.kabeltypen_lichtwellenleiterinfrastruktur (
 
 
 --
+-- Name: kategorien_qualitaetsverbesserung; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.kategorien_qualitaetsverbesserung (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    kategorie character varying(255) NOT NULL
+);
+
+
+--
 -- Name: kategorien_strassen; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -2734,6 +2746,29 @@ CREATE TABLE fachdaten.meldedienst_flaechenhaft_hro (
     geometrie public.geometry(Polygon,25833) NOT NULL,
     bearbeitungsbeginn date,
     bearbeiter character varying(255)
+);
+
+
+--
+-- Name: meldedienst_qualitaetsverbesserung_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.meldedienst_qualitaetsverbesserung_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    kategorie uuid NOT NULL,
+    erfasser character varying(255) NOT NULL,
+    erfassungsdatum date NOT NULL,
+    lage character varying(255),
+    bemerkungen character varying(255),
+    bearbeiter character varying(255),
+    bearbeitungsbeginn date,
+    geometrie public.geometry(Polygon,25833) NOT NULL
 );
 
 
@@ -5504,6 +5539,22 @@ ALTER TABLE ONLY codelisten.kabeltypen_lichtwellenleiterinfrastruktur
 
 
 --
+-- Name: kategorien_qualitaetsverbesserung kategorien_qualitaetsverbesserung_kategorie_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.kategorien_qualitaetsverbesserung
+    ADD CONSTRAINT kategorien_qualitaetsverbesserung_kategorie_unique UNIQUE (kategorie);
+
+
+--
+-- Name: kategorien_qualitaetsverbesserung kategorien_qualitaetsverbesserung_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.kategorien_qualitaetsverbesserung
+    ADD CONSTRAINT kategorien_qualitaetsverbesserung_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: kategorien_strassen kategorien_strassen_code_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -6749,6 +6800,14 @@ ALTER TABLE ONLY fachdaten.lichtwellenleiterinfrastruktur_hro
 
 ALTER TABLE ONLY fachdaten.meldedienst_flaechenhaft_hro
     ADD CONSTRAINT meldedienst_flaechenhaft_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: meldedienst_qualitaetsverbesserung_hro meldedienst_qualitaetsverbesserung_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.meldedienst_qualitaetsverbesserung_hro
+    ADD CONSTRAINT meldedienst_qualitaetsverbesserung_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -8355,6 +8414,14 @@ ALTER TABLE ONLY fachdaten.lichtwellenleiterinfrastruktur_hro
 
 ALTER TABLE ONLY fachdaten.meldedienst_flaechenhaft_hro
     ADD CONSTRAINT meldedienst_flaechenhaft_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_meldedienst_flaechenhaft(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: meldedienst_qualitaetsverbesserung_hro meldedienst_qualitaetsverbesserung_hro_kategorien_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.meldedienst_qualitaetsverbesserung_hro
+    ADD CONSTRAINT meldedienst_qualitaetsverbesserung_hro_kategorien_fk FOREIGN KEY (kategorie) REFERENCES codelisten.kategorien_qualitaetsverbesserung(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

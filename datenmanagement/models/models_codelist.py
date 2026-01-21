@@ -22,6 +22,7 @@ from .base import (
   Befestigungsart,
   Codelist,
   Hersteller,
+  Kategorie,
   Material,
   Metamodel,
   Schlagwort,
@@ -1678,6 +1679,20 @@ class Kabeltypen_Lichtwellenleiterinfrastruktur(Codelist):
 
   def __str__(self):
     return self.kabeltyp
+
+
+class Kategorien_Qualitaetsverbesserung(Kategorie):
+  """
+  Kategorien der Qualitätsverbesserung Liegenschaftskataster
+  """
+
+  class Meta(Kategorie.Meta):
+    db_table = 'codelisten"."kategorien_qualitaetsverbesserung'
+    verbose_name = 'Kategorie einer Qualitätsverbesserung Liegenschaftskataster'
+    verbose_name_plural = 'Kategorien der Qualitätsverbesserung Liegenschaftskataster'
+
+  class BasemodelMeta(Kategorie.BasemodelMeta):
+    description = 'Kategorien der Qualitätsverbesserung Liegenschaftskataster'
 
 
 class Kategorien_Strassen(Codelist):
