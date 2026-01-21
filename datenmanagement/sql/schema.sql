@@ -116,7 +116,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -2762,6 +2762,7 @@ CREATE TABLE fachdaten.meldedienst_qualitaetsverbesserung_hro (
     aktiv boolean DEFAULT true NOT NULL,
     deaktiviert date,
     kategorie uuid NOT NULL,
+    auftragsnummer_georg character varying(8),
     erfasser character varying(255) NOT NULL,
     erfassungsdatum date NOT NULL,
     lage character varying(255),

@@ -4287,6 +4287,15 @@ class Meldedienst_Qualitaetsverbesserung(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_kategorien',
   )
+  auftragsnummer_georg = CharField(
+    verbose_name='Auftragsnummer GEORG',
+    max_length=8,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(regex=auftragsnummer_georg_regex, message=auftragsnummer_georg_message)
+    ],
+  )
   erfasser = CharField(verbose_name='Erfasser:in', max_length=255, validators=standard_validators)
   erfassungsdatum = DateField(verbose_name='Erfassungsdatum', default=date.today)
   lage = CharField(
@@ -4319,13 +4328,16 @@ class Meldedienst_Qualitaetsverbesserung(SimpleModel):
     verbose_name_plural = 'Meldedienst (Qualitätsverbesserung Liegenschaftskataster)'
 
   class BasemodelMeta(SimpleModel.BasemodelMeta):
-    description = ('Meldedienst (Qualitätsverbesserung Liegenschaftskataster)'
-                   'der Hanse- und Universitätsstadt Rostock')
+    description = (
+      'Meldedienst (Qualitätsverbesserung Liegenschaftskataster)'
+      'der Hanse- und Universitätsstadt Rostock'
+    )
     group_with_users_for_choice_field = 'datenmanagement_meldedienst_qualitaetsverbesserung_full'
     geometry_type = 'Polygon'
     list_fields = {
       'aktiv': 'aktiv?',
       'kategorie': 'Kategorie',
+      'auftragsnummer_georg': 'Auftragsnummer GEORG',
       'erfasser': 'Erfasser:in',
       'erfassungsdatum': 'Erfassungsdatum',
       'lage': 'Lage',
@@ -4339,6 +4351,7 @@ class Meldedienst_Qualitaetsverbesserung(SimpleModel):
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'kategorie': 'Kategorie',
+      'auftragsnummer_georg': 'Auftragsnummer GEORG',
       'erfasser': 'Erfasser:in',
       'erfassungsdatum': 'Erfassungsdatum',
       'lage': 'Lage',
