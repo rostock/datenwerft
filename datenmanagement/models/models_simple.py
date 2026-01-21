@@ -4274,6 +4274,102 @@ class Meldedienst_punkthaft(SimpleModel):
     )
 
 
+class Meldedienst_Qualitaetsverbesserung(SimpleModel):
+  """
+  Meldedienst (Qualitätsverbesserung Liegenschaftskataster)
+  """
+
+  kategorie = ForeignKey(
+    to=Kategorien_Qualitaetsverbesserung,
+    verbose_name='Kategorie',
+    on_delete=RESTRICT,
+    db_column='kategorie',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_kategorien',
+  )
+  auftragsnummer_georg = CharField(
+    verbose_name='Auftragsnummer GEORG',
+    max_length=8,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(regex=auftragsnummer_georg_regex, message=auftragsnummer_georg_message)
+    ],
+  )
+  erfasser = CharField(verbose_name='Erfasser:in', max_length=255, validators=standard_validators)
+  erfassungsdatum = DateField(verbose_name='Erfassungsdatum', default=date.today)
+  lage = CharField(
+    verbose_name='Lage',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  bemerkungen = CharField(
+    verbose_name='Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  bearbeiter = CharField(
+    verbose_name='Bearbeiter:in',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  bearbeitungsbeginn = DateField(verbose_name='Bearbeitungsbeginn', blank=True, null=True)
+  geometrie = polygon_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten"."meldedienst_qualitaetsverbesserung_hro'
+    verbose_name = 'Meldedienst (Qualitätsverbesserung Liegenschaftskataster)'
+    verbose_name_plural = 'Meldedienst (Qualitätsverbesserung Liegenschaftskataster)'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = (
+      'Meldedienst (Qualitätsverbesserung Liegenschaftskataster)'
+      'der Hanse- und Universitätsstadt Rostock'
+    )
+    group_with_users_for_choice_field = 'datenmanagement_meldedienst_qualitaetsverbesserung_full'
+    geometry_type = 'Polygon'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'kategorie': 'Kategorie',
+      'auftragsnummer_georg': 'Auftragsnummer GEORG',
+      'erfasser': 'Erfasser:in',
+      'erfassungsdatum': 'Erfassungsdatum',
+      'lage': 'Lage',
+      'bemerkungen': 'Bemerkungen',
+      'bearbeiter': 'Bearbeiter:in',
+      'bearbeitungsbeginn': 'Bearbeitungsbeginn',
+    }
+    list_fields_with_date = ['erfassungsdatum', 'bearbeitungsbeginn']
+    list_fields_with_foreign_key = {'kategorie': 'kategorie'}
+    map_feature_tooltip_fields = ['kategorie']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'kategorie': 'Kategorie',
+      'auftragsnummer_georg': 'Auftragsnummer GEORG',
+      'erfasser': 'Erfasser:in',
+      'erfassungsdatum': 'Erfassungsdatum',
+      'lage': 'Lage',
+      'bemerkungen': 'Bemerkungen',
+      'bearbeiter': 'Bearbeiter:in',
+      'bearbeitungsbeginn': 'Bearbeitungsbeginn',
+    }
+    map_filter_fields_as_list = ['kategorie']
+
+  def __str__(self):
+    return (
+      str(self.kategorie)
+      + ' [Erfassungsdatum: '
+      + datetime.strptime(str(self.erfassungsdatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+      + ']'
+    )
+
+
 class Mobilfunkantennen(SimpleModel):
   """
   Mobilfunkantennen

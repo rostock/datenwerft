@@ -386,6 +386,29 @@ class Hersteller(Codelist):
     return self.bezeichnung
 
 
+class Kategorie(Codelist):
+  """
+  abstract model class for 'Kategorie' codelists
+  """
+
+  kategorie = CharField(
+    verbose_name='Kategorie',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
+  )
+
+  class Meta(Codelist.Meta):
+    abstract: bool = True
+    ordering: list[str] = ['kategorie']
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    list_fields: dict[str, str] = {'kategorie': 'Kategorie'}
+
+  def __str__(self):
+    return self.kategorie
+
+
 class Material(Codelist):
   """
   abstract model class for 'Material' codelists
