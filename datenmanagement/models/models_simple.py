@@ -4289,7 +4289,7 @@ class Meldedienst_Qualitaetsverbesserung(SimpleModel):
   )
   auftragsnummer_georg = CharField(
     verbose_name='Auftragsnummer GEORG',
-    max_length=8,
+    max_length=9,
     blank=True,
     null=True,
     validators=[
