@@ -42,11 +42,11 @@ apostroph_message = (
   'Stattdessen muss der typographisch korrekte Apostroph'
   '(’) verwendet werden.'
 )
-auftragsnummer_georg_regex = r'^[0-9]{2}[A-Z]{1,3}[0-9]{3}$'
+auftragsnummer_georg_regex = r'^[0-9]{2}[A-Z]{1,3}[0-9]{3,4}$'
 auftragsnummer_georg_message = (
   'Die <strong><em>Auftragsnummer GEORG</em></strong> '
   'muss aus genau zwei Ziffern, gefolgt von einem, zwei oder drei '
-  'Großbuchstaben, und abermals genau drei Ziffern bestehen.'
+  'Großbuchstaben, sowie drei oder vier Ziffern bestehen.'
 )
 bindestrich_leerzeichen_regex = r'^(?!.*- ).*$'
 bindestrich_leerzeichen_message = 'Im Text darf nach einem Bindestrich kein Leerzeichen stehen.'
