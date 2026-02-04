@@ -3100,11 +3100,16 @@ post_delete.connect(delete_photo, sender=Parkscheinautomaten_Parkscheinautomaten
 
 
 #
-# Punktwolken-Projekte (besteht aus mehreren Punktwolken)
+# Punktwolken
 #
 
 
 class Punktwolken_Projekte(ComplexModel):
+  """
+  Punktwolken:
+  Projekte
+  """
+
   bezeichnung = CharField(
     verbose_name='Bezeichnung',
     max_length=255,
@@ -3228,12 +3233,12 @@ class Punktwolken_Projekte(ComplexModel):
       super().delete(using=using, keep_parents=keep_parents)
 
 
-#
-# Punktwolken (Punktwolken Dateien)
-#
-
-
 class Punktwolken(ComplexModel):
+  """
+  Punktwolken:
+  Dateien
+  """
+
   dateiname = CharField(verbose_name='Dateiname', max_length=255)
   aufnahme = DateTimeField(
     verbose_name='Aufnahmezeitpunkt', auto_now_add=True, blank=True, null=True
@@ -3369,6 +3374,155 @@ class Punktwolken(ComplexModel):
 
 
 post_delete.connect(delete_pointcloud, sender=Punktwolken)
+
+
+#
+# Radwegweisung
+#
+
+
+class Radwegweisung_Knoten(ComplexModel):
+  """
+  Radwegweisung:
+  Knoten
+  """
+
+  netz = ForeignKey(
+    to=Netze_Radwegweisung,
+    verbose_name='Netz',
+    on_delete=RESTRICT,
+    db_column='netz',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_netze',
+  )
+  nummer = CharField(verbose_name='Nummer', max_length=255, validators=standard_validators)
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung', max_length=255, validators=standard_validators
+  )
+  geometrie = point_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten"."radwegweisung_knoten_hro'
+    ordering = ['nummer']
+    verbose_name = 'Knoten einer Radwegweisung'
+    verbose_name_plural = 'Knoten der Radwegweisung'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Knoten der Radwegweisung in der Hanse- und Universitätsstadt Rostock'
+    associated_models = {'Radwegweisung_Beschilderung': 'knoten'}
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'netz': 'Netz',
+      'nummer': 'Nummer',
+      'bezeichnung': 'Bezeichnung',
+    }
+    list_fields_with_foreign_key = {'netz': 'bezeichnung'}
+    list_actions_assign = [
+      {
+        'action_name': 'radwegweisung_knoten-netz',
+        'action_title': 'ausgewählten Datensätzen Netz direkt zuweisen',
+        'field': 'netz',
+        'type': 'foreignkey',
+      }
+    ]
+    map_feature_tooltip_fields = ['nummer']
+    map_filter_fields = {
+      'netz': 'Netz',
+      'nummer': 'Nummer',
+      'bezeichnung': 'Bezeichnung',
+    }
+    map_filter_fields_as_list = ['netz']
+
+  def __str__(self):
+    return self.nummer
+
+
+class Radwegweisung_Beschilderung(ComplexModel):
+  """
+  Radwegweisung:
+  Beschilderung
+  """
+
+  knoten = ForeignKey(
+    to=Radwegweisung_Knoten,
+    verbose_name='Knoten',
+    on_delete=CASCADE,
+    db_column='knoten',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_knoten',
+  )
+  beschilderungsart = ForeignKey(
+    to=Arten_Beschilderung_Radwegweisung,
+    verbose_name='Beschilderungsart',
+    on_delete=RESTRICT,
+    db_column='beschilderungsart',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_beschilderungsarten',
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  foto = ImageField(
+    verbose_name='Foto(s)',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'radwegweisung_beschilderung'),
+    max_length=255,
+    blank=True,
+    null=True,
+  )
+  geometrie = point_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten"."radwegweisung_beschilderung_hro'
+    verbose_name = 'Beschilderung einer Radwegweisung'
+    verbose_name_plural = 'Beschilderung der Radwegweisung'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Beschilderung der Radwegweisung in der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Beschilderung'
+    as_overlay = False
+    fields_with_foreign_key_to_linkify = ['knoten']
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'knoten': 'Knoten',
+      'beschilderungsart': 'Beschilderungsart',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'foto': 'Foto',
+    }
+    list_fields_with_foreign_key = {
+      'knoten': 'nummer',
+      'beschilderungsart': 'art',
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'radwegweisung_beschilderung-beschilderungsart',
+        'action_title': 'ausgewählten Datensätzen Beschilderungsart direkt zuweisen',
+        'field': 'beschilderungsart',
+        'type': 'foreignkey',
+      }
+    ]
+    map_feature_tooltip_fields = ['knoten', 'beschilderungsart']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'knoten': 'Knoten',
+      'beschilderungsart': 'Beschilderungsart',
+      'lagebeschreibung': 'Lagebeschreibung',
+    }
+    map_filter_fields_as_list = ['knoten', 'beschilderungsart']
+
+  def __str__(self):
+    return str(self.knoten) + ' mit Beschilderungsart ' + str(self.beschilderungsart)
+
+
+post_save.connect(photo_post_processing, sender=Radwegweisung_Beschilderung)
+
+post_delete.connect(delete_photo, sender=Radwegweisung_Beschilderung)
 
 
 class RSAG_Gleise(ComplexModel):

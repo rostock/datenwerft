@@ -5662,58 +5662,9 @@ class ParkscheinautomatenParkscheinautomatenTest(DefaultComplexModelTestCase):
     )
 
 
-@override_settings(
-  PC_MEDIA_ROOT=TEST_PC_MEDIA_DIR,
-  VCP_API_URL=TEST_VCP_API_URL,
-  CELERY_BROKER_URL=TEST_CELERY_BROKER_URL,
-  CELERY_RESULT_BACKEND=TEST_CELERY_RESULT_BACKEND,
-)
-class PunktwolkenTest(DefaultComplexModelTestCase):
-  """
-  Punktwolken Projekte:
-  Punktwolken Tests
-  """
-
-  model = Punktwolken
-  create_test_object_in_classmethod = False
-  create_test_sebset_in_classmethod = False
-
-  @classmethod
-  def setUpTestData(cls):
-    super().setUpTestData()
-    punktwolken_projekt = Punktwolken_Projekte.objects.create(
-      bezeichnung='Test-Projekt', beschreibung='Beschreibung des Test-Projekts'
-    )
-    with Path(VALID_POINTCLOUD_FILE).open('rb') as f:
-      valid_pointcloud_file_content = f.read()
-    punktwolke = SimpleUploadedFile(name='las_valid.las', content=valid_pointcloud_file_content)
-    cls.attributes_values_db_initial = {
-      'projekt': punktwolken_projekt,
-      'dateiname': punktwolke.name,
-      'punktwolke': punktwolke,
-      'geometrie': VALID_POLYGON_DB,
-      'file_size': 2000,
-    }
-    cls.attributes_values_db_initial_cleaned = remove_file_attributes_from_object_filter(
-      cls.attributes_values_db_initial.copy()
-    )
-    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
-    cls.test_subset = create_test_subset(cls.model, cls.test_object)
-
-  def setUp(self):
-    self.init()
-
-  def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test()
-    remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
-
-  def test_create(self):
-    self.generic_create_test(self.model, self.attributes_values_db_initial_cleaned)
-    remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
-
-  def test_delete(self):
-    self.generic_delete_test(self.model)
-    remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
+#
+# Punktwolken
+#
 
 
 @override_settings(
@@ -5724,8 +5675,8 @@ class PunktwolkenTest(DefaultComplexModelTestCase):
 )
 class PunktwolkenProjekteTest(DefaultComplexModelTestCase):
   """
-  Punktwolken Projekte:
-  Punktwolken Projekte Tests
+  Punktwolken:
+  Projekte
   """
 
   model = Punktwolken_Projekte
@@ -5809,6 +5760,524 @@ class PunktwolkenProjekteTest(DefaultComplexModelTestCase):
       200,
       'text/html; charset=utf-8',
       MAP_VIEW_STRING,
+    )
+
+
+@override_settings(
+  PC_MEDIA_ROOT=TEST_PC_MEDIA_DIR,
+  VCP_API_URL=TEST_VCP_API_URL,
+  CELERY_BROKER_URL=TEST_CELERY_BROKER_URL,
+  CELERY_RESULT_BACKEND=TEST_CELERY_RESULT_BACKEND,
+)
+class PunktwolkenTest(DefaultComplexModelTestCase):
+  """
+  Punktwolken:
+  Dateien
+  """
+
+  model = Punktwolken
+  create_test_object_in_classmethod = False
+  create_test_sebset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    punktwolken_projekt = Punktwolken_Projekte.objects.create(
+      bezeichnung='Test-Projekt', beschreibung='Beschreibung des Test-Projekts'
+    )
+    with Path(VALID_POINTCLOUD_FILE).open('rb') as f:
+      valid_pointcloud_file_content = f.read()
+    punktwolke = SimpleUploadedFile(name='las_valid.las', content=valid_pointcloud_file_content)
+    cls.attributes_values_db_initial = {
+      'projekt': punktwolken_projekt,
+      'dateiname': punktwolke.name,
+      'punktwolke': punktwolke,
+      'geometrie': VALID_POLYGON_DB,
+      'file_size': 2000,
+    }
+    cls.attributes_values_db_initial_cleaned = remove_file_attributes_from_object_filter(
+      cls.attributes_values_db_initial.copy()
+    )
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
+
+  def setUp(self):
+    self.init()
+
+  def test_is_complexmodel(self):
+    self.generic_is_complexmodel_test()
+    remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial_cleaned)
+    remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+    remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
+
+
+#
+# Radwegweisung
+#
+
+
+class RadwegweisungKnotenTest(DefaultComplexModelTestCase):
+  """
+  Radwegweisung:
+  Knoten
+  """
+
+  model = Radwegweisung_Knoten
+  create_test_object_in_classmethod = False
+  create_test_subset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    netz1 = Netze_Radwegweisung.objects.create(
+      bezeichnung='Bezeichnung1'
+    )
+    netz2 = Netze_Radwegweisung.objects.create(
+      bezeichnung='Bezeichnung2'
+    )
+    cls.netz2 = netz2
+    cls.attributes_values_db_initial = {
+      'netz': netz1,
+      'nummer': 'Nummer1',
+      'bezeichnung': 'Bezeichnung1',
+      'geometrie': VALID_POINT_DB,
+    }
+    cls.attributes_values_db_updated = {
+      'netz': netz2,
+      'nummer': 'Nummer2',
+      'bezeichnung': 'Bezeichnung2',
+    }
+    cls.attributes_values_db_assigned_netz = {'netz': netz2}
+    cls.attributes_values_view_initial = {
+      'aktiv': True,
+      'netz': str(netz1.pk),
+      'nummer': 'Nummer3',
+      'bezeichnung': 'Bezeichnung3',
+      'geometrie': VALID_POINT_VIEW,
+    }
+    cls.attributes_values_view_updated = {
+      'aktiv': True,
+      'netz': str(netz2.pk),
+      'nummer': 'Nummer4',
+      'bezeichnung': 'Bezeichnung4',
+      'geometrie': VALID_POINT_VIEW,
+    }
+    cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
+
+  def setUp(self):
+    self.init()
+
+  def test_is_complexmodel(self):
+    self.generic_is_complexmodel_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING,
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_list_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_data_subset(self):
+    data_subset_view_params = DATA_VIEW_PARAMS.copy()
+    data_subset_view_params['subset_id'] = self.test_subset.pk
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data_subset',
+      data_subset_view_params,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_map(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING,
+    )
+
+  def test_view_map_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING,
+    )
+
+  def test_view_mapdata(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_mapdata_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+    )
+
+  def test_view_assign_netz(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_netz,
+      'netz',
+      str(self.netz2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1,
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+    )
+
+  def test_view_geometry(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_geometry_pk(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {'pk': str(self.test_object.pk)},
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_geometry_lat_lng(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      GEOMETRY_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+
+class RadwegweisungBeschilderungTest(DefaultComplexModelTestCase):
+  """
+  Radwegweisung:
+  Beschilderung
+  """
+
+  model = Radwegweisung_Beschilderung
+  create_test_object_in_classmethod = False
+  create_test_subset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    netz = Netze_Radwegweisung.objects.create(
+      bezeichnung='Bezeichnung'
+    )
+    knoten = Radwegweisung_Knoten.objects.create(
+      netz=netz,
+      nummer='Nummer',
+      bezeichnung='Bezeichnung',
+      geometrie=VALID_POINT_DB,
+    )
+    beschilderungsart1 = Arten_Beschilderung_Radwegweisung.objects.create(art='Art1')
+    beschilderungsart2 = Arten_Beschilderung_Radwegweisung.objects.create(art='Art2')
+    cls.beschilderungsart2 = beschilderungsart2
+    cls.attributes_values_db_initial = {
+      'knoten': knoten,
+      'beschilderungsart': beschilderungsart1,
+      'geometrie': VALID_POINT_DB,
+    }
+    cls.attributes_values_db_updated = {'lagebeschreibung': 'Lagebeschreibung'}
+    cls.attributes_values_db_assigned_beschilderungsart = {'beschilderungsart': beschilderungsart2}
+    cls.attributes_values_view_initial = {
+      'aktiv': True,
+      'knoten': str(knoten.pk),
+      'beschilderungsart': str(beschilderungsart1.pk),
+      'geometrie': VALID_POINT_VIEW,
+    }
+    cls.attributes_values_view_updated = {
+      'aktiv': True,
+      'knoten': str(knoten.pk),
+      'beschilderungsart': str(beschilderungsart1.pk),
+      'lagebeschreibung': 'Lagebeschreibung',
+      'geometrie': VALID_POINT_VIEW,
+    }
+    cls.attributes_values_view_invalid = {'lagebeschreibung': INVALID_STRING}
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
+
+  def setUp(self):
+    self.init()
+
+  def test_is_complexmodel(self):
+    self.generic_is_complexmodel_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING,
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_list_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_data_subset(self):
+    data_subset_view_params = DATA_VIEW_PARAMS.copy()
+    data_subset_view_params['subset_id'] = self.test_subset.pk
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data_subset',
+      data_subset_view_params,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_map(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING,
+    )
+
+  def test_view_map_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING,
+    )
+
+  def test_view_mapdata(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_mapdata_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+    )
+
+  def test_view_assign_beschilderungsart(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_beschilderungsart,
+      'beschilderungsart',
+      str(self.beschilderungsart2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1,
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+    )
+
+  def test_view_geometry(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_geometry_pk(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {'pk': str(self.test_object.pk)},
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_geometry_lat_lng(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      GEOMETRY_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
     )
 
 
