@@ -465,6 +465,18 @@ CREATE TABLE codelisten.arten_adressunsicherheiten (
 
 
 --
+-- Name: arten_beschilderung_radwegweisung; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.arten_beschilderung_radwegweisung (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art character varying(255) NOT NULL
+);
+
+
+--
 -- Name: arten_brunnen; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1318,6 +1330,18 @@ CREATE TABLE codelisten.materialien_durchlaesse (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     material character varying(255) NOT NULL
+);
+
+
+--
+-- Name: netze_radwegweisung; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.netze_radwegweisung (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -2762,14 +2786,14 @@ CREATE TABLE fachdaten.meldedienst_qualitaetsverbesserung_hro (
     aktiv boolean DEFAULT true NOT NULL,
     deaktiviert date,
     kategorie uuid NOT NULL,
-    auftragsnummer_georg character varying(8),
     erfasser character varying(255) NOT NULL,
     erfassungsdatum date NOT NULL,
     lage character varying(255),
     bemerkungen character varying(255),
     bearbeiter character varying(255),
     bearbeitungsbeginn date,
-    geometrie public.geometry(Polygon,25833) NOT NULL
+    geometrie public.geometry(Polygon,25833) NOT NULL,
+    auftragsnummer_georg character varying(9)
 );
 
 
@@ -2890,6 +2914,45 @@ CREATE TABLE fachdaten.punktwolken_projekte (
     vcp_dataset_bucket_id uuid,
     vcp_datasource_id character varying(255),
     geometrie public.geometry(MultiPolygon,25833)
+);
+
+
+--
+-- Name: radwegweisung_beschilderung_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.radwegweisung_beschilderung_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    knoten uuid NOT NULL,
+    beschilderungsart uuid NOT NULL,
+    lagebeschreibung character varying(255),
+    foto character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
+-- Name: radwegweisung_knoten_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.radwegweisung_knoten_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    netz uuid NOT NULL,
+    nummer character varying(255) NOT NULL,
+    bezeichnung character varying(255) NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
 );
 
 
@@ -4612,6 +4675,22 @@ ALTER TABLE ONLY codelisten.arten_adressunsicherheiten
 
 
 --
+-- Name: arten_beschilderung_radwegweisung arten_beschilderung_radwegweisung_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_beschilderung_radwegweisung
+    ADD CONSTRAINT arten_beschilderung_radwegweisung_art_unique UNIQUE (art);
+
+
+--
+-- Name: arten_beschilderung_radwegweisung arten_beschilderung_radwegweisung_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_beschilderung_radwegweisung
+    ADD CONSTRAINT arten_beschilderung_radwegweisung_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: arten_brunnen arten_brunnen_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -5705,6 +5784,22 @@ ALTER TABLE ONLY codelisten.materialien_durchlaesse
 
 ALTER TABLE ONLY codelisten.materialien_durchlaesse
     ADD CONSTRAINT materialien_durchlaesse_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: netze_radwegweisung netze_radwegweisung_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.netze_radwegweisung
+    ADD CONSTRAINT netze_radwegweisung_bezeichnung_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: netze_radwegweisung netze_radwegweisung_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.netze_radwegweisung
+    ADD CONSTRAINT netze_radwegweisung_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6860,6 +6955,30 @@ ALTER TABLE ONLY fachdaten.punktwolken_projekte
 
 
 --
+-- Name: radwegweisung_beschilderung_hro radwegweisung_beschilderung_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_beschilderung_hro
+    ADD CONSTRAINT radwegweisung_beschilderung_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: radwegweisung_knoten_hro radwegweisung_knoten_hro_nummer_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_knoten_hro
+    ADD CONSTRAINT radwegweisung_knoten_hro_nummer_unique UNIQUE (nummer);
+
+
+--
+-- Name: radwegweisung_knoten_hro radwegweisung_knoten_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_knoten_hro
+    ADD CONSTRAINT radwegweisung_knoten_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: reisebusparkplaetze_terminals_hro reisebusparkplaetze_terminals_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -7489,6 +7608,13 @@ CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.parkscheinaut
 
 
 --
+-- Name: radwegweisung_beschilderung_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.radwegweisung_beschilderung_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: sportanlagen_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
 --
 
@@ -7591,6 +7717,13 @@ CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten.gerae
 --
 
 CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten.parkscheinautomaten_parkscheinautomaten_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: radwegweisung_beschilderung_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten.radwegweisung_beschilderung_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
 
 
 --
@@ -8487,6 +8620,30 @@ ALTER TABLE ONLY fachdaten.parkscheinautomaten_tarife_hro
 
 ALTER TABLE ONLY fachdaten.punktwolken
     ADD CONSTRAINT punktwolken_punktwolken_projekte_fk FOREIGN KEY (punktwolken_projekte) REFERENCES fachdaten.punktwolken_projekte(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: radwegweisung_beschilderung_hro radwegweisung_beschilderung_hro_beschilderungsarten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_beschilderung_hro
+    ADD CONSTRAINT radwegweisung_beschilderung_hro_beschilderungsarten_fk FOREIGN KEY (beschilderungsart) REFERENCES codelisten.arten_beschilderung_radwegweisung(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: radwegweisung_beschilderung_hro radwegweisung_beschilderung_hro_knoten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_beschilderung_hro
+    ADD CONSTRAINT radwegweisung_beschilderung_hro_knoten_fk FOREIGN KEY (knoten) REFERENCES fachdaten.radwegweisung_knoten_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: radwegweisung_knoten_hro radwegweisung_knoten_hro_netze_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_knoten_hro
+    ADD CONSTRAINT radwegweisung_knoten_hro_netze_fk FOREIGN KEY (netz) REFERENCES codelisten.netze_radwegweisung(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

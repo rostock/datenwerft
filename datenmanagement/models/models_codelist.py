@@ -397,6 +397,20 @@ class Arten_Adressunsicherheiten(Art):
     description = 'Arten von Adressunsicherheiten'
 
 
+class Arten_Beschilderung_Radwegweisung(Art):
+  """
+  Arten von Beschilderung der Radwegweisung
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten"."arten_beschilderung_radwegweisung'
+    verbose_name = 'Art einer Beschilderung der Radwegweisung'
+    verbose_name_plural = 'Arten von Beschilderung der Radwegweisung'
+
+  class BasemodelMeta(Art.BasemodelMeta):
+    description = 'Arten von Beschilderung der Radwegweisung'
+
+
 class Arten_Brunnen(Art):
   """
   Arten von Brunnen
@@ -1982,6 +1996,32 @@ class Materialien_Durchlaesse(Material):
 
   class BasemodelMeta(Material.BasemodelMeta):
     description = 'Materialien von Durchlässen'
+
+
+class Netze_Radwegweisung(Codelist):
+  """
+  Netze der Radwegweisung
+  """
+
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten"."netze_radwegweisung'
+    ordering = ['bezeichnung']
+    verbose_name = 'Netz der Radwegweisung'
+    verbose_name_plural = 'Netze der Radwegweisung'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Netze der Radwegweisung'
+    list_fields = {'bezeichnung': 'Bezeichnung'}
+
+  def __str__(self):
+    return self.bezeichnung
 
 
 class Objektarten_Lichtwellenleiterinfrastruktur(Codelist):

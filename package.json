@@ -2,7 +2,7 @@
   "type": "module",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.1.0",
-    "@geoman-io/leaflet-geoman-free": "^2.19.0",
+    "@geoman-io/leaflet-geoman-free": "^2.19.2",
     "bootstrap": "^5.3.8",
     "jquery": "^3.7.1",
     "leaflet.locatecontrol": "^0.85.1",
@@ -22,9 +22,9 @@
     "@eslint/js": "^9.39.1",
     "eslint": "^9.39.2",
     "eslint-plugin-html": "^8.1.4",
-    "eslint-plugin-oxlint": "^1.42.0",
+    "eslint-plugin-oxlint": "^1.43.0",
     "globals": "^16.5.0",
-    "oxlint": "^1.42.0",
+    "oxlint": "^1.43.0",
     "stylelint": "^16.26.1"
   }
 }
