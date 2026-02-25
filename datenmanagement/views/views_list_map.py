@@ -385,7 +385,11 @@ class TableDataCompositionView(BaseDatatableView):
           and column == self.additional_foreign_key_column['insert_after_field']
           and self.additional_foreign_key_column['source_field']
         ):
-          column_names.append(self.additional_foreign_key_column['source_field'])
+          column_names.append(
+            self.additional_foreign_key_column['source_field']
+            + str('__')
+            + self.additional_foreign_key_column['target_field']
+          )
       # careful here!
       # if there is a 0th column, the index of the order column is 0-based; otherwise 1-based
       actions = False
