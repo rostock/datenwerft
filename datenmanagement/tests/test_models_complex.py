@@ -5835,12 +5835,8 @@ class RadwegweisungKnotenTest(DefaultComplexModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    netz1 = Netze_Radwegweisung.objects.create(
-      bezeichnung='Bezeichnung1'
-    )
-    netz2 = Netze_Radwegweisung.objects.create(
-      bezeichnung='Bezeichnung2'
-    )
+    netz1 = Netze_Radwegweisung.objects.create(bezeichnung='Bezeichnung1')
+    netz2 = Netze_Radwegweisung.objects.create(bezeichnung='Bezeichnung2')
     cls.netz2 = netz2
     cls.attributes_values_db_initial = {
       'netz': netz1,
@@ -6065,9 +6061,7 @@ class RadwegweisungBeschilderungTest(DefaultComplexModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    netz = Netze_Radwegweisung.objects.create(
-      bezeichnung='Bezeichnung'
-    )
+    netz = Netze_Radwegweisung.objects.create(bezeichnung='Bezeichnung')
     knoten = Radwegweisung_Knoten.objects.create(
       netz=netz,
       nummer='Nummer',

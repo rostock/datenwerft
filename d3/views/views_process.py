@@ -77,11 +77,10 @@ class TableProcessView(BaseDatatableView):
       upload_url = resolve_url(
         'd3:' + self.datenmanagement_model_name + '_d3_add_file', self.object_id, obj.id
       )
-      expand_element = '<i class="fa fa-circle-info" style="cursor:pointer" '
-      expand_element += 'title="Details zu Vorgang anzeigen…"></i>'
-      upload_link = f'<a href="{upload_url}" title="Dokument anlegen…"'
+      upload_link = f'<a href="{upload_url}" title="Dokument anlegen…">'
       upload_link += '<i class="fa fa-file-import"></i></a>'
-      row.append(f'<div class="dt-control">{upload_link} {expand_element}</div>')
+      expand_element = '<i class="fa fa-circle-info" style="cursor:pointer"</i>'
+      row.append(upload_link + expand_element)
       results.append(row)
 
     return results
