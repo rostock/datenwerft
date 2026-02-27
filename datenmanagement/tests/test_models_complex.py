@@ -5842,7 +5842,6 @@ class RadwegweisungKnotenTest(DefaultComplexModelTestCase):
       'netz': netz1,
       'nummer': 'Nummer1',
       'bezeichnung': 'Bezeichnung1',
-      'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {
       'netz': netz2,
@@ -5855,14 +5854,12 @@ class RadwegweisungKnotenTest(DefaultComplexModelTestCase):
       'netz': str(netz1.pk),
       'nummer': 'Nummer3',
       'bezeichnung': 'Bezeichnung3',
-      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'netz': str(netz2.pk),
       'nummer': 'Nummer4',
       'bezeichnung': 'Bezeichnung4',
-      'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
@@ -5935,46 +5932,6 @@ class RadwegweisungKnotenTest(DefaultComplexModelTestCase):
       str(self.test_object.pk),
     )
 
-  def test_view_map(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_map',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      MAP_VIEW_STRING,
-    )
-
-  def test_view_map_subset(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_map_subset',
-      {'subset_id': self.test_subset.pk},
-      200,
-      'text/html; charset=utf-8',
-      MAP_VIEW_STRING,
-    )
-
-  def test_view_mapdata(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_mapdata',
-      {},
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-  def test_view_mapdata_subset(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_mapdata_subset',
-      {'subset_id': self.test_subset.pk},
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
   def test_view_add_success(self):
     self.generic_add_update_view_test(
       False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
@@ -6017,36 +5974,6 @@ class RadwegweisungKnotenTest(DefaultComplexModelTestCase):
       True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
     )
 
-  def test_view_geometry(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_geometry',
-      {},
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-  def test_view_geometry_pk(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_geometry',
-      {'pk': str(self.test_object.pk)},
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
-  def test_view_geometry_lat_lng(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_geometry',
-      GEOMETRY_VIEW_PARAMS,
-      200,
-      'application/json',
-      str(self.test_object.pk),
-    )
-
 
 class RadwegweisungBeschilderungTest(DefaultComplexModelTestCase):
   """
@@ -6066,13 +5993,13 @@ class RadwegweisungBeschilderungTest(DefaultComplexModelTestCase):
       netz=netz,
       nummer='Nummer',
       bezeichnung='Bezeichnung',
-      geometrie=VALID_POINT_DB,
     )
     beschilderungsart1 = Arten_Beschilderung_Radwegweisung.objects.create(art='Art1')
     beschilderungsart2 = Arten_Beschilderung_Radwegweisung.objects.create(art='Art2')
     cls.beschilderungsart2 = beschilderungsart2
     cls.attributes_values_db_initial = {
       'knoten': knoten,
+      'nummer': 'Nummer1',
       'beschilderungsart': beschilderungsart1,
       'geometrie': VALID_POINT_DB,
     }
@@ -6081,12 +6008,14 @@ class RadwegweisungBeschilderungTest(DefaultComplexModelTestCase):
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'knoten': str(knoten.pk),
+      'nummer': 'Nummer2',
       'beschilderungsart': str(beschilderungsart1.pk),
       'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'knoten': str(knoten.pk),
+      'nummer': 'Nummer3',
       'beschilderungsart': str(beschilderungsart1.pk),
       'lagebeschreibung': 'Lagebeschreibung',
       'geometrie': VALID_POINT_VIEW,
