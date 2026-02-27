@@ -3395,11 +3395,12 @@ class Radwegweisung_Knoten(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_netze',
   )
-  nummer = CharField(verbose_name='Nummer', max_length=255, validators=standard_validators)
+  nummer = CharField(
+    verbose_name='Nummer', max_length=255, unique=True, validators=standard_validators
+  )
   bezeichnung = CharField(
     verbose_name='Bezeichnung', max_length=255, validators=standard_validators
   )
-  geometrie = point_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten"."radwegweisung_knoten_hro'
@@ -3410,7 +3411,6 @@ class Radwegweisung_Knoten(ComplexModel):
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Knoten der Radwegweisung in der Hanse- und Universitätsstadt Rostock'
     associated_models = {'Radwegweisung_Beschilderung': 'knoten'}
-    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'netz': 'Netz',
@@ -3426,13 +3426,6 @@ class Radwegweisung_Knoten(ComplexModel):
         'type': 'foreignkey',
       }
     ]
-    map_feature_tooltip_fields = ['nummer']
-    map_filter_fields = {
-      'netz': 'Netz',
-      'nummer': 'Nummer',
-      'bezeichnung': 'Bezeichnung',
-    }
-    map_filter_fields_as_list = ['netz']
 
   def __str__(self):
     return self.nummer
@@ -3452,6 +3445,7 @@ class Radwegweisung_Beschilderung(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_knoten',
   )
+  nummer = CharField(verbose_name='Nummer', max_length=255, validators=standard_validators)
   beschilderungsart = ForeignKey(
     to=Arten_Beschilderung_Radwegweisung,
     verbose_name='Beschilderungsart',
@@ -3479,6 +3473,7 @@ class Radwegweisung_Beschilderung(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten"."radwegweisung_beschilderung_hro'
+    unique_together = ['knoten', 'nummer']
     verbose_name = 'Beschilderung einer Radwegweisung'
     verbose_name_plural = 'Beschilderung der Radwegweisung'
 
@@ -3491,6 +3486,7 @@ class Radwegweisung_Beschilderung(ComplexModel):
     list_fields = {
       'aktiv': 'aktiv?',
       'knoten': 'Knoten',
+      'nummer': 'Nummer',
       'beschilderungsart': 'Beschilderungsart',
       'lagebeschreibung': 'Lagebeschreibung',
       'foto': 'Foto',
@@ -3507,17 +3503,24 @@ class Radwegweisung_Beschilderung(ComplexModel):
         'type': 'foreignkey',
       }
     ]
-    map_feature_tooltip_fields = ['knoten', 'beschilderungsart']
+    map_feature_tooltip_fields = ['knoten', 'nummer']
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'knoten': 'Knoten',
+      'nummer': 'Nummer',
       'beschilderungsart': 'Beschilderungsart',
       'lagebeschreibung': 'Lagebeschreibung',
     }
     map_filter_fields_as_list = ['knoten', 'beschilderungsart']
 
   def __str__(self):
-    return str(self.knoten) + ' mit Beschilderungsart ' + str(self.beschilderungsart)
+    return (
+      str(self.knoten)
+      + '.'
+      + self.nummer
+      + ' mit Beschilderungsart '
+      + str(self.beschilderungsart)
+    )
 
 
 post_save.connect(photo_post_processing, sender=Radwegweisung_Beschilderung)
@@ -4595,13 +4598,7 @@ class Strassen_Simple_Historie(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_strasse',
   )
-  datum = CharField(
-    verbose_name='Datum',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators,
-  )
+  datum = DateField(verbose_name='Datum', blank=True, null=True)
   beschluss = CharField(
     verbose_name='Beschluss',
     max_length=255,
@@ -4641,6 +4638,7 @@ class Strassen_Simple_Historie(ComplexModel):
       'veroeffentlichung': 'Veröffentlichung',
       'historie': 'Historie',
     }
+    list_fields_with_date = ['datum']
     list_fields_with_foreign_key = {'strasse_simple': 'bezeichnung'}
     list_additional_foreign_key_field = {
       'insert_after_field': 'strasse_simple',

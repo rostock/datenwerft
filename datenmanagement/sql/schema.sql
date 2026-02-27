@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.7
--- Dumped by pg_dump version 17.7
+-- Dumped from database version 17.8
+-- Dumped by pg_dump version 17.8
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -116,7 +116,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -2933,7 +2933,8 @@ CREATE TABLE fachdaten.radwegweisung_beschilderung_hro (
     beschilderungsart uuid NOT NULL,
     lagebeschreibung character varying(255),
     foto character varying(255),
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    nummer character varying(255) NOT NULL
 );
 
 
@@ -2951,8 +2952,7 @@ CREATE TABLE fachdaten.radwegweisung_knoten_hro (
     deaktiviert date,
     netz uuid NOT NULL,
     nummer character varying(255) NOT NULL,
-    bezeichnung character varying(255) NOT NULL,
-    geometrie public.geometry(Point,25833) NOT NULL
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -3214,10 +3214,10 @@ CREATE TABLE fachdaten.strassen_historie_hro (
     id_zielsystem character varying(255),
     deaktiviert date,
     strasse uuid NOT NULL,
-    datum character varying(255),
     beschluss character varying(255),
     veroeffentlichung character varying(255),
-    historie character varying(255)
+    historie character varying(255),
+    datum date
 );
 
 
@@ -6952,6 +6952,14 @@ ALTER TABLE ONLY fachdaten.punktwolken
 
 ALTER TABLE ONLY fachdaten.punktwolken_projekte
     ADD CONSTRAINT punktwolken_projekte_pkey PRIMARY KEY (uuid);
+
+
+--
+-- Name: radwegweisung_beschilderung_hro radwegweisung_beschilderung_hro_beschilderung_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_beschilderung_hro
+    ADD CONSTRAINT radwegweisung_beschilderung_hro_beschilderung_unique UNIQUE (knoten, nummer);
 
 
 --
