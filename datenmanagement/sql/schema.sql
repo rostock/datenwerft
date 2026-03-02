@@ -427,6 +427,18 @@ CREATE TABLE codelisten.angelberechtigungen (
 
 
 --
+-- Name: anlieger_wegesperren; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.anlieger_wegesperren (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
+);
+
+
+--
 -- Name: ansprechpartner_baustellen; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -813,6 +825,18 @@ CREATE TABLE codelisten.ausfuehrungen_ingenieurbauwerke (
 
 
 --
+-- Name: ausfuehrungen_wegesperren; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.ausfuehrungen_wegesperren (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    ausfuehrung character varying(255) NOT NULL
+);
+
+
+--
 -- Name: befestigungsarten_aufstellflaeche_bus_haltestellenkataster; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1182,6 +1206,18 @@ CREATE TABLE codelisten.hersteller_versenkpoller (
 
 
 --
+-- Name: hersteller_wegesperren; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.hersteller_wegesperren (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
+);
+
+
+--
 -- Name: kabeltypen_lichtwellenleiterinfrastruktur; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1477,6 +1513,18 @@ CREATE TABLE codelisten.schlagwoerter_vereine (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     schlagwort character varying(255) NOT NULL
+);
+
+
+--
+-- Name: schliessungen_wegesperren; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.schliessungen_wegesperren (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -4531,6 +4579,33 @@ CREATE TABLE fachdaten_strassenbezug.strassenreinigung_hro (
 
 
 --
+-- Name: wegesperren_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_strassenbezug.wegesperren_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    strasse uuid,
+    id character(8) NOT NULL,
+    lagebeschreibung character varying(255),
+    eigentuemer uuid NOT NULL,
+    hersteller uuid,
+    ausfuehrung uuid NOT NULL,
+    laenge smallint,
+    baujahr smallint,
+    schliessung uuid,
+    anlieger uuid,
+    foto character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: adressenliste_datenwerft adressenliste_datenwerft_pk; Type: CONSTRAINT; Schema: basisdaten; Owner: -
 --
 
@@ -4624,6 +4699,22 @@ ALTER TABLE ONLY codelisten.angelberechtigungen
 
 ALTER TABLE ONLY codelisten.angelberechtigungen
     ADD CONSTRAINT angelberechtigungen_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: anlieger_wegesperren anlieger_wegesperren_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.anlieger_wegesperren
+    ADD CONSTRAINT anlieger_wegesperren_bezeichnung_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: anlieger_wegesperren anlieger_wegesperren_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.anlieger_wegesperren
+    ADD CONSTRAINT anlieger_wegesperren_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5139,6 +5230,22 @@ ALTER TABLE ONLY codelisten.ausfuehrungen_ingenieurbauwerke
 
 
 --
+-- Name: ausfuehrungen_wegesperren ausfuehrungen_wegesperren_ausfuehrung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_wegesperren
+    ADD CONSTRAINT ausfuehrungen_wegesperren_ausfuehrung_unique UNIQUE (ausfuehrung);
+
+
+--
+-- Name: ausfuehrungen_wegesperren ausfuehrungen_wegesperren_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_wegesperren
+    ADD CONSTRAINT ausfuehrungen_wegesperren_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: befestigungsarten_aufstellflaeche_bus_haltestellenkataster befestigungsarten_aufstellflaeche_bus_haltestellenkataster_befe; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -5603,6 +5710,22 @@ ALTER TABLE ONLY codelisten.hersteller_versenkpoller
 
 
 --
+-- Name: hersteller_wegesperren hersteller_wegesperren_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.hersteller_wegesperren
+    ADD CONSTRAINT hersteller_wegesperren_bezeichnung_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: hersteller_wegesperren hersteller_wegesperren_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.hersteller_wegesperren
+    ADD CONSTRAINT hersteller_wegesperren_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: kabeltypen_lichtwellenleiterinfrastruktur kabeltypen_lichtwellenleiterinfrastruktur_kabeltyp_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -5976,6 +6099,22 @@ ALTER TABLE ONLY codelisten.schlagwoerter_vereine
 
 ALTER TABLE ONLY codelisten.schlagwoerter_vereine
     ADD CONSTRAINT schlagwoerter_vereine_schlagwort_unique UNIQUE (schlagwort);
+
+
+--
+-- Name: schliessungen_wegesperren schliessungen_wegesperren_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.schliessungen_wegesperren
+    ADD CONSTRAINT schliessungen_wegesperren_bezeichnung_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: schliessungen_wegesperren schliessungen_wegesperren_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.schliessungen_wegesperren
+    ADD CONSTRAINT schliessungen_wegesperren_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7595,6 +7734,22 @@ ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
 
 
 --
+-- Name: wegesperren_hro wegesperren_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_id_unique UNIQUE (id);
+
+
+--
+-- Name: wegesperren_hro wegesperren_hro_pk; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: baugrunduntersuchungen_hro_auftraggeber_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -7861,6 +8016,13 @@ CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug
 
 
 --
+-- Name: wegesperren_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug.wegesperren_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: geh_und_radwegereinigung_hro tr_before_insert_10_laenge; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -7945,6 +8107,13 @@ CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_strassenbezug.stra
 
 
 --
+-- Name: wegesperren_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_strassenbezug.wegesperren_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_abfallbehaelter();
+
+
+--
 -- Name: abstellflaechen_e_tretroller_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -7984,6 +8153,13 @@ CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_stras
 --
 
 CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_strassenbezug.fussgaengerueberwege_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: wegesperren_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_strassenbezug.wegesperren_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
 
 
 --
@@ -9380,6 +9556,46 @@ ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
 
 ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
     ADD CONSTRAINT strassenreinigung_hro_reinigungsrhythmen_fk FOREIGN KEY (reinigungsrhythmus) REFERENCES codelisten.reinigungsrhythmen_strassenreinigungssatzung_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: wegesperren_hro wegesperren_hro_anlieger_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_anlieger_fk FOREIGN KEY (anlieger) REFERENCES codelisten.anlieger_wegesperren(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: wegesperren_hro wegesperren_hro_ausfuehrungen_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_ausfuehrungen_fk FOREIGN KEY (ausfuehrung) REFERENCES codelisten.ausfuehrungen_wegesperren(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: wegesperren_hro wegesperren_hro_eigentuemer_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_eigentuemer_fk FOREIGN KEY (eigentuemer) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: wegesperren_hro wegesperren_hro_hersteller_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_hersteller_fk FOREIGN KEY (hersteller) REFERENCES codelisten.hersteller_wegesperren(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: wegesperren_hro wegesperren_hro_schliessungen_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_schliessungen_fk FOREIGN KEY (schliessung) REFERENCES codelisten.schliessungen_wegesperren(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

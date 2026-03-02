@@ -6699,3 +6699,190 @@ post_save.connect(photo_post_processing, sender=Versenkpoller)
 post_save.connect(delete_photo_after_emptied, sender=Versenkpoller)
 
 post_delete.connect(delete_photo, sender=Versenkpoller)
+
+
+class Wegesperren(SimpleModel):
+  """
+  Wegesperren
+  """
+
+  strasse = ForeignKey(
+    to=Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True,
+  )
+  id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  eigentuemer = ForeignKey(
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    verbose_name='Eigentümer',
+    on_delete=RESTRICT,
+    db_column='eigentuemer',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_eigentuemer',
+  )
+  hersteller = ForeignKey(
+    to=Hersteller_Wegesperren,
+    verbose_name='Hersteller',
+    on_delete=SET_NULL,
+    db_column='hersteller',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_hersteller',
+    blank=True,
+    null=True,
+  )
+  ausfuehrung = ForeignKey(
+    to=Ausfuehrungen_Wegesperren,
+    verbose_name='Ausführung',
+    on_delete=RESTRICT,
+    db_column='ausfuehrung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_ausfuehrungen',
+  )
+  laenge = PositiveSmallIntegerMinField(
+    verbose_name='Länge (in mm)', min_value=1, blank=True, null=True
+  )
+  baujahr = PositiveSmallIntegerRangeField(
+    verbose_name='Baujahr', min_value=1900, max_value=get_current_year(), blank=True, null=True
+  )
+  schliessung = ForeignKey(
+    to=Schliessungen_Wegesperren,
+    verbose_name='Schließung',
+    on_delete=SET_NULL,
+    db_column='schliessung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_schliessungen',
+    blank=True,
+    null=True,
+  )
+  anlieger = ForeignKey(
+    to=Anlieger_Wegesperren,
+    verbose_name='Anlieger',
+    on_delete=SET_NULL,
+    db_column='anlieger',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_anlieger',
+    blank=True,
+    null=True,
+  )
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'wegesperren'),
+    max_length=255,
+    blank=True,
+    null=True,
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_strassenbezug"."wegesperren_hro'
+    verbose_name = 'Wegesperre'
+    verbose_name_plural = 'Wegesperren'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Wegesperren in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['id']
+    address_type = 'Straße'
+    address_mandatory = True
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'eigentuemer': 'Eigentümer',
+      'hersteller': 'Hersteller',
+      'ausfuehrung': 'Ausführung',
+      'laenge': 'Länge (in mm)',
+      'baujahr': 'Baujahr',
+      'schliessung': 'Schließung',
+      'anlieger': 'Anlieger',
+      'foto': 'Foto',
+    }
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse',
+      'eigentuemer': 'bezeichnung',
+      'hersteller': 'bezeichnung',
+      'ausfuehrung': 'ausfuehrung',
+      'schliessung': 'bezeichnung',
+      'anlieger': 'bezeichnung',
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'wegesperren-eigentuemer',
+        'action_title': 'ausgewählten Datensätzen Eigentümer direkt zuweisen',
+        'field': 'eigentuemer',
+        'type': 'foreignkey',
+      },
+      {
+        'action_name': 'wegesperren-hersteller',
+        'action_title': 'ausgewählten Datensätzen Hersteller direkt zuweisen',
+        'field': 'hersteller',
+        'type': 'foreignkey',
+      },
+      {
+        'action_name': 'wegesperren-ausfuehrung',
+        'action_title': 'ausgewählten Datensätzen Ausführung direkt zuweisen',
+        'field': 'ausfuehrung',
+        'type': 'foreignkey',
+      },
+      {
+        'action_name': 'wegesperren-schliessung',
+        'action_title': 'ausgewählten Datensätzen Schließung direkt zuweisen',
+        'field': 'schliessung',
+        'type': 'foreignkey',
+      },
+      {
+        'action_name': 'wegesperren-anlieger',
+        'action_title': 'ausgewählten Datensätzen Anlieger direkt zuweisen',
+        'field': 'anlieger',
+        'type': 'foreignkey',
+      },
+    ]
+    map_feature_tooltip_fields = ['id']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'eigentuemer': 'Eigentümer',
+      'hersteller': 'Hersteller',
+      'ausfuehrung': 'Ausführung',
+      'laenge': 'Länge (in mm)',
+      'baujahr': 'Baujahr',
+      'schliessung': 'Schließung',
+      'anlieger': 'Anlieger',
+    }
+    map_filter_fields_as_list = [
+      'strasse',
+      'eigentuemer',
+      'hersteller',
+      'ausfuehrung',
+      'schliessung',
+      'anlieger',
+    ]
+
+  def __str__(self):
+    return self.id
+
+
+pre_save.connect(set_pre_save_instance, sender=Wegesperren)
+
+post_save.connect(photo_post_processing, sender=Wegesperren)
+
+post_save.connect(delete_photo_after_emptied, sender=Wegesperren)
+
+post_delete.connect(delete_photo, sender=Wegesperren)
