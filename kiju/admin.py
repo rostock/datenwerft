@@ -1,12 +1,25 @@
 from django.contrib import admin
 
-from .models.base import Host, Law, Provider, Tag, TargetGroup, Topic
-from .models.services import PreventionService
+from .models.base import (
+  InboxMessage,
+  Law,
+  OrgUnit,
+  Provider,
+  ReviewTask,
+  Tag,
+  TargetGroup,
+  Topic,
+  UserProfile,
+)
+from .models.services import ChildrenAndYouthService
 
 admin.site.register(Provider)
 admin.site.register(Topic)
 admin.site.register(Law)
 admin.site.register(TargetGroup)
-admin.site.register(Host)
-admin.site.register(PreventionService)
+admin.site.register(ChildrenAndYouthService)
 admin.site.register(Tag)
+admin.site.register(OrgUnit)
+admin.site.register(UserProfile)
+admin.site.register(ReviewTask)
+admin.site.register(InboxMessage)

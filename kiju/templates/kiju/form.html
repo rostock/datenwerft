@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% load custom_tags %}
+{% load angebotsdb_tags %}
 {% load toolbox_tags %}
 {% if form|has_geometry_field %}
   {% load leaflet_tags %}
@@ -56,218 +56,306 @@
         {{ model_verbose_name|default:model_name }} hinzufügen
       {% endif %}
     </h1>
-    <form class="form mt-4 {% if form|has_geometry_field %}flex-container-row{% else %}flex-container-column{% endif %}" action="" method="post" id="form">
-      {% csrf_token %}
-      {% if form|has_geometry_field %}
-        <div class="flex-item flex-container-column" id="flex-left">
+    {% if is_angebotsdb_user %}
+
+      {# ── Sperr-Hinweis bei in_review ──────────────────────────────────────── #}
+      {% if service_locked %}
+        <div class="alert alert-info mt-4" role="alert">
+          <i class="fa-solid fa-lock me-2"></i>
+          <strong>Bearbeitung gesperrt:</strong>
+          Dieses Angebot befindet sich aktuell in Prüfung und kann nicht bearbeitet werden.
+          Sie werden benachrichtigt, sobald die Prüfung abgeschlossen ist.
+        </div>
       {% endif %}
-      <div class="flex-item" id="flex-list">
-        <div {% if form|has_geometry_field %}id="custom-form"{% endif %}>
-          {% for field in form %}
-            {#{% if not field|is_field_geometry_field %}#}
-              <div class="row mb-3">
-                <div class="col-md-4">
-                  {% if field.field.required %}
-                    <strong>{{ field.label_tag }}*</strong>
-                  {% else %}
-                    {{ field.label_tag }}
-                  {% endif %}
-                </div>
-                <div class="col-md-8">
-                  {% if field.name == 'paragraph' %}
-                    <div class="input-group">
-                      <span class="input-group-text">§</span>
+
+      {# ── Hinweis bei Draft-Copy (Überarbeitungsversion eines published Service) ── #}
+      {% if is_draft_copy %}
+        <div class="alert alert-info mt-4" role="alert">
+          <i class="fa-solid fa-code-branch me-2"></i>
+          <strong>Überarbeitungsversion:</strong>
+          Sie bearbeiten eine Kopie des veröffentlichten Angebots
+          <strong>„{{ published_version }}"</strong>.
+          Die veröffentlichte Version bleibt unverändert, bis diese Überarbeitung
+          den Freigabeprozess erfolgreich durchlaufen hat.
+        </div>
+      {% endif %}
+
+      <form class="form mt-4 {% if form|has_geometry_field %}flex-container-row{% else %}flex-container-column{% endif %}" action="" method="post" id="form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          {# Non-Field-Errors werden hier angezeigt, z.B. bei unique_together-Verletzungen #}
+          <div class="alert alert-danger" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>
+            {% for error in form.non_field_errors %}
+              {{ error }}
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% if form|has_geometry_field %}
+          <div class="flex-item flex-container-column" id="flex-left">
+        {% endif %}
+        <div class="flex-item" id="flex-list">
+          <div {% if form|has_geometry_field %}id="custom-form"{% endif %}>
+            {% for field in form %}
+              {#{% if not field|is_field_geometry_field %}#}
+                <div class="row mb-3">
+                  <div class="col-md-4">
+                    {% if field.field.required %}
+                      <strong>{{ field.label_tag }}*</strong>
+                    {% else %}
+                      {{ field.label_tag }}
+                    {% endif %}
+                  </div>
+                  <div class="col-md-{% if is_update and revision_comments %}6{% else %}8{% endif %}">
+                    {% if field.name == 'paragraph' %}
+                      <div class="input-group">
+                        <span class="input-group-text">§</span>
+                        {{ field }}
+                      </div>
+                    {% elif field.name == 'costs' %}
+                      <div class="input-group">
+                        <span class="input-group-text">€</span>
+                        {{ field }}
+                      </div>
+                    {% elif field.name == 'tags' %}
+                      <div class="input-group flex-nowrap">
+                        <span class="input-group-text">#</span>
+                        {{ field }}
+                      </div>
+                    {% elif field.type == 'file' %}
+                      <div class="input-group">
+                        <label class="input-group-text" for="{{ field.id }}">Upload</label>
+                        {{ field }}
+                      </div>
+                    {% elif field|is_field_geometry_field %}
+                      <div id="map-addresssearch-container-form">
+                        <label hidden for="id_geometrie" class="form-label">{{ field.label }}</label>
+                        {% if geometry %}
+                          <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="{{ field.name }}" cols="150" rows="4">{{ geometry }}</textarea>
+                        {% else %}
+                          <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="{{ field.name }}" cols="150" rows="4">{ "type": "Point", "coordinates": [] }</textarea>
+                        {% endif %}
+                        {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
+                      </div>
+                      <div class="" id="flex-address-search">
+                        <div class="d-grid mt-3 g-2">
+                          <div class="row row-cols-2 g-2">
+                            <div class="col d-grid">
+                              <button disabled id="addressToMap" class="btn btn-primary col" type="button"><i class="fas fa-map-marker-alt"></i> Marker auf Adresse setzen</button>
+                            </div>
+                            <div class="col d-grid">
+                              <button disabled id="mapToAddress" class="btn btn-primaryc col" type="button"><i class="fas fa-home"></i> Adresse aus Karte übernehmen</button>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="mt-3">
+                          <label for="id_address" class="form-label">Adresse</label>
+                          <div class="form-floating">
+                            <input id="id_address" type="text" class="form-control" name="address" autocapitalize="off" autocomplete="off" placeholder="Adresse suchen…">
+                            <label for="id_address">Adresse suchen…</label>
+                          </div>
+                          <div id="results-container" class="results dropdown-menu"></div>
+                        </div>
+                      </div>
+                    {% else %}
                       {{ field }}
-                    </div>
-                  {% elif field.name == 'costs' %}
-                    <div class="input-group">
-                      <span class="input-group-text">€</span>
-                      {{ field }}
-                    </div>
-                  {% elif field.name == 'tags' %}
-                    <div class="input-group flex-nowrap">
-                      <span class="input-group-text">#</span>
-                      {{ field }}
-                    </div>
-                  {% elif field.type == 'file' %}
-                    <div class="input-group">
-                      <label class="input-group-text" for="{{ field.id }}">Upload</label>
-                      {{ field }}
-                    </div>
-                  {% elif field|is_field_geometry_field %}
-                    <div id="map-addresssearch-container-form">
-                      <label hidden for="id_geometrie" class="form-label">{{ field.label }}</label>
-                      {% if geometry %}
-                        <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="{{ field.name }}" cols="150" rows="4">{{ geometry }}</textarea>
-                      {% else %}
-                        <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="{{ field.name }}" cols="150" rows="4">{ "type": "Point", "coordinates": [] }</textarea>
+                    {% endif %}
+                    {% if field.errors %}
+                      <div class="text-danger mt-1">
+                        {{ field.errors }}
+                      </div>
+                    {% endif %}
+                  </div>
+
+                  {# ── Reviewer-Kommentar für dieses Feld (nur bei revision_needed) ── #}
+                  {% if is_update and revision_comments %}
+                    <div class="col-md-2">
+                      {% if field.name in revision_comments %}
+                        <div class="alert alert-warning py-2 px-3 mb-0 h-100 d-flex align-items-start gap-2">
+                          <i class="fa-solid fa-comment-dots mt-1 flex-shrink-0"></i>
+                          <small>{{ revision_comments|get_item:field.name }}</small>
+                        </div>
                       {% endif %}
-                      {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
-                    </div>
-                    <div class="" id="flex-address-search">
-                      <div class="d-grid mt-3 g-2">
-                        <div class="row row-cols-2 g-2">
-                          <div class="col d-grid">
-                            <button disabled id="addressToMap" class="btn btn-primary col" type="button"><i class="fas fa-map-marker-alt"></i> Marker auf Adresse setzen</button>
-                          </div>
-                          <div class="col d-grid">
-                            <button disabled id="mapToAddress" class="btn btn-primaryc col" type="button"><i class="fas fa-home"></i> Adresse aus Karte übernehmen</button>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="mt-3">
-                        <label for="id_address" class="form-label">Adresse</label>
-                        <div class="form-floating">
-                          <input id="id_address" type="text" class="form-control" name="address" autocapitalize="off" autocomplete="off" placeholder="Adresse suchen…">
-                          <label for="id_address">Adresse suchen…</label>
-                        </div>
-                        <div id="results-container" class="results dropdown-menu"></div>
-                      </div>
-                    </div>
-                  {% else %}
-                    {{ field }}
-                  {% endif %}
-                  {% if field.errors %}
-                    <div class="text-danger mt-1">
-                      {{ field.errors }}
                     </div>
                   {% endif %}
+
                 </div>
-              </div>
-            {#{% endif %}#}
-          {% endfor %}
+              {#{% endif %}#}
+            {% endfor %}
+          </div>
         </div>
-      </div>
-      <div class="flex-item" id="flex-action-buttons">
-        <div id="form-control-buttons" class="mt-3 mb-3">
-          <button type="submit" class="btn btn-primary" {% if form|has_geometry_field %}onclick="setFinalGeometry('#id_geometrie');"{% endif %}>{{ model_verbose_name }} speichern</button>
-          {% if is_update %}
-            <button type="button" class="btn btn-outline-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteModal" data-object-id="{{ object.pk }}" data-object-name="{{ object }}" data-model-name="{{ model_verbose_name|default:model_name }}" data-model-lower="{{ model_lower }}" data-delete-url="{% dynamic_url model_lower 'delete' object.pk %}" data-list-url="{% dynamic_url model_lower 'list' %}" data-object-data='{{ object|to_json }}'>
-              <i class="fa-solid fa-trash me-1"></i>
-              Löschen
-            </button>
-          {% endif %}
-          <a href="{% dynamic_url model_lower 'list' %}" class="btn btn-outline-secondary">Abbrechen</a>
+        <div class="flex-item" id="flex-action-buttons">
+          <div id="form-control-buttons" class="mt-3 mb-3 d-flex flex-wrap gap-2 align-items-center">
+            {% if user_can_save %}
+              <button type="submit" class="btn btn-primary" {% if form|has_geometry_field %}onclick="setFinalGeometry('#id_geometrie');"{% endif %}>
+                <i class="fa-solid fa-floppy-disk me-1"></i>
+                {{ model_verbose_name }} speichern
+              </button>
+            {% endif %}
+
+            {# ── "Zur Prüfung freigeben"-Button (nur für Service-Objekte im richtigen Status) #}
+            {# Das form-Element liegt AUSSERHALB des äußeren <form>-Tags (s.u.), da HTML keine  #}
+            {# verschachtelten Formulare erlaubt. Der Button referenziert es per form="submit-review-form". #}
+            {% if is_update and service_status == 'draft' or is_update and service_status == 'revision_needed' %}
+              <button type="submit"
+                      form="submit-review-form"
+                      class="btn {% if service_status == 'revision_needed' %}btn-warning{% else %}btn-outline-warning{% endif %}"
+                      onclick="return confirm('Möchten Sie dieses Angebot zur Prüfung freigeben? Es kann danach nicht mehr bearbeitet werden, bis die Prüfung abgeschlossen ist.');">
+                <i class="fa-solid fa-paper-plane me-1"></i>
+                {% if service_status == 'revision_needed' %}
+                  Erneut zur Prüfung freigeben
+                {% else %}
+                  Zur Prüfung freigeben
+                {% endif %}
+              </button>
+            {% endif %}
+
+            {% if is_update and user_can_save %}
+              <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-object-id="{{ object.pk }}" data-object-name="{{ object }}" data-model-name="{{ model_verbose_name|default:model_name }}" data-model-lower="{{ model_lower }}" data-delete-url="{% dynamic_url model_lower 'delete' object.pk %}" data-list-url="{% dynamic_url model_lower 'list' %}" data-object-data='{{ object|to_json }}'>
+                <i class="fa-solid fa-trash me-1"></i>
+                Löschen
+              </button>
+            {% endif %}
+            <a href="{% dynamic_url model_lower 'list' %}" class="btn btn-outline-secondary">
+              <i class="fa-solid fa-xmark me-1"></i>
+              Abbrechen
+            </a>
+          </div>
         </div>
-      </div>
-    </form>
-    {% if form|has_geometry_field %}
-      <script>
-        /**
-         * @function
-         * @name mapCallbackFunction
-         *
-         * handles (as a callback function) passed map
-         *
-         * @param {Object} map - map
-         */
-        function mapCallbackFunction(map) {
-          setMapConstants(map, {{ LEAFLET.MAX_ZOOM }});
-          configureMap(map, '{% url "toolbox:owsproxy" %}');
+      </form>
 
-          // make map globally available
-          window.currMap = map;
+      {# ── Separates Formular für "Zur Prüfung freigeben" (außerhalb des Haupt-forms) ── #}
+      {% if is_update and service_status == 'draft' or is_update and service_status == 'revision_needed' %}
+        <form id="submit-review-form"
+              method="post"
+              action="{% url 'kiju:submit_for_review' model_lower object.pk %}"
+              style="display: none;">
+          {% csrf_token %}
+        </form>
+      {% endif %}
 
-          // configure globally available markers for Leaflet
-          window.redMarker = new L.Icon({
-            shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
-            iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41]
-          });
-
-          // define several globally available variables
-          window.featureGeometry = [];
-          window.geometryType = '{{ model_geometry_type }}';
-
-          configureLeafletGeoman(map, 'Point');
-
-          // show existing geometry on map
-          console.log("run map.loadGeometryFromField('#id_geometrie')")
-          map.loadGeometryFromField('#id_geometrie')
-          console.log("geometry loaded.")
-
-
+      {% if form|has_geometry_field %}
+        <script>
           /**
-           * @function
-           *
-           * checks (on starting "sketching" mode) if a Leaflet-Geoman layer already exists
-           * and deletes it if necessary
-           */
-          map.on('pm:drawstart', function () {
-            if (map.pm.getGeomanLayers().length > 0) {
-              map.pm.getGeomanLayers().forEach((item) => {
-                if ('_drawnByGeoman' in item && item._drawnByGeoman === true)
-                  map.removeLayer(item);
-              })
-            }
-          });
+          * @function
+          * @name mapCallbackFunction
+          *
+          * handles (as a callback function) passed map
+          *
+          * @param {Object} map - map
+          */
+          function mapCallbackFunction(map) {
+            setMapConstants(map, {{ LEAFLET.MAX_ZOOM }});
+            configureMap(map, '{% url "toolbox:owsproxy" %}');
 
-          /**
-           * @function
-           *
-           * enables (on creating a Leaflet-Geoman layer) address reference button
-           */
-          map.on('pm:create', function () {
-            enableAddressReferenceButton();
-          });
-        }
+            // make map globally available
+            window.currMap = map;
 
-        /**
-         * @function
-         *
-         * main function
-         */
-        $(document).ready(function() {
+            // configure globally available markers for Leaflet
+            window.redMarker = new L.Icon({
+              shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
+              iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
+              iconSize: [25, 41],
+              iconAnchor: [12, 41],
+              popupAnchor: [1, -34],
+              shadowSize: [41, 41]
+            });
 
-          // initialize address search (and make its results globally available)
-          window.results = $('div.results');
-          window.addressType = 'Adresse';
-          window.searchField = $('#id_address');
-          initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType);
+            // define several globally available variables
+            window.featureGeometry = [];
+            window.geometryType = '{{ model_geometry_type }}';
 
-          // on clicking the map reference (i.e. address to map) button...
-          const addressToMapButton = document.getElementById('addressToMap');
-          if (addressToMapButton) {
-            addressToMapButton.addEventListener('click', function () {
-              setMarkerToAddressSearchResult(window.currMap);
+            configureLeafletGeoman(map, 'Point');
+
+            // show existing geometry on map
+            console.log("run map.loadGeometryFromField('#id_geometrie')")
+            map.loadGeometryFromField('#id_geometrie')
+            console.log("geometry loaded.")
+
+
+            /**
+            * @function
+            *
+            * checks (on starting "sketching" mode) if a Leaflet-Geoman layer already exists
+            * and deletes it if necessary
+            */
+            map.on('pm:drawstart', function () {
+              if (map.pm.getGeomanLayers().length > 0) {
+                map.pm.getGeomanLayers().forEach((item) => {
+                  if ('_drawnByGeoman' in item && item._drawnByGeoman === true)
+                    map.removeLayer(item);
+                })
+              }
+            });
+
+            /**
+            * @function
+            *
+            * enables (on creating a Leaflet-Geoman layer) address reference button
+            */
+            map.on('pm:create', function () {
               enableAddressReferenceButton();
             });
           }
 
-          // on clicking the address reference (i.e. map to address) button...
-          const mapToAddressButton = document.getElementById('mapToAddress');
-          if (mapToAddressButton) {
-            mapToAddressButton.addEventListener('click', function () {
-              setAddressToMarkerAddress(window.currMap.pm.getGeomanLayers()[0], '{% url "toolbox:reversesearch" %}');
-              const addressToMapBtn = document.getElementById('addressToMap');
-              if (addressToMapBtn) {
-                addressToMapBtn.disabled = false;
-              }
-            });
-          }
-        });
+          /**
+          * @function
+          *
+          * main function
+          */
+          $(document).ready(function() {
 
-      </script>
-    {% endif %}
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        // initialize all multi-select-fields with select2
-        const select2Elements = document.querySelectorAll('.select2-multiple');
-        select2Elements.forEach(function(element) {
-          $(element).select2({
-            theme: "bootstrap-5",
-            width: element.dataset.width ? element.dataset.width : element.classList.contains('w-100') ? '100%' : 'style',
-            placeholder: element.dataset.placeholder || 'Bitte wählen...',
-            closeOnSelect: false,
-            allowClear: true,
-            tags: element.dataset.tags === 'true'
+            // initialize address search (and make its results globally available)
+            window.results = $('div.results');
+            window.addressType = 'Adresse';
+            window.searchField = $('#id_address');
+            initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType);
+
+            // on clicking the map reference (i.e. address to map) button...
+            const addressToMapButton = document.getElementById('addressToMap');
+            if (addressToMapButton) {
+              addressToMapButton.addEventListener('click', function () {
+                setMarkerToAddressSearchResult(window.currMap);
+                enableAddressReferenceButton();
+              });
+            }
+
+            // on clicking the address reference (i.e. map to address) button...
+            const mapToAddressButton = document.getElementById('mapToAddress');
+            if (mapToAddressButton) {
+              mapToAddressButton.addEventListener('click', function () {
+                setAddressToMarkerAddress(window.currMap.pm.getGeomanLayers()[0], '{% url "toolbox:reversesearch" %}');
+                const addressToMapBtn = document.getElementById('addressToMap');
+                if (addressToMapBtn) {
+                  addressToMapBtn.disabled = false;
+                }
+              });
+            }
+          });
+
+        </script>
+      {% endif %}
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // initialize all multi-select-fields with select2
+          const select2Elements = document.querySelectorAll('.select2-multiple');
+          select2Elements.forEach(function(element) {
+            $(element).select2({
+              theme: "bootstrap-5",
+              width: element.dataset.width ? element.dataset.width : element.classList.contains('w-100') ? '100%' : 'style',
+              placeholder: element.dataset.placeholder || 'Bitte wählen...',
+              closeOnSelect: false,
+              allowClear: true,
+              tags: element.dataset.tags === 'true'
+            });
           });
         });
-      });
-    </script>
+      </script>
+    {% else %}
+    <div class="alert alert-warning mt-4">
+      Sie haben keine Berechtigung, auf dieses Formular zuzugreifen.
+    </div>
+    {% endif %}
   </div>
   <script src="{% static 'js/form.js' %}"></script>
 

@@ -1,16 +1,17 @@
 {% extends "base.html" %}
+{% load angebotsdb_tags %}
 {% load static %}
-{% load custom_tags %}
 
 {% block title %}KiJu | {% endblock %}
 
 {% block content %}
   <div class="container-xxl">
+    {% if is_angebotsdb_user %}
     <a href="{% url 'kiju:index' %}">
       <i class="fa-solid fa-angle-left me"></i>
       Zurück zum KiJu-Dashboard
     </a>
-    <h1 class="mb-4">{% if model_icon_plural %}<i class="{{ model_icon_plural }}"></i> {% elif model_icon %}<i class="{{ model_icon }}"></i> {% endif %}{{ model_verbose_name|default:model_name }}</h1>
+    <h1 class="mb-4">{% if model_icon_plural %}<i class="{{ model_icon_plural }}"></i> {% elif model_icon %}<i class="{{ model_icon }}"></i> {% endif %}{{ model_verbose_name_plural|default:model_name }}</h1>
     <div class="mb-3">
       <a href="{% dynamic_url model_lower 'create' %}" class="btn btn-primary me-2">{{model_verbose_name}} hinzufügen</a>
     </div>
@@ -21,8 +22,8 @@
             <th scope="col">#</th>
             {% if list_fields %}
               {% for key, value in list_fields.items %}
-                <th scope="col">{{ value }}</th>
-              {% endfor %}
+                  <th scope="col">{{ value }}</th>
+                {% endfor %}
             {% else %}
               <th scope="col">{{ model_verbose_name|default:model_name }}</th>
               <th scope="col">Zuletzt aktualisiert</th>
@@ -41,6 +42,50 @@
                       {{ obj }}
                     {% elif key == 'updated_at' or key == 'created_at' %}
                       {{ obj|get_attribute:key|date:"d.m.Y H:i" }}
+                    {% elif key == 'status' %}
+                      {% with status_val=obj|get_attribute:'status' is_copy=obj|get_attribute:'published_version' %}
+                        {% if is_copy %}
+                          {# Draft-Copy eines veröffentlichten Service #}
+                          {% if status_val == 'draft' %}
+                            <span class="badge bg-secondary">
+                              <i class="fa-solid fa-code-branch me-1"></i>Überarbeitung (Entwurf)
+                            </span>
+                          {% elif status_val == 'in_review' %}
+                            <span class="badge bg-info text-dark">
+                              <i class="fa-solid fa-code-branch me-1"></i>Überarbeitung (In Prüfung)
+                            </span>
+                          {% elif status_val == 'revision_needed' %}
+                            <span class="badge bg-warning text-dark">
+                              <i class="fa-solid fa-code-branch me-1"></i>Überarbeitung (Kommentare)
+                            </span>
+                          {% else %}
+                            <span class="badge bg-light text-dark">
+                              <i class="fa-solid fa-code-branch me-1"></i>{{ status_val }}
+                            </span>
+                          {% endif %}
+                        {% else %}
+                          {# Normaler (originaler) Service #}
+                          {% if status_val == 'draft' %}
+                            <span class="badge bg-secondary">
+                              <i class="fa-solid fa-pencil me-1"></i>Entwurf
+                            </span>
+                          {% elif status_val == 'in_review' %}
+                            <span class="badge bg-info text-dark">
+                              <i class="fa-solid fa-magnifying-glass me-1"></i>In Prüfung
+                            </span>
+                          {% elif status_val == 'revision_needed' %}
+                            <span class="badge bg-warning text-dark">
+                              <i class="fa-solid fa-triangle-exclamation me-1"></i>Überarbeitung nötig
+                            </span>
+                          {% elif status_val == 'published' %}
+                            <span class="badge bg-success">
+                              <i class="fa-solid fa-circle-check me-1"></i>Veröffentlicht
+                            </span>
+                          {% else %}
+                            <span class="badge bg-light text-dark">{{ status_val }}</span>
+                          {% endif %}
+                        {% endif %}
+                      {% endwith %}
                     {% else %}
                       {{ obj|get_attribute:key|default_if_none:"" }}
                     {% endif %}
@@ -54,11 +99,13 @@
                 <a href="{% dynamic_url model_lower 'update' obj.pk %}" class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Bearbeiten">
                   <i class="fa-solid fa-edit"></i>
                 </a>
-                <span data-bs-toggle="modal" data-bs-target="#deleteModal">
-                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Löschen" data-object-id="{{ obj.pk }}" data-object-name="{{ obj }}" data-model-name="{{ model_verbose_name|default:model_name }}" data-model-lower="{{ model_lower }}" data-delete-url="{% dynamic_url model_lower 'delete' obj.pk %}" data-list-url="{% dynamic_url model_lower 'list' %}" data-object-data='{{ obj|to_json }}'>
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
-                </span>
+                {% if not is_service_model or user_provider == '__all__' or user_provider == obj.host %}
+                  <span data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Löschen" data-object-id="{{ obj.pk }}" data-object-name="{{ obj }}" data-model-name="{{ model_verbose_name|default:model_name }}" data-model-lower="{{ model_lower }}" data-delete-url="{% dynamic_url model_lower 'delete' obj.pk %}" data-list-url="{% dynamic_url model_lower 'list' %}" data-object-data='{{ obj|to_json }}'>
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </span>
+                {% endif %}
               </td>
             </tr>
           {% endfor %}
@@ -81,5 +128,10 @@
         });
       });
     </script>
+    {% else %}
+    <div class="alert alert-warning mt-4">
+      Sie haben keine Berechtigung, auf diese Liste zuzugreifen.
+    </div>
+    {% endif %}
   </div>
 {% endblock %}

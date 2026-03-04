@@ -8,7 +8,9 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
-from ..models.services import PreventionService
+from ..models.services import ChildrenAndYouthService
+from ..utils import get_inbox_count
+from .functions import add_permission_context_elements
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +27,12 @@ class IndexView(TemplateView):
     returns a dictionary containing the context data for the index page.
     Also retrieves the dashboard layout from the session.
     """
+
     context = super().get_context_data(**kwargs)
+    context = add_permission_context_elements(context, self.request.user)
+
     context['dashboard_layout'] = self.request.session.get('dashboard_layout', [])
+    context['inbox_count'] = get_inbox_count(self.request.user)
 
     # Leaflet configuration for the dashboard map
     context['LEAFLET_CONFIG'] = getattr(
@@ -40,12 +46,12 @@ class IndexView(TemplateView):
       },
     )
 
-    # Map data URL for PreventionService
-    context['mapdata_url'] = reverse('kiju:preventionservice_mapdata')
+    # Map data URL for ChildrenAndYouthService
+    context['mapdata_url'] = reverse('kiju:childrenandyouthservice_mapdata')
 
     # Count of objects for the map
-    context['preventionservice_count'] = (
-      PreventionService.objects.filter(geometry__isnull=False)
+    context['ChildrenAndYouthService_count'] = (
+      ChildrenAndYouthService.objects.filter(geometry__isnull=False)
       .exclude(geometry__equals='POINT(0 0)')
       .count()
     )

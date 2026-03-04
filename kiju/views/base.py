@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.views import View
 
-from ..models.services import PreventionService
+from ..models.services import ChildrenAndYouthService
 
 
 class JsonView(View):
@@ -20,14 +20,26 @@ def get_model_objects(model, count_only=False):
   """
   returns objects of passed model (or their count)
 
+  For Service models only published objects (status='published') are returned,
+  so that drafts and services under review are not visible on the map.
+
   :param model: model
   :param count_only: count only?
   :return: objects of passed model (or their count)
   """
-  if count_only:
-    return model.objects.all().count()
+  from kiju.models.services import Service
+
+  is_service_model = not model._meta.abstract and issubclass(model, Service)
+
+  if is_service_model:
+    qs = model.objects.filter(status='published')
   else:
-    return model.objects.all()
+    qs = model.objects.all()
+
+  if count_only:
+    return qs.count()
+  else:
+    return qs
 
 
 def create_geojson_feature(curr_object):
@@ -89,7 +101,7 @@ def create_geojson_feature(curr_object):
         geojson_feature['properties'][field.verbose_name] = value
 
   # Handle specific fields for different service types
-  if isinstance(curr_object, PreventionService):
+  if isinstance(curr_object, ChildrenAndYouthService):
     for field in ['setting', 'phone', 'costs', 'application_needed']:
       if getattr(curr_object, field):
         geojson_feature['properties'][
@@ -119,13 +131,13 @@ class GenericMapDataView(JsonView):
     :param kwargs:
     :return: GeoJSON feature collection
     """
-    feature_collection, objects = None, None
+
+    # Always initialize with empty feature collection
+    feature_collection = {'type': 'FeatureCollection', 'features': []}
     objects = get_model_objects(self.model, False)
 
     # handle objects
     if objects:
-      # declare empty GeoJSON feature collection
-      feature_collection = {'type': 'FeatureCollection', 'features': []}
       for curr_object in objects:
         # only include objects with valid geometry (not default POINT(0 0))
         if hasattr(curr_object, 'geometry') and curr_object.geometry:

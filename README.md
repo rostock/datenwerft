@@ -124,6 +124,7 @@ python manage.py bemas_roles_permissions
 python manage.py fmm_roles_permissions
 python manage.py gdihrocodelists_roles_permissions
 python manage.py gdihrometadata_roles_permissions
+python manage.py kiju_roles_permissions
 python manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 
 # mit uv
@@ -138,6 +139,7 @@ uv run manage.py bemas_roles_permissions
 uv run manage.py fmm_roles_permissions
 uv run manage.py gdihrocodelists_roles_permissions
 uv run manage.py gdihrometadata_roles_permissions
+uv run manage.py kiju_roles_permissions
 uv run manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 ```
 

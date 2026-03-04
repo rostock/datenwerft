@@ -1,6 +1,9 @@
 from django.views.generic import TemplateView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
+from ..utils import get_user_provider, is_angebotsdb_admin
+from .functions import add_permission_context_elements
+
 
 class DataTableView(BaseDatatableView):
   model = None
@@ -18,6 +21,12 @@ class ListView(TemplateView):
   model_verbose_name = None
   model_dict = None
 
+  def dispatch(self, request, *args, **kwargs):
+    """
+    Check if user has permission to access the view.
+    """
+    return super().dispatch(request, *args, **kwargs)
+
   def __init__(self, *args, **kwargs):
     self.model = kwargs.pop('model', None)
     super().__init__(*args, **kwargs)
@@ -25,6 +34,9 @@ class ListView(TemplateView):
       self.model_name = self.model.__name__
       self.model_lower = self.model_name.lower()
       self.model_verbose_name = getattr(self.model._meta, 'verbose_name', self.model_name)
+      self.model_verbose_name_plural = getattr(
+        self.model._meta, 'verbose_name_plural', self.model_name
+      )
       self.model_dict = {
         field.name: {
           'verbose_name': getattr(field, 'verbose_name', field.name),
@@ -39,14 +51,40 @@ class ListView(TemplateView):
     returns a dictionary containing the context data for the index page.
     """
     context = super().get_context_data(**kwargs)
+    context = add_permission_context_elements(context, self.request.user)
     if self.model:
-      queryset = self.model.objects.all()
+      from ..models.services import Service
+
+      is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
+
+      if is_service_model:
+        if self.request.user.is_superuser or is_angebotsdb_admin(self.request.user):
+          # Admins sehen nur die Originale — Draft-Copies sind über die
+          # Review-Inbox zugänglich, nicht über die normale Listenansicht.
+          queryset = self.model.objects.filter(published_version__isnull=True)
+        else:
+          provider = get_user_provider(self.request.user)
+          if provider:
+            # Provider sehen:
+            # 1. Alle eigenen originalen Services (published_version=None)
+            # 2. Eigene Draft-Copies als separate Einträge mit eigenem Status-Badge
+            queryset = self.model.objects.filter(host=provider)
+          else:
+            queryset = self.model.objects.none()
+      else:
+        queryset = self.model.objects.all()
+
       context['model'] = self.model
       context['model_name'] = self.model_name or self.model.__name__
       context['model_lower'] = self.model_lower or self.model.__name__.lower()
       context['model_verbose_name'] = self.model_verbose_name or getattr(
         self.model._meta,
         'verbose_name',
+        self.model.__name__,
+      )
+      context['model_verbose_name_plural'] = self.model_verbose_name_plural or getattr(
+        self.model._meta,
+        'verbose_name_plural',
         self.model.__name__,
       )
       context['model_dict'] = self.model_dict or {}
@@ -56,4 +94,16 @@ class ListView(TemplateView):
         context['list_fields'] = self.model.list_fields
       context['model_icon'] = getattr(self.model, 'icon', None)
       context['model_icon_plural'] = getattr(self.model, 'icon_plural', None)
+
+      # Provider-Informationen für Service-Modelle
+      context['is_service_model'] = is_service_model
+
+      if is_service_model:
+        if self.request.user.is_superuser or is_angebotsdb_admin(self.request.user):
+          context['user_provider'] = '__all__'
+        else:
+          context['user_provider'] = get_user_provider(self.request.user)
+      else:
+        context['user_provider'] = '__all__'
+
     return context

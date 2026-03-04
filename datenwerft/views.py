@@ -5,6 +5,7 @@ from django.views.generic.base import TemplateView
 from antragsmanagement.utils import is_antragsmanagement_user
 from bemas.utils import is_bemas_user
 from fmm.utils import is_fmm_user
+from kiju.utils import is_angebotsdb_user
 
 
 class IndexView(TemplateView):
@@ -30,6 +31,7 @@ class IndexView(TemplateView):
         and not is_antragsmanagement_user(request.user)
         and not is_bemas_user(request.user)
         and not is_fmm_user(request.user)
+        and not is_angebotsdb_user(request.user)
       ):
         return redirect('datenmanagement:index')
       elif is_antragsmanagement_user(request.user, only_antragsmanagement_user_check=True):
@@ -38,6 +40,8 @@ class IndexView(TemplateView):
         return redirect('bemas:index')
       elif is_fmm_user(request.user, only_fmm_user_check=True):
         return redirect('fmm:index')
+      elif is_angebotsdb_user(request.user, only_kiju_user_check=True):
+        return redirect('kiju:index')
 
     return super(IndexView, self).dispatch(request, *args, **kwargs)
 
