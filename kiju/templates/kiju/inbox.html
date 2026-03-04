@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load static %}
+{% load angebotsdb_tags %}
+
+{% block title %}KiJu | Inbox{% endblock %}
+
+{% block content %}
+<div class="container-xxl">
+
+  <a href="{% url 'kiju:index' %}">
+    <i class="fa-solid fa-angle-left me-1"></i>
+    Zurück zum KiJu-Dashboard
+  </a>
+
+  <h1 class="mb-4 mt-3">
+    <i class="fa-solid fa-inbox me-2"></i>
+    Inbox
+    {% if inbox_count and inbox_count > 0 %}
+      <span class="badge bg-warning fs-5 ms-2">{{ inbox_count }}</span>
+    {% endif %}
+  </h1>
+
+  {% if is_angebotsdb_user %}
+
+    {% if inbox_items %}
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Typ</th>
+              <th scope="col">Angebot</th>
+              <th scope="col">Angebotstyp</th>
+              <th scope="col">Auftragsstate</th>
+              <th scope="col">Eingegangen am</th>
+              <th scope="col">Aktion</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in inbox_items %}
+              <tr class="{% if not item.message.is_read %}fw-bold{% endif %}">
+                <td>{{ forloop.counter }}</td>
+
+                <td>
+                  {% if item.message.message_type == 'review_request' %}
+                    <span class="badge bg-primary">
+                      <i class="fa-solid fa-magnifying-glass me-1"></i>Prüfauftrag
+                    </span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark">
+                      <i class="fa-solid fa-pen-to-square me-1"></i>Überarbeitung
+                    </span>
+                  {% endif %}
+                </td>
+
+                <td>
+                  {% if item.service %}
+                    {{ item.service_name }}
+                  {% else %}
+                    <span class="text-muted fst-italic">(gelöscht)</span>
+                  {% endif %}
+                </td>
+
+                <td>
+                  <small class="text-muted">{{ item.service_verbose_name }}</small>
+                </td>
+
+                <td>
+                  {% with status=item.review_task.task_status %}
+                    {% if status == 'pending' %}
+                      <span class="badge bg-info text-dark">
+                        <i class="fa-solid fa-clock me-1"></i>Offen
+                      </span>
+                    {% elif status == 'approved' %}
+                      <span class="badge bg-success">
+                        <i class="fa-solid fa-check me-1"></i>Freigegeben
+                      </span>
+                    {% elif status == 'rejected' %}
+                      <span class="badge bg-danger">
+                        <i class="fa-solid fa-times me-1"></i>Zurückgewiesen
+                      </span>
+                    {% else %}
+                      <span class="badge bg-secondary">{{ status }}</span>
+                    {% endif %}
+                  {% endwith %}
+                </td>
+
+                <td>
+                  <small>{{ item.message.created_at|date:"d.m.Y H:i" }}</small>
+                </td>
+
+                <td>
+                  {% if item.service %}
+                    <a href="{{ item.action_url }}" class="btn btn-sm btn-primary">
+                      <i class="{{ item.action_icon }} me-1"></i>{{ item.action_label }}
+                    </a>
+                  {% else %}
+                    <button class="btn btn-sm btn-secondary" disabled>
+                      <i class="fa-solid fa-ban me-1"></i>Nicht verfügbar
+                    </button>
+                  {% endif %}
+                </td>
+              </tr>
+
+              {# Bei Überarbeitungsaufträgen: Kommentare in einer aufklappbaren Zeile anzeigen #}
+              {% if item.message.message_type == 'revision_request' and item.review_task.comments %}
+                <tr class="table-warning">
+                  <td></td>
+                  <td colspan="6">
+                    <div class="ps-2">
+                      <strong>
+                        <i class="fa-solid fa-comment-dots me-1"></i>
+                        Kommentare des Prüfers:
+                      </strong>
+                      <ul class="mb-0 mt-1">
+                        {% for field_name, comment in item.review_task.comments.items %}
+                          <li>
+                            <small>
+                              <strong>{{ field_name }}:</strong> {{ comment }}
+                            </small>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              {% endif %}
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    {% else %}
+      <div class="alert alert-success mt-4" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>
+        Ihre Inbox ist leer – keine offenen Aufträge.
+      </div>
+    {% endif %}
+
+  {% else %}
+    <div class="alert alert-warning mt-4">
+      Sie haben keine Berechtigung, auf die Inbox zuzugreifen.
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
