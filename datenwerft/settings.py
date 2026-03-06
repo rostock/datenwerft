@@ -38,6 +38,7 @@ LOCAL_APPS = [
   'gdihrocodelists',
   'gdihrometadata',
   'd3',
+  'pygeoapi',
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 LOGIN_REDIRECT_URL = '/'
@@ -64,6 +65,7 @@ TEMPLATES = [
       BASE_DIR / 'antragsmanagement/templates',
       BASE_DIR / 'bemas/templates',
       BASE_DIR / 'fmm/templates',
+      BASE_DIR / 'pygeoapi/templates',
     ],
     'APP_DIRS': True,
     'OPTIONS': {
