@@ -1,9 +1,9 @@
 from decimal import Decimal
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db.models import CASCADE, ForeignKey, Model, OneToOneField, PROTECT
-from django.db.models.fields import AutoField, BooleanField, CharField, IntegerField, DecimalField
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import CASCADE, PROTECT, ForeignKey, Model, OneToOneField
+from django.db.models.fields import AutoField, BooleanField, CharField, DecimalField, IntegerField
 
 
 class DatabaseConnection(Model):
@@ -21,6 +21,7 @@ class DatabaseConnection(Model):
 
   def __str__(self):
     return f'{self.id})'
+
 
 class Collection(Model):
   id = AutoField(primary_key=True)
@@ -64,7 +65,7 @@ class Collection(Model):
         'Der Wert für Osten (räumliche Ausdehnung) darf höchstens 180 sein.',
       ),
     ],
-    verbose_name='Kartenbereich (Ost)'
+    verbose_name='Kartenbereich (Ost)',
   )
   bbox_south = DecimalField(
     max_digits=8,
@@ -79,7 +80,7 @@ class Collection(Model):
         'Der Wert für Süden (räumliche Ausdehnung) darf höchstens 90 sein.',
       ),
     ],
-    verbose_name='Kartenbereich (Süd)'
+    verbose_name='Kartenbereich (Süd)',
   )
   bbox_west = DecimalField(
     max_digits=8,
@@ -94,7 +95,7 @@ class Collection(Model):
         'Der Wert für Westen (räumliche Ausdehnung) darf höchstens 180 sein.',
       ),
     ],
-    verbose_name='Kartenbereich (West)'
+    verbose_name='Kartenbereich (West)',
   )
   deactivated = BooleanField(verbose_name='deaktiviert')
 
@@ -105,6 +106,7 @@ class Collection(Model):
 
   def __str__(self):
     return f'{self.id})'
+
 
 class CollectionKeyword(Model):
   id = AutoField(primary_key=True)
@@ -118,6 +120,7 @@ class CollectionKeyword(Model):
 
   def __str__(self):
     return f'{self.id})'
+
 
 class CollectionCrs(Model):
   id = AutoField(primary_key=True)

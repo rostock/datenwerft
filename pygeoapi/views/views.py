@@ -1,11 +1,10 @@
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
 from jsonview.views import JsonView
 
-from django.apps import apps
 
 class FetchModelDatabaseConfigRequestView(JsonView):
-
   def get(self, request, *args, **kwargs):
     """
     Liefert Metadaten von Models basieren des Model-Identifiers. Der Endpunkt ist auf
@@ -24,7 +23,7 @@ class FetchModelDatabaseConfigRequestView(JsonView):
         400: Der Parameter "modelId" fehlt.
     """
     if not request.user.is_superuser:
-      return JsonResponse({'error': "Forbidden"}, status=403)
+      return JsonResponse({'error': 'Forbidden'}, status=403)
 
     model_id = request.GET.get('modelId')
 
@@ -34,7 +33,6 @@ class FetchModelDatabaseConfigRequestView(JsonView):
     content_type = ContentType.objects.get(id=model_id)
 
     try:
-
       model = apps.get_model(app_label=content_type.app_label, model_name=content_type.model)
       print(model.objects.model._meta.pk.name)
       db_table = model.objects.model._meta.db_table
@@ -47,11 +45,11 @@ class FetchModelDatabaseConfigRequestView(JsonView):
       id_field = None
 
     response = {
-      "name": content_type.name.lower(),
-      "title": content_type.name,
-      "schema": schema,
-      "table": table,
-      "id_field": id_field
+      'name': content_type.name.lower(),
+      'title': content_type.name,
+      'schema': schema,
+      'table': table,
+      'id_field': id_field,
     }
 
     return JsonResponse(response)

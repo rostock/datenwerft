@@ -1,12 +1,12 @@
 from django.contrib import admin
-from django.forms import ModelForm, Select, ModelChoiceField
+from django.forms import ModelChoiceField, ModelForm, Select
 from django.forms.widgets import Textarea
 
 from .models import (
-  DatabaseConnection,
   Collection,
   CollectionCrs,
   CollectionKeyword,
+  DatabaseConnection,
 )
 from .utils import reload_pygeoapi
 
@@ -16,15 +16,17 @@ class CollectionKeywordForInline(admin.StackedInline):
   fieldsets = [(None, {'fields': ['keyword']})]
   extra = 0
 
+
 class CollectionCrsForInline(admin.StackedInline):
   model = CollectionCrs
   fieldsets = [(None, {'fields': ['crs']})]
   extra = 0
 
-class DatenbankVerbindungChoiceField(ModelChoiceField):
 
+class DatenbankVerbindungChoiceField(ModelChoiceField):
   def label_from_instance(self, obj):
-    return "(%d) %s" % (obj.id, obj.dbname)
+    return '(%d) %s' % (obj.id, obj.dbname)
+
 
 class CollectionForm(ModelForm):
   required_css_class = 'required'
@@ -34,8 +36,9 @@ class CollectionForm(ModelForm):
   class Meta:
     widgets = {
       'model': Select(attrs={'class': 'select2 load-database-config'}),
-      'description': Textarea()
+      'description': Textarea(),
     }
+
 
 @admin.register(Collection)
 class CollectionForAdmin(admin.ModelAdmin):
@@ -56,7 +59,7 @@ class CollectionForAdmin(admin.ModelAdmin):
     'bbox_south',
     'bbox_west',
     'storage_crs',
-    'deactivated'
+    'deactivated',
   ]
   form = CollectionForm
   search_fields = ['name']
@@ -73,6 +76,7 @@ class CollectionForAdmin(admin.ModelAdmin):
   def delete_queryset(self, request, queryset):
     super().delete_queryset(request, queryset)
     reload_pygeoapi()
+
 
 @admin.register(DatabaseConnection)
 class DatenbankVerbindungForAdmin(admin.ModelAdmin):

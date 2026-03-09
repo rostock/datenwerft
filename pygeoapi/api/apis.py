@@ -6,10 +6,11 @@ from requests import Response
 
 from datenwerft.settings import (
   APPLICATION_HTTP_USER_AGENT,
-  PYGEOAPI_KEY,
   PYGEOAPI_HOST,
-  PYGEOAPI_RESOURCE
+  PYGEOAPI_KEY,
+  PYGEOAPI_RESOURCE,
 )
+
 
 class PygeoapiApi:
   logger = logging.getLogger(__name__)
@@ -42,11 +43,7 @@ class PygeoapiApi:
       },
     }
     """
-    request_body = {
-      "inputs": {
-        "key": PYGEOAPI_KEY
-      }
-    }
+    request_body = {'inputs': {'key': PYGEOAPI_KEY}}
     self.__post(f'/processes/{PYGEOAPI_RESOURCE}/execution', request_body)
 
   def __post(self, url: str, json: any) -> Response:
