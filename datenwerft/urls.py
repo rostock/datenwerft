@@ -69,6 +69,8 @@ urlpatterns = [
   path(route='gdihrocodelists/', view=include('gdihrocodelists.urls')),
   # ...GDI.HRO Metadata app
   path(route='gdihrometadata/', view=include('gdihrometadata.urls')),
+  # ...pygeoapi app
+  path(route='pygeoapi/', view=include('pygeoapi.urls')),
   # ...Django-RQ
   path(route='django-rq/', view=include('django_rq.urls')),
   # ...main page
