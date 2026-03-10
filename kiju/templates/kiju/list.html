@@ -99,6 +99,15 @@
                 <a href="{% dynamic_url model_lower 'update' obj.pk %}" class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Bearbeiten">
                   <i class="fa-solid fa-edit"></i>
                 </a>
+                {% if is_service_model and obj.status == 'draft' or is_service_model and obj.status == 'revision_needed' %}
+                  {% if user_provider == '__all__' or user_provider == obj.host %}
+                    <span data-bs-toggle="modal" data-bs-target="#submitForReviewModal">
+                      <button type="button" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Zur Prüfung freigeben" data-submit-url="{% url 'kiju:submit_for_review' model_lower obj.pk %}" data-object-name="{{ obj }}">
+                        <i class="fa-solid fa-paper-plane"></i>
+                      </button>
+                    </span>
+                  {% endif %}
+                {% endif %}
                 {% if not is_service_model or user_provider == '__all__' or user_provider == obj.host %}
                   <span data-bs-toggle="modal" data-bs-target="#deleteModal">
                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Löschen" data-object-id="{{ obj.pk }}" data-object-name="{{ obj }}" data-model-name="{{ model_verbose_name|default:model_name }}" data-model-lower="{{ model_lower }}" data-delete-url="{% dynamic_url model_lower 'delete' obj.pk %}" data-list-url="{% dynamic_url model_lower 'list' %}" data-object-data='{{ obj|to_json }}'>
@@ -117,6 +126,9 @@
 
     <!-- Löschen-Modal -->
     {% include "kiju/includes/delete_modal.html" %}
+
+    <!-- Zur Prüfung freigeben-Modal -->
+    {% include "kiju/includes/submit_for_review_modal.html" %}
 
     <!-- JavaScript für Tooltips -->
     <script>
