@@ -277,7 +277,7 @@
                 }
 
                 // Add additional properties
-                const skipProps = ['_model', '_pk', '_tooltip', '_title', '_link_update', '_link_delete'];
+                const skipProps = ['_model', '_pk', '_tooltip', '_title', '_link_detail', '_link_delete'];
                 for (const [key, value] of Object.entries(feature.properties)) {
                   if (!skipProps.includes(key) && value) {
                     popupContent += '<small><strong>' + key + ':</strong> ' + value + '</small><br>';
@@ -285,10 +285,10 @@
                 }
 
                 // Add action links
-                if (feature.properties._link_update) {
+                if (feature.properties._link_detail) {
                   popupContent += '<div class="mt-2">';
-                  popupContent += '<a href="' + feature.properties._link_update + '" class="btn btn-sm btn-primary me-1">';
-                  popupContent += '<i class="fa-solid fa-pen-to-square"></i> Bearbeiten</a>';
+                  popupContent += '<a href="' + feature.properties._link_detail + '" class="btn btn-sm btn-outline-secondary me-1">';
+                  popupContent += '<i class="fa-solid fa-eye"></i> Ansehen</a>';
                   popupContent += '</div>';
                 }
 

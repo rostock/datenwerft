@@ -203,7 +203,7 @@ class GenericCreateView(CreateView):
       _meta_attrs = {'model': used_model, 'exclude': ['user_id']}
     elif is_service_model:
       # host- und status-Feld werden automatisch verwaltet → aus dem Formular ausschließen
-      _meta_attrs = {'model': used_model, 'exclude': ['host', 'status']}
+      _meta_attrs = {'model': used_model, 'exclude': ['host', 'status', 'published_version']}
     else:
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
@@ -354,8 +354,11 @@ class GenericUpdateView(UpdateView):
   # model = None
   success_url = None
 
-  def __init__(self, model, *args, **kwargs):
+  readonly = False
+
+  def __init__(self, model, readonly=False, *args, **kwargs):
     self.model = model
+    self.readonly = readonly
     self.success_url = reverse_lazy(viewname=f'kiju:{self.model.__name__.lower()}_list')
 
   def dispatch(self, request, *args, **kwargs):
@@ -364,12 +367,18 @@ class GenericUpdateView(UpdateView):
     ):
       return HttpResponseForbidden("You don't have permission to access this resource")
     self.fields = '__all__'
+    self._editing_published = False
+
+    # ── Readonly-Modus (Detail-Ansicht) ────────────────────────────────────
+    if self.readonly:
+      self._service_locked = True
+      return super().dispatch(request, *args, **kwargs)
 
     from django.shortcuts import redirect
     from django.urls import reverse
 
     from ..models.services import Service
-    from ..utils import create_draft_copy, get_draft_copy_for_user, get_user_provider
+    from ..utils import get_draft_copy_for_user, get_user_provider
 
     obj = self.get_object()  # nutzt Cache ab jetzt
     is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
@@ -381,32 +390,29 @@ class GenericUpdateView(UpdateView):
       if status == 'in_review':
         self._service_locked = True
 
-      # ── Redirect bei published → Draft-Copy ──────────────────────────────
+      # ── Published: Draft suchen oder Formular normal öffnen ─────────────
       elif status == 'published':
-        # Gilt für ALLE Nutzer (auch Admins) — niemand darf published
-        # Services direkt bearbeiten.
         provider = get_user_provider(request.user)
 
         if provider is not None:
-          # Provider-Nutzer: Draft-Copy unter eigenem Provider suchen/anlegen
           draft = get_draft_copy_for_user(obj, request.user)
-          if draft is None:
-            draft = create_draft_copy(obj, request.user)
         else:
-          # Admin/Superuser ohne Provider: Draft-Copy unter host des Originals
-          # suchen oder neu anlegen (host bleibt der Original-Provider)
           draft = obj.__class__.objects.filter(
             published_version=obj,
             status__in=['draft', 'in_review', 'revision_needed'],
           ).first()
-          if draft is None:
-            draft = create_draft_copy(obj, request.user)
 
-        draft_url = reverse(
-          f'kiju:{self.model.__name__.lower()}_update',
-          args=[draft.pk],
-        )
-        return redirect(draft_url)
+        if draft is not None:
+          # Draft existiert → zum Draft weiterleiten
+          draft_url = reverse(
+            f'kiju:{self.model.__name__.lower()}_update',
+            args=[draft.pk],
+          )
+          return redirect(draft_url)
+        else:
+          # Kein Draft → Formular normal öffnen, Draft erst beim Speichern
+          self._editing_published = True
+          self._service_locked = False
 
       else:
         self._service_locked = False
@@ -442,7 +448,7 @@ class GenericUpdateView(UpdateView):
     is_service_model = not used_model._meta.abstract and issubclass(used_model, Service)
 
     if is_service_model:
-      _meta_attrs = {'model': used_model, 'exclude': ['host', 'status']}
+      _meta_attrs = {'model': used_model, 'exclude': ['host', 'status', 'published_version']}
     else:
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
@@ -479,7 +485,7 @@ class GenericUpdateView(UpdateView):
     return StyledForm
 
   def form_valid(self, form):
-    # POST-Absicherung: Gesperrte Services (in_review) dürfen nicht gespeichert werden
+    # POST-Absicherung: Gesperrte Services (in_review/readonly) dürfen nicht gespeichert werden
     if getattr(self, '_service_locked', False):
       raise PermissionDenied(
         'Dieser Service befindet sich in Prüfung und kann nicht bearbeitet werden.'
@@ -491,6 +497,30 @@ class GenericUpdateView(UpdateView):
     is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
     if is_service_model and not authorized_to_edit(self.request.user, self.object):
       raise PermissionDenied('Sie haben keine Berechtigung, dieses Angebot zu bearbeiten.')
+
+    # Lazy Draft-Erstellung: Bei published Services wird nicht direkt gespeichert,
+    # sondern ein Draft-Copy mit den Änderungen erstellt.
+    if getattr(self, '_editing_published', False):
+      from django.shortcuts import redirect
+
+      from ..utils import create_draft_copy
+
+      published = self.object
+      draft = create_draft_copy(published, self.request.user)
+
+      # Formular-Änderungen auf den Draft anwenden
+      for field_name, value in form.cleaned_data.items():
+        try:
+          field_obj = draft._meta.get_field(field_name)
+          if field_obj.many_to_many:
+            getattr(draft, field_name).set(value)
+          else:
+            setattr(draft, field_name, value)
+        except Exception:
+          pass
+      draft.save()
+
+      return redirect(self.success_url)
 
     return super().form_valid(form)
 
@@ -506,6 +536,7 @@ class GenericUpdateView(UpdateView):
     context['model_lower'] = self.model.__name__.lower()
     context['model_icon'] = getattr(self.model, 'icon', None)
     context['is_update'] = True  # Kennzeichnung für Update-Operation
+    context['readonly'] = self.readonly
 
     context['LEAFLET_CONFIG'] = getattr(
       settings,

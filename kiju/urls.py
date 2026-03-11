@@ -62,6 +62,13 @@ for model in models:
   )
   urlpatterns.append(
     path(
+      route=f'{model_name}/<int:pk>/detail',
+      view=login_required(GenericUpdateView.as_view(model=model, readonly=True)),
+      name=f'{model_name}_detail',
+    )
+  )
+  urlpatterns.append(
+    path(
       route=f'{model_name}/<int:pk>/delete',
       view=login_required(GenericDeleteView.as_view(model=model)),
       name=f'{model_name}_delete',

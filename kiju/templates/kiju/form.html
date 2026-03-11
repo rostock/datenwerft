@@ -58,8 +58,15 @@
     </h1>
     {% if is_angebotsdb_user %}
 
+      {# ── Readonly-Hinweis (Detail-Ansicht) ─────────────────────────────────── #}
+      {% if readonly %}
+        <div class="alert alert-secondary mt-4" role="alert">
+          <i class="fa-solid fa-eye me-2"></i>
+          <strong>Ansichtsmodus:</strong>
+          Dieses Angebot wird nur angezeigt. Um es zu bearbeiten, nutzen Sie den Bearbeiten-Button in der Übersicht.
+        </div>
       {# ── Sperr-Hinweis bei in_review ──────────────────────────────────────── #}
-      {% if service_locked %}
+      {% elif service_locked %}
         <div class="alert alert-info mt-4" role="alert">
           <i class="fa-solid fa-lock me-2"></i>
           <strong>Bearbeitung gesperrt:</strong>
@@ -193,23 +200,6 @@
               </button>
             {% endif %}
 
-            {# ── "Zur Prüfung freigeben"-Button (nur für Service-Objekte im richtigen Status) #}
-            {# Das form-Element liegt AUSSERHALB des äußeren <form>-Tags (s.u.), da HTML keine  #}
-            {# verschachtelten Formulare erlaubt. Der Button referenziert es per form="submit-review-form". #}
-            {% if is_update and service_status == 'draft' or is_update and service_status == 'revision_needed' %}
-              <button type="submit"
-                      form="submit-review-form"
-                      class="btn {% if service_status == 'revision_needed' %}btn-warning{% else %}btn-outline-warning{% endif %}"
-                      onclick="return confirm('Möchten Sie dieses Angebot zur Prüfung freigeben? Es kann danach nicht mehr bearbeitet werden, bis die Prüfung abgeschlossen ist.');">
-                <i class="fa-solid fa-paper-plane me-1"></i>
-                {% if service_status == 'revision_needed' %}
-                  Erneut zur Prüfung freigeben
-                {% else %}
-                  Zur Prüfung freigeben
-                {% endif %}
-              </button>
-            {% endif %}
-
             {% if is_update and user_can_save %}
               <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-object-id="{{ object.pk }}" data-object-name="{{ object }}" data-model-name="{{ model_verbose_name|default:model_name }}" data-model-lower="{{ model_lower }}" data-delete-url="{% dynamic_url model_lower 'delete' object.pk %}" data-list-url="{% dynamic_url model_lower 'list' %}" data-object-data='{{ object|to_json }}'>
                 <i class="fa-solid fa-trash me-1"></i>
@@ -223,16 +213,6 @@
           </div>
         </div>
       </form>
-
-      {# ── Separates Formular für "Zur Prüfung freigeben" (außerhalb des Haupt-forms) ── #}
-      {% if is_update and service_status == 'draft' or is_update and service_status == 'revision_needed' %}
-        <form id="submit-review-form"
-              method="post"
-              action="{% url 'kiju:submit_for_review' model_lower object.pk %}"
-              style="display: none;">
-          {% csrf_token %}
-        </form>
-      {% endif %}
 
       {% if form|has_geometry_field %}
         <script>

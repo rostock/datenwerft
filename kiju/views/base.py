@@ -71,7 +71,7 @@ def create_geojson_feature(curr_object):
       '_pk': pk,
       '_tooltip': str(curr_object),
       '_title': curr_object.__class__._meta.verbose_name,
-      '_link_update': reverse('kiju:' + model + '_update', args=[pk]),
+      '_link_detail': reverse('kiju:' + model + '_detail', args=[pk]),
       '_link_delete': reverse('kiju:' + model + '_delete', args=[pk]),
     },
   }

@@ -32,9 +32,10 @@
           </tr>
         </thead>
         <tbody>
-          {% for obj in object_list %}
-            <tr>
-              <td>{{ forloop.counter }}</td>
+          {% for item in annotated_objects %}
+            {% with obj=item.obj display_number=item.display_number is_fork=item.is_fork tree_prefix=item.tree_prefix has_draft_copy=item.has_draft_copy %}
+            <tr{% if is_fork %} class="table-secondary"{% endif %}>
+              <td>{% if is_fork %}<span style="color: #aaa; font-family: monospace; margin-right: 0.25rem;">{{ tree_prefix }}</span>{% endif %}{{ display_number }}</td>
               {% if list_fields %}
                 {% for key, value in list_fields.items %}
                   <td>
@@ -43,7 +44,7 @@
                     {% elif key == 'updated_at' or key == 'created_at' %}
                       {{ obj|get_attribute:key|date:"d.m.Y H:i" }}
                     {% elif key == 'status' %}
-                      {% with status_val=obj|get_attribute:'status' is_copy=obj|get_attribute:'published_version' %}
+                      {% with status_val=obj.status is_copy=obj.published_version %}
                         {% if is_copy %}
                           {# Draft-Copy eines veröffentlichten Service #}
                           {% if status_val == 'draft' %}
@@ -96,9 +97,22 @@
                 <td>{{ obj.updated_at|date:"d.m.Y H:i" }}</td>
               {% endif %}
               <td>
-                <a href="{% dynamic_url model_lower 'update' obj.pk %}" class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Bearbeiten">
-                  <i class="fa-solid fa-edit"></i>
-                </a>
+                {# ── Bearbeiten-Button: draft, revision_needed, oder published ohne Draft ── #}
+                {% if not is_service_model or obj.status == 'draft' or obj.status == 'revision_needed' %}
+                  <a href="{% dynamic_url model_lower 'update' obj.pk %}" class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Bearbeiten">
+                    <i class="fa-solid fa-edit"></i>
+                  </a>
+                {% elif obj.status == 'published' and not has_draft_copy %}
+                  <a href="{% dynamic_url model_lower 'update' obj.pk %}" class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Bearbeiten">
+                    <i class="fa-solid fa-edit"></i>
+                  </a>
+                {# ── Ansehen-Button: in_review, oder published mit Draft ── #}
+                {% elif obj.status == 'in_review' or obj.status == 'published' and has_draft_copy %}
+                  <a href="{% dynamic_url model_lower 'detail' obj.pk %}" class="btn btn-sm btn-outline-secondary me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Ansehen">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                {% endif %}
+                {# ── Zur Prüfung freigeben: nur draft/revision_needed ── #}
                 {% if is_service_model and obj.status == 'draft' or is_service_model and obj.status == 'revision_needed' %}
                   {% if user_provider == '__all__' or user_provider == obj.host %}
                     <span data-bs-toggle="modal" data-bs-target="#submitForReviewModal">
@@ -108,6 +122,7 @@
                     </span>
                   {% endif %}
                 {% endif %}
+                {# ── Löschen-Button ── #}
                 {% if not is_service_model or user_provider == '__all__' or user_provider == obj.host %}
                   <span data-bs-toggle="modal" data-bs-target="#deleteModal">
                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Löschen" data-object-id="{{ obj.pk }}" data-object-name="{{ obj }}" data-model-name="{{ model_verbose_name|default:model_name }}" data-model-lower="{{ model_lower }}" data-delete-url="{% dynamic_url model_lower 'delete' obj.pk %}" data-list-url="{% dynamic_url model_lower 'list' %}" data-object-data='{{ obj|to_json }}'>
@@ -117,8 +132,10 @@
                 {% endif %}
               </td>
             </tr>
+            {% endwith %}
           {% endfor %}
         </tbody>
+
       </table>
     {% else %}
       <p class="text-muted">Keine Einträge vorhanden.</p>

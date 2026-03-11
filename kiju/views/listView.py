@@ -74,6 +74,32 @@ class ListView(TemplateView):
       else:
         queryset = self.model.objects.all()
 
+      # Hierarchische Liste für das Template aufbauen:
+      # Bei Providern erscheinen Forks (Draft-Copies) direkt unter ihrem Original
+      # mit Sub-Nummerierung (1.1, 2.1, ...) und Einrückung.
+      provider_with_forks = (
+        is_service_model
+        and not (self.request.user.is_superuser or is_angebotsdb_admin(self.request.user))
+        and get_user_provider(self.request.user)
+      )
+      if provider_with_forks:
+        originals = queryset.filter(published_version__isnull=True)
+        annotated_objects = []
+        parent_num = 0
+        for svc in originals:
+          parent_num += 1
+          copies = list(queryset.filter(published_version=svc))
+          has_draft = len(copies) > 0
+          annotated_objects.append({'obj': svc, 'display_number': str(parent_num), 'is_fork': False, 'tree_prefix': '', 'has_draft_copy': has_draft})
+          for j, copy in enumerate(copies):
+            tree_char = '└─' if j == len(copies) - 1 else '├─'
+            annotated_objects.append({'obj': copy, 'display_number': f'{parent_num}.{j + 1}', 'is_fork': True, 'tree_prefix': tree_char, 'has_draft_copy': False})
+      else:
+        annotated_objects = [
+          {'obj': obj, 'display_number': str(i), 'is_fork': False, 'tree_prefix': '', 'has_draft_copy': False}
+          for i, obj in enumerate(queryset, start=1)
+        ]
+
       context['model'] = self.model
       context['model_name'] = self.model_name or self.model.__name__
       context['model_lower'] = self.model_lower or self.model.__name__.lower()
@@ -90,6 +116,8 @@ class ListView(TemplateView):
       context['model_dict'] = self.model_dict or {}
       context['object_list'] = queryset
       context['objects'] = queryset
+      context['annotated_objects'] = annotated_objects
+
       if hasattr(self.model, 'list_fields'):
         context['list_fields'] = self.model.list_fields
       context['model_icon'] = getattr(self.model, 'icon', None)
