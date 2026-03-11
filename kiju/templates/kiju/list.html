@@ -35,7 +35,7 @@
           {% for item in annotated_objects %}
             {% with obj=item.obj display_number=item.display_number is_fork=item.is_fork tree_prefix=item.tree_prefix has_draft_copy=item.has_draft_copy %}
             <tr{% if is_fork %} class="table-secondary"{% endif %}>
-              <td>{% if is_fork %}<span style="color: #aaa; font-family: monospace; margin-right: 0.25rem;">{{ tree_prefix }}</span>{% endif %}{{ display_number }}</td>
+              <td>{% if is_fork %}<span class="text-muted font-monospace">{{ tree_prefix }}</span>{% else %}{{ display_number }}{% endif %}</td>
               {% if list_fields %}
                 {% for key, value in list_fields.items %}
                   <td>

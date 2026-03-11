@@ -31,10 +31,9 @@ class Service(Base):
   # Logical attributes
   list_fields = {
     'name': 'Name',
-    'description': 'Beschreibung',
+    'status': 'Status',
     'host': 'Anbieter',
     'tags': 'Schlagworte',
-    'status': 'Status',
     'updated_at': 'Zuletzt aktualisiert',
   }
 
