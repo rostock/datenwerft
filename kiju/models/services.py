@@ -4,13 +4,16 @@ from django.db.models import (
   SET_NULL,
   BooleanField,
   CharField,
+  DateField,
   EmailField,
   FloatField,
   ForeignKey,
   ImageField,
   IntegerField,
+  JSONField,
   ManyToManyField,
   TextField,
+  URLField,
 )
 
 from .base import Base, Law, Provider, Tag, TargetGroup, Topic
@@ -90,6 +93,19 @@ class Service(Base):
     blank=True,
     related_name='%(class)s',
   )
+  expiry_date = DateField(
+    verbose_name='Ablaufdatum',
+    null=True,
+    blank=True,
+    help_text='Datum, an dem das Angebot ausläuft.',
+  )
+  info_url = URLField(
+    max_length=500,
+    verbose_name='Weiterführender Link',
+    null=True,
+    blank=True,
+    help_text='Externe URL für weitere Informationen (z.B. Träger-Website).',
+  )
   status = CharField(
     max_length=20,
     choices=SERVICE_STATUS_CHOICES,
@@ -129,6 +145,15 @@ class ChildrenAndYouthService(Service):
   application_needed = BooleanField(verbose_name='Antrag erforderlich?')
   phone = CharField(max_length=255, verbose_name='Telefonnummer')
   costs = FloatField(verbose_name='Kosten in Euro')
+  catchment_area_urls = JSONField(
+    verbose_name='Einzugsgebiet-URLs',
+    default=list,
+    blank=True,
+    help_text=(
+      'Liste von PyGeoAPI-Endpunkt-URIs. Für jeden Stadtteil im Einzugsgebiet '
+      'wird die entsprechende Endpunkt-URI gespeichert.'
+    ),
+  )
 
   class Meta:
     verbose_name = 'Angebot für Kinder und Jugendliche'
@@ -148,6 +173,15 @@ class FamilyService(Service):
   application_needed = BooleanField(verbose_name='Antrag erforderlich?')
   phone = CharField(max_length=255, verbose_name='Telefonnummer')
   costs = FloatField(verbose_name='Kosten in Euro')
+  catchment_area_urls = JSONField(
+    verbose_name='Einzugsgebiet-URLs',
+    default=list,
+    blank=True,
+    help_text=(
+      'Liste von PyGeoAPI-Endpunkt-URIs. Für jeden Stadtteil im Einzugsgebiet '
+      'wird die entsprechende Endpunkt-URI gespeichert.'
+    ),
+  )
 
   class Meta:
     verbose_name = 'Angebot für Familien'
