@@ -6750,8 +6750,13 @@ class Wegesperren(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_ausfuehrungen',
   )
-  laenge = PositiveSmallIntegerMinField(
-    verbose_name='Länge (in mm)', min_value=1, blank=True, null=True
+  laengen = ArrayField(
+    PositiveSmallIntegerMinField(
+      verbose_name='Längen (in mm)', min_value=1, blank=True, null=True
+    ),
+    verbose_name='Längen (in mm)',
+    blank=True,
+    null=True,
   )
   baujahr = PositiveSmallIntegerRangeField(
     verbose_name='Baujahr', min_value=1900, max_value=get_current_year(), blank=True, null=True
@@ -6806,7 +6811,6 @@ class Wegesperren(SimpleModel):
       'eigentuemer': 'Eigentümer',
       'hersteller': 'Hersteller',
       'ausfuehrung': 'Ausführung',
-      'laenge': 'Länge (in mm)',
       'baujahr': 'Baujahr',
       'schliessung': 'Schließung',
       'anlieger': 'Anlieger',
@@ -6861,7 +6865,6 @@ class Wegesperren(SimpleModel):
       'eigentuemer': 'Eigentümer',
       'hersteller': 'Hersteller',
       'ausfuehrung': 'Ausführung',
-      'laenge': 'Länge (in mm)',
       'baujahr': 'Baujahr',
       'schliessung': 'Schließung',
       'anlieger': 'Anlieger',

@@ -12,6 +12,7 @@ from django.db.models.fields import (
   DateField,
   DateTimeField,
   DecimalField,
+  PositiveSmallIntegerField,
   TimeField,
 )
 from django.forms import CheckboxSelectMultiple, Select, Textarea, TextInput
@@ -202,10 +203,13 @@ def assign_widgets(field):
     form_field = field.formfield(
       widget=TextInput(attrs={'type': 'time', 'class': 'form-control', 'step': '1'})
     )
-  # handle decimal array fields/widgets
-  elif issubclass(field.__class__, DecimalField) and is_array_field:
+  # handle numeric array fields/widgets
+  elif is_array_field and (
+    issubclass(field.__class__, DecimalField)
+    or issubclass(field.__class__, PositiveSmallIntegerField)
+  ):
     label = form_field.label
-    step = 10**-field.decimal_places
+    step = 10**-field.decimal_places if issubclass(field.__class__, DecimalField) else 1
     form_field = ArrayDecimalField(
       label=label,
       widget=TextInput(attrs={'type': 'number', 'class': 'form-control', 'step': step}),

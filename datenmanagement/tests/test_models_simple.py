@@ -13961,7 +13961,7 @@ class WegesperrenTest(DefaultSimpleModelTestCase):
       'ausfuehrung': str(ausfuehrung2.pk),
       'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {'laenge': INVALID_INTEGER}
+    cls.attributes_values_view_invalid = {'lagebeschreibung': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
