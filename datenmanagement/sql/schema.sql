@@ -116,7 +116,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -4596,7 +4596,7 @@ CREATE TABLE fachdaten_strassenbezug.wegesperren_hro (
     eigentuemer uuid NOT NULL,
     hersteller uuid,
     ausfuehrung uuid NOT NULL,
-    laenge smallint,
+    laengen smallint[],
     baujahr smallint,
     schliessung uuid,
     anlieger uuid,
