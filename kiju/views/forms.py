@@ -1,11 +1,13 @@
 import json
 
 from django.conf import settings
+from django.contrib.gis.geos import Point
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.forms import ChoiceField, ModelForm, ModelMultipleChoiceField, ValidationError, widgets
 from django.http import HttpResponseForbidden, JsonResponse
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from ..constants_vars import ADMIN_GROUP, USERS_GROUP
@@ -16,6 +18,24 @@ from ..utils import (
   is_angebotsdb_user,
 )
 from .functions import add_permission_context_elements
+
+
+def _set_geometry_from_request(request, instance):
+  """
+  Liest die Geometrie aus dem Hidden-Field 'geometry' im POST-Request
+  und setzt sie auf die Service-Instanz (EPSG:4326 GeoJSON → EPSG:25833 Point).
+  """
+  geometry_json = request.POST.get('geometry', '')
+  if geometry_json:
+    try:
+      geojson = json.loads(geometry_json)
+      coords = geojson.get('coordinates', [])
+      if coords and len(coords) >= 2 and coords[0] != 0 and coords[1] != 0:
+        point = Point(coords[0], coords[1], srid=4326)
+        point.transform(25833)
+        instance.geometry = point
+    except (json.JSONDecodeError, TypeError, KeyError):
+      pass
 
 
 class TagMultipleChoiceField(ModelMultipleChoiceField):
@@ -203,7 +223,7 @@ class GenericCreateView(CreateView):
       _meta_attrs = {'model': used_model, 'exclude': ['user_id']}
     elif is_service_model:
       # host- und status-Feld werden automatisch verwaltet → aus dem Formular ausschließen
-      _meta_attrs = {'model': used_model, 'exclude': ['host', 'status', 'published_version']}
+      _meta_attrs = {'model': used_model, 'exclude': ['host', 'status', 'published_version', 'geometry']}
     else:
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
@@ -250,12 +270,6 @@ class GenericCreateView(CreateView):
           field_order = ['user_id'] + [f for f in self.fields if f != 'user_id']
           self.order_fields(field_order)
 
-        # Wenn das Modell ein Geometrie-Feld hat, verwende LeafletWidget
-        if 'geometry' in self.fields:
-          from leaflet.forms.widgets import LeafletWidget
-
-          self.fields['geometry'].widget = LeafletWidget()
-
         if 'tags' in self.fields:
           from ..models.base import Tag
 
@@ -268,6 +282,15 @@ class GenericCreateView(CreateView):
               attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
             ),
           )
+
+        # Adressfeld-Placeholder anpassen
+        if is_service_model:
+          if 'street' in self.fields:
+            self.fields['street'].widget.attrs['placeholder'] = 'Straße & Hausnr.'
+          if 'zip' in self.fields:
+            self.fields['zip'].widget.attrs['placeholder'] = 'PLZ'
+          if 'city' in self.fields:
+            self.fields['city'].widget.attrs['placeholder'] = 'Gemeinde'
 
     return StyledForm
 
@@ -294,14 +317,12 @@ class GenericCreateView(CreateView):
           ),
         )
         return self.form_invalid(form)
+      # Geometrie aus Hidden-Field übernehmen
+      _set_geometry_from_request(self.request, form.instance)
 
     # IntegrityError abfangen, die z.B. bei unique_together-Verletzungen entsteht
-    # (z.B. doppelter Eintrag bei OrgUnitServicePermission).
-    # Ohne diesen Handler würde Django mit einem 500-Fehler abstürzen, da die
-    # Datenbankeinschränkung erst beim INSERT greift — also nach der Formularvalidierung.
-    # Stattdessen wird der Fehler als lesbarer Formularfehler zurückgegeben.
     try:
-      return super().form_valid(form)
+      response = super().form_valid(form)
     except IntegrityError:
       form.add_error(
         None,
@@ -311,6 +332,16 @@ class GenericCreateView(CreateView):
         ),
       )
       return self.form_invalid(form)
+
+    # Hochgeladene Bilder als ServiceImage-Objekte speichern
+    if is_service_model:
+      _save_uploaded_images(
+        self.request,
+        self.model.__name__.lower(),
+        self.object.pk,
+      )
+
+    return response
 
   def get_context_data(self, **kwargs):
     context = super().get_context_data(**kwargs)
@@ -343,6 +374,9 @@ class GenericCreateView(CreateView):
     is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
     if is_service_model:
       context['user_can_save'] = authorized_to_edit(self.request.user)
+      context['service_images'] = []
+      context['is_service_model'] = True
+      context['addresssearch_url'] = reverse_lazy('toolbox:addresssearch')
     else:
       context['user_can_save'] = True
 
@@ -448,7 +482,7 @@ class GenericUpdateView(UpdateView):
     is_service_model = not used_model._meta.abstract and issubclass(used_model, Service)
 
     if is_service_model:
-      _meta_attrs = {'model': used_model, 'exclude': ['host', 'status', 'published_version']}
+      _meta_attrs = {'model': used_model, 'exclude': ['host', 'status', 'published_version', 'geometry']}
     else:
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
@@ -458,11 +492,6 @@ class GenericUpdateView(UpdateView):
 
       def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Wenn das Modell ein Geometrie-Feld hat, verwende LeafletWidget
-        if 'geometry' in self.fields:
-          from leaflet.forms.widgets import LeafletWidget
-
-          self.fields['geometry'].widget = LeafletWidget()
 
         if 'tags' in self.fields:
           from ..models.base import Tag
@@ -476,6 +505,15 @@ class GenericUpdateView(UpdateView):
               attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
             ),
           )
+
+        # Adressfeld-Placeholder anpassen
+        if is_service_model:
+          if 'street' in self.fields:
+            self.fields['street'].widget.attrs['placeholder'] = 'Straße & Hausnr.'
+          if 'zip' in self.fields:
+            self.fields['zip'].widget.attrs['placeholder'] = 'PLZ'
+          if 'city' in self.fields:
+            self.fields['city'].widget.attrs['placeholder'] = 'Gemeinde'
 
         # Bei gesperrtem Service alle Felder deaktivieren
         if service_locked:
@@ -498,6 +536,10 @@ class GenericUpdateView(UpdateView):
     if is_service_model and not authorized_to_edit(self.request.user, self.object):
       raise PermissionDenied('Sie haben keine Berechtigung, dieses Angebot zu bearbeiten.')
 
+    # Geometrie aus Hidden-Field übernehmen
+    if is_service_model:
+      _set_geometry_from_request(self.request, form.instance)
+
     # Lazy Draft-Erstellung: Bei published Services wird nicht direkt gespeichert,
     # sondern ein Draft-Copy mit den Änderungen erstellt.
     if getattr(self, '_editing_published', False):
@@ -518,11 +560,31 @@ class GenericUpdateView(UpdateView):
             setattr(draft, field_name, value)
         except Exception:
           pass
+      # Geometrie auch auf den Draft übertragen
+      _set_geometry_from_request(self.request, draft)
       draft.save()
+
+      # Hochgeladene Bilder auf den Draft speichern
+      if is_service_model:
+        _save_uploaded_images(
+          self.request,
+          self.model.__name__.lower(),
+          draft.pk,
+        )
 
       return redirect(self.success_url)
 
-    return super().form_valid(form)
+    response = super().form_valid(form)
+
+    # Hochgeladene Bilder speichern
+    if is_service_model:
+      _save_uploaded_images(
+        self.request,
+        self.model.__name__.lower(),
+        self.object.pk,
+      )
+
+    return response
 
   def get_context_data(self, **kwargs):
     context = super().get_context_data(**kwargs)
@@ -567,6 +629,19 @@ class GenericUpdateView(UpdateView):
       context['user_can_save'] = True
       context['service_locked'] = False
 
+    if is_service_model:
+      context['is_service_model'] = True
+      context['addresssearch_url'] = reverse_lazy('toolbox:addresssearch')
+
+    # Service-Bilder für das Template laden
+    if is_service_model:
+      from ..models.services import ServiceImage
+
+      context['service_images'] = ServiceImage.objects.filter(
+        service_type=self.model.__name__.lower(),
+        service_id=self.object.pk,
+      )
+
     # Service-Status und Kommentare für Workflow-Buttons im Template
     if is_service_model:
       context['service_status'] = getattr(self.object, 'status', None)
@@ -601,9 +676,7 @@ class GenericUpdateView(UpdateView):
         geojson = json.loads(geom_transformed.geojson)
         context['geometry'] = json.dumps(geojson)
         context['model_geometry_type'] = geom.geom_type
-        print(f'Geometrietyp: {geom.geom_type}')
-      except Exception as e:
-        print(f'Error converting geometry: {e}')
+      except Exception:
         context['geometry'] = None
     else:
       context['geometry'] = None
@@ -687,3 +760,48 @@ class GenericDeleteView(DeleteView):
     else:
       # Normale Behandlung für nicht-AJAX-Anfragen
       return super().delete(request, *args, **kwargs)
+
+
+def _save_uploaded_images(request, service_type, service_id):
+  """
+  Speichert alle hochgeladenen Bilder aus request.FILES als ServiceImage-Objekte.
+  """
+  from ..models.services import ServiceImage
+
+  files = request.FILES.getlist('images')
+  for file in files:
+    ServiceImage.objects.create(
+      service_type=service_type,
+      service_id=service_id,
+      image=file,
+    )
+
+
+class ServiceImageDeleteView(View):
+  """
+  AJAX-Endpoint zum Löschen eines ServiceImage.
+  """
+
+  def post(self, request, pk):
+    from ..models.services import ServiceImage
+
+    if not (
+      is_angebotsdb_user(request.user) or request.user.is_superuser or request.user.is_staff
+    ):
+      return JsonResponse({'success': False, 'message': 'Keine Berechtigung.'}, status=403)
+
+    try:
+      image = ServiceImage.objects.get(pk=pk)
+    except ServiceImage.DoesNotExist:
+      return JsonResponse({'success': False, 'message': 'Bild nicht gefunden.'}, status=404)
+
+    # Berechtigungsprüfung: Nur Provider des zugehörigen Service oder Admin
+    if not (request.user.is_superuser or is_angebotsdb_admin(request.user)):
+      from ..utils import get_service_instance
+
+      service = get_service_instance(image.service_type, image.service_id)
+      if service and not authorized_to_edit(request.user, service):
+        return JsonResponse({'success': False, 'message': 'Keine Berechtigung.'}, status=403)
+
+    image.delete()
+    return JsonResponse({'success': True, 'message': 'Bild wurde gelöscht.'})

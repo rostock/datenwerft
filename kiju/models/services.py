@@ -43,12 +43,6 @@ class Service(Base):
   # Database fields
   name = CharField(max_length=255, verbose_name='Name')
   description = TextField(verbose_name='Beschreibung')
-  image = ImageField(
-    upload_to='services/',
-    verbose_name='Bild',
-    null=True,
-    blank=True,
-  )
   topic = ManyToManyField(
     to=Topic,
     verbose_name='Kategorie(n)',
@@ -81,9 +75,15 @@ class Service(Base):
   )
   city = CharField(
     max_length=100,
-    verbose_name='Stadt',
+    verbose_name='Gemeinde',
     null=True,
     blank=True,
+  )
+  contact_hours = TextField(
+    verbose_name='Kontaktzeiträume',
+    null=True,
+    blank=True,
+    help_text='z.B. Mo Di Mi 7:30 - 15:00 Uhr, Do 8:00 - 13:00 Uhr',
   )
   email = EmailField(max_length=255, verbose_name='E-Mail')
   host = ForeignKey(to=Provider, verbose_name='Anbieter', on_delete=CASCADE)
@@ -130,6 +130,30 @@ class Service(Base):
 
   def __str__(self) -> str:
     return self.name
+
+
+class ServiceImage(Base):
+  """
+  Bild zu einem Service-Angebot.
+  Referenziert den Service über service_type + service_id
+  (kein GenericForeignKey wegen Cross-DB).
+  """
+
+  _exclude_from_crud = True
+
+  service_type = CharField(max_length=100, verbose_name='Angebotstyp')
+  service_id = IntegerField(verbose_name='Service-ID')
+  image = ImageField(upload_to='angebotsdb/services/', verbose_name='Bild')
+  position = IntegerField(default=0, verbose_name='Reihenfolge')
+
+  class Meta:
+    db_table = 'kiju_service_image'
+    verbose_name = 'Service-Bild'
+    verbose_name_plural = 'Service-Bilder'
+    ordering = ['position', 'pk']
+
+  def __str__(self):
+    return f'Bild #{self.pk} für {self.service_type} #{self.service_id}'
 
 
 class ChildrenAndYouthService(Service):

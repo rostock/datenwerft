@@ -50,6 +50,15 @@ def create_service_snapshot(service) -> dict:
     related_objects = getattr(service, field.name).all()
     snapshot[field.name] = [{'id': obj.pk, 'display': str(obj)} for obj in related_objects]
 
+  # ServiceImage-Informationen im Snapshot erfassen
+  from .models.services import ServiceImage
+
+  service_type = service.__class__.__name__.lower()
+  images = ServiceImage.objects.filter(service_type=service_type, service_id=service.pk)
+  snapshot['_images'] = [
+    {'id': img.pk, 'image': img.image.name, 'position': img.position} for img in images
+  ]
+
   return snapshot
 
 
@@ -290,6 +299,18 @@ def create_draft_copy(service, user):
   for field in service._meta.many_to_many:
     getattr(new, field.name).set(getattr(service, field.name).all())
 
+  # ServiceImage-Einträge kopieren (Dateipfad wird geteilt, nicht dupliziert)
+  from .models.services import ServiceImage
+
+  service_type = service.__class__.__name__.lower()
+  for img in ServiceImage.objects.filter(service_type=service_type, service_id=service.pk):
+    ServiceImage.objects.create(
+      service_type=service_type,
+      service_id=new.pk,
+      image=img.image,
+      position=img.position,
+    )
+
   logger.info(
     'Draft-Copy #%s erstellt von User %s für published Service #%s (%s)',
     new.pk,
@@ -361,6 +382,15 @@ def apply_draft_to_published(draft, published):
 
   for field in draft._meta.many_to_many:
     getattr(published, field.name).set(getattr(draft, field.name).all())
+
+  # ServiceImage: Alte Bilder des Published löschen, Draft-Bilder umhängen
+  from .models.services import ServiceImage
+
+  service_type = draft.__class__.__name__.lower()
+  ServiceImage.objects.filter(service_type=service_type, service_id=published.pk).delete()
+  ServiceImage.objects.filter(service_type=service_type, service_id=draft.pk).update(
+    service_id=published.pk
+  )
 
   draft_pk = draft.pk
   draft.delete()

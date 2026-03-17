@@ -11,7 +11,7 @@ from .models.base import (
   Topic,
   UserProfile,
 )
-from .models.services import ChildrenAndYouthService
+from .models.services import ChildrenAndYouthService, ServiceImage
 
 admin.site.register(Provider)
 admin.site.register(Topic)
@@ -23,3 +23,4 @@ admin.site.register(OrgUnit)
 admin.site.register(UserProfile)
 admin.site.register(ReviewTask)
 admin.site.register(InboxMessage)
+admin.site.register(ServiceImage)

@@ -4,7 +4,7 @@ from django.urls import path
 from rest_framework import routers
 
 from .views.base import GenericMapDataView
-from .views.forms import GenericCreateView, GenericDeleteView, GenericUpdateView
+from .views.forms import GenericCreateView, GenericDeleteView, GenericUpdateView, ServiceImageDeleteView
 from .views.inbox import InboxListView
 from .views.indexView import IndexView, save_dashboard_layout
 from .views.listView import ListView
@@ -33,10 +33,18 @@ urlpatterns = [
     view=login_required(SubmitForReviewView.as_view()),
     name='submit_for_review',
   ),
+  # Bild-Lösch-Endpoint (AJAX)
+  path(
+    'service-image/<int:pk>/delete/',
+    view=login_required(ServiceImageDeleteView.as_view()),
+    name='service_image_delete',
+  ),
 ]
 
 models = apps.get_app_config(app_name).get_models()
 for model in models:
+  if getattr(model, '_exclude_from_crud', False):
+    continue
   model_name = model.__name__.lower()
 
   urlpatterns.append(

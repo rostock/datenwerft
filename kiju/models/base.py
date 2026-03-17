@@ -103,7 +103,7 @@ class Provider(Base):
     blank=True,
   )
   logo = ImageField(
-    upload_to='hosts/',
+    upload_to='angebotsdb/hosts/',
     verbose_name='Logo',
     null=True,
     blank=True,
@@ -113,7 +113,7 @@ class Provider(Base):
   email = EmailField(max_length=255, verbose_name='E-Mail', null=True, blank=True)
   phone = CharField(max_length=255, verbose_name='Telefonnummer', null=True, blank=True)
 
-  class Meta:  # type: ignore
+  class Meta:
     db_table = 'host'
     verbose_name = 'Einrichtung'
     verbose_name_plural = 'Einrichtungen'
