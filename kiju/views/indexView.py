@@ -1,6 +1,7 @@
 import json
 import logging
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -8,7 +9,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
-from ..models.services import ChildrenAndYouthService
+from ..models.services import Service
 from ..utils import get_inbox_count
 from .functions import add_permission_context_elements
 
@@ -46,15 +47,16 @@ class IndexView(TemplateView):
       },
     )
 
-    # Map data URL for ChildrenAndYouthService
-    context['mapdata_url'] = reverse('kiju:childrenandyouthservice_mapdata')
+    context['mapdata_url'] = reverse('kiju:services_mapdata')
 
-    # Count of objects for the map
-    context['ChildrenAndYouthService_count'] = (
-      ChildrenAndYouthService.objects.filter(geometry__isnull=False)
-      .exclude(geometry__equals='POINT(0 0)')
-      .count()
-    )
+    # Count of published services with valid geometry across all service models
+    total = 0
+    for model in apps.get_app_config('kiju').get_models():
+      if not model._meta.abstract and issubclass(model, Service):
+        total += (
+          model.objects.filter(status='published').exclude(geometry__equals='POINT(0 0)').count()
+        )
+    context['published_services_count'] = total
 
     return context
 

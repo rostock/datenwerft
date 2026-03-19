@@ -3,8 +3,14 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 from rest_framework import routers
 
-from .views.base import GenericMapDataView
-from .views.forms import GenericCreateView, GenericDeleteView, GenericUpdateView, ServiceImageDeleteView
+from .models.services import Service
+from .views.base import CombinedMapDataView, GenericMapDataView
+from .views.forms import (
+  GenericCreateView,
+  GenericDeleteView,
+  GenericUpdateView,
+  ServiceImageDeleteView,
+)
 from .views.inbox import InboxListView
 from .views.indexView import IndexView, save_dashboard_layout
 from .views.listView import ListView
@@ -38,6 +44,12 @@ urlpatterns = [
     'service-image/<int:pk>/delete/',
     view=login_required(ServiceImageDeleteView.as_view()),
     name='service_image_delete',
+  ),
+  # Kombinierte MapData-Ansicht für alle Services
+  path(
+    route='services/mapdata',
+    view=login_required(CombinedMapDataView.as_view()),
+    name='services_mapdata',
   ),
 ]
 
@@ -84,7 +96,7 @@ for model in models:
   )
 
   # Add map data URLs for models with geometry
-  if model_name in ['childrenandyouthservice']:
+  if not model._meta.abstract and issubclass(model, Service):
     urlpatterns.append(
       path(
         route=f'{model_name}/mapdata',
