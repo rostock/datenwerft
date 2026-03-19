@@ -5,8 +5,6 @@ from django.urls import reverse
 from django.views import View
 
 from ..models.services import ChildrenAndYouthService
-
-
 class JsonView(View):
   """
   Base view for JSON responses
@@ -154,3 +152,31 @@ class GenericMapDataView(JsonView):
   def get(self, request, *args, **kwargs):
     context = self.get_context_data(**kwargs)
     return self.render_to_response(context)
+
+
+class CombinedMapDataView(JsonView):
+  """
+  Kombinierter Map-Endpoint: liefert alle veröffentlichten Services
+  mit gültiger Geometrie aus allen konkreten Service-Modellen.
+  Neue Service-Modelle werden automatisch eingebunden.
+  """
+
+  def get_context_data(self, **kwargs):
+    from django.apps import apps
+    from kiju.models.services import Service
+
+    feature_collection = {'type': 'FeatureCollection', 'features': []}
+    service_models = [
+      m for m in apps.get_app_config('kiju').get_models()
+      if not m._meta.abstract and issubclass(m, Service)
+    ]
+    for model in service_models:
+      for obj in get_model_objects(model, count_only=False):
+        if hasattr(obj, 'geometry') and obj.geometry:
+          if obj.geometry.wkt == 'POINT (0 0)':
+            continue
+          feature_collection['features'].append(create_geojson_feature(obj))
+    return feature_collection
+
+  def get(self, request, *args, **kwargs):
+    return self.render_to_response(self.get_context_data(**kwargs))

@@ -283,6 +283,21 @@ class GenericCreateView(CreateView):
             ),
           )
 
+        for field_name, config in getattr(used_model, 'PYGEOAPI_FIELDS', {}).items():
+          if field_name in self.fields:
+            from ..fields import PyGeoAPIMultipleChoiceField
+
+            current_field = self.fields[field_name]
+            self.fields[field_name] = PyGeoAPIMultipleChoiceField(
+              endpoint=config['endpoint'],
+              params=config.get('params', {}),
+              label_property=config['label_property'],
+              initial_values=None,
+              label=current_field.label,
+              required=current_field.required,
+              help_text=current_field.help_text,
+            )
+
         # Adressfeld-Placeholder anpassen
         if is_service_model:
           if 'street' in self.fields:
@@ -505,6 +520,24 @@ class GenericUpdateView(UpdateView):
               attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
             ),
           )
+
+        for field_name, config in getattr(used_model, 'PYGEOAPI_FIELDS', {}).items():
+          if field_name in self.fields:
+            from ..fields import PyGeoAPIMultipleChoiceField
+
+            current_field = self.fields[field_name]
+            existing = getattr(self.instance, field_name, None) or [] if self.instance and self.instance.pk else []
+            self.fields[field_name] = PyGeoAPIMultipleChoiceField(
+              endpoint=config['endpoint'],
+              params=config.get('params', {}),
+              label_property=config['label_property'],
+              initial_values=existing,
+              label=current_field.label,
+              required=current_field.required,
+              help_text=current_field.help_text,
+            )
+            if existing:
+              self.initial[field_name] = existing
 
         # Adressfeld-Placeholder anpassen
         if is_service_model:

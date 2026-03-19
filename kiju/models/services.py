@@ -46,7 +46,6 @@ class Service(Base):
   topic = ManyToManyField(
     to=Topic,
     verbose_name='Kategorie(n)',
-    blank=True,
     related_name='%(class)s',
   )
   target_group = ManyToManyField(
@@ -65,19 +64,13 @@ class Service(Base):
   street = CharField(
     max_length=150,
     verbose_name='Straße und Hausnummer',
-    null=True,
-    blank=True,
   )
   zip = IntegerField(
     verbose_name='PLZ',
-    null=True,
-    blank=True,
   )
   city = CharField(
     max_length=100,
     verbose_name='Gemeinde',
-    null=True,
-    blank=True,
   )
   contact_hours = TextField(
     verbose_name='Kontaktzeiträume',
@@ -90,13 +83,10 @@ class Service(Base):
   legal_basis = ManyToManyField(
     to=Law,
     verbose_name='Gesetzliche Grundlage',
-    blank=True,
     related_name='%(class)s',
   )
   expiry_date = DateField(
     verbose_name='Ablaufdatum',
-    null=True,
-    blank=True,
     help_text='Datum, an dem das Angebot ausläuft.',
   )
   info_url = URLField(
@@ -163,9 +153,20 @@ class ChildrenAndYouthService(Service):
 
   # Logic Attributes
   icon = 'fa-solid fa-hand-holding-heart'
+  PYGEOAPI_FIELDS = {
+    'catchment_area_urls': {
+      'endpoint': 'https://geo.sv.rostock.de/service/ogcapi/collections/gemeindeteile/items',
+      'params': {'f': 'json', 'gemeinde': 'bbc6d790-2c4d-11e5-98d1-0050569b7e95'},
+      'label_property': 'bezeichnung',
+    }
+  }
 
   # Database Fields
-  setting = TextField(verbose_name='Beratungssetting')
+  setting = TextField(
+    verbose_name='Beratungssetting',
+    null=True,
+    blank=True,
+  )
   application_needed = BooleanField(verbose_name='Antrag erforderlich?')
   phone = CharField(max_length=255, verbose_name='Telefonnummer')
   costs = FloatField(verbose_name='Kosten in Euro')
@@ -191,6 +192,13 @@ class FamilyService(Service):
 
   # Logic Attributes
   icon = 'fa-solid fa-hand-holding-heart'
+  PYGEOAPI_FIELDS = {
+    'catchment_area_urls': {
+      'endpoint': 'https://geo.sv.rostock.de/service/ogcapi/collections/gemeindeteile/items',
+      'params': {'f': 'json', 'gemeinde': 'bbc6d790-2c4d-11e5-98d1-0050569b7e95'},
+      'label_property': 'bezeichnung',
+    }
+  }
 
   # Database Fields
   setting = TextField(verbose_name='Beratungssetting')
