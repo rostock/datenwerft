@@ -115,8 +115,8 @@ class Provider(Base):
 
   class Meta:
     db_table = 'host'
-    verbose_name = 'Einrichtung'
-    verbose_name_plural = 'Einrichtungen'
+    verbose_name = 'Träger'
+    verbose_name_plural = 'Träger'
 
   def __str__(self):
     return str(self.name)
