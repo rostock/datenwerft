@@ -100,7 +100,7 @@
                 <div class="mb-3" id="address-contact-grid">
                   {# ── Labels ── #}
                   <div class="acg-address-label acg-label order-1">Adresse:</div>
-                  <div class="acg-contact-label acg-label order-4">Kontaktzeiträume:</div>
+                  <div class="acg-contact-label acg-label order-4">Einzugsgebiet:</div>
                   {# ── Adressfelder ── #}
                   <div class="acg-address-fields order-2">
                     <div class="position-relative mb-2">
@@ -126,10 +126,10 @@
                       {% endif %}
                     {% endfor %}
                   </div>
-                  {# ── Kontaktzeiträume ── #}
+                  {# ── Einzugsgebiet ── #}
                   <div class="acg-contact-hours order-5">
                     {% for inner_field in form %}
-                      {% if inner_field.name == 'contact_hours' %}
+                      {% if inner_field.name == 'catchment_area_urls' %}
                         {{ inner_field }}
                         {% if inner_field.errors %}
                           <div class="text-danger mt-1">{{ inner_field.errors }}</div>
@@ -151,7 +151,7 @@
                   {# ── Reviewer-Kommentare ── #}
                   {% if is_update and revision_comments %}
                     <div class="acg-comments order-last">
-                      {% for comment_field in 'street zip city contact_hours' %}
+                      {% for comment_field in 'street zip city catchment_area_urls' %}
                         {% if comment_field in revision_comments %}
                           <div class="alert alert-warning py-2 px-3 mb-1 d-flex align-items-start gap-2">
                             <i class="fa-solid fa-comment-dots mt-1 flex-shrink-0"></i>
@@ -166,8 +166,8 @@
                 {# zip wird im Adress-Block gerendert — hier überspringen #}
               {% elif field.name == 'city' and is_service_model %}
                 {# city wird im Adress-Block gerendert — hier überspringen #}
-              {% elif field.name == 'contact_hours' and is_service_model %}
-                {# contact_hours wird im Adress-Block gerendert — hier überspringen #}
+              {% elif field.name == 'catchment_area_urls' and is_service_model %}
+                {# catchment_area_urls wird im Adress-Block gerendert — hier überspringen #}
               {% else %}
                 {# ── Normale Felder ── #}
                 <div class="row mb-3">
@@ -297,6 +297,12 @@
             configureMap(map, '{% url "toolbox:owsproxy" %}');
 
             window.currMap = map;
+
+            // Layer für Einzugsgebiet-Polygone
+            window.catchmentLayer = L.layerGroup().addTo(map);
+            if (typeof updateCatchmentPolygons === 'function') {
+              updateCatchmentPolygons();
+            }
 
             window.redMarker = new L.Icon({
               shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
@@ -510,6 +516,30 @@
           });
         </script>
       {% endif %}
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const catchmentSelect = document.getElementById('id_catchment_area_urls');
+          if (catchmentSelect) {
+            const geometryMap = JSON.parse(catchmentSelect.dataset.geometries || '{}');
+
+            window.updateCatchmentPolygons = function() {
+              if (!window.catchmentLayer) return;
+              window.catchmentLayer.clearLayers();
+              Array.from(catchmentSelect.selectedOptions).forEach(function(option) {
+                const geom = geometryMap[option.value];
+                if (geom) {
+                  L.geoJSON(geom, {
+                    style: { color: '#0d6efd', weight: 2, fillOpacity: 0.15 }
+                  }).addTo(window.catchmentLayer);
+                }
+              });
+            };
+
+            $(catchmentSelect).on('change', window.updateCatchmentPolygons);
+          }
+        });
+      </script>
 
       <script>
         document.addEventListener('DOMContentLoaded', function() {
