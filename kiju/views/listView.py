@@ -70,17 +70,20 @@ class ListView(TemplateView):
             # 2. Eigene Draft-Copies als separate Einträge mit eigenem Status-Badge
             queryset = self.model.objects.filter(host=provider)
           else:
-            queryset = self.model.objects.none()
+            # Nutzer ohne OE sehen alle originalen Services (wie Admins),
+            # aber ohne Zugriff auf Draft-Copies
+            queryset = self.model.objects.filter(published_version__isnull=True)
       else:
         queryset = self.model.objects.all()
 
       # Hierarchische Liste für das Template aufbauen:
       # Bei Providern erscheinen Forks (Draft-Copies) direkt unter ihrem Original
       # mit Sub-Nummerierung (1.1, 2.1, ...) und Einrückung.
+      provider = get_user_provider(self.request.user) if is_service_model else None
       provider_with_forks = (
         is_service_model
         and not (self.request.user.is_superuser or is_angebotsdb_admin(self.request.user))
-        and get_user_provider(self.request.user)
+        and provider
       )
       if provider_with_forks:
         originals = queryset.filter(published_version__isnull=True)
@@ -90,13 +93,35 @@ class ListView(TemplateView):
           parent_num += 1
           copies = list(queryset.filter(published_version=svc))
           has_draft = len(copies) > 0
-          annotated_objects.append({'obj': svc, 'display_number': str(parent_num), 'is_fork': False, 'tree_prefix': '', 'has_draft_copy': has_draft})
+          annotated_objects.append(
+            {
+              'obj': svc,
+              'display_number': str(parent_num),
+              'is_fork': False,
+              'tree_prefix': '',
+              'has_draft_copy': has_draft,
+            }
+          )
           for j, copy in enumerate(copies):
             tree_char = '└─' if j == len(copies) - 1 else '├─'
-            annotated_objects.append({'obj': copy, 'display_number': f'{parent_num}.{j + 1}', 'is_fork': True, 'tree_prefix': tree_char, 'has_draft_copy': False})
+            annotated_objects.append(
+              {
+                'obj': copy,
+                'display_number': f'{parent_num}.{j + 1}',
+                'is_fork': True,
+                'tree_prefix': tree_char,
+                'has_draft_copy': False,
+              }
+            )
       else:
         annotated_objects = [
-          {'obj': obj, 'display_number': str(i), 'is_fork': False, 'tree_prefix': '', 'has_draft_copy': False}
+          {
+            'obj': obj,
+            'display_number': str(i),
+            'is_fork': False,
+            'tree_prefix': '',
+            'has_draft_copy': False,
+          }
           for i, obj in enumerate(queryset, start=1)
         ]
 
