@@ -38,21 +38,24 @@ def _set_geometry_from_request(request, instance):
       pass
 
 
-class TagMultipleChoiceField(ModelMultipleChoiceField):
+class CreatableMultipleChoiceField(ModelMultipleChoiceField):
   """
-  A custom ModelMultipleChoiceField that accepts both existing tag IDs and new tag names. When
-  processing the input, it first tries to resolve any numeric values as existing tag IDs. Any
-  values that cannot resolved as IDs are treated as new tag names, for which new Tag objects are
-  created. The final result is a list of Tag objects corresponding to the provided IDs and names.
+  A custom ModelMultipleChoiceField that accepts both existing object IDs and new names. When
+  processing the input, it first tries to resolve any numeric values as existing IDs. Any values
+  that cannot be resolved as IDs are treated as new names, for which new objects are created via
+  get_or_create. The target model must be passed as the `model` keyword argument.
   """
+
+  def __init__(self, *args, model=None, **kwargs):
+    self._model_class = model
+    super().__init__(*args, **kwargs)
 
   def _check_values(self, value):
     """
     Accepts a list of IDs or names. IDs are resolved first, with any missing IDs interpreted
-    as names. Returns all found or newly created tag objects.
+    as names. Returns all found or newly created objects.
     """
-    from ..models.base import Tag
-
+    model_class = self._model_class
     key = self.to_field_name or 'pk'
     value = list(set(value))
     pks = []
@@ -65,26 +68,22 @@ class TagMultipleChoiceField(ModelMultipleChoiceField):
         names.append(item)
 
     qs = self.queryset.filter(**{'%s__in' % key: pks})
-    found_tags_map = {str(getattr(t, key)): t for t in qs}
-    found_tags = list(found_tags_map.values())
+    found_map = {str(getattr(t, key)): t for t in qs}
+    found = list(found_map.values())
 
     for pk in pks:
-      if pk not in found_tags_map:
+      if pk not in found_map:
         names.append(pk)
 
     for name in names:
       if str(name).strip():
-        tag, created = Tag.objects.get_or_create(name=name)
-        if tag not in found_tags:
-          found_tags.append(tag)
+        obj, _ = model_class.objects.get_or_create(name=name)
+        if obj not in found:
+          found.append(obj)
 
-    return found_tags
+    return found
 
   def to_python(self, value):
-    """
-    Override to_python to handle both existing tag IDs and new tag names. If the value is empty,
-    return an empty list. Otherwise, resolve IDs to tag objects and create new tags for any names.
-    """
     if not value:
       return []
     return list(self._check_values(value))
@@ -274,8 +273,23 @@ class GenericCreateView(CreateView):
           from ..models.base import Tag
 
           current_field = self.fields['tags']
-          self.fields['tags'] = TagMultipleChoiceField(
+          self.fields['tags'] = CreatableMultipleChoiceField(
+            model=Tag,
             queryset=Tag.objects.all(),
+            label=current_field.label,
+            required=current_field.required,
+            widget=widgets.SelectMultiple(
+              attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
+            ),
+          )
+
+        if 'target_group' in self.fields:
+          from ..models.base import TargetGroup
+
+          current_field = self.fields['target_group']
+          self.fields['target_group'] = CreatableMultipleChoiceField(
+            model=TargetGroup,
+            queryset=TargetGroup.objects.all(),
             label=current_field.label,
             required=current_field.required,
             widget=widgets.SelectMultiple(
@@ -512,8 +526,23 @@ class GenericUpdateView(UpdateView):
           from ..models.base import Tag
 
           current_field = self.fields['tags']
-          self.fields['tags'] = TagMultipleChoiceField(
+          self.fields['tags'] = CreatableMultipleChoiceField(
+            model=Tag,
             queryset=Tag.objects.all(),
+            label=current_field.label,
+            required=current_field.required,
+            widget=widgets.SelectMultiple(
+              attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
+            ),
+          )
+
+        if 'target_group' in self.fields:
+          from ..models.base import TargetGroup
+
+          current_field = self.fields['target_group']
+          self.fields['target_group'] = CreatableMultipleChoiceField(
+            model=TargetGroup,
+            queryset=TargetGroup.objects.all(),
             label=current_field.label,
             required=current_field.required,
             widget=widgets.SelectMultiple(
@@ -766,6 +795,17 @@ class GenericDeleteView(DeleteView):
 
     return context
 
+  def _delete_related_review_tasks(self, obj):
+    """Löscht alle ReviewTasks (inkl. InboxMessages via CASCADE) für einen Service."""
+    from ..models.services import Service
+    from ..models.base import ReviewTask
+
+    if not self.model._meta.abstract and issubclass(self.model, Service):
+      ReviewTask.objects.filter(
+        service_type=self.model.__name__.lower(),
+        service_id=obj.pk,
+      ).delete()
+
   def delete(self, request, *args, **kwargs):
     """
     Überschreibt die delete-Methode, um AJAX-Anfragen zu unterstützen.
@@ -774,6 +814,7 @@ class GenericDeleteView(DeleteView):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
       try:
         self.object = self.get_object()
+        self._delete_related_review_tasks(self.object)
         self.object.delete()
 
         # Erfolgsmeldung zurückgeben
@@ -792,6 +833,8 @@ class GenericDeleteView(DeleteView):
         )
     else:
       # Normale Behandlung für nicht-AJAX-Anfragen
+      self.object = self.get_object()
+      self._delete_related_review_tasks(self.object)
       return super().delete(request, *args, **kwargs)
 
 

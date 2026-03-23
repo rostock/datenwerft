@@ -6,6 +6,34 @@ from django.forms import MultipleChoiceField, widgets
 logger = logging.getLogger(__name__)
 
 
+def resolve_pygeoapi_uris(uris, endpoint, params, label_property):
+  """
+  Löst eine Liste von PyGeoAPI-URIs zu lesbaren Labels auf.
+  Gibt bei Fehler die rohen URIs zurück (Fallback).
+  """
+  try:
+    response = requests.get(endpoint, params=params, timeout=10)
+    response.raise_for_status()
+    data = response.json()
+    base_url = endpoint.rstrip('/')
+    uri_to_label = {}
+    for feature in data.get('features', []):
+      label = feature.get('properties', {}).get(label_property, '')
+      feature_id = feature.get('id')
+      uri = next(
+        (link['href'] for link in feature.get('links', []) if link.get('rel') == 'self'),
+        None,
+      )
+      if uri is None and feature_id is not None:
+        uri = f'{base_url}/{feature_id}'
+      if uri and label:
+        uri_to_label[uri] = label
+    return [uri_to_label.get(u, u) for u in uris]
+  except requests.RequestException as e:
+    logger.error('PyGeoAPI resolve failed for %s: %s', endpoint, e)
+    return list(uris)
+
+
 class PyGeoAPIMultipleChoiceField(MultipleChoiceField):
   """
   A MultipleChoiceField that fetches its choices from a PyGeoAPI items endpoint.
@@ -31,7 +59,7 @@ class PyGeoAPIMultipleChoiceField(MultipleChoiceField):
   def __init__(self, endpoint, params, label_property, initial_values=None, **kwargs):
     kwargs.setdefault('required', False)
     kwargs.setdefault(
-      'widget', widgets.SelectMultiple(attrs={'class': 'form-select select2-multiple'})
+      'widget', widgets.SelectMultiple(attrs={'class': 'form-select select2-multiple catchment-area-select'})
     )
     choices = self._fetch_choices(endpoint, params, label_property)
     if initial_values:
