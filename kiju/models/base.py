@@ -82,6 +82,7 @@ class Topic(Base):
     db_table = 'topic'
     verbose_name = 'Kategorie'
     verbose_name_plural = 'Kategorien'
+    ordering = ['name']
 
   def __str__(self):
     return str(self.name)
@@ -117,6 +118,7 @@ class Provider(Base):
     db_table = 'host'
     verbose_name = 'Träger'
     verbose_name_plural = 'Träger'
+    ordering = ['name']
 
   def __str__(self):
     return str(self.name)
@@ -148,6 +150,7 @@ class Law(Base):
     db_table = 'law'
     verbose_name = 'Gesetz'
     verbose_name_plural = 'Gesetze'
+    ordering = ['law_book', 'paragraph']
 
   def __str__(self):
     return f'§{self.paragraph} {self.law_book}'
@@ -167,12 +170,14 @@ class TargetGroup(Base):
     max_length=100,
     blank=False,
     null=False,
+    unique=True,
   )
 
   class Meta:
     db_table = 'target_group'
     verbose_name = 'Zielgruppe'
     verbose_name_plural = 'Zielgruppen'
+    ordering = ['name']
 
   def __str__(self):
     return self.name
@@ -194,6 +199,7 @@ class Tag(Base):
     db_table = 'tag'
     verbose_name = 'Schlagwort'
     verbose_name_plural = 'Schlagworte'
+    ordering = ['name']
 
   def __str__(self):
     return self.name

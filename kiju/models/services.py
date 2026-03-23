@@ -171,7 +171,7 @@ class ChildrenAndYouthService(Service):
   phone = CharField(max_length=255, verbose_name='Telefonnummer')
   costs = FloatField(verbose_name='Kosten in Euro')
   catchment_area_urls = JSONField(
-    verbose_name='Einzugsgebiet-URLs',
+    verbose_name='Einzugsgebiet',
     default=list,
     blank=True,
     help_text=(
@@ -206,7 +206,7 @@ class FamilyService(Service):
   phone = CharField(max_length=255, verbose_name='Telefonnummer')
   costs = FloatField(verbose_name='Kosten in Euro')
   catchment_area_urls = JSONField(
-    verbose_name='Einzugsgebiet-URLs',
+    verbose_name='Einzugsgebiet',
     default=list,
     blank=True,
     help_text=(
