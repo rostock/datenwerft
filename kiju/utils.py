@@ -38,6 +38,9 @@ def create_service_snapshot(service) -> dict:
     elif hasattr(value, 'pk') and hasattr(value, '__str__'):
       # ForeignKey-Objekt
       snapshot[field.name] = {'id': value.pk, 'display': str(value)}
+    elif isinstance(value, (list, dict)):
+      # JSONField — bereits JSON-serialisierbar, direkt übernehmen
+      snapshot[field.name] = value
     elif isinstance(value, (str, int, float, bool)):
       # Skalare Basistypen direkt übernehmen
       snapshot[field.name] = value

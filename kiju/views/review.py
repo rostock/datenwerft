@@ -40,7 +40,7 @@ def _get_review_fields(service, review_task):
   Felder die für den Review irrelevant sind (id, created_at, updated_at, host, status)
   werden ausgeblendet.
   """
-  EXCLUDED_FIELDS = {'id', 'created_at', 'updated_at', 'host', 'status', 'published_version'}
+  EXCLUDED_FIELDS = {'id', 'created_at', 'updated_at', 'host', 'status', 'published_version', 'geometry'}
 
   submitted = review_task.submitted_snapshot
   approved = review_task.approved_snapshot
@@ -51,17 +51,43 @@ def _get_review_fields(service, review_task):
 
   review_fields = []
 
+  pygeoapi_fields = getattr(service, 'PYGEOAPI_FIELDS', {})
+
   # Konkrete Felder
   for field in service._meta.concrete_fields:
     if field.name in EXCLUDED_FIELDS:
       continue
 
     raw_value = submitted.get(field.name)
-    display_value = _format_snapshot_value(raw_value)
+
+    pygeoapi_config = pygeoapi_fields.get(field.name)
+    if pygeoapi_config and isinstance(raw_value, list):
+      from ..fields import resolve_pygeoapi_uris
+
+      resolved = resolve_pygeoapi_uris(
+        raw_value,
+        pygeoapi_config['endpoint'],
+        pygeoapi_config.get('params', {}),
+        pygeoapi_config['label_property'],
+      )
+      display_value = ', '.join(resolved) if resolved else '–'
+    else:
+      display_value = _format_snapshot_value(raw_value)
 
     has_diff = field.name in diff
     old_raw = diff[field.name]['old'] if has_diff else None
-    old_display = _format_snapshot_value(old_raw) if has_diff else None
+    if has_diff and pygeoapi_config and isinstance(old_raw, list):
+      from ..fields import resolve_pygeoapi_uris
+
+      old_resolved = resolve_pygeoapi_uris(
+        old_raw,
+        pygeoapi_config['endpoint'],
+        pygeoapi_config.get('params', {}),
+        pygeoapi_config['label_property'],
+      )
+      old_display = ', '.join(old_resolved) if old_resolved else '–'
+    else:
+      old_display = _format_snapshot_value(old_raw) if has_diff else None
 
     review_fields.append(
       {
@@ -201,6 +227,18 @@ class SubmitForReviewView(View):
     for old_task in old_pending_tasks:
       InboxMessage.objects.filter(review_task=old_task).update(is_resolved=True)
     old_pending_tasks.update(task_status='rejected')
+
+    # ── Offene revision_request-Nachrichten von Ablehnungen auflösen ─────────
+    old_rejected_tasks = ReviewTask.objects.filter(
+      service_type=service_type,
+      service_id=service_id,
+      task_status='rejected',
+    )
+    InboxMessage.objects.filter(
+      review_task__in=old_rejected_tasks,
+      message_type='revision_request',
+      is_resolved=False,
+    ).update(is_resolved=True)
 
     # ── ReviewTask erstellen ─────────────────────────────────────────────────
     # Falls mehrere OrgUnits zuständig sind, erstellen wir einen Task pro OrgUnit.
