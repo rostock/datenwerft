@@ -22,10 +22,10 @@
   height: 140px;
 }
 
+/* Tablet: 2-Spalten-Layout, Karte zwischen Adresse und Einzugsgebiet */
 @media (min-width: 768px) {
   #address-contact-grid {
-    grid-template-columns: 33.33% 1fr 1fr;
-    grid-template-rows: auto auto;
+    grid-template-columns: 33.33% 1fr;
   }
   .acg-address-label {
     grid-column: 1;
@@ -35,13 +35,32 @@
     grid-column: 2;
     grid-row: 1;
   }
+  .acg-map {
+    grid-column: 2;
+    grid-row: 2;
+    height: 300px;
+  }
   .acg-contact-label {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 3;
   }
   .acg-contact-hours {
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 3;
+  }
+  .acg-label {
+    padding-top: 0.375rem;
+  }
+}
+
+/* Desktop: 3-Spalten-Layout, Karte neben den Adressfeldern */
+@media (min-width: 1200px) {
+  #address-contact-grid {
+    grid-template-columns: 33.33% 1fr 1fr;
+  }
+  .acg-address-fields {
+    grid-column: 2;
+    grid-row: 1;
   }
   .acg-map {
     grid-column: 3;
@@ -50,16 +69,15 @@
     min-height: 140px;
     position: relative;
   }
-  .acg-comments {
-    grid-column: 3;
-    grid-row: 3;
+  .acg-contact-label {
+    grid-column: 1;
+    grid-row: 2;
   }
-  .acg-label {
-    padding-top: 0.375rem;
+  .acg-contact-hours {
+    grid-column: 2;
+    grid-row: 2;
   }
 
-  /* Karten-Container absolut positioniert, damit der Leaflet-Inhalt
-     die Grid-Zeilen nicht aufbläht. Höhe wird durch die linken Spalten bestimmt. */
   #map-preview-container {
     position: absolute;
     top: 0;
@@ -85,4 +103,44 @@
   z-index: 1050;
   max-height: 250px;
   overflow-y: auto;
+}
+
+.catchment-area-select + span.select2-container .select2-selection--multiple {
+  min-height: 76px;
+}
+
+/* ── Revision-Comments Sidebar ── */
+
+.container-with-sidebar {
+  max-width: 1700px;
+}
+
+.form-with-comments {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.form-with-comments > form {
+  flex: 1;
+  min-width: 0;
+}
+
+.revision-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 5rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .form-with-comments {
+    flex-direction: column-reverse;
+  }
+  .revision-sidebar {
+    width: 100%;
+    position: static;
+  }
 }

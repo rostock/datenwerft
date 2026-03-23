@@ -31,7 +31,7 @@
 {% block title %}KiJu | {% endblock %}
 
 {% block content %}
-  <div class="container-xxl">
+  <div class="container-xxl {% if is_update and revision_comments %}container-with-sidebar{% endif %}">
     {% if is_update %}
       <a href="{% dynamic_url model_lower 'list' %}">
         <i class="fa-solid fa-angle-left me"></i>
@@ -81,6 +81,9 @@
         </div>
       {% endif %}
 
+      {% if is_update and revision_comments %}
+      <div class="form-with-comments">
+      {% endif %}
       <form class="form mt-4 flex-container-column" action="" method="post" enctype="multipart/form-data" id="form">
         {% csrf_token %}
         {% if form.non_field_errors %}
@@ -131,6 +134,10 @@
                     {% for inner_field in form %}
                       {% if inner_field.name == 'catchment_area_urls' %}
                         {{ inner_field }}
+                        <button type="button" id="btn-select-all-catchment"
+                                class="btn btn-sm btn-outline-secondary mt-2">
+                          Gesamtes Stadtgebiet
+                        </button>
                         {% if inner_field.errors %}
                           <div class="text-danger mt-1">{{ inner_field.errors }}</div>
                         {% endif %}
@@ -148,19 +155,6 @@
                       {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
                     </div>
                   </div>
-                  {# ── Reviewer-Kommentare ── #}
-                  {% if is_update and revision_comments %}
-                    <div class="acg-comments order-last">
-                      {% for comment_field in 'street zip city catchment_area_urls' %}
-                        {% if comment_field in revision_comments %}
-                          <div class="alert alert-warning py-2 px-3 mb-1 d-flex align-items-start gap-2">
-                            <i class="fa-solid fa-comment-dots mt-1 flex-shrink-0"></i>
-                            <small>{{ revision_comments|get_item:comment_field }}</small>
-                          </div>
-                        {% endif %}
-                      {% endfor %}
-                    </div>
-                  {% endif %}
                 </div>
               {% elif field.name == 'zip' and is_service_model %}
                 {# zip wird im Adress-Block gerendert — hier überspringen #}
@@ -178,7 +172,7 @@
                       {{ field.label_tag }}
                     {% endif %}
                   </div>
-                  <div class="col-md-{% if is_update and revision_comments %}6{% else %}8{% endif %}">
+                  <div class="col-md-8">
                     {% if field.name == 'paragraph' %}
                       <div class="input-group">
                         <span class="input-group-text">§</span>
@@ -209,17 +203,6 @@
                     {% endif %}
                   </div>
 
-                  {# ── Reviewer-Kommentar für dieses Feld (nur bei revision_needed) ── #}
-                  {% if is_update and revision_comments %}
-                    <div class="col-md-2">
-                      {% if field.name in revision_comments %}
-                        <div class="alert alert-warning py-2 px-3 mb-0 h-100 d-flex align-items-start gap-2">
-                          <i class="fa-solid fa-comment-dots mt-1 flex-shrink-0"></i>
-                          <small>{{ revision_comments|get_item:field.name }}</small>
-                        </div>
-                      {% endif %}
-                    </div>
-                  {% endif %}
                 </div>
               {% endif %}
             {% endfor %}
@@ -285,6 +268,26 @@
           </div>
         </div>
       </form>
+
+      {% if is_update and revision_comments %}
+        <aside class="revision-sidebar">
+          <h6 class="mb-3"><i class="fa-solid fa-comments me-2"></i>Kommentare</h6>
+          {% for field in form %}
+            {% with comment=revision_comments|get_item:field.name %}
+              {% if comment %}
+                <div class="alert alert-warning py-2 px-3 mb-2 d-flex align-items-start gap-2">
+                  <i class="fa-solid fa-comment-dots mt-1 flex-shrink-0"></i>
+                  <div>
+                    <strong class="d-block mb-1">{{ field.label }}</strong>
+                    <small>{{ comment }}</small>
+                  </div>
+                </div>
+              {% endif %}
+            {% endwith %}
+          {% endfor %}
+        </aside>
+      </div>
+      {% endif %}
 
       {# ── Karten-Callback und Adresssuche (nur bei Service-Modellen) ── #}
       {% if is_service_model %}
@@ -537,6 +540,17 @@
             };
 
             $(catchmentSelect).on('change', window.updateCatchmentPolygons);
+
+            const selectAllBtn = document.getElementById('btn-select-all-catchment');
+            if (selectAllBtn) {
+              selectAllBtn.addEventListener('click', function() {
+                Array.from(catchmentSelect.options).forEach(function(opt) {
+                  opt.selected = true;
+                });
+                $(catchmentSelect).trigger('change');
+                if (window.updateCatchmentPolygons) window.updateCatchmentPolygons();
+              });
+            }
           }
         });
       </script>
