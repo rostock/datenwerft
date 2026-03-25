@@ -162,6 +162,22 @@ class DynamicStyledModelForm(ModelForm):
           if attr_name != 'class':  # CSS-Klassen wurden bereits behandelt
             field.widget.attrs[attr_name] = attr_value
 
+      # input_type direkt setzen (Django rendert type="{{ widget.type }}" via input_type)
+      input_type_map = {
+        widgets.DateInput: 'date',
+        widgets.TimeInput: 'time',
+        widgets.DateTimeInput: 'datetime-local',
+      }
+      if widget_type in input_type_map:
+        field.widget.input_type = input_type_map[widget_type]
+        # HTML5-Inputs benötigen ISO-Format für korrekte Wertanzeige
+        format_map = {
+          widgets.DateInput: '%Y-%m-%d',
+          widgets.TimeInput: '%H:%M',
+          widgets.DateTimeInput: '%Y-%m-%dT%H:%M',
+        }
+        field.widget.format = format_map[widget_type]
+
       # Zusätzliche Attribute für bessere UX (nur wenn kein Placeholder bereits gesetzt)
       if (
         not isinstance(field.widget, widgets.CheckboxInput)
