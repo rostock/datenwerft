@@ -13,19 +13,19 @@
 }
 
 #address-contact-grid > * {
-  padding-left: calc(var(--bs-gutter-x) * 0.5);
+  padding-left: calc((var(--bs-gutter-x) * 0.5) + 1px);
   padding-right: calc(var(--bs-gutter-x) * 0.25);
 }
 
 /* Mobile: Karte hat feste Höhe */
 .acg-map {
-  height: 140px;
+  height: 250px;
 }
 
 /* Tablet: 2-Spalten-Layout, Karte zwischen Adresse und Einzugsgebiet */
-@media (min-width: 768px) {
+@media (min-width: 800px) {
   #address-contact-grid {
-    grid-template-columns: 33.33% 1fr;
+    grid-template-columns: 3fr 9fr;
   }
   .acg-address-label {
     grid-column: 1;
@@ -54,9 +54,9 @@
 }
 
 /* Desktop: 3-Spalten-Layout, Karte neben den Adressfeldern */
-@media (min-width: 1200px) {
+@media (min-width: 1400px) {
   #address-contact-grid {
-    grid-template-columns: 33.33% 1fr 1fr;
+    grid-template-columns: 3fr 4.5fr 4.5fr;
   }
   .acg-address-fields {
     grid-column: 2;
@@ -83,7 +83,7 @@
     top: 0;
     bottom: 0;
     left: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
-    right: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+    right: calc(var(--bs-gutter-x, 1.5rem) * 0.25);
   }
 }
 
@@ -127,7 +127,7 @@
 }
 
 .revision-sidebar {
-  width: 200px;
+  width: 250px;
   flex-shrink: 0;
   position: sticky;
   top: 5rem;

@@ -165,14 +165,14 @@
               {% else %}
                 {# ── Normale Felder ── #}
                 <div class="row mb-3">
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     {% if field.field.required %}
                       <strong>{{ field.label_tag }}*</strong>
                     {% else %}
                       {{ field.label_tag }}
                     {% endif %}
                   </div>
-                  <div class="col-md-8">
+                  <div class="col-md-9">
                     {% if field.name == 'paragraph' %}
                       <div class="input-group">
                         <span class="input-group-text">§</span>
@@ -206,45 +206,45 @@
                 </div>
               {% endif %}
             {% endfor %}
-          </div>
-        </div>
 
-        {# ── Bilder-Bereich (nur bei Service-Modellen) ── #}
-        {% if service_images is not None %}
-          <div class="row mb-3">
-            <div class="col-md-4">
-              <strong>Bilder</strong>
-            </div>
-            <div class="col-md-8">
-              {% for img in service_images %}
-                <div class="d-flex align-items-center mb-2 existing-image-row"
-                     data-image-id="{{ img.pk }}">
-                  <a href="{{ img.image.url }}" target="_blank" class="me-2 flex-shrink-0">
-                    <img src="{{ img.image.url }}" alt="{{ img.image.name }}"
-                         width="60" height="60" class="rounded object-fit-cover">
-                  </a>
-                  <span class="me-auto">{{ img.image.name|cut:"angebotsdb/services/" }}</span>
+            {# ── Bilder-Bereich (nur bei Service-Modellen) ── #}
+            {% if service_images is not None %}
+              <div class="row mb-3">
+                <div class="col-md-3">
+                  Bilder
+                </div>
+                <div class="col-md-9">
+                  {% for img in service_images %}
+                    <div class="d-flex align-items-center mb-2 existing-image-row"
+                         data-image-id="{{ img.pk }}">
+                      <a href="{{ img.image.url }}" target="_blank" class="me-2 flex-shrink-0">
+                        <img src="{{ img.image.url }}" alt="{{ img.image.name }}"
+                             width="60" height="60" class="rounded object-fit-cover">
+                      </a>
+                      <span class="me-auto">{{ img.image.name|cut:"angebotsdb/services/" }}</span>
+                      {% if user_can_save and not readonly %}
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-image-btn"
+                                data-image-id="{{ img.pk }}">
+                          <i class="fa-solid fa-xmark"></i>
+                        </button>
+                      {% endif %}
+                    </div>
+                  {% empty %}
+                    <span class="text-muted">Keine Bilder vorhanden.</span>
+                  {% endfor %}
+
                   {% if user_can_save and not readonly %}
-                    <button type="button" class="btn btn-sm btn-outline-danger delete-image-btn"
-                            data-image-id="{{ img.pk }}">
-                      <i class="fa-solid fa-xmark"></i>
-                    </button>
+                    <div class="mt-2">
+                      <input type="file" name="images" multiple accept="image/*"
+                             class="form-control" id="image-upload-input">
+                      <div id="selected-files-list" class="d-flex flex-wrap gap-2 mt-2"></div>
+                    </div>
                   {% endif %}
                 </div>
-              {% empty %}
-                <span class="text-muted">Keine Bilder vorhanden.</span>
-              {% endfor %}
-
-              {% if user_can_save and not readonly %}
-                <div class="mt-2">
-                  <input type="file" name="images" multiple accept="image/*"
-                         class="form-control" id="image-upload-input">
-                  <div id="selected-files-list" class="d-flex flex-wrap gap-2 mt-2"></div>
-                </div>
-              {% endif %}
-            </div>
+              </div>
+            {% endif %}
           </div>
-        {% endif %}
+        </div>
 
         <div class="flex-item" id="flex-action-buttons">
           <div id="form-control-buttons" class="mt-3 mb-3 d-flex flex-wrap gap-2 align-items-center">
