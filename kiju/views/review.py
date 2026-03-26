@@ -3,10 +3,13 @@ import logging
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views import View
 
+from ..fields import resolve_pygeoapi_uris
 from ..models.base import InboxMessage, OrgUnitServicePermission, ReviewTask
 from ..utils import (
+  apply_draft_to_published,
   authorized_to_edit,
   authorized_to_review,
   compute_diff,
@@ -40,7 +43,15 @@ def _get_review_fields(service, review_task):
   Felder die für den Review irrelevant sind (id, created_at, updated_at, host, status)
   werden ausgeblendet.
   """
-  EXCLUDED_FIELDS = {'id', 'created_at', 'updated_at', 'host', 'status', 'published_version', 'geometry'}
+  EXCLUDED_FIELDS = {
+    'id',
+    'created_at',
+    'updated_at',
+    'host',
+    'status',
+    'published_version',
+    'geometry',
+  }
 
   submitted = review_task.submitted_snapshot
   approved = review_task.approved_snapshot
@@ -62,8 +73,6 @@ def _get_review_fields(service, review_task):
 
     pygeoapi_config = pygeoapi_fields.get(field.name)
     if pygeoapi_config and isinstance(raw_value, list):
-      from ..fields import resolve_pygeoapi_uris
-
       resolved = resolve_pygeoapi_uris(
         raw_value,
         pygeoapi_config['endpoint'],
@@ -77,8 +86,6 @@ def _get_review_fields(service, review_task):
     has_diff = field.name in diff
     old_raw = diff[field.name]['old'] if has_diff else None
     if has_diff and pygeoapi_config and isinstance(old_raw, list):
-      from ..fields import resolve_pygeoapi_uris
-
       old_resolved = resolve_pygeoapi_uris(
         old_raw,
         pygeoapi_config['endpoint'],
@@ -271,15 +278,11 @@ class SubmitForReviewView(View):
       )
 
     # ── Redirect zurück zur Listen-Ansicht ───────────────────────────────────
-    from django.urls import reverse
-
     list_url = reverse(f'kiju:{service_type}_list')
     return redirect(list_url)
 
   def get(self, request, service_type: str, service_id: int):
     """GET-Anfragen werden zur Listen-Ansicht umgeleitet."""
-    from django.urls import reverse
-
     return redirect(reverse(f'kiju:{service_type}_list'))
 
 
@@ -417,7 +420,6 @@ class ReviewServiceView(View):
     - approved_snapshot ← submitted_snapshot (Basis für nächsten Diff)
     - Alle InboxMessages dieses Tasks als erledigt markieren
     """
-    from ..utils import apply_draft_to_published
 
     is_draft_copy = getattr(service, 'published_version_id', None) is not None
 

@@ -1,7 +1,9 @@
 from django.views.generic import TemplateView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
-from ..utils import get_user_provider, is_angebotsdb_admin
+from ..models.base import Provider
+from ..models.services import Service
+from ..utils import get_object_actions, get_user_provider, is_angebotsdb_admin
 from .functions import add_permission_context_elements
 
 
@@ -53,8 +55,6 @@ class ListView(TemplateView):
     context = super().get_context_data(**kwargs)
     context = add_permission_context_elements(context, self.request.user)
     if self.model:
-      from ..models.services import Service
-
       is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
 
       if is_service_model:
@@ -125,6 +125,11 @@ class ListView(TemplateView):
           for i, obj in enumerate(queryset, start=1)
         ]
 
+      for item in annotated_objects:
+        item['actions'] = get_object_actions(
+          self.request.user, item['obj'], self.model, has_draft_copy=item['has_draft_copy']
+        )
+
       context['model'] = self.model
       context['model_name'] = self.model_name or self.model.__name__
       context['model_lower'] = self.model_lower or self.model.__name__.lower()
@@ -148,15 +153,7 @@ class ListView(TemplateView):
       context['model_icon'] = getattr(self.model, 'icon', None)
       context['model_icon_plural'] = getattr(self.model, 'icon_plural', None)
 
-      # Provider-Informationen für Service-Modelle
-      context['is_service_model'] = is_service_model
-
-      if is_service_model:
-        if self.request.user.is_superuser or is_angebotsdb_admin(self.request.user):
-          context['user_provider'] = '__all__'
-        else:
-          context['user_provider'] = get_user_provider(self.request.user)
-      else:
-        context['user_provider'] = '__all__'
+      is_admin = self.request.user.is_superuser or is_angebotsdb_admin(self.request.user)
+      context['user_can_create'] = is_admin or self.model != Provider
 
     return context

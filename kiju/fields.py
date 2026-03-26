@@ -59,7 +59,10 @@ class PyGeoAPIMultipleChoiceField(MultipleChoiceField):
   def __init__(self, endpoint, params, label_property, initial_values=None, **kwargs):
     kwargs.setdefault('required', False)
     kwargs.setdefault(
-      'widget', widgets.SelectMultiple(attrs={'class': 'form-select select2-multiple catchment-area-select'})
+      'widget',
+      widgets.SelectMultiple(
+        attrs={'class': 'form-select select2-multiple catchment-area-select'}
+      ),
     )
     choices = self._fetch_choices(endpoint, params, label_property)
     if initial_values:

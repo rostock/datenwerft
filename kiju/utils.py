@@ -1,8 +1,11 @@
-from .constants_vars import ADMIN_GROUP, USERS_GROUP
+import logging
 
-# ---------------------------------------------------------------------------
-# Phase 2 – Snapshot, Diff & Inbox-Hilfsfunktionen
-# ---------------------------------------------------------------------------
+from django.apps import apps
+from django.db.models import Q
+
+from .constants_vars import ADMIN_GROUP, USERS_GROUP
+from .models.base import InboxMessage, OrgUnitServicePermission, UserProfile
+from .models.services import Service, ServiceImage
 
 
 def create_service_snapshot(service) -> dict:
@@ -54,8 +57,6 @@ def create_service_snapshot(service) -> dict:
     snapshot[field.name] = [{'id': obj.pk, 'display': str(obj)} for obj in related_objects]
 
   # ServiceImage-Informationen im Snapshot erfassen
-  from .models.services import ServiceImage
-
   service_type = service.__class__.__name__.lower()
   images = ServiceImage.objects.filter(service_type=service_type, service_id=service.pk)
   snapshot['_images'] = [
@@ -105,7 +106,6 @@ def get_service_instance(service_type: str, service_id: int):
   :param service_id: Primärschlüssel des Service-Objekts
   :return: Service-Instanz oder None
   """
-  from django.apps import apps
 
   try:
     model = apps.get_model('kiju', service_type)
@@ -128,9 +128,6 @@ def get_inbox_messages(user):
   :param user: Django-User-Instanz
   :return: QuerySet von InboxMessage-Objekten
   """
-  from django.db.models import Q
-
-  from .models.base import InboxMessage
 
   if user.is_superuser or is_angebotsdb_admin(user):
     return InboxMessage.objects.filter(is_resolved=False).order_by('-created_at')
@@ -169,7 +166,6 @@ def get_user_provider(user):
   :param user: user
   :return: Provider instance or None
   """
-  from .models.base import UserProfile
 
   try:
     user_profile = UserProfile.objects.get(user_id=user.id)
@@ -186,7 +182,6 @@ def get_user_org_unit(user):
   :param user: user
   :return: OrgUnit instance or None
   """
-  from .models.base import UserProfile
 
   try:
     user_profile = UserProfile.objects.get(user_id=user.id)
@@ -219,8 +214,6 @@ def authorized_to_review(user, service=None):
 
   if service is None:
     return True
-
-  from .models.base import OrgUnitServicePermission
 
   service_type = type(service).__name__.lower()
   return OrgUnitServicePermission.objects.filter(
@@ -266,6 +259,47 @@ def is_angebotsdb_admin(user):
   return user.groups.filter(name=ADMIN_GROUP).exists()
 
 
+def get_object_actions(user, obj, model, has_draft_copy=False):
+  """
+  Berechnet die erlaubten Aktionen für ein Objekt in der Listenansicht.
+
+  :param user: eingeloggter Nutzer
+  :param obj: das Objekt aus der Liste
+  :param model: Modellklasse des Objekts
+  :param has_draft_copy: ob das Objekt eine Draft-Copy besitzt (nur Service-Modelle)
+  :return: dict mit Boolean-Flags: edit, view, delete, submit_for_review
+  """
+
+  is_admin = user.is_superuser or is_angebotsdb_admin(user)
+  is_service_model = not model._meta.abstract and issubclass(model, Service)
+
+  if is_service_model:
+    status = getattr(obj, 'status', None)
+    user_provider = get_user_provider(user)
+    can_act = is_admin or (user_provider is not None and user_provider == obj.host)
+
+    edit = can_act and status in ('draft', 'revision_needed')
+    edit = edit or (can_act and status == 'published' and not has_draft_copy)
+    view = not edit and (status == 'in_review' or (status == 'published' and has_draft_copy))
+    delete = can_act
+    submit_for_review = can_act and status in ('draft', 'revision_needed')
+
+  elif model == Provider:
+    user_provider = get_user_provider(user)
+    edit = is_admin or user_provider == obj
+    view = False
+    delete = is_admin
+    submit_for_review = False
+
+  else:
+    edit = True
+    view = False
+    delete = True
+    submit_for_review = False
+
+  return {'edit': edit, 'view': view, 'delete': delete, 'submit_for_review': submit_for_review}
+
+
 def create_draft_copy(service, user):
   """
   Erstellt eine Draft-Copy eines published Service-Objekts.
@@ -282,7 +316,6 @@ def create_draft_copy(service, user):
   :param user: Der anfragende User (für Logging)
   :return: Neue, gespeicherte Draft-Copy-Instanz
   """
-  import logging
 
   logger = logging.getLogger(__name__)
 
@@ -303,8 +336,6 @@ def create_draft_copy(service, user):
     getattr(new, field.name).set(getattr(service, field.name).all())
 
   # ServiceImage-Einträge kopieren (Dateipfad wird geteilt, nicht dupliziert)
-  from .models.services import ServiceImage
-
   service_type = service.__class__.__name__.lower()
   for img in ServiceImage.objects.filter(service_type=service_type, service_id=service.pk):
     ServiceImage.objects.create(
@@ -362,7 +393,6 @@ def apply_draft_to_published(draft, published):
   :param draft: Die freigegebene Draft-Copy
   :param published: Das Original (published) Service-Objekt
   """
-  import logging
 
   logger = logging.getLogger(__name__)
 

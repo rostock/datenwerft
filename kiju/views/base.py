@@ -1,10 +1,13 @@
 from json import loads
 
+from django.apps import apps
 from django.http import JsonResponse
 from django.urls import reverse
 from django.views import View
 
-from ..models.services import ChildrenAndYouthService
+from ..models.services import ChildrenAndYouthService, Service
+
+
 class JsonView(View):
   """
   Base view for JSON responses
@@ -25,7 +28,6 @@ def get_model_objects(model, count_only=False):
   :param count_only: count only?
   :return: objects of passed model (or their count)
   """
-  from kiju.models.services import Service
 
   is_service_model = not model._meta.abstract and issubclass(model, Service)
 
@@ -162,12 +164,10 @@ class CombinedMapDataView(JsonView):
   """
 
   def get_context_data(self, **kwargs):
-    from django.apps import apps
-    from kiju.models.services import Service
-
     feature_collection = {'type': 'FeatureCollection', 'features': []}
     service_models = [
-      m for m in apps.get_app_config('kiju').get_models()
+      m
+      for m in apps.get_app_config('kiju').get_models()
       if not m._meta.abstract and issubclass(m, Service)
     ]
     for model in service_models:

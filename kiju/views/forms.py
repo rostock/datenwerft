@@ -1,18 +1,26 @@
 import json
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.gis.geos import Point
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.forms import ChoiceField, ModelForm, ModelMultipleChoiceField, ValidationError, widgets
 from django.http import HttpResponseForbidden, JsonResponse
-from django.urls import reverse_lazy
+from django.shortcuts import redirect
+from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from ..constants_vars import ADMIN_GROUP, USERS_GROUP
+from ..fields import PyGeoAPIMultipleChoiceField
+from ..models.base import Provider, ReviewTask, Tag, TargetGroup, UserProfile
+from ..models.services import Service, ServiceImage
 from ..utils import (
   authorized_to_edit,
+  create_draft_copy,
+  get_draft_copy_for_user,
+  get_service_instance,
   get_user_provider,
   is_angebotsdb_admin,
   is_angebotsdb_user,
@@ -224,9 +232,12 @@ class GenericCreateView(CreateView):
       raise PermissionDenied("You don't have permission to access this resource")
 
     used_model = self.model
-
-    from ..models.base import UserProfile
-    from ..models.services import Service
+    if used_model == Provider and not (
+      is_angebotsdb_admin(self.request.user)
+      or self.request.user.is_superuser
+      or self.request.user.is_staff
+    ):
+      raise PermissionDenied('Sie haben keine Berechtigung, Träger hinzuzufügen.')
 
     # Prüfen ob das Modell ein Service-Modell ist
     is_service_model = not used_model._meta.abstract and issubclass(used_model, Service)
@@ -238,7 +249,10 @@ class GenericCreateView(CreateView):
       _meta_attrs = {'model': used_model, 'exclude': ['user_id']}
     elif is_service_model:
       # host- und status-Feld werden automatisch verwaltet → aus dem Formular ausschließen
-      _meta_attrs = {'model': used_model, 'exclude': ['host', 'status', 'published_version', 'geometry']}
+      _meta_attrs = {
+        'model': used_model,
+        'exclude': ['host', 'status', 'published_version', 'geometry'],
+      }
     else:
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
@@ -250,8 +264,6 @@ class GenericCreateView(CreateView):
         super().__init__(*args, **kwargs)
 
         if used_model == UserProfile:
-          from django.contrib.auth.models import User
-
           users = (
             User.objects.using('default')
             .filter(groups__name__in=[ADMIN_GROUP, USERS_GROUP])
@@ -286,8 +298,6 @@ class GenericCreateView(CreateView):
           self.order_fields(field_order)
 
         if 'tags' in self.fields:
-          from ..models.base import Tag
-
           current_field = self.fields['tags']
           self.fields['tags'] = CreatableMultipleChoiceField(
             model=Tag,
@@ -300,8 +310,6 @@ class GenericCreateView(CreateView):
           )
 
         if 'target_group' in self.fields:
-          from ..models.base import TargetGroup
-
           current_field = self.fields['target_group']
           self.fields['target_group'] = CreatableMultipleChoiceField(
             model=TargetGroup,
@@ -315,8 +323,6 @@ class GenericCreateView(CreateView):
 
         for field_name, config in getattr(used_model, 'PYGEOAPI_FIELDS', {}).items():
           if field_name in self.fields:
-            from ..fields import PyGeoAPIMultipleChoiceField
-
             current_field = self.fields[field_name]
             self.fields[field_name] = PyGeoAPIMultipleChoiceField(
               endpoint=config['endpoint'],
@@ -346,8 +352,6 @@ class GenericCreateView(CreateView):
         form.instance.user_id = int(form.cleaned_data['user_id'])
 
     # Spezielle Behandlung für Service-Modelle: host automatisch aus UserProfile befüllen
-    from ..models.services import Service
-
     is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
     if is_service_model:
       provider = get_user_provider(self.request.user)
@@ -414,8 +418,6 @@ class GenericCreateView(CreateView):
     # user_can_save: Speicher-Button im Template anzeigen?
     # Admins und Superuser dürfen immer speichern.
     # Normale Nutzer nur, wenn ihnen im UserProfile ein Provider zugeordnet ist.
-    from ..models.services import Service
-
     is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
     if is_service_model:
       context['user_can_save'] = authorized_to_edit(self.request.user)
@@ -452,12 +454,6 @@ class GenericUpdateView(UpdateView):
     if self.readonly:
       self._service_locked = True
       return super().dispatch(request, *args, **kwargs)
-
-    from django.shortcuts import redirect
-    from django.urls import reverse
-
-    from ..models.services import Service
-    from ..utils import get_draft_copy_for_user, get_user_provider
 
     obj = self.get_object()  # nutzt Cache ab jetzt
     is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
@@ -497,6 +493,14 @@ class GenericUpdateView(UpdateView):
         self._service_locked = False
     else:
       self._service_locked = False
+      if self.model == Provider and not (
+        is_angebotsdb_admin(request.user) or request.user.is_superuser or request.user.is_staff
+      ):
+        user_provider = get_user_provider(request.user)
+        if user_provider != obj:
+          return HttpResponseForbidden(
+            'Sie haben keine Berechtigung, diesen Träger zu bearbeiten.'
+          )
 
     return super().dispatch(request, *args, **kwargs)
 
@@ -521,13 +525,13 @@ class GenericUpdateView(UpdateView):
 
     used_model = self.model
     service_locked = getattr(self, '_service_locked', False)
-
-    from ..models.services import Service
-
     is_service_model = not used_model._meta.abstract and issubclass(used_model, Service)
 
     if is_service_model:
-      _meta_attrs = {'model': used_model, 'exclude': ['host', 'status', 'published_version', 'geometry']}
+      _meta_attrs = {
+        'model': used_model,
+        'exclude': ['host', 'status', 'published_version', 'geometry'],
+      }
     else:
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
@@ -539,8 +543,6 @@ class GenericUpdateView(UpdateView):
         super().__init__(*args, **kwargs)
 
         if 'tags' in self.fields:
-          from ..models.base import Tag
-
           current_field = self.fields['tags']
           self.fields['tags'] = CreatableMultipleChoiceField(
             model=Tag,
@@ -553,8 +555,6 @@ class GenericUpdateView(UpdateView):
           )
 
         if 'target_group' in self.fields:
-          from ..models.base import TargetGroup
-
           current_field = self.fields['target_group']
           self.fields['target_group'] = CreatableMultipleChoiceField(
             model=TargetGroup,
@@ -571,7 +571,11 @@ class GenericUpdateView(UpdateView):
             from ..fields import PyGeoAPIMultipleChoiceField
 
             current_field = self.fields[field_name]
-            existing = getattr(self.instance, field_name, None) or [] if self.instance and self.instance.pk else []
+            existing = (
+              getattr(self.instance, field_name, None) or []
+              if self.instance and self.instance.pk
+              else []
+            )
             self.fields[field_name] = PyGeoAPIMultipleChoiceField(
               endpoint=config['endpoint'],
               params=config.get('params', {}),
@@ -608,8 +612,6 @@ class GenericUpdateView(UpdateView):
       )
 
     # POST-Absicherung: Normale Nutzer dürfen nur Services ihres eigenen Providers speichern
-    from ..models.services import Service
-
     is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
     if is_service_model and not authorized_to_edit(self.request.user, self.object):
       raise PermissionDenied('Sie haben keine Berechtigung, dieses Angebot zu bearbeiten.')
@@ -621,10 +623,6 @@ class GenericUpdateView(UpdateView):
     # Lazy Draft-Erstellung: Bei published Services wird nicht direkt gespeichert,
     # sondern ein Draft-Copy mit den Änderungen erstellt.
     if getattr(self, '_editing_published', False):
-      from django.shortcuts import redirect
-
-      from ..utils import create_draft_copy
-
       published = self.object
       draft = create_draft_copy(published, self.request.user)
 
@@ -693,8 +691,6 @@ class GenericUpdateView(UpdateView):
     # Admins und Superuser dürfen immer speichern.
     # Normale Nutzer nur, wenn ihr Provider mit dem host des Service-Objekts übereinstimmt.
     # Bei gesperrten Services (in_review) darf niemand speichern.
-    from ..models.services import Service
-
     is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
     service_locked = getattr(self, '_service_locked', False)
     if service_locked:
@@ -713,8 +709,6 @@ class GenericUpdateView(UpdateView):
 
     # Service-Bilder für das Template laden
     if is_service_model:
-      from ..models.services import ServiceImage
-
       context['service_images'] = ServiceImage.objects.filter(
         service_type=self.model.__name__.lower(),
         service_id=self.object.pk,
@@ -724,8 +718,6 @@ class GenericUpdateView(UpdateView):
     if is_service_model:
       context['service_status'] = getattr(self.object, 'status', None)
       # Kommentare des letzten abgelehnten ReviewTask für die Überarbeitungsansicht laden
-      from ..models.base import ReviewTask
-
       latest_rejected = (
         ReviewTask.objects.filter(
           service_type=self.model.__name__.lower(),
@@ -785,12 +777,16 @@ class GenericDeleteView(DeleteView):
     Admins und Superuser dürfen alle Objekte löschen.
     """
     obj = super().get_object(queryset)
-
-    from ..models.services import Service
-
     is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
     if is_service_model and not authorized_to_edit(self.request.user, obj):
       raise PermissionDenied('Sie haben keine Berechtigung, dieses Angebot zu löschen.')
+
+    if self.model == Provider and not (
+      is_angebotsdb_admin(self.request.user)
+      or self.request.user.is_superuser
+      or self.request.user.is_staff
+    ):
+      raise PermissionDenied('Sie haben keine Berechtigung, Träger zu löschen.')
 
     return obj
 
@@ -813,9 +809,6 @@ class GenericDeleteView(DeleteView):
 
   def _delete_related_review_tasks(self, obj):
     """Löscht alle ReviewTasks (inkl. InboxMessages via CASCADE) für einen Service."""
-    from ..models.services import Service
-    from ..models.base import ReviewTask
-
     if not self.model._meta.abstract and issubclass(self.model, Service):
       ReviewTask.objects.filter(
         service_type=self.model.__name__.lower(),
@@ -858,8 +851,6 @@ def _save_uploaded_images(request, service_type, service_id):
   """
   Speichert alle hochgeladenen Bilder aus request.FILES als ServiceImage-Objekte.
   """
-  from ..models.services import ServiceImage
-
   files = request.FILES.getlist('images')
   for file in files:
     ServiceImage.objects.create(
@@ -875,8 +866,6 @@ class ServiceImageDeleteView(View):
   """
 
   def post(self, request, pk):
-    from ..models.services import ServiceImage
-
     if not (
       is_angebotsdb_user(request.user) or request.user.is_superuser or request.user.is_staff
     ):
@@ -889,8 +878,6 @@ class ServiceImageDeleteView(View):
 
     # Berechtigungsprüfung: Nur Provider des zugehörigen Service oder Admin
     if not (request.user.is_superuser or is_angebotsdb_admin(request.user)):
-      from ..utils import get_service_instance
-
       service = get_service_instance(image.service_type, image.service_id)
       if service and not authorized_to_edit(request.user, service):
         return JsonResponse({'success': False, 'message': 'Keine Berechtigung.'}, status=403)

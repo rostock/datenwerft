@@ -13,7 +13,9 @@
     </a>
     <h1 class="mb-4">{% if model_icon_plural %}<i class="{{ model_icon_plural }}"></i> {% elif model_icon %}<i class="{{ model_icon }}"></i> {% endif %}{{ model_verbose_name_plural|default:model_name }}</h1>
     <div class="mb-3">
-      <a href="{% dynamic_url model_lower 'create' %}" class="btn btn-primary me-2">{{model_verbose_name}} hinzufügen</a>
+      {% if user_can_create %}
+        <a href="{% dynamic_url model_lower 'create' %}" class="btn btn-primary me-2">{{model_verbose_name}} hinzufügen</a>
+      {% endif %}
     </div>
     {% if object_list %}
       <table class="table table-striped align-middle">
@@ -33,7 +35,7 @@
         </thead>
         <tbody>
           {% for item in annotated_objects %}
-            {% with obj=item.obj display_number=item.display_number is_fork=item.is_fork tree_prefix=item.tree_prefix has_draft_copy=item.has_draft_copy %}
+            {% with obj=item.obj display_number=item.display_number is_fork=item.is_fork tree_prefix=item.tree_prefix has_draft_copy=item.has_draft_copy actions=item.actions %}
             <tr{% if is_fork %} class="table-secondary"{% endif %}>
               <td>{% if is_fork %}<span class="text-muted font-monospace">{{ tree_prefix }}</span>{% else %}{{ display_number }}{% endif %}</td>
               {% if list_fields %}
@@ -97,33 +99,26 @@
                 <td>{{ obj.updated_at|date:"d.m.Y H:i" }}</td>
               {% endif %}
               <td>
-                {# ── Bearbeiten-Button: draft, revision_needed, oder published ohne Draft ── #}
-                {% if not is_service_model or obj.status == 'draft' or obj.status == 'revision_needed' %}
+                {# ── Bearbeiten / Ansehen ── #}
+                {% if actions.edit %}
                   <a href="{% dynamic_url model_lower 'update' obj.pk %}" class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Bearbeiten">
                     <i class="fa-solid fa-edit"></i>
                   </a>
-                {% elif obj.status == 'published' and not has_draft_copy %}
-                  <a href="{% dynamic_url model_lower 'update' obj.pk %}" class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Bearbeiten">
-                    <i class="fa-solid fa-edit"></i>
-                  </a>
-                {# ── Ansehen-Button: in_review, oder published mit Draft ── #}
-                {% elif obj.status == 'in_review' or obj.status == 'published' and has_draft_copy %}
+                {% elif actions.view %}
                   <a href="{% dynamic_url model_lower 'detail' obj.pk %}" class="btn btn-sm btn-outline-secondary me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Ansehen">
                     <i class="fa-solid fa-eye"></i>
                   </a>
                 {% endif %}
-                {# ── Zur Prüfung freigeben: nur draft/revision_needed ── #}
-                {% if is_service_model and obj.status == 'draft' or is_service_model and obj.status == 'revision_needed' %}
-                  {% if user_provider == '__all__' or user_provider == obj.host %}
-                    <span data-bs-toggle="modal" data-bs-target="#submitForReviewModal">
-                      <button type="button" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Zur Prüfung freigeben" data-submit-url="{% url 'kiju:submit_for_review' model_lower obj.pk %}" data-object-name="{{ obj }}">
-                        <i class="fa-solid fa-paper-plane"></i>
-                      </button>
-                    </span>
-                  {% endif %}
+                {# ── Zur Prüfung freigeben ── #}
+                {% if actions.submit_for_review %}
+                  <span data-bs-toggle="modal" data-bs-target="#submitForReviewModal">
+                    <button type="button" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Zur Prüfung freigeben" data-submit-url="{% url 'kiju:submit_for_review' model_lower obj.pk %}" data-object-name="{{ obj }}">
+                      <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                  </span>
                 {% endif %}
-                {# ── Löschen-Button ── #}
-                {% if not is_service_model or user_provider == '__all__' or user_provider == obj.host %}
+                {# ── Löschen ── #}
+                {% if actions.delete %}
                   <span data-bs-toggle="modal" data-bs-target="#deleteModal">
                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Löschen" data-object-id="{{ obj.pk }}" data-object-name="{{ obj }}" data-model-name="{{ model_verbose_name|default:model_name }}" data-model-lower="{{ model_lower }}" data-delete-url="{% dynamic_url model_lower 'delete' obj.pk %}" data-list-url="{% dynamic_url model_lower 'list' %}" data-object-data='{{ obj|to_json }}'>
                       <i class="fa-solid fa-trash"></i>
