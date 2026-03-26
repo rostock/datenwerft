@@ -60,6 +60,17 @@ class InboxListView(View):
         action_label = 'Bearbeiten'
         action_icon = 'fa-solid fa-pen-to-square'
 
+      # Kommentar-Schlüssel von Feldnamen auf verbose_names auflösen
+      resolved_comments = review_task.comments
+      if service is not None and review_task.comments:
+        field_label_map = {
+          field.name: getattr(field, 'verbose_name', field.name)
+          for field in list(service._meta.concrete_fields) + list(service._meta.many_to_many)
+        }
+        resolved_comments = {
+          field_label_map.get(k, k): v for k, v in review_task.comments.items()
+        }
+
       inbox_items.append(
         {
           'message': msg,
@@ -70,6 +81,7 @@ class InboxListView(View):
           'action_url': action_url,
           'action_label': action_label,
           'action_icon': action_icon,
+          'resolved_comments': resolved_comments,
         }
       )
 

@@ -31,7 +31,7 @@
               <th scope="col">Typ</th>
               <th scope="col">Angebot</th>
               <th scope="col">Angebotstyp</th>
-              <th scope="col">Auftragsstate</th>
+              <th scope="col">Auftragsstatus</th>
               <th scope="col">Eingegangen am</th>
               <th scope="col">Aktion</th>
             </tr>
@@ -113,7 +113,7 @@
                         Kommentare des Prüfers:
                       </strong>
                       <ul class="mb-0 mt-1">
-                        {% for field_name, comment in item.review_task.comments.items %}
+                        {% for field_name, comment in item.resolved_comments.items %}
                           <li>
                             <small>
                               <strong>{{ field_name }}:</strong> {{ comment }}
