@@ -35,17 +35,7 @@ class IndexView(TemplateView):
     context['dashboard_layout'] = self.request.session.get('dashboard_layout', [])
     context['inbox_count'] = get_inbox_count(self.request.user)
 
-    # Leaflet configuration for the dashboard map
-    context['LEAFLET_CONFIG'] = getattr(
-      settings,
-      'LEAFLET_CONFIG',
-      {
-        'DEFAULT_CENTER': (54.14775, 12.14945),
-        'DEFAULT_ZOOM': 11,
-        'MIN_ZOOM': 11,
-        'MAX_ZOOM': 19,
-      },
-    )
+    context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
 
     context['mapdata_url'] = reverse('kiju:services_mapdata')
 

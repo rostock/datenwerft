@@ -4,7 +4,7 @@ from django.apps import apps
 from django.db.models import Q
 
 from .constants_vars import ADMIN_GROUP, USERS_GROUP
-from .models.base import InboxMessage, OrgUnitServicePermission, UserProfile
+from .models.base import InboxMessage, Law, OrgUnitServicePermission, Provider, Topic, UserProfile
 from .models.services import Service, ServiceImage
 
 
@@ -249,6 +249,19 @@ def authorized_to_edit(user, service=None):
   return provider == service.host
 
 
+def authorized_to_manage_base_data(user):
+  """
+  Prüft, ob der Nutzer berechtigt ist, Stammdaten (Topic, Law) zu verwalten.
+  Erlaubt: Superuser, is_staff, App-Admins und Nutzer mit zugeordneter OrgUnit.
+
+  :param user: Django-User-Instanz
+  :return: True wenn berechtigt
+  """
+  if user.is_superuser or user.is_staff or is_angebotsdb_admin(user):
+    return True
+  return get_user_org_unit(user) is not None
+
+
 def is_angebotsdb_admin(user):
   """
   checks if passed user is a KIJU admin
@@ -292,9 +305,10 @@ def get_object_actions(user, obj, model, has_draft_copy=False):
     submit_for_review = False
 
   else:
-    edit = True
-    view = False
-    delete = True
+    can_manage = model not in (Topic, Law) or authorized_to_manage_base_data(user)
+    edit = can_manage
+    view = not can_manage
+    delete = can_manage
     submit_for_review = False
 
   return {'edit': edit, 'view': view, 'delete': delete, 'submit_for_review': submit_for_review}

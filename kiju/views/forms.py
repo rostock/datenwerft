@@ -14,10 +14,11 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from ..constants_vars import ADMIN_GROUP, USERS_GROUP
 from ..fields import PyGeoAPIMultipleChoiceField
-from ..models.base import Provider, ReviewTask, Tag, TargetGroup, UserProfile
+from ..models.base import Law, Provider, ReviewTask, Tag, TargetGroup, Topic, UserProfile
 from ..models.services import Service, ServiceImage
 from ..utils import (
   authorized_to_edit,
+  authorized_to_manage_base_data,
   create_draft_copy,
   get_draft_copy_for_user,
   get_service_instance,
@@ -239,6 +240,9 @@ class GenericCreateView(CreateView):
     ):
       raise PermissionDenied('Sie haben keine Berechtigung, Träger hinzuzufügen.')
 
+    if used_model in (Topic, Law) and not authorized_to_manage_base_data(self.request.user):
+      raise PermissionDenied('Sie haben keine Berechtigung, diesen Eintrag hinzuzufügen.')
+
     # Prüfen ob das Modell ein Service-Modell ist
     is_service_model = not used_model._meta.abstract and issubclass(used_model, Service)
 
@@ -404,16 +408,7 @@ class GenericCreateView(CreateView):
     context['model_lower'] = self.model.__name__.lower()
     context['model_icon'] = getattr(self.model, 'icon', None)
 
-    context['LEAFLET_CONFIG'] = getattr(
-      settings,
-      'LEAFLET_CONFIG',
-      {
-        'DEFAULT_CENTER': (51.0, 10.0),
-        'DEFAULT_ZOOM': 6,
-        'MIN_ZOOM': 3,
-        'MAX_ZOOM': 18,
-      },
-    )
+    context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
 
     # user_can_save: Speicher-Button im Template anzeigen?
     # Admins und Superuser dürfen immer speichern.
@@ -452,7 +447,7 @@ class GenericUpdateView(UpdateView):
 
     # ── Readonly-Modus (Detail-Ansicht) ────────────────────────────────────
     if self.readonly:
-      self._service_locked = True
+      self._form_locked = True
       return super().dispatch(request, *args, **kwargs)
 
     obj = self.get_object()  # nutzt Cache ab jetzt
@@ -463,7 +458,7 @@ class GenericUpdateView(UpdateView):
 
       # ── Sperre bei in_review ───────────────────────────────────────────────
       if status == 'in_review':
-        self._service_locked = True
+        self._form_locked = True
 
       # ── Published: Draft suchen oder Formular normal öffnen ─────────────
       elif status == 'published':
@@ -487,12 +482,12 @@ class GenericUpdateView(UpdateView):
         else:
           # Kein Draft → Formular normal öffnen, Draft erst beim Speichern
           self._editing_published = True
-          self._service_locked = False
+          self._form_locked = False
 
       else:
-        self._service_locked = False
+        self._form_locked = False
     else:
-      self._service_locked = False
+      self._form_locked = False
       if self.model == Provider and not (
         is_angebotsdb_admin(request.user) or request.user.is_superuser or request.user.is_staff
       ):
@@ -501,6 +496,8 @@ class GenericUpdateView(UpdateView):
           return HttpResponseForbidden(
             'Sie haben keine Berechtigung, diesen Träger zu bearbeiten.'
           )
+      elif self.model in (Topic, Law) and not authorized_to_manage_base_data(request.user):
+        self._form_locked = True
 
     return super().dispatch(request, *args, **kwargs)
 
@@ -524,7 +521,7 @@ class GenericUpdateView(UpdateView):
       raise PermissionDenied("You don't have permission to access this resource")
 
     used_model = self.model
-    service_locked = getattr(self, '_service_locked', False)
+    form_locked = getattr(self, '_form_locked', False)
     is_service_model = not used_model._meta.abstract and issubclass(used_model, Service)
 
     if is_service_model:
@@ -598,7 +595,7 @@ class GenericUpdateView(UpdateView):
             self.fields['city'].widget.attrs['placeholder'] = 'Gemeinde'
 
         # Bei gesperrtem Service alle Felder deaktivieren
-        if service_locked:
+        if form_locked:
           for field in self.fields.values():
             field.widget.attrs['disabled'] = 'disabled'
 
@@ -606,9 +603,9 @@ class GenericUpdateView(UpdateView):
 
   def form_valid(self, form):
     # POST-Absicherung: Gesperrte Services (in_review/readonly) dürfen nicht gespeichert werden
-    if getattr(self, '_service_locked', False):
+    if getattr(self, '_form_locked', False):
       raise PermissionDenied(
-        'Dieser Service befindet sich in Prüfung und kann nicht bearbeitet werden.'
+        'Dieses Formular ist gesperrt und kann nicht gespeichert werden.'
       )
 
     # POST-Absicherung: Normale Nutzer dürfen nur Services ihres eigenen Providers speichern
@@ -676,32 +673,23 @@ class GenericUpdateView(UpdateView):
     context['is_update'] = True  # Kennzeichnung für Update-Operation
     context['readonly'] = self.readonly
 
-    context['LEAFLET_CONFIG'] = getattr(
-      settings,
-      'LEAFLET_CONFIG',
-      {
-        'DEFAULT_CENTER': (51.0, 10.0),
-        'DEFAULT_ZOOM': 6,
-        'MIN_ZOOM': 3,
-        'MAX_ZOOM': 18,
-      },
-    )
+    context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
 
     # user_can_save: Speicher-Button im Template anzeigen?
     # Admins und Superuser dürfen immer speichern.
     # Normale Nutzer nur, wenn ihr Provider mit dem host des Service-Objekts übereinstimmt.
     # Bei gesperrten Services (in_review) darf niemand speichern.
     is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
-    service_locked = getattr(self, '_service_locked', False)
-    if service_locked:
+    form_locked = getattr(self, '_form_locked', False)
+    if form_locked:
       context['user_can_save'] = False
-      context['service_locked'] = True
+      context['form_locked'] = True
     elif is_service_model:
       context['user_can_save'] = authorized_to_edit(self.request.user, self.object)
-      context['service_locked'] = False
+      context['form_locked'] = False
     else:
       context['user_can_save'] = True
-      context['service_locked'] = False
+      context['form_locked'] = False
 
     if is_service_model:
       context['is_service_model'] = True
@@ -787,6 +775,9 @@ class GenericDeleteView(DeleteView):
       or self.request.user.is_staff
     ):
       raise PermissionDenied('Sie haben keine Berechtigung, Träger zu löschen.')
+
+    if self.model in (Topic, Law) and not authorized_to_manage_base_data(self.request.user):
+      raise PermissionDenied('Sie haben keine Berechtigung, diesen Eintrag zu löschen.')
 
     return obj
 
