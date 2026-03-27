@@ -61,58 +61,7 @@
         </div>
       </div>
 
-      <!-- Card 2: Angebote für Kinder und Jugendliche -->
-      <div id="grid-item-3" class="grid-item">
-        <div class="card bg-primary-subtle border-primary text-center h-100">
-          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
-            <h3><i class="fa-fw fa-solid fa-hand-holding-heart me-2"></i>Angebote für Kinder und Jugendliche</h3>
-            <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
-              <div class="col d-grid">
-                <a href="{% url 'kiju:childrenandyouthservice_list' %}" class="btn btn-primary"><i class="fa-fw fa-solid fa-table me-2"></i>Auflisten</a>
-              </div>
-              <div class="col d-grid">
-                <a href="{% url 'kiju:childrenandyouthservice_create' %}" class="btn btn-primary"><i class="fa-fw fa-solid fa-circle-plus me-2"></i>Hinzufügen</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 3: Angebote für Familien -->
-      <div id="grid-item-3" class="grid-item">
-        <div class="card bg-primary-subtle border-primary text-center h-100">
-          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
-            <h3><i class="fa-fw fa-solid fa-hand-holding-heart me-2"></i>Angebote für Familien</h3>
-            <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
-              <div class="col d-grid">
-                <a href="{% url 'kiju:familyservice_list' %}" class="btn btn-primary"><i class="fa-fw fa-solid fa-table me-2"></i>Auflisten</a>
-              </div>
-              <div class="col d-grid">
-                <a href="{% url 'kiju:familyservice_create' %}" class="btn btn-primary"><i class="fa-fw fa-solid fa-circle-plus me-2"></i>Hinzufügen</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 4: Angebote im Rahmen des WoftG -->
-      <div id="grid-item-3" class="grid-item">
-        <div class="card bg-primary-subtle border-primary text-center h-100">
-          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
-            <h3><i class="fa-fw fa-solid fa-hand-holding-heart me-2"></i>Angebote im Rahmen des WoftG</h3>
-            <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
-              <div class="col d-grid">
-                <a href="{% url 'kiju:woftgservice_list' %}" class="btn btn-primary"><i class="fa-fw fa-solid fa-table me-2"></i>Auflisten</a>
-              </div>
-              <div class="col d-grid">
-                <a href="{% url 'kiju:woftgservice_create' %}" class="btn btn-primary"><i class="fa-fw fa-solid fa-circle-plus me-2"></i>Hinzufügen</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 5: Freiplatzfinder -->
+      <!-- Freiplatzfinder -->
       <div id="grid-item-4" class="grid-item">
         <div class="card bg-secondary-subtle border-secondary text-center h-100">
           <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
@@ -129,7 +78,7 @@
         </div>
       </div>
 
-      <!-- Card 6: Inbox -->
+      <!-- Inbox -->
       <div id="grid-item-5" class="grid-item">
         <div class="card {% if inbox_count and inbox_count > 0 %}bg-warning-subtle border-warning{% else %}bg-primary-subtle border-primary{% endif %} text-center h-100">
           <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
@@ -155,50 +104,55 @@
         </div>
       </div>
 
-      <!-- Card 7: Weitere Tabellen -->
-      <div id="grid-item-6" class="grid-item">
-        <div class="card bg-primary-subtle border-primary text-center h-100">
-          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
-            <h3><i class="fa-fw fa-solid fa-list-ul me-2"></i>Zusätzliche Tabellen</h3>
-            <div class="row row-cols-1 row-cols-md-2 g-2 mt-4">
-              <div class="col d-grid">
-                <a href="{% url 'kiju:provider_list' %}" class="btn btn-primary w-100"><i class="fa-fw fa-solid fa-building me-2"></i>Träger</a>
-              </div>
-              <div class="col d-grid">
-                <a href="{% url 'kiju:topic_list' %}" class="btn btn-primary w-100"><i class="fa-fw fa-solid fa-folder-tree me-2"></i>Kategorien</a>
-              </div>
-              <div class="col d-grid">
-                <a href="{% url 'kiju:law_list' %}" class="btn btn-primary w-100"><i class="fa-fw fa-solid fa-scale-balanced me-2"></i>Gesetze</a>
-              </div>
-              <div class="col d-grid">
-                <a href="{% url 'kiju:targetgroup_list' %}" class="btn btn-primary w-100"><i class="fa-fw fa-solid fa-users-viewfinder me-2"></i>Zielgruppen</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {% if is_angebotsdb_admin %}
-      <!-- Card 8: User- und Rechtemanagement für Admins -->
-      <div id="grid-item-7" class="grid-item">
-        <div class="card bg-warning-subtle border-warning text-center h-100">
-          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
-            <h3><i class="fa-fw fa-solid fa-users-gear me-2"></i>Benutzerverwaltung</h3>
-            <div class="row row-cols-1 row-cols-md-2 g-2 mt-4">
-              <div class="col d-grid">
-                <a href="{% url 'kiju:userprofile_list' %}" class="btn btn-warning w-100"><i class="fa-fw fa-solid fa-users me-2"></i>Benutzer</a>
-              </div>
-              <div class="col d-grid">
-                <a href="{% url 'kiju:orgunit_list' %}" class="btn btn-warning w-100"><i class="fa-fw fa-solid fa-user-group me-2"></i>Organisations Einheiten</a>
-              </div>
-              <div class="col d-grid">
-                <a href="{% url 'kiju:orgunitservicepermission_list' %}" class="btn btn-warning w-100"><i class="fa-fw fa-solid fa-key me-2"></i>OE Berechtigungen</a>
+      <!-- Dynamische Kacheln aus dashboard_tiles -->
+      {% for tile in dashboard_tiles %}
+        {% if not tile.admin_only or is_angebotsdb_admin %}
+          {% if tile.type == 'tile' %}
+          <div id="grid-item-{{ tile.model_name }}" class="grid-item">
+            <div class="card bg-{{ tile.color }}-subtle border-{{ tile.color }} text-center h-100">
+              <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
+                <h3><i class="fa-fw {{ tile.icon }} me-2"></i>{{ tile.verbose_name }}</h3>
+                <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
+                  <div class="col d-grid">
+                    {% with url_name='kiju:'|add:tile.model_name|add:'_list' %}
+                    <a href="{% url url_name %}" class="btn btn-{{ tile.color }}">
+                      <i class="fa-fw fa-solid fa-table me-2"></i>Auflisten
+                    </a>
+                    {% endwith %}
+                  </div>
+                  <div class="col d-grid">
+                    {% with url_name='kiju:'|add:tile.model_name|add:'_create' %}
+                    <a href="{% url url_name %}" class="btn btn-{{ tile.color }}">
+                      <i class="fa-fw fa-solid fa-circle-plus me-2"></i>Hinzufügen
+                    </a>
+                    {% endwith %}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      {% endif %}
+          {% elif tile.type == 'container' %}
+          <div id="grid-item-{{ tile.key }}" class="grid-item">
+            <div class="card bg-{{ tile.color }}-subtle border-{{ tile.color }} text-center h-100">
+              <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
+                <h3><i class="fa-fw {{ tile.icon }} me-2"></i>{{ tile.title }}</h3>
+                <div class="row row-cols-1 row-cols-md-2 g-2 mt-4">
+                  {% for button in tile.buttons %}
+                  <div class="col d-grid">
+                    {% with url_name='kiju:'|add:button.model_name|add:'_list' %}
+                    <a href="{% url url_name %}" class="btn btn-{{ tile.color }} w-100">
+                      <i class="fa-fw {{ button.icon }} me-2"></i>{{ button.verbose_name }}
+                    </a>
+                    {% endwith %}
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
 
     <!-- End of Grid Container -->
     </div>

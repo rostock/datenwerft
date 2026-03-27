@@ -129,8 +129,11 @@ class ServiceImage(Base):
   (kein GenericForeignKey wegen Cross-DB).
   """
 
+  # Logical Attributes
+  dashboard_mode = None
   _exclude_from_crud = True
 
+  # Database Attributes
   service_type = CharField(max_length=100, verbose_name='Angebotstyp')
   service_id = IntegerField(verbose_name='Service-ID')
   image = ImageField(upload_to='angebotsdb/services/', verbose_name='Bild')
@@ -153,6 +156,9 @@ class ChildrenAndYouthService(Service):
 
   # Logic Attributes
   icon = 'fa-solid fa-hand-holding-heart'
+  dashboard_mode = 'tile'
+  dashboard_color = 'primary'
+  dashboard_admin_only = False
   PYGEOAPI_FIELDS = {
     'catchment_area_urls': {
       'endpoint': 'https://geo.sv.rostock.de/service/ogcapi/collections/gemeindeteile/items',
@@ -192,6 +198,9 @@ class FamilyService(Service):
 
   # Logic Attributes
   icon = 'fa-solid fa-hand-holding-heart'
+  dashboard_mode = 'tile'
+  dashboard_color = 'primary'
+  dashboard_admin_only = False
   PYGEOAPI_FIELDS = {
     'catchment_area_urls': {
       'endpoint': 'https://geo.sv.rostock.de/service/ogcapi/collections/gemeindeteile/items',
@@ -227,6 +236,9 @@ class WoftGService(Service):
 
   # Logic Attributes
   icon = 'fa-solid fa-hand-holding-heart'
+  dashboard_mode = 'tile'
+  dashboard_color = 'primary'
+  dashboard_admin_only = False
 
   # Database Fields
   setting = TextField(verbose_name='Beratungssetting')

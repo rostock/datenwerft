@@ -74,6 +74,8 @@ class Topic(Base):
   # Logical Attributes
   icon = 'fa-solid fa-folder'
   icon_plural = 'fa-solid fa-folder-tree'
+  dashboard_mode = 'container_button'
+  dashboard_container = 'basisdaten'
 
   # Database Fields
   name = CharField(max_length=255, verbose_name='Bezeichnung')
@@ -95,6 +97,8 @@ class Provider(Base):
 
   # Logical attributes
   icon = 'fa-regular fa-building'
+  dashboard_mode = 'container_button'
+  dashboard_container = 'basisdaten'
 
   # Database fields
   name = CharField(max_length=255, verbose_name='Bezeichnung')
@@ -131,6 +135,8 @@ class Law(Base):
 
   # Logical Attributes
   icon = 'fa-solid fa-scale-balanced'
+  dashboard_mode = 'container_button'
+  dashboard_container = 'basisdaten'
 
   # Database fields
   law_book = CharField(
@@ -163,6 +169,8 @@ class TargetGroup(Base):
 
   # Logical Attributes
   icon = 'fa-solid fa-users-viewfinder'
+  dashboard_mode = 'container_button'
+  dashboard_container = 'basisdaten'
 
   # Database fields
   name = CharField(
@@ -191,6 +199,7 @@ class Tag(Base):
   # Logical Attributes
   icon = 'fa-solid fa-tag'
   icon_plural = 'fa-solid fa-tags'
+  dashboard_mode = None
 
   # Database fields
   name = CharField(max_length=100, verbose_name='Bezeichnung', unique=True)
@@ -213,6 +222,8 @@ class OrgUnit(Base):
 
   # Logical Attributes
   icon = 'fa-solid fa-sitemap'
+  dashboard_mode = 'container_button'
+  dashboard_container = 'benutzerverwaltung'
   list_fields = {
     'name': 'Bezeichnung',
     'description': 'Beschreibung',
@@ -259,6 +270,8 @@ class OrgUnitServicePermission(Base):
 
   # Logical Attributes
   icon = 'fa-solid fa-key'
+  dashboard_mode = 'container_button'
+  dashboard_container = 'benutzerverwaltung'
   list_fields = {
     'organisational_unit': 'Organisationseinheit',
     'service_type': 'Angebotstyp',
@@ -319,9 +332,11 @@ class UserProfile(Model):
   """
 
   # Logical Attributes
+  administrative_model = True
   icon = 'fa-solid fa-user'
   icons_plural = 'fa-solid fa-users'
-  administrative_model = True
+  dashboard_mode = 'container_button'
+  dashboard_container = 'benutzerverwaltung'
   list_fields = {
     'user': 'Benutzer',
     'provider': 'Träger',
@@ -399,6 +414,7 @@ class ReviewTask(Base):
 
   # Logical Attributes
   icon = 'fa-solid fa-clipboard-check'
+  dashboard_mode = None
   list_fields = {
     'service_type': 'Angebotstyp',
     'service_id': 'Service-ID',
@@ -501,6 +517,7 @@ class InboxMessage(Base):
 
   # Logical Attributes
   icon = 'fa-solid fa-inbox'
+  dashboard_mode = None
   list_fields = {
     'message_type': 'Typ',
     'review_task': 'Prüfauftrag',
