@@ -2,7 +2,7 @@
   * [x] Profile Model
   * [x] OrgUnit Model
   * [x] Profile Model -> OrgUnit Model
-  * [ ] Profile Model -> User Model (Anzeige im Formular ist noch nicht richtig)
+  * [x] Profile Model -> User Model (Anzeige im Formular ist noch nicht richtig)
   * [x] Profile Model, OrgUnit Model in Views und Index Template einbinden
 * [x] simple Rechte Beschränkungen
   * [x] Funktion `is_angebotsdb_user` in Utils
@@ -10,25 +10,37 @@
   * [x] Funktion `add_permission_context_elements` für Views
   * [x] Rechtemanagement in Views einfügen
   * [x] Rechte Variablen in Templates
-* [ ] erweiterte Rechte Beschränkungen
+* [x] erweiterte Rechte Beschränkungen
   * [x] Zuordnung OrgUnit -> Service-Model-Klasse
   * [x] Zuordnung Einrichtung -> Service-Objekt
   * [x] Automatische Zuweisung von Host zu Service auf Basis von Nutzer. (FE) -> Reglung im BE, dass andere Kombination auch nicht möglich ist, für mögliche Zuküftige API konfiguration.
   * [x] Neue Funktion `is_authorized_to_edit` in Utils
-  * [ ] Neue Funktion `is_authorized_to_review` in Utils
-  * [ ] Erweiterung `add_permissione_context_elements` um User-Object permission
+  * [x] Neue Funktion `is_authorized_to_review` in Utils
+  * [x] Erweiterung `add_permissione_context_elements` um User-Object permission
 * [ ] Inbox mit Redaktion
-  * [ ] Form View zum Attribute Prüfen
+  * [x] Form View zum Attribute Prüfen
   * [ ] Model Review mit `dict[field -> Note]`
-* [ ] Dashboard auf Basis von Modell Attributen
+  * [x] Kategorien und Gesetze werden von OEs gepflegt.
+  * [x] Nur App Admin darf Träger hinzufügen und löschen.
+  * [x] Träger nur von eigenem Nutzer bearbeitbar.
+  * [x] 'Auftragsstate'
+  * [x] Typ Überarbeitung: Felder mit Kommentar kein Verbose name
+  * [x] In der Korrektur/Bearbeitung rutsch die karte in die Kommentarspalte -> selbes verhalten bei nearbeitung nach freigabe
 * [ ] Modellanpassungen
   * [x] Familien und WoftG Angebote erstellen
-  * [ ] Multi-Images überarbeiten -> Bilder im FE an API senden
-  * [ ] Adressen in Services werden nicht richtig gesetzt
-  * [ ] Service-Link
-  * [ ] Einzugsgebiet Auf Stadtteilbasis.
-  * [ ] Ablaufdatum
+  * [x] Multi-Images überarbeiten -> Bilder im FE an API senden
+  * [x] Adressen in Services werden nicht richtig gesetzt
+  * [x] Service-Link
+  * [x] Einzugsgebiet Auf Stadtteilbasis.
+  * [x] Ablaufdatum -> keine Datumsselektor
+* [ ] Hinweis nach Freigabe (Bitte Email an OE senden.) -> Zur Prüfung
+* [ ] Bugs
+  * [x] Sichtbarkeit von Angeboten prüfen (OEs können nicht lesen.)
+  * [x] Inbox-Aufträge löschen sich nicht.
+  * [ ] Formular: 'Zurück zu Kiju-Dashboard'
 
 
 ## In Zukunft
 * Welche Modell Attribute sind nach außen sichtbar?
+  * [ ] sichtbarkeit im Formular kennzeichnen
+* [ ] Dashboard auf Basis von Modell Attributen
