@@ -448,6 +448,11 @@ class ReviewTask(Base):
   created_by_user_id = IntegerField(
     verbose_name='Erstellt von (User-ID)',
   )
+  reviewed_by_user_id = IntegerField(
+    verbose_name='Geprüft von (User-ID)',
+    null=True,
+    blank=True,
+  )
 
   # Task-Status
   task_status = CharField(
@@ -503,6 +508,16 @@ class ReviewTask(Base):
     """Lädt den User aus der Default-Datenwerft-Datenbank."""
     try:
       return User.objects.using('default').get(id=self.created_by_user_id)
+    except User.DoesNotExist:
+      return None
+
+  @property
+  def reviewed_by_user(self):
+    """Lädt den prüfenden User aus der Default-Datenwerft-Datenbank."""
+    if not self.reviewed_by_user_id:
+      return None
+    try:
+      return User.objects.using('default').get(id=self.reviewed_by_user_id)
     except User.DoesNotExist:
       return None
 

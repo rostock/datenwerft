@@ -103,20 +103,27 @@
               </tr>
 
               {# Bei Überarbeitungsaufträgen: Kommentare in einer aufklappbaren Zeile anzeigen #}
-              {% if item.message.message_type == 'revision_request' and item.review_task.comments %}
+              {% if item.message.message_type == 'revision_request' and item.resolved_comments_list %}
                 <tr class="table-warning">
                   <td></td>
                   <td colspan="6">
                     <div class="ps-2">
-                      <strong>
-                        <i class="fa-solid fa-comment-dots me-1"></i>
-                        Kommentare des Prüfers:
-                      </strong>
+                      <div class="d-flex align-items-center gap-3 mb-1">
+                        <strong>
+                          <i class="fa-solid fa-comment-dots me-1"></i>
+                          Kommentare des Prüfers:
+                        </strong>
+                        {% if item.reviewer_info %}
+                          <small class="text-muted">
+                            <i class="fa-solid fa-user-tie me-1"></i>{{ item.reviewer_info.name }}
+                          </small>
+                        {% endif %}
+                      </div>
                       <ul class="mb-0 mt-1">
-                        {% for field_name, comment in item.resolved_comments.items %}
+                        {% for comment_item in item.resolved_comments_list %}
                           <li>
                             <small>
-                              <strong>{{ field_name }}:</strong> {{ comment }}
+                              <strong>{{ comment_item.label }}:</strong> {{ comment_item.comment }}
                             </small>
                           </li>
                         {% endfor %}

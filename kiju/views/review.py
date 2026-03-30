@@ -394,7 +394,7 @@ class ReviewServiceView(View):
         return HttpResponseBadRequest('Zurückweisung erfordert mindestens einen Kommentar.')
       review_task.comments = comments
       review_task.save(update_fields=['comments'])
-      self._reject(review_task, service)
+      self._reject(review_task, service, request.user.id)
 
     else:
       # Nur Kommentare speichern (Zwischenspeichern ohne Aktion)
@@ -484,7 +484,7 @@ class ReviewServiceView(View):
       review_task.service_id,
     )
 
-  def _reject(self, review_task: ReviewTask, service):
+  def _reject(self, review_task: ReviewTask, service, user_id: int):
     """
     Weist den Service zurück:
     - Service-Status → 'revision_needed'
@@ -496,7 +496,8 @@ class ReviewServiceView(View):
     service.save(update_fields=['status'])
 
     review_task.task_status = 'rejected'
-    review_task.save(update_fields=['task_status'])
+    review_task.reviewed_by_user_id = user_id
+    review_task.save(update_fields=['task_status', 'reviewed_by_user_id'])
 
     # OrgUnit-Nachrichten als erledigt markieren
     InboxMessage.objects.filter(

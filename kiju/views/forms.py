@@ -19,8 +19,10 @@ from ..models.services import Service, ServiceImage
 from ..utils import (
   authorized_to_edit,
   authorized_to_manage_base_data,
+  build_mailto,
   create_draft_copy,
   get_draft_copy_for_user,
+  get_reviewer_info,
   get_service_instance,
   get_user_provider,
   is_angebotsdb_admin,
@@ -705,22 +707,42 @@ class GenericUpdateView(UpdateView):
     # Service-Status und Kommentare für Workflow-Buttons im Template
     if is_service_model:
       context['service_status'] = getattr(self.object, 'status', None)
-      # Kommentare des letzten abgelehnten ReviewTask für die Überarbeitungsansicht laden
-      latest_rejected = (
-        ReviewTask.objects.filter(
-          service_type=self.model.__name__.lower(),
-          service_id=self.object.pk,
-          task_status='rejected',
+      # Kommentare des letzten abgelehnten ReviewTask für die Überarbeitungsansicht laden.
+      # Nur wenn der Service tatsächlich auf Überarbeitung wartet, um veraltete Kommentare
+      # aus früheren Review-Zyklen nicht auf der Detail-Ansicht der veröffentlichten Version
+      # anzuzeigen.
+      if context['service_status'] == 'revision_needed':
+        latest_rejected = (
+          ReviewTask.objects.filter(
+            service_type=self.model.__name__.lower(),
+            service_id=self.object.pk,
+            task_status='rejected',
+          )
+          .order_by('-created_at')
+          .first()
         )
-        .order_by('-created_at')
-        .first()
-      )
-      context['revision_comments'] = latest_rejected.comments if latest_rejected else {}
+      else:
+        latest_rejected = None
+      revision_comments = latest_rejected.comments if latest_rejected else {}
+      context['revision_comments'] = revision_comments
+      reviewer_info = get_reviewer_info(latest_rejected) if latest_rejected else None
+      service_name = str(self.object)
+      field_labels = {
+        f.name: getattr(f, 'verbose_name', f.name)
+        for f in list(self.object._meta.concrete_fields) + list(self.object._meta.many_to_many)
+      }
+      context['revision_mailto_links'] = {
+        field_name: build_mailto(reviewer_info, service_name, field_labels.get(field_name, field_name), comment)
+        for field_name, comment in revision_comments.items()
+      }
+      context['revision_reviewer'] = reviewer_info
       context['is_draft_copy'] = getattr(self.object, 'published_version_id', None) is not None
       context['published_version'] = getattr(self.object, 'published_version', None)
     else:
       context['service_status'] = None
       context['revision_comments'] = {}
+      context['revision_mailto_links'] = {}
+      context['revision_reviewer'] = None
       context['is_draft_copy'] = False
       context['published_version'] = None
 

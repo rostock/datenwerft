@@ -7,6 +7,7 @@ from django.views import View
 
 from ..utils import (
   get_inbox_messages,
+  get_reviewer_info,
   get_service_instance,
   is_angebotsdb_user,
 )
@@ -61,27 +62,36 @@ class InboxListView(View):
         action_icon = 'fa-solid fa-pen-to-square'
 
       # Kommentar-Schlüssel von Feldnamen auf verbose_names auflösen
-      resolved_comments = review_task.comments
-      if service is not None and review_task.comments:
-        field_label_map = {
-          field.name: getattr(field, 'verbose_name', field.name)
-          for field in list(service._meta.concrete_fields) + list(service._meta.many_to_many)
-        }
-        resolved_comments = {
-          field_label_map.get(k, k): v for k, v in review_task.comments.items()
-        }
+      service_name = str(service) if service is not None else '(gelöscht)'
+      reviewer_info = get_reviewer_info(review_task)
+      resolved_comments_list = []
+      if review_task.comments:
+        field_label_map = {}
+        if service is not None:
+          field_label_map = {
+            field.name: getattr(field, 'verbose_name', field.name)
+            for field in list(service._meta.concrete_fields) + list(service._meta.many_to_many)
+          }
+        for field_name, comment in review_task.comments.items():
+          resolved_comments_list.append(
+            {
+              'label': field_label_map.get(field_name, field_name),
+              'comment': comment,
+            }
+          )
 
       inbox_items.append(
         {
           'message': msg,
           'review_task': review_task,
           'service': service,
-          'service_name': str(service) if service is not None else '(gelöscht)',
+          'service_name': service_name,
           'service_verbose_name': service_verbose_name,
           'action_url': action_url,
           'action_label': action_label,
           'action_icon': action_icon,
-          'resolved_comments': resolved_comments,
+          'resolved_comments_list': resolved_comments_list,
+          'reviewer_info': reviewer_info,
         }
       )
 

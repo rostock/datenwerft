@@ -1,6 +1,8 @@
 import logging
+from urllib.parse import quote
 
 from django.apps import apps
+from django.contrib.auth.models import User
 from django.db.models import Q
 
 from .constants_vars import ADMIN_GROUP, USERS_GROUP
@@ -467,3 +469,51 @@ def is_angebotsdb_user(user, only_kiju_user_check=False):
     else:
       return True
   return False
+
+
+def get_reviewer_info(review_task) -> dict | None:
+  """
+  Gibt Name und E-Mail des prüfenden Users für einen ReviewTask zurück.
+
+  :param review_task: ReviewTask-Instanz
+  :return: Dict mit 'name' und 'email', oder None wenn kein Prüfer bekannt
+  """
+  if not review_task.reviewed_by_user_id:
+    return None
+  try:
+    user = User.objects.using('default').get(id=review_task.reviewed_by_user_id)
+  except User.DoesNotExist:
+    return None
+  return {
+    'name': user.get_full_name() or user.username,
+    'email': user.email or None,
+  }
+
+
+def build_mailto(reviewer_info: dict, service_name: str, field_label: str, comment: str) -> str | None:
+  """
+  Erzeugt einen mailto:-Link mit vorbefülltem Betreff und Body für eine Rückfrage.
+
+  :param reviewer_info: Dict mit 'name' und 'email'
+  :param service_name: Name des Angebots
+  :param field_label: Lesbarer Feldname
+  :param comment: Kommentartext des Prüfers
+  :return: mailto:-URL-String oder None
+  """
+  if not reviewer_info or not reviewer_info.get('email'):
+    return None
+  subject = f'Rückfrage: {service_name} – {field_label}'
+  body_lines = [
+    f'Hallo {reviewer_info["name"]},',
+    '',
+    f'ich habe eine Rückfrage zum folgenden Kommentar im Feld „{field_label}":',
+    '',
+    f'Ihr Kommentar: {comment}',
+    '',
+    '[Hier Ihre Frage eingeben]',
+    '',
+    'Mit freundlichen Grüßen',
+  ]
+  body = '\n'.join(body_lines)
+  return f'mailto:{reviewer_info["email"]}?subject={quote(subject)}&body={quote(body)}'
+
