@@ -1,5 +1,5 @@
 """
-Zentrale Dashboard-Konfiguration für die KiJu-Angebotsdatenbank.
+Zentrale Dashboard-Konfiguration für die Angebotsdatenbank.
 
 Definiert die Container-Gruppen, in denen Dashboard-Buttons gruppiert werden.
 """

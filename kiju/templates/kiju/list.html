@@ -9,7 +9,7 @@
     {% if is_angebotsdb_user %}
     <a href="{% url 'kiju:index' %}">
       <i class="fa-solid fa-angle-left me"></i>
-      Zurück zum KiJu-Dashboard
+      Zurück zum Dashboard
     </a>
     <h1 class="mb-4">{% if model_icon_plural %}<i class="{{ model_icon_plural }}"></i> {% elif model_icon %}<i class="{{ model_icon }}"></i> {% endif %}{{ model_verbose_name_plural|default:model_name }}</h1>
     <div class="mb-3">
