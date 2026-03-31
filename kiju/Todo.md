@@ -17,7 +17,7 @@
   * [x] Neue Funktion `is_authorized_to_edit` in Utils
   * [x] Neue Funktion `is_authorized_to_review` in Utils
   * [x] Erweiterung `add_permissione_context_elements` um User-Object permission
-* [ ] Inbox mit Redaktion
+* [x] Inbox mit Redaktion
   * [x] Form View zum Attribute Prüfen
   * [ ] Model Review mit `dict[field -> Note]`
   * [x] Kategorien und Gesetze werden von OEs gepflegt.
@@ -34,13 +34,13 @@
   * [x] Einzugsgebiet Auf Stadtteilbasis.
   * [x] Ablaufdatum -> keine Datumsselektor
 * [ ] Hinweis nach Freigabe (Bitte Email an OE senden.) -> Zur Prüfung
-* [ ] Bugs
+* [x] Bugs
   * [x] Sichtbarkeit von Angeboten prüfen (OEs können nicht lesen.)
   * [x] Inbox-Aufträge löschen sich nicht.
-  * [ ] Formular: 'Zurück zu Kiju-Dashboard'
+  * [x] Formular: 'Zurück zu Kiju-Dashboard'
 
 
 ## In Zukunft
 * Welche Modell Attribute sind nach außen sichtbar?
   * [ ] sichtbarkeit im Formular kennzeichnen
-* [ ] Dashboard auf Basis von Modell Attributen
+* [x] Dashboard auf Basis von Modell Attributen
