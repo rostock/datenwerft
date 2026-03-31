@@ -2,10 +2,10 @@ from django.apps import apps
 from django.shortcuts import redirect, render
 from django.views.generic.base import TemplateView
 
+from angebotsdb.utils import is_angebotsdb_user
 from antragsmanagement.utils import is_antragsmanagement_user
 from bemas.utils import is_bemas_user
 from fmm.utils import is_fmm_user
-from kiju.utils import is_angebotsdb_user
 
 
 class IndexView(TemplateView):
@@ -40,8 +40,8 @@ class IndexView(TemplateView):
         return redirect('bemas:index')
       elif is_fmm_user(request.user, only_fmm_user_check=True):
         return redirect('fmm:index')
-      elif is_angebotsdb_user(request.user, only_kiju_user_check=True):
-        return redirect('kiju:index')
+      elif is_angebotsdb_user(request.user, only_angebotsdb_user_check=True):
+        return redirect('angebotsdb:index')
 
     return super(IndexView, self).dispatch(request, *args, **kwargs)
 

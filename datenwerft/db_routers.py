@@ -11,7 +11,7 @@ class DatabaseRouter:
     'fmm',
     'gdihrocodelists',
     'gdihrometadata',
-    'kiju',
+    'angebotsdb',
   }
 
   def db_for_read(self, model, **hints):
@@ -32,8 +32,8 @@ class DatabaseRouter:
         return 'gdihrocodelists'
       elif model._meta.app_label == 'gdihrometadata':
         return 'gdihrometadata'
-      elif model._meta.app_label == 'kiju':
-        return 'kiju'
+      elif model._meta.app_label == 'angebotsdb':
+        return 'angebotsdb'
     return 'default'
 
   def db_for_write(self, model, **hints):
@@ -54,8 +54,8 @@ class DatabaseRouter:
         return 'gdihrocodelists'
       elif model._meta.app_label == 'gdihrometadata':
         return 'gdihrometadata'
-      elif model._meta.app_label == 'kiju':
-        return 'kiju'
+      elif model._meta.app_label == 'angebotsdb':
+        return 'angebotsdb'
     return 'default'
 
   def allow_relation(self, obj1, obj2, **hints):

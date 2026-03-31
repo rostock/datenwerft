@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static %}
+{% load angebotsdb_tags %}
+
+{% block style %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'angebotsdb/css/review.css' %}">
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'angebotsdb/js/review.js' %}"></script>
+{% endblock %}
+
+{% block title %}AngebotsDB | Prüfauftrag #{{ review_task.pk }}{% endblock %}
+
+{% block content %}
+<div class="container-xxl">
+
+  <a href="{% url 'angebotsdb:inbox_list' %}">
+    <i class="fa-solid fa-angle-left me-1"></i>
+    Zurück zur Inbox
+  </a>
+
+  <h1 class="mb-1 mt-3">
+    <i class="fa-solid fa-clipboard-check me-2"></i>
+    Prüfauftrag #{{ review_task.pk }}
+  </h1>
+  <p class="text-muted mb-4">
+    <small>
+      <strong>Angebotstyp:</strong> {{ service_verbose_name }} &nbsp;|&nbsp;
+      <strong>Angebot:</strong> {{ service }} &nbsp;|&nbsp;
+      <strong>Eingegangen:</strong> {{ review_task.created_at|date:"d.m.Y H:i" }}
+    </small>
+  </p>
+
+  {% if is_angebotsdb_user %}
+
+    {# ── Diff-Hinweis ──────────────────────────────────────────────────────── #}
+    {% if has_diff %}
+      <div class="alert alert-info mb-4" role="alert">
+        <i class="fa-solid fa-code-compare me-2"></i>
+        <strong>Änderungen vorhanden:</strong>
+        Dieses Angebot wurde seit der letzten Freigabe bearbeitet.
+        Geänderte Felder sind farblich hervorgehoben.
+      </div>
+    {% endif %}
+
+    {# ── Anleitung ─────────────────────────────────────────────────────────── #}
+    <div class="alert alert-light border mb-4" role="alert">
+      <i class="fa-solid fa-circle-info me-2 text-primary"></i>
+      Prüfen Sie die Felder des Angebots. Wenn ein Feld einen Kommentar erhalten soll,
+      klicken Sie auf <i class="fa-solid fa-comment"></i> und tragen Sie Ihren Kommentar ein.
+      <br>
+      <strong>Freigeben</strong> ist nur möglich, wenn <em>keine</em> Kommentare vorhanden sind.
+      <strong>Zurückweisen</strong> ist nur möglich, wenn <em>mindestens ein</em> Kommentar
+      vorhanden ist.
+    </div>
+
+    <form method="post" id="review-form">
+      {% csrf_token %}
+      {# Verstecktes Input das per JS mit dem Wert des geklickten Buttons befüllt wird.      #}
+      {# Absicherung damit action=approve/reject garantiert mitgesendet wird,                #}
+      {# unabhängig davon ob der Button zum Zeitpunkt des Absendens disabled ist oder nicht. #}
+      <input type="hidden" name="action-fallback" id="hidden-action" value="">
+
+      {# ── Feldtabelle ───────────────────────────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-body p-0">
+          <table class="table table-striped align-middle mb-0" id="review-table">
+            <thead class="table-dark">
+              <tr>
+                <th style="width: 25%">Feld</th>
+                <th style="width: 40%">Wert</th>
+                <th style="width: 35%">Kommentar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for field in review_fields %}
+                <tr class="{% if field.has_diff %}review-field-changed{% endif %}"
+                    id="row-{{ field.field_name }}">
+
+                  {# Spalte 1: Feldname #}
+                  <td class="fw-semibold align-top pt-3">
+                    {{ field.label }}
+                    {% if field.has_diff %}
+                      <span class="badge bg-warning text-dark ms-1"
+                            title="Seit letzter Freigabe geändert">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </span>
+                    {% endif %}
+                  </td>
+
+                  {# Spalte 2: Wert + optionaler Diff #}
+                  <td class="align-top pt-3">
+                    <span class="review-field-value">{{ field.value }}</span>
+
+                    {% if field.has_diff %}
+                      <div class="diff-block mt-2">
+                        <small class="text-muted">
+                          <i class="fa-solid fa-clock-rotate-left me-1"></i>
+                          Vorheriger Wert:
+                        </small>
+                        <br>
+                        <span class="review-old-value">
+                          <del>{{ field.old_value }}</del>
+                        </span>
+                      </div>
+                    {% endif %}
+                  </td>
+
+                  {# Spalte 3: Kommentar #}
+                  <td class="align-top pt-2">
+                    <div class="comment-wrapper">
+                      <button type="button"
+                              class="btn btn-sm toggle-comment
+                                     {% if field.comment %}btn-warning{% else %}btn-outline-secondary{% endif %}"
+                              data-field="{{ field.field_name }}"
+                              title="Kommentar hinterlassen">
+                        <i class="fa-solid fa-comment me-1"></i>
+                        {% if field.comment %}Kommentar bearbeiten{% else %}Kommentar{% endif %}
+                      </button>
+
+                      <div class="comment-field-wrapper mt-2
+                                  {% if not field.comment %}d-none{% endif %}"
+                           id="comment-wrapper-{{ field.field_name }}">
+                        <textarea class="form-control comment-field"
+                                  name="comment_{{ field.field_name }}"
+                                  id="comment-{{ field.field_name }}"
+                                  rows="3"
+                                  placeholder="Kommentar für dieses Feld…">{{ field.comment }}</textarea>
+                      </div>
+                    </div>
+                  </td>
+
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="3" class="text-center text-muted fst-italic py-4">
+                    Keine Felder vorhanden.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {# ── Aktions-Buttons ───────────────────────────────────────────────────── #}
+      <div class="card mb-5">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+
+            {# Freigeben-Button #}
+            {# Das disabled-Attribut wird initial per Django-Template gesetzt,              #}
+            {# danach übernimmt JS die Kontrolle via aria-disabled + pointer-events.        #}
+            <button type="submit"
+                    name="action"
+                    value="approve"
+                    id="btn-approve"
+                    class="btn btn-success btn-lg {% if has_comments %}opacity-50{% endif %}">
+              <i class="fa-solid fa-circle-check me-2"></i>
+              Freigeben
+            </button>
+
+            {# Zurückweisen-Button #}
+            <button type="submit"
+                    name="action"
+                    value="reject"
+                    id="btn-reject"
+                    class="btn btn-danger btn-lg {% if not has_comments %}opacity-50{% endif %}">
+              <i class="fa-solid fa-circle-xmark me-2"></i>
+              Zurückweisen
+            </button>
+
+            {# Trennstrich #}
+            <div class="vr mx-2 d-none d-md-block" style="height: 2.5rem;"></div>
+
+            {# Hinweistext #}
+            <p class="mb-0 text-muted" id="action-hint">
+              {% if has_comments %}
+                <i class="fa-solid fa-triangle-exclamation me-1 text-warning"></i>
+                Kommentare vorhanden – Freigabe nicht möglich.
+              {% else %}
+                <i class="fa-solid fa-circle-check me-1 text-success"></i>
+                Keine Kommentare – Freigabe möglich.
+              {% endif %}
+            </p>
+
+          </div>
+        </div>
+      </div>
+
+    </form>
+
+  {% else %}
+    <div class="alert alert-warning mt-4">
+      Sie haben keine Berechtigung, diesen Prüfauftrag einzusehen.
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

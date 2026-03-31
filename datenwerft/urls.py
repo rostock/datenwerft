@@ -4,13 +4,13 @@ from django.contrib.admin import site as admin_site
 from django.urls import include, path
 
 from accounts import urls as accounts_urls
+from angebotsdb import urls as angebotsdb_urls
 from antragsmanagement import urls as antragsmanagement_urls
 from bemas import urls as bemas_urls
 from datenmanagement import urls as datenmanagement_urls
 from fmm import urls as fmm_urls
 from gdihrocodelists import urls as gdihrocodelists_urls
 from gdihrometadata import urls as gdihrometadata_urls
-from kiju import urls as kiju_urls
 from toolbox import urls as toolbox_urls
 
 from .views import (
@@ -45,7 +45,7 @@ api_urlpatterns += bemas_urls.api_urlpatterns
 api_urlpatterns += fmm_urls.api_urlpatterns
 api_urlpatterns += gdihrocodelists_urls.api_urlpatterns
 api_urlpatterns += gdihrometadata_urls.api_urlpatterns
-api_urlpatterns += kiju_urls.api_urlpatterns
+api_urlpatterns += angebotsdb_urls.api_urlpatterns
 
 # routing...
 urlpatterns = [
@@ -71,8 +71,8 @@ urlpatterns = [
   path('gdihrocodelists/', view=include('gdihrocodelists.urls')),
   # ...GDI.HRO Metadata app
   path('gdihrometadata/', view=include('gdihrometadata.urls')),
-  # ...KiJu app
-  path('kiju/', view=include('kiju.urls')),
+  # ...AngebotsDB app
+  path('angebotsdb/', view=include('angebotsdb.urls')),
   # ...Django-RQ
   path('django-rq/', view=include('django_rq.urls')),
   # ...main page
