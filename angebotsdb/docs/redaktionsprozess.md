@@ -62,9 +62,7 @@ sequenceDiagram
 ## Review mit Diff-Anzeige
 
 Bei jeder Einreichung wird ein **Snapshot** des aktuellen Zustands erstellt
-(`submitted_snapshot`). Wurde das Angebot zuvor bereits einmal freigegeben, wird der damalige
-Snapshot als `approved_snapshot` gespeichert. Auf dieser Basis kann der Reviewer eine
-**Diff-Ansicht** nutzen, die geänderte Felder hervorhebt.
+(`submitted_snapshot`). Wurde das Angebot zuvor bereits einmal freigegeben, wird der damalige Snapshot als `approved_snapshot` gespeichert. Auf dieser Basis kann der Reviewer eine **Diff-Ansicht** nutzen, die geänderte Felder hervorhebt.
 
 ---
 
@@ -102,11 +100,9 @@ flowchart TD
 
 - Pro veröffentlichtem Angebot und Träger existiert **maximal eine aktive Draft-Copy**.
 - Die Draft-Copy verweist über `published_version` auf das Original.
-- Bei **Freigabe** werden alle Felder der Draft-Copy via `apply_draft_to_published()` auf das
-  Original übertragen und die Draft-Copy gelöscht.
+- Bei **Freigabe** werden alle Felder der Draft-Copy via `apply_draft_to_published()` auf das Original übertragen und die Draft-Copy gelöscht.
 - Bei **Zurückweisung** bleibt die Draft-Copy erhalten und kann überarbeitet werden.
-- `ServiceImage`-Einträge werden bei der Erstellung der Draft-Copy mitkopiert und bei der
-  Freigabe auf das Original umgehängt.
+- `ServiceImage`-Einträge werden bei der Erstellung der Draft-Copy mitkopiert und bei der Freigabe auf das Original umgehängt.
 
 ---
 
@@ -120,5 +116,4 @@ Träger-Nutzer über anstehende Aufgaben informiert:
 | `review_request`     | OrgUnit   | Träger reicht Angebot zur Prüfung ein |
 | `revision_request`   | Provider  | Reviewer weist Angebot zurück         |
 
-Nachrichten haben die Flags `is_read` und `is_resolved`. Nach Abschluss eines Review-Vorgangs
-werden die zugehörigen Nachrichten automatisch als `is_resolved=True` markiert.
+Nachrichten haben die Flags `is_read` und `is_resolved`. Nach Abschluss eines Review-Vorgangs werden die zugehörigen Nachrichten automatisch als `is_resolved=True` markiert.

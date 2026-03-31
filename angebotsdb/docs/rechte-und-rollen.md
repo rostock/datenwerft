@@ -2,8 +2,7 @@
 
 [← Zurück zur Übersicht](../README.md)
 
-Die Zugriffsteuerung basiert auf **Django-Gruppen** und dem Zusammenspiel
-von `UserProfile`, `OrgUnit` und `OrgUnitServicePermission`.
+Die Zugriffsteuerung basiert auf **Django-Gruppen** und dem Zusammenspiel von `UserProfile`, `OrgUnit` und `OrgUnitServicePermission`.
 
 ## Gruppen
 
@@ -44,13 +43,11 @@ graph TD
 | Stammdaten verwalten        |     ✅     |     ✅     |         ✅          |            ❌             |
 | Benutzerverwaltung          |     ✅     |     ✅     |         ❌          |            ❌             |
 
-> **Hinweis:** Reviewer können nur Angebote prüfen, deren Typ über eine
-> `OrgUnitServicePermission` ihrer Organisationseinheit zugeordnet ist.
+> **Hinweis:** Reviewer können nur Angebote prüfen, deren Typ über eine `OrgUnitServicePermission` ihrer Organisationseinheit zugeordnet ist.
 
 ## OrgUnit-Service-Berechtigungen
 
-Die Zuordnung, welche OrgUnit welche Angebotstypen prüfen darf, wird
-über das Modell `OrgUnitServicePermission` gesteuert:
+Die Zuordnung, welche OrgUnit welche Angebotstypen prüfen darf, wird über das Modell `OrgUnitServicePermission` gesteuert:
 
 ```mermaid
 graph LR
