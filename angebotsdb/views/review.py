@@ -361,15 +361,6 @@ class ReviewServiceView(View):
     if review_task.task_status != 'pending':
       return HttpResponseBadRequest('Dieser Prüfauftrag ist bereits abgeschlossen.')
 
-    # ── Debug-Logging ─────────────────────────────────────────────────────────
-    logger.warning(
-      'ReviewServiceView.post: task_id=%s POST-Keys=%s', task_id, list(request.POST.keys())
-    )
-    logger.warning('ReviewServiceView.post: action=%r', request.POST.get('action'))
-    for key, value in request.POST.items():
-      if key.startswith('comment_'):
-        logger.warning('ReviewServiceView.post: %s=%r', key, value)
-
     # ── Kommentare aus dem Formular lesen ────────────────────────────────────
     comments = {}
     for key, value in request.POST.items():
@@ -381,7 +372,6 @@ class ReviewServiceView(View):
 
     # ── Aktion auslesen ──────────────────────────────────────────────────────
     action = request.POST.get('action')
-    logger.warning('ReviewServiceView.post: comments=%s action=%r', comments, action)
 
     if action == 'approve':
       if comments:

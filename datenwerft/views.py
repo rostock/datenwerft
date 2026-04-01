@@ -83,7 +83,7 @@ def error_400(request, exception=None):
     'error_message': 'Die Anfrage kann nicht bearbeitet werden, da sie fehlerhaft war '
     '(fehlerhafte Syntax und/oder unbekannte Zeichen in der Anfrage).',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=400)
 
 
 def error_403(request, exception=None):
@@ -92,7 +92,7 @@ def error_403(request, exception=None):
     'error_text': 'Forbidden',
     'error_message': 'Sie dürfen auf die von Ihnen angefragte Ressource nicht zugreifen.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=403)
 
 
 def error_404(request, exception=None):
@@ -104,7 +104,7 @@ def error_404(request, exception=None):
     '(vorallem Groß- und Kleinschreibung), Ihr Lesezeichen und/oder '
     'die Seite, von der Sie gekommen sind.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=404)
 
 
 def error_405(request, exception=None):
@@ -114,7 +114,7 @@ def error_405(request, exception=None):
     'error_message': 'Die Anforderungsmethode ist dem Server zwar bekannt ist, '
     'wird aber von der Zielressource nicht unterstützt.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=405)
 
 
 def error_410(request, exception=None):
@@ -124,7 +124,7 @@ def error_410(request, exception=None):
     'error_message': 'Die von Ihnen angefragte Ressource existiert nicht mehr '
     'und es ist keine Weiterleitung bekannt.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=410)
 
 
 def error_500(request, exception=None):
@@ -135,7 +135,7 @@ def error_500(request, exception=None):
     'da auf dem Server ein unerwarteter Fehler aufgetreten ist. '
     'Bitte versuchen Sie es zu einem späteren Zeitpunkt wieder.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=500)
 
 
 def error_501(request, exception=None):
@@ -145,7 +145,7 @@ def error_501(request, exception=None):
     'error_message': 'Die Anfrage kann nicht bearbeitet werden, '
     'da der Server nicht über die hierfür nötige Funktionalität verfügt.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=501)
 
 
 def error_502(request, exception=None):
@@ -156,7 +156,7 @@ def error_502(request, exception=None):
     'weil im weiteren Verlauf ein Fehler aufgetreten ist. '
     'Bitte versuchen Sie es zu einem späteren Zeitpunkt wieder.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=502)
 
 
 def error_503(request, exception=None):
@@ -167,4 +167,4 @@ def error_503(request, exception=None):
     'oder -Wartungsarbeiten zur Zeit nicht bearbeitet werden. '
     'Bitte versuchen Sie es zu einem späteren Zeitpunkt wieder.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=503)

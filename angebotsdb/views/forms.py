@@ -213,6 +213,12 @@ class GenericCreateView(CreateView):
     self.success_url = reverse_lazy(viewname=f'angebotsdb:{self.model.__name__.lower()}_list')
 
   def dispatch(self, request, *args, **kwargs):
+    if not (
+      is_angebotsdb_user(request.user)
+      or request.user.is_superuser
+      or request.user.is_staff
+    ):
+      return HttpResponseForbidden("You don't have permission to access this resource")
     self.fields = '__all__'
     return super().dispatch(request, *args, **kwargs)
 
@@ -226,14 +232,6 @@ class GenericCreateView(CreateView):
       populated from the user's profile.
     - For all other models: Includes all fields by default.
     """
-    # Check permissions
-    if not (
-      is_angebotsdb_user(self.request.user)
-      or self.request.user.is_superuser
-      or self.request.user.is_staff
-    ):
-      raise PermissionDenied("You don't have permission to access this resource")
-
     used_model = self.model
     if used_model == Provider and not (
       is_angebotsdb_admin(self.request.user)
@@ -828,9 +826,9 @@ class GenericDeleteView(DeleteView):
         service_id=obj.pk,
       ).delete()
 
-  def delete(self, request, *args, **kwargs):
+  def post(self, request, *args, **kwargs):
     """
-    Überschreibt die delete-Methode, um AJAX-Anfragen zu unterstützen.
+    Überschreibt die post-Methode, um AJAX-Anfragen zu unterstützen.
     Die Provider-Berechtigung wird bereits in get_object geprüft.
     """
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -854,10 +852,12 @@ class GenericDeleteView(DeleteView):
           {'success': False, 'message': f'Fehler beim Löschen: {str(e)}'}, status=400
         )
     else:
-      # Normale Behandlung für nicht-AJAX-Anfragen
-      self.object = self.get_object()
-      self._delete_related_review_tasks(self.object)
-      return super().delete(request, *args, **kwargs)
+      return super().post(request, *args, **kwargs)
+
+  def form_valid(self, form):
+    """Löscht verwandte ReviewTasks vor dem eigentlichen Löschen (nicht-AJAX-Pfad)."""
+    self._delete_related_review_tasks(self.object)
+    return super().form_valid(form)
 
 
 def _save_uploaded_images(request, service_type, service_id):
