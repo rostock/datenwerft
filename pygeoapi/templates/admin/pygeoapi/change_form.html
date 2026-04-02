@@ -1,0 +1,29 @@
+{% extends 'admin/change_form.html' %}
+{% load static %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script src="{% static 'jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'select2/select2.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'select2/select2.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/select2-dark-mode.css' %}">
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+  {{ block.super }}
+  <script type="application/javascript">
+    $('.select2').select2({});
+
+    $('#id_model.load-database-config').change(function(event) {
+
+      $.get('/pygeoapi/model/database/config?modelId=' + event.target.value, function(data) {
+
+        $('#id_name').val(data.name);
+        $('#id_title').val(data.title);
+        $('#id_schema').val(data.schema);
+        $('#id_table').val(data.table);
+        $('#id_id_field').val(data.id_field);
+      })
+    })
+  </script>
+{% endblock %}

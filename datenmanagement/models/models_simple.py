@@ -246,6 +246,14 @@ class Abstellflaechen_E_Tretroller(SimpleModel):
       ),
     ],
   )
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'abstellflaechen_e_tretroller'),
+    max_length=255,
+    blank=True,
+    null=True,
+  )
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
@@ -268,6 +276,7 @@ class Abstellflaechen_E_Tretroller(SimpleModel):
       'erstmarkierung': 'Erstmarkierung',
       'breite': 'Breite (in m)',
       'laenge': 'Länge (in m)',
+      'foto': 'Foto',
     }
     list_fields_with_decimal = ['breite', 'laenge']
     list_fields_with_foreign_key = {'strasse': 'strasse'}
@@ -285,6 +294,15 @@ class Abstellflaechen_E_Tretroller(SimpleModel):
 
   def __str__(self):
     return self.id
+
+
+pre_save.connect(set_pre_save_instance, sender=Abstellflaechen_E_Tretroller)
+
+post_save.connect(photo_post_processing, sender=Abstellflaechen_E_Tretroller)
+
+post_save.connect(delete_photo_after_emptied, sender=Abstellflaechen_E_Tretroller)
+
+post_delete.connect(delete_photo, sender=Abstellflaechen_E_Tretroller)
 
 
 class Anerkennungsgebuehren_herrschend(SimpleModel):
@@ -2036,6 +2054,14 @@ class Fahrradreparatursets(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_eigentuemer',
   )
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'fahrradreparatursets'),
+    max_length=255,
+    blank=True,
+    null=True,
+  )
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
@@ -2058,6 +2084,7 @@ class Fahrradreparatursets(SimpleModel):
       'lagebeschreibung': 'Lagebeschreibung',
       'baujahr': 'Baujahr',
       'eigentuemer': 'Eigentümer',
+      'foto': 'Foto',
     }
     list_fields_with_foreign_key = {
       'strasse': 'strasse',
@@ -2092,6 +2119,15 @@ class Fahrradreparatursets(SimpleModel):
 
   def __str__(self):
     return self.id
+
+
+pre_save.connect(set_pre_save_instance, sender=Fahrradreparatursets)
+
+post_save.connect(photo_post_processing, sender=Fahrradreparatursets)
+
+post_save.connect(delete_photo_after_emptied, sender=Fahrradreparatursets)
+
+post_delete.connect(delete_photo, sender=Fahrradreparatursets)
 
 
 class Fahrradstaender(SimpleModel):
@@ -2447,6 +2483,14 @@ class Fussgaengerueberwege(SimpleModel):
     verbose_name='Baujahr', min_value=1900, max_value=get_current_year(), blank=True, null=True
   )
   kreisverkehr = BooleanField(verbose_name='Kreisverkehr?', blank=True, null=True)
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'fussgaengerueberwege'),
+    max_length=255,
+    blank=True,
+    null=True,
+  )
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
@@ -2472,6 +2516,7 @@ class Fussgaengerueberwege(SimpleModel):
       'lagebeschreibung': 'Lagebeschreibung',
       'baujahr': 'Baujahr',
       'kreisverkehr': 'Kreisverkehr?',
+      'foto': 'Foto',
     }
     list_fields_with_decimal = ['breite', 'laenge']
     list_fields_with_foreign_key = {'strasse': 'strasse', 'beleuchtungsart': 'bezeichnung'}
@@ -2506,6 +2551,15 @@ class Fussgaengerueberwege(SimpleModel):
 
   def __str__(self):
     return self.id
+
+
+pre_save.connect(set_pre_save_instance, sender=Fussgaengerueberwege)
+
+post_save.connect(photo_post_processing, sender=Fussgaengerueberwege)
+
+post_save.connect(delete_photo_after_emptied, sender=Fussgaengerueberwege)
+
+post_delete.connect(delete_photo, sender=Fussgaengerueberwege)
 
 
 class Gemeinbedarfsflaechen(SimpleModel):
@@ -4323,6 +4377,102 @@ class Meldedienst_punkthaft(SimpleModel):
       + ' [Datum: '
       + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y')
       + (', Adresse: ' + str(self.adresse) if self.adresse else '')
+      + ']'
+    )
+
+
+class Meldedienst_Qualitaetsverbesserung(SimpleModel):
+  """
+  Meldedienst (Qualitätsverbesserung Liegenschaftskataster)
+  """
+
+  kategorie = ForeignKey(
+    to=Kategorien_Qualitaetsverbesserung,
+    verbose_name='Kategorie',
+    on_delete=RESTRICT,
+    db_column='kategorie',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_kategorien',
+  )
+  auftragsnummer_georg = CharField(
+    verbose_name='Auftragsnummer GEORG',
+    max_length=9,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(regex=auftragsnummer_georg_regex, message=auftragsnummer_georg_message)
+    ],
+  )
+  erfasser = CharField(verbose_name='Erfasser:in', max_length=255, validators=standard_validators)
+  erfassungsdatum = DateField(verbose_name='Erfassungsdatum', default=date.today)
+  lage = CharField(
+    verbose_name='Lage',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  bemerkungen = CharField(
+    verbose_name='Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  bearbeiter = CharField(
+    verbose_name='Bearbeiter:in',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  bearbeitungsbeginn = DateField(verbose_name='Bearbeitungsbeginn', blank=True, null=True)
+  geometrie = polygon_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten"."meldedienst_qualitaetsverbesserung_hro'
+    verbose_name = 'Meldedienst (Qualitätsverbesserung Liegenschaftskataster)'
+    verbose_name_plural = 'Meldedienst (Qualitätsverbesserung Liegenschaftskataster)'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = (
+      'Meldedienst (Qualitätsverbesserung Liegenschaftskataster)'
+      'der Hanse- und Universitätsstadt Rostock'
+    )
+    group_with_users_for_choice_field = 'datenmanagement_meldedienst_qualitaetsverbesserung_full'
+    geometry_type = 'Polygon'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'kategorie': 'Kategorie',
+      'auftragsnummer_georg': 'Auftragsnummer GEORG',
+      'erfasser': 'Erfasser:in',
+      'erfassungsdatum': 'Erfassungsdatum',
+      'lage': 'Lage',
+      'bemerkungen': 'Bemerkungen',
+      'bearbeiter': 'Bearbeiter:in',
+      'bearbeitungsbeginn': 'Bearbeitungsbeginn',
+    }
+    list_fields_with_date = ['erfassungsdatum', 'bearbeitungsbeginn']
+    list_fields_with_foreign_key = {'kategorie': 'kategorie'}
+    map_feature_tooltip_fields = ['kategorie']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'kategorie': 'Kategorie',
+      'auftragsnummer_georg': 'Auftragsnummer GEORG',
+      'erfasser': 'Erfasser:in',
+      'erfassungsdatum': 'Erfassungsdatum',
+      'lage': 'Lage',
+      'bemerkungen': 'Bemerkungen',
+      'bearbeiter': 'Bearbeiter:in',
+      'bearbeitungsbeginn': 'Bearbeitungsbeginn',
+    }
+    map_filter_fields_as_list = ['kategorie']
+
+  def __str__(self):
+    return (
+      str(self.kategorie)
+      + ' [Erfassungsdatum: '
+      + datetime.strptime(str(self.erfassungsdatum), '%Y-%m-%d').strftime('%d.%m.%Y')
       + ']'
     )
 
@@ -6492,3 +6642,193 @@ post_save.connect(photo_post_processing, sender=Versenkpoller)
 post_save.connect(delete_photo_after_emptied, sender=Versenkpoller)
 
 post_delete.connect(delete_photo, sender=Versenkpoller)
+
+
+class Wegesperren(SimpleModel):
+  """
+  Wegesperren
+  """
+
+  strasse = ForeignKey(
+    to=Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True,
+  )
+  id = CharField(verbose_name='ID', max_length=8, unique=True, default='00000000')
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  eigentuemer = ForeignKey(
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    verbose_name='Eigentümer',
+    on_delete=RESTRICT,
+    db_column='eigentuemer',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_eigentuemer',
+  )
+  hersteller = ForeignKey(
+    to=Hersteller_Wegesperren,
+    verbose_name='Hersteller',
+    on_delete=SET_NULL,
+    db_column='hersteller',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_hersteller',
+    blank=True,
+    null=True,
+  )
+  ausfuehrung = ForeignKey(
+    to=Ausfuehrungen_Wegesperren,
+    verbose_name='Ausführung',
+    on_delete=RESTRICT,
+    db_column='ausfuehrung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_ausfuehrungen',
+  )
+  laengen = ArrayField(
+    PositiveSmallIntegerMinField(
+      verbose_name='Längen (in mm)', min_value=1, blank=True, null=True
+    ),
+    verbose_name='Längen (in mm)',
+    blank=True,
+    null=True,
+  )
+  baujahr = PositiveSmallIntegerRangeField(
+    verbose_name='Baujahr', min_value=1900, max_value=get_current_year(), blank=True, null=True
+  )
+  schliessung = ForeignKey(
+    to=Schliessungen_Wegesperren,
+    verbose_name='Schließung',
+    on_delete=SET_NULL,
+    db_column='schliessung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_schliessungen',
+    blank=True,
+    null=True,
+  )
+  anlieger = ForeignKey(
+    to=Anlieger_Wegesperren,
+    verbose_name='Anlieger',
+    on_delete=SET_NULL,
+    db_column='anlieger',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_anlieger',
+    blank=True,
+    null=True,
+  )
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'wegesperren'),
+    max_length=255,
+    blank=True,
+    null=True,
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_strassenbezug"."wegesperren_hro'
+    verbose_name = 'Wegesperre'
+    verbose_name_plural = 'Wegesperren'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Wegesperren in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['id']
+    address_type = 'Straße'
+    address_mandatory = True
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'eigentuemer': 'Eigentümer',
+      'hersteller': 'Hersteller',
+      'ausfuehrung': 'Ausführung',
+      'baujahr': 'Baujahr',
+      'schliessung': 'Schließung',
+      'anlieger': 'Anlieger',
+      'foto': 'Foto',
+    }
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse',
+      'eigentuemer': 'bezeichnung',
+      'hersteller': 'bezeichnung',
+      'ausfuehrung': 'ausfuehrung',
+      'schliessung': 'bezeichnung',
+      'anlieger': 'bezeichnung',
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'wegesperren-eigentuemer',
+        'action_title': 'ausgewählten Datensätzen Eigentümer direkt zuweisen',
+        'field': 'eigentuemer',
+        'type': 'foreignkey',
+      },
+      {
+        'action_name': 'wegesperren-hersteller',
+        'action_title': 'ausgewählten Datensätzen Hersteller direkt zuweisen',
+        'field': 'hersteller',
+        'type': 'foreignkey',
+      },
+      {
+        'action_name': 'wegesperren-ausfuehrung',
+        'action_title': 'ausgewählten Datensätzen Ausführung direkt zuweisen',
+        'field': 'ausfuehrung',
+        'type': 'foreignkey',
+      },
+      {
+        'action_name': 'wegesperren-schliessung',
+        'action_title': 'ausgewählten Datensätzen Schließung direkt zuweisen',
+        'field': 'schliessung',
+        'type': 'foreignkey',
+      },
+      {
+        'action_name': 'wegesperren-anlieger',
+        'action_title': 'ausgewählten Datensätzen Anlieger direkt zuweisen',
+        'field': 'anlieger',
+        'type': 'foreignkey',
+      },
+    ]
+    map_feature_tooltip_fields = ['id']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'eigentuemer': 'Eigentümer',
+      'hersteller': 'Hersteller',
+      'ausfuehrung': 'Ausführung',
+      'baujahr': 'Baujahr',
+      'schliessung': 'Schließung',
+      'anlieger': 'Anlieger',
+    }
+    map_filter_fields_as_list = [
+      'strasse',
+      'eigentuemer',
+      'hersteller',
+      'ausfuehrung',
+      'schliessung',
+      'anlieger',
+    ]
+
+  def __str__(self):
+    return self.id
+
+
+pre_save.connect(set_pre_save_instance, sender=Wegesperren)
+
+post_save.connect(photo_post_processing, sender=Wegesperren)
+
+post_save.connect(delete_photo_after_emptied, sender=Wegesperren)
+
+post_delete.connect(delete_photo, sender=Wegesperren)

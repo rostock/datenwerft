@@ -12,6 +12,7 @@ from .base import (
   Befestigungsart,
   Codelist,
   Hersteller,
+  Kategorie,
   Material,
   Metamodel,
   Schlagwort,
@@ -281,6 +282,32 @@ class Angelberechtigungen(Codelist):
     return self.angelberechtigung
 
 
+class Anlieger_Wegesperren(Codelist):
+  """
+  Anlieger von Wegesperren
+  """
+
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten"."anlieger_wegesperren'
+    ordering = ['bezeichnung']
+    verbose_name = 'Anlieger einer Wegesperre'
+    verbose_name_plural = 'Anlieger von Wegesperren'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Anlieger von Wegesperren'
+    list_fields = {'bezeichnung': 'Bezeichnung'}
+
+  def __str__(self):
+    return self.bezeichnung
+
+
 class Ansprechpartner_Baustellen(Codelist):
   """
   Ansprechpartner:innen bei Baustellen
@@ -359,6 +386,20 @@ class Arten_Adressunsicherheiten(Art):
 
   class BasemodelMeta(Art.BasemodelMeta):
     description = 'Arten von Adressunsicherheiten'
+
+
+class Arten_Beschilderung_Radwegweisung(Art):
+  """
+  Arten von Beschilderung der Radwegweisung
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten"."arten_beschilderung_radwegweisung'
+    verbose_name = 'Art einer Beschilderung der Radwegweisung'
+    verbose_name_plural = 'Arten von Beschilderung der Radwegweisung'
+
+  class BasemodelMeta(Art.BasemodelMeta):
+    description = 'Arten von Beschilderung der Radwegweisung'
 
 
 class Arten_Brunnen(Art):
@@ -741,6 +782,20 @@ class Ausfuehrungen_Ingenieurbauwerke(Ausfuehrung):
 
   class BasemodelMeta(Ausfuehrung.BasemodelMeta):
     description = 'Ausführungen von Ingenieurbauwerken'
+
+
+class Ausfuehrungen_Wegesperren(Ausfuehrung):
+  """
+  Ausführungen von Wegesperren
+  """
+
+  class Meta(Ausfuehrung.Meta):
+    db_table = 'codelisten"."ausfuehrungen_wegesperren'
+    verbose_name = 'Ausführung einer Wegesperre'
+    verbose_name_plural = 'Ausführungen von Wegesperren'
+
+  class BasemodelMeta(Ausfuehrung.BasemodelMeta):
+    description = 'Ausführungen von Wegesperren'
 
 
 class Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster(Befestigungsart):
@@ -1521,6 +1576,20 @@ class Hersteller_Versenkpoller(Hersteller):
     description = 'Hersteller von Versenkpollern'
 
 
+class Hersteller_Wegesperren(Hersteller):
+  """
+  Hersteller von Wegesperren
+  """
+
+  class Meta(Hersteller.Meta):
+    db_table = 'codelisten"."hersteller_wegesperren'
+    verbose_name = 'Hersteller einer Wegesperre'
+    verbose_name_plural = 'Hersteller von Wegesperren'
+
+  class BasemodelMeta(Hersteller.BasemodelMeta):
+    description = 'Hersteller von Wegesperren'
+
+
 class Kabeltypen_Lichtwellenleiterinfrastruktur(Codelist):
   """
   Kabeltypen innerhalb einer Lichtwellenleiterinfrastruktur
@@ -1542,6 +1611,20 @@ class Kabeltypen_Lichtwellenleiterinfrastruktur(Codelist):
 
   def __str__(self):
     return self.kabeltyp
+
+
+class Kategorien_Qualitaetsverbesserung(Kategorie):
+  """
+  Kategorien der Qualitätsverbesserung Liegenschaftskataster
+  """
+
+  class Meta(Kategorie.Meta):
+    db_table = 'codelisten"."kategorien_qualitaetsverbesserung'
+    verbose_name = 'Kategorie einer Qualitätsverbesserung Liegenschaftskataster'
+    verbose_name_plural = 'Kategorien der Qualitätsverbesserung Liegenschaftskataster'
+
+  class BasemodelMeta(Kategorie.BasemodelMeta):
+    description = 'Kategorien der Qualitätsverbesserung Liegenschaftskataster'
 
 
 class Kategorien_Strassen(Codelist):
@@ -1803,6 +1886,32 @@ class Materialien_Durchlaesse(Material):
 
   class BasemodelMeta(Material.BasemodelMeta):
     description = 'Materialien von Durchlässen'
+
+
+class Netze_Radwegweisung(Codelist):
+  """
+  Netze der Radwegweisung
+  """
+
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten"."netze_radwegweisung'
+    ordering = ['bezeichnung']
+    verbose_name = 'Netz der Radwegweisung'
+    verbose_name_plural = 'Netze der Radwegweisung'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Netze der Radwegweisung'
+    list_fields = {'bezeichnung': 'Bezeichnung'}
+
+  def __str__(self):
+    return self.bezeichnung
 
 
 class Objektarten_Lichtwellenleiterinfrastruktur(Codelist):
@@ -2086,6 +2195,32 @@ class Schlagwoerter_Vereine(Schlagwort):
 
   class BasemodelMeta(Schlagwort.BasemodelMeta):
     description = 'Schlagwörter für Vereine'
+
+
+class Schliessungen_Wegesperren(Codelist):
+  """
+  Schließungen von Wegesperren
+  """
+
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators,
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten"."schliessungen_wegesperren'
+    ordering = ['bezeichnung']
+    verbose_name = 'Schließung einer Wegesperre'
+    verbose_name_plural = 'Schließungen von Wegesperren'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Schließungen von Wegesperren'
+    list_fields = {'bezeichnung': 'Bezeichnung'}
+
+  def __str__(self):
+    return self.bezeichnung
 
 
 class Sitzbanktypen_Haltestellenkataster(Codelist):

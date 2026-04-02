@@ -49,6 +49,7 @@ def clean_error_message(value):
       'Es existiert bereits ein Datensatz mit den angegebenen Werten in den Attributen',
       value,
     )
+    value = sub(r'Wert für das Feld ', '', value)
     return value
   elif 'existiert bereits' in value:
     return value[:-1]

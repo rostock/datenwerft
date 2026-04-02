@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.7
--- Dumped by pg_dump version 17.7
+-- Dumped from database version 17.8
+-- Dumped by pg_dump version 17.8
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -426,6 +426,18 @@ CREATE TABLE codelisten.angelberechtigungen (
 
 
 --
+-- Name: anlieger_wegesperren; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.anlieger_wegesperren (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
+);
+
+
+--
 -- Name: ansprechpartner_baustellen; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -456,6 +468,18 @@ CREATE TABLE codelisten.antragsteller_jagdkataster_skizzenebenen (
 --
 
 CREATE TABLE codelisten.arten_adressunsicherheiten (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art character varying(255) NOT NULL
+);
+
+
+--
+-- Name: arten_beschilderung_radwegweisung; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.arten_beschilderung_radwegweisung (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -768,6 +792,18 @@ CREATE TABLE codelisten.ausfuehrungen_haltestellenkataster (
 --
 
 CREATE TABLE codelisten.ausfuehrungen_ingenieurbauwerke (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    ausfuehrung character varying(255) NOT NULL
+);
+
+
+--
+-- Name: ausfuehrungen_wegesperren; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.ausfuehrungen_wegesperren (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -1145,6 +1181,18 @@ CREATE TABLE codelisten.hersteller_versenkpoller (
 
 
 --
+-- Name: hersteller_wegesperren; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.hersteller_wegesperren (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
+);
+
+
+--
 -- Name: kabeltypen_lichtwellenleiterinfrastruktur; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1153,6 +1201,18 @@ CREATE TABLE codelisten.kabeltypen_lichtwellenleiterinfrastruktur (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     kabeltyp character varying(255) NOT NULL
+);
+
+
+--
+-- Name: kategorien_qualitaetsverbesserung; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.kategorien_qualitaetsverbesserung (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    kategorie character varying(255) NOT NULL
 );
 
 
@@ -1281,6 +1341,18 @@ CREATE TABLE codelisten.materialien_durchlaesse (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     material character varying(255) NOT NULL
+);
+
+
+--
+-- Name: netze_radwegweisung; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.netze_radwegweisung (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -1416,6 +1488,18 @@ CREATE TABLE codelisten.schlagwoerter_vereine (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     schlagwort character varying(255) NOT NULL
+);
+
+
+--
+-- Name: schliessungen_wegesperren; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.schliessungen_wegesperren (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -2660,6 +2744,30 @@ CREATE TABLE fachdaten.meldedienst_flaechenhaft_hro (
 
 
 --
+-- Name: meldedienst_qualitaetsverbesserung_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.meldedienst_qualitaetsverbesserung_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    kategorie uuid NOT NULL,
+    erfasser character varying(255) NOT NULL,
+    erfassungsdatum date NOT NULL,
+    lage character varying(255),
+    bemerkungen character varying(255),
+    bearbeiter character varying(255),
+    bearbeitungsbeginn date,
+    geometrie public.geometry(Polygon,25833) NOT NULL,
+    auftragsnummer_georg character varying(9)
+);
+
+
+--
 -- Name: mobilpunkte_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -2776,6 +2884,45 @@ CREATE TABLE fachdaten.punktwolken_projekte (
     vcp_dataset_bucket_id uuid,
     vcp_datasource_id character varying(255),
     geometrie public.geometry(MultiPolygon,25833)
+);
+
+
+--
+-- Name: radwegweisung_beschilderung_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.radwegweisung_beschilderung_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    knoten uuid NOT NULL,
+    beschilderungsart uuid NOT NULL,
+    lagebeschreibung character varying(255),
+    foto character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL,
+    nummer character varying(255) NOT NULL
+);
+
+
+--
+-- Name: radwegweisung_knoten_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.radwegweisung_knoten_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    netz uuid NOT NULL,
+    nummer character varying(255) NOT NULL,
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -3037,10 +3184,10 @@ CREATE TABLE fachdaten.strassen_historie_hro (
     id_zielsystem character varying(255),
     deaktiviert date,
     strasse uuid NOT NULL,
-    datum character varying(255),
     beschluss character varying(255),
     veroeffentlichung character varying(255),
-    historie character varying(255)
+    historie character varying(255),
+    datum date
 );
 
 
@@ -4008,7 +4155,8 @@ CREATE TABLE fachdaten_strassenbezug.abstellflaechen_e_tretroller_hro (
     erstmarkierung smallint NOT NULL,
     breite numeric(3,2) NOT NULL,
     laenge numeric(4,2) NOT NULL,
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    foto character varying(255)
 );
 
 
@@ -4153,7 +4301,8 @@ CREATE TABLE fachdaten_strassenbezug.fahrradreparatursets_hro (
     lagebeschreibung character varying(255),
     baujahr smallint,
     eigentuemer uuid NOT NULL,
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    foto character varying(255)
 );
 
 
@@ -4202,7 +4351,8 @@ CREATE TABLE fachdaten_strassenbezug.fussgaengerueberwege_hro (
     geometrie public.geometry(Point,25833) NOT NULL,
     lagebeschreibung character varying(255),
     baujahr smallint,
-    kreisverkehr boolean
+    kreisverkehr boolean,
+    foto character varying(255)
 );
 
 
@@ -4330,6 +4480,33 @@ CREATE TABLE fachdaten_strassenbezug.strassenreinigung_hro (
 
 
 --
+-- Name: wegesperren_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_strassenbezug.wegesperren_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    strasse uuid,
+    id character(8) NOT NULL,
+    lagebeschreibung character varying(255),
+    eigentuemer uuid NOT NULL,
+    hersteller uuid,
+    ausfuehrung uuid NOT NULL,
+    laengen smallint[],
+    baujahr smallint,
+    schliessung uuid,
+    anlieger uuid,
+    foto character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: adressenliste_datenwerft adressenliste_datenwerft_pk; Type: CONSTRAINT; Schema: basisdaten; Owner: -
 --
 
@@ -4426,6 +4603,22 @@ ALTER TABLE ONLY codelisten.angelberechtigungen
 
 
 --
+-- Name: anlieger_wegesperren anlieger_wegesperren_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.anlieger_wegesperren
+    ADD CONSTRAINT anlieger_wegesperren_bezeichnung_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: anlieger_wegesperren anlieger_wegesperren_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.anlieger_wegesperren
+    ADD CONSTRAINT anlieger_wegesperren_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: ansprechpartner_baustellen ansprechpartner_baustellen_email_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -4471,6 +4664,22 @@ ALTER TABLE ONLY codelisten.arten_adressunsicherheiten
 
 ALTER TABLE ONLY codelisten.arten_adressunsicherheiten
     ADD CONSTRAINT arten_adressunsicherheiten_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: arten_beschilderung_radwegweisung arten_beschilderung_radwegweisung_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_beschilderung_radwegweisung
+    ADD CONSTRAINT arten_beschilderung_radwegweisung_art_unique UNIQUE (art);
+
+
+--
+-- Name: arten_beschilderung_radwegweisung arten_beschilderung_radwegweisung_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_beschilderung_radwegweisung
+    ADD CONSTRAINT arten_beschilderung_radwegweisung_pk PRIMARY KEY (uuid);
 
 
 --
@@ -4887,6 +5096,22 @@ ALTER TABLE ONLY codelisten.ausfuehrungen_ingenieurbauwerke
 
 ALTER TABLE ONLY codelisten.ausfuehrungen_ingenieurbauwerke
     ADD CONSTRAINT ausfuehrungen_ingenieurbauwerke_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: ausfuehrungen_wegesperren ausfuehrungen_wegesperren_ausfuehrung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_wegesperren
+    ADD CONSTRAINT ausfuehrungen_wegesperren_ausfuehrung_unique UNIQUE (ausfuehrung);
+
+
+--
+-- Name: ausfuehrungen_wegesperren ausfuehrungen_wegesperren_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_wegesperren
+    ADD CONSTRAINT ausfuehrungen_wegesperren_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5354,6 +5579,22 @@ ALTER TABLE ONLY codelisten.hersteller_versenkpoller
 
 
 --
+-- Name: hersteller_wegesperren hersteller_wegesperren_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.hersteller_wegesperren
+    ADD CONSTRAINT hersteller_wegesperren_bezeichnung_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: hersteller_wegesperren hersteller_wegesperren_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.hersteller_wegesperren
+    ADD CONSTRAINT hersteller_wegesperren_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: kabeltypen_lichtwellenleiterinfrastruktur kabeltypen_lichtwellenleiterinfrastruktur_kabeltyp_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -5367,6 +5608,22 @@ ALTER TABLE ONLY codelisten.kabeltypen_lichtwellenleiterinfrastruktur
 
 ALTER TABLE ONLY codelisten.kabeltypen_lichtwellenleiterinfrastruktur
     ADD CONSTRAINT kabeltypen_lichtwellenleiterinfrastruktur_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: kategorien_qualitaetsverbesserung kategorien_qualitaetsverbesserung_kategorie_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.kategorien_qualitaetsverbesserung
+    ADD CONSTRAINT kategorien_qualitaetsverbesserung_kategorie_unique UNIQUE (kategorie);
+
+
+--
+-- Name: kategorien_qualitaetsverbesserung kategorien_qualitaetsverbesserung_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.kategorien_qualitaetsverbesserung
+    ADD CONSTRAINT kategorien_qualitaetsverbesserung_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5519,6 +5776,22 @@ ALTER TABLE ONLY codelisten.materialien_durchlaesse
 
 ALTER TABLE ONLY codelisten.materialien_durchlaesse
     ADD CONSTRAINT materialien_durchlaesse_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: netze_radwegweisung netze_radwegweisung_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.netze_radwegweisung
+    ADD CONSTRAINT netze_radwegweisung_bezeichnung_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: netze_radwegweisung netze_radwegweisung_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.netze_radwegweisung
+    ADD CONSTRAINT netze_radwegweisung_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5695,6 +5968,22 @@ ALTER TABLE ONLY codelisten.schlagwoerter_vereine
 
 ALTER TABLE ONLY codelisten.schlagwoerter_vereine
     ADD CONSTRAINT schlagwoerter_vereine_schlagwort_unique UNIQUE (schlagwort);
+
+
+--
+-- Name: schliessungen_wegesperren schliessungen_wegesperren_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.schliessungen_wegesperren
+    ADD CONSTRAINT schliessungen_wegesperren_bezeichnung_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: schliessungen_wegesperren schliessungen_wegesperren_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.schliessungen_wegesperren
+    ADD CONSTRAINT schliessungen_wegesperren_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6578,6 +6867,14 @@ ALTER TABLE ONLY fachdaten.meldedienst_flaechenhaft_hro
 
 
 --
+-- Name: meldedienst_qualitaetsverbesserung_hro meldedienst_qualitaetsverbesserung_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.meldedienst_qualitaetsverbesserung_hro
+    ADD CONSTRAINT meldedienst_qualitaetsverbesserung_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: mobilpunkte_hro mobilpunkte_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6623,6 +6920,38 @@ ALTER TABLE ONLY fachdaten.punktwolken
 
 ALTER TABLE ONLY fachdaten.punktwolken_projekte
     ADD CONSTRAINT punktwolken_projekte_pkey PRIMARY KEY (uuid);
+
+
+--
+-- Name: radwegweisung_beschilderung_hro radwegweisung_beschilderung_hro_beschilderung_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_beschilderung_hro
+    ADD CONSTRAINT radwegweisung_beschilderung_hro_beschilderung_unique UNIQUE (knoten, nummer);
+
+
+--
+-- Name: radwegweisung_beschilderung_hro radwegweisung_beschilderung_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_beschilderung_hro
+    ADD CONSTRAINT radwegweisung_beschilderung_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: radwegweisung_knoten_hro radwegweisung_knoten_hro_nummer_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_knoten_hro
+    ADD CONSTRAINT radwegweisung_knoten_hro_nummer_unique UNIQUE (nummer);
+
+
+--
+-- Name: radwegweisung_knoten_hro radwegweisung_knoten_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_knoten_hro
+    ADD CONSTRAINT radwegweisung_knoten_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7226,6 +7555,22 @@ ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
 
 
 --
+-- Name: wegesperren_hro wegesperren_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_id_unique UNIQUE (id);
+
+
+--
+-- Name: wegesperren_hro wegesperren_hro_pk; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: baugrunduntersuchungen_hro_auftraggeber_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -7244,6 +7589,13 @@ CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.geraetespiela
 --
 
 CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.parkscheinautomaten_parkscheinautomaten_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: radwegweisung_beschilderung_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.radwegweisung_beschilderung_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
 
 
 --
@@ -7352,6 +7704,13 @@ CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten.parks
 
 
 --
+-- Name: radwegweisung_beschilderung_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten.radwegweisung_beschilderung_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: sportanlagen_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
 --
 
@@ -7436,6 +7795,13 @@ CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_adres
 
 
 --
+-- Name: abstellflaechen_e_tretroller_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug.abstellflaechen_e_tretroller_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: fahrradabstellanlagen_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -7450,10 +7816,31 @@ CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug
 
 
 --
+-- Name: fahrradreparatursets_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug.fahrradreparatursets_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: fahrradstaender_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
 CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug.fahrradstaender_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: fussgaengerueberwege_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug.fussgaengerueberwege_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: wegesperren_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug.wegesperren_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
 
 
 --
@@ -7541,6 +7928,20 @@ CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_strassenbezug.stra
 
 
 --
+-- Name: wegesperren_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_strassenbezug.wegesperren_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_abfallbehaelter();
+
+
+--
+-- Name: abstellflaechen_e_tretroller_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_strassenbezug.abstellflaechen_e_tretroller_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: fahrradabstellanlagen_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -7555,10 +7956,31 @@ CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_stras
 
 
 --
+-- Name: fahrradreparatursets_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_strassenbezug.fahrradreparatursets_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: fahrradstaender_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
 CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_strassenbezug.fahrradstaender_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: fussgaengerueberwege_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_strassenbezug.fussgaengerueberwege_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: wegesperren_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_strassenbezug.wegesperren_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
 
 
 --
@@ -8110,6 +8532,14 @@ ALTER TABLE ONLY fachdaten.meldedienst_flaechenhaft_hro
 
 
 --
+-- Name: meldedienst_qualitaetsverbesserung_hro meldedienst_qualitaetsverbesserung_hro_kategorien_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.meldedienst_qualitaetsverbesserung_hro
+    ADD CONSTRAINT meldedienst_qualitaetsverbesserung_hro_kategorien_fk FOREIGN KEY (kategorie) REFERENCES codelisten.kategorien_qualitaetsverbesserung(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: parkscheinautomaten_parkscheinautomaten_hro parkscheinautomaten_parkscheinautomaten_hro_e_anschluesse_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -8171,6 +8601,30 @@ ALTER TABLE ONLY fachdaten.parkscheinautomaten_tarife_hro
 
 ALTER TABLE ONLY fachdaten.punktwolken
     ADD CONSTRAINT punktwolken_punktwolken_projekte_fk FOREIGN KEY (punktwolken_projekte) REFERENCES fachdaten.punktwolken_projekte(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: radwegweisung_beschilderung_hro radwegweisung_beschilderung_hro_beschilderungsarten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_beschilderung_hro
+    ADD CONSTRAINT radwegweisung_beschilderung_hro_beschilderungsarten_fk FOREIGN KEY (beschilderungsart) REFERENCES codelisten.arten_beschilderung_radwegweisung(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: radwegweisung_beschilderung_hro radwegweisung_beschilderung_hro_knoten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_beschilderung_hro
+    ADD CONSTRAINT radwegweisung_beschilderung_hro_knoten_fk FOREIGN KEY (knoten) REFERENCES fachdaten.radwegweisung_knoten_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: radwegweisung_knoten_hro radwegweisung_knoten_hro_netze_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.radwegweisung_knoten_hro
+    ADD CONSTRAINT radwegweisung_knoten_hro_netze_fk FOREIGN KEY (netz) REFERENCES codelisten.netze_radwegweisung(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -8891,6 +9345,46 @@ ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
 
 ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
     ADD CONSTRAINT strassenreinigung_hro_reinigungsrhythmen_fk FOREIGN KEY (reinigungsrhythmus) REFERENCES codelisten.reinigungsrhythmen_strassenreinigungssatzung_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: wegesperren_hro wegesperren_hro_anlieger_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_anlieger_fk FOREIGN KEY (anlieger) REFERENCES codelisten.anlieger_wegesperren(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: wegesperren_hro wegesperren_hro_ausfuehrungen_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_ausfuehrungen_fk FOREIGN KEY (ausfuehrung) REFERENCES codelisten.ausfuehrungen_wegesperren(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: wegesperren_hro wegesperren_hro_eigentuemer_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_eigentuemer_fk FOREIGN KEY (eigentuemer) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: wegesperren_hro wegesperren_hro_hersteller_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_hersteller_fk FOREIGN KEY (hersteller) REFERENCES codelisten.hersteller_wegesperren(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: wegesperren_hro wegesperren_hro_schliessungen_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
+    ADD CONSTRAINT wegesperren_hro_schliessungen_fk FOREIGN KEY (schliessung) REFERENCES codelisten.schliessungen_wegesperren(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

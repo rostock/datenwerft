@@ -73,6 +73,8 @@ urlpatterns = [
   path('gdihrometadata/', view=include('gdihrometadata.urls')),
   # ...AngebotsDB app
   path('angebotsdb/', view=include('angebotsdb.urls')),
+  # ...pygeoapi app
+  path('pygeoapi/', view=include('pygeoapi.urls')),
   # ...Django-RQ
   path('django-rq/', view=include('django_rq.urls')),
   # ...main page

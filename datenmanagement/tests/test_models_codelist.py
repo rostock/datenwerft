@@ -661,6 +661,95 @@ class AngelberechtigungenTest(DefaultCodelistTestCase):
     )
 
 
+class AnliegerWegesperrenTest(DefaultCodelistTestCase):
+  """
+  Anlieger von Wegesperren
+  """
+
+  model = Anlieger_Wegesperren
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {'bezeichnung': 'Bezeichnung1'}
+  attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
+  attributes_values_view_initial = {'bezeichnung': 'Bezeichnung3'}
+  attributes_values_view_updated = {'bezeichnung': 'Bezeichnung4'}
+  attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING,
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+    )
+
+
 class AnsprechpartnerBaustellenTest(DefaultCodelistTestCase):
   """
   Ansprechpartner:innen bei Baustellen
@@ -865,6 +954,95 @@ class ArtenAdressunsicherheitenTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Adressunsicherheiten
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {'art': 'Art1'}
+  attributes_values_db_updated = {'art': 'Art2'}
+  attributes_values_view_initial = {'art': 'Art3'}
+  attributes_values_view_updated = {'art': 'Art4'}
+  attributes_values_view_invalid = {'art': INVALID_STRING}
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING,
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+    )
+
+
+class ArtenBeschilderungRadwegweisungTest(DefaultCodelistTestCase):
+  """
+  Arten von Beschilderung der Radwegweisung
+  """
+
+  model = Arten_Beschilderung_Radwegweisung
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {'art': 'Art1'}
   attributes_values_db_updated = {'art': 'Art2'}
@@ -3179,6 +3357,95 @@ class AusfuehrungenIngenieurbauwerkeTest(DefaultCodelistTestCase):
   """
 
   model = Ausfuehrungen_Ingenieurbauwerke
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {'ausfuehrung': 'Ausführung1'}
+  attributes_values_db_updated = {'ausfuehrung': 'Ausführung2'}
+  attributes_values_view_initial = {'ausfuehrung': 'Ausführung3'}
+  attributes_values_view_updated = {'ausfuehrung': 'Ausführung4'}
+  attributes_values_view_invalid = {'ausfuehrung': INVALID_STRING}
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING,
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+    )
+
+
+class AusfuehrungenWegesperrenTest(DefaultCodelistTestCase):
+  """
+  Ausführungen von Wegesperren
+  """
+
+  model = Ausfuehrungen_Wegesperren
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {'ausfuehrung': 'Ausführung1'}
   attributes_values_db_updated = {'ausfuehrung': 'Ausführung2'}
@@ -5878,6 +6145,95 @@ class HerstellerVersenkpollerTest(DefaultCodelistTestCase):
     )
 
 
+class HerstellerWegesperrenTest(DefaultCodelistTestCase):
+  """
+  Hersteller von Wegesperren
+  """
+
+  model = Hersteller_Wegesperren
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {'bezeichnung': 'Bezeichnung1'}
+  attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
+  attributes_values_view_initial = {'bezeichnung': 'Bezeichnung3'}
+  attributes_values_view_updated = {'bezeichnung': 'Bezeichnung4'}
+  attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING,
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+    )
+
+
 class KabeltypenLichtwellenleiterinfrastrukturTest(DefaultCodelistTestCase):
   """
   Kabeltypen innerhalb einer Lichtwellenleiterinfrastruktur
@@ -5890,6 +6246,95 @@ class KabeltypenLichtwellenleiterinfrastrukturTest(DefaultCodelistTestCase):
   attributes_values_view_initial = {'kabeltyp': 'Kabeltyp3'}
   attributes_values_view_updated = {'kabeltyp': 'Kabeltyp4'}
   attributes_values_view_invalid = {'kabeltyp': INVALID_STRING}
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING,
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+    )
+
+
+class KategorienQualitaetsverbesserungTest(DefaultCodelistTestCase):
+  """
+  Kategorien der Qualitätsverbesserung Liegenschaftskataster
+  """
+
+  model = Kategorien_Qualitaetsverbesserung
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {'kategorie': 'Kategorie1'}
+  attributes_values_db_updated = {'kategorie': 'Kategorie2'}
+  attributes_values_view_initial = {'kategorie': 'Kategorie3'}
+  attributes_values_view_updated = {'kategorie': 'Kategorie4'}
+  attributes_values_view_invalid = {'kategorie': INVALID_STRING}
 
   def setUp(self):
     self.init()
@@ -6877,6 +7322,95 @@ class MaterialienDurchlaesseTest(DefaultCodelistTestCase):
     )
 
 
+class NetzeRadwegweisungTest(DefaultCodelistTestCase):
+  """
+  Netze der Radwegweisung
+  """
+
+  model = Netze_Radwegweisung
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {'bezeichnung': 'Bezeichnung1'}
+  attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
+  attributes_values_view_initial = {'bezeichnung': 'Bezeichnung3'}
+  attributes_values_view_updated = {'bezeichnung': 'Bezeichnung4'}
+  attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING,
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+    )
+
+
 class ObjektartenLichtwellenleiterinfrastrukturTest(DefaultCodelistTestCase):
   """
   Objektarten innerhalb einer Lichtwellenleiterinfrastruktur
@@ -7782,6 +8316,95 @@ class SchlagwoerterVereineTest(DefaultCodelistTestCase):
   attributes_values_view_initial = {'schlagwort': 'Schlagwort3'}
   attributes_values_view_updated = {'schlagwort': 'Schlagwort4'}
   attributes_values_view_invalid = {'schlagwort': INVALID_STRING}
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING,
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+    )
+
+
+class SchliessungenWegesperrenTest(DefaultCodelistTestCase):
+  """
+  Schließungen von Wegesperren
+  """
+
+  model = Schliessungen_Wegesperren
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {'bezeichnung': 'Bezeichnung1'}
+  attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
+  attributes_values_view_initial = {'bezeichnung': 'Bezeichnung3'}
+  attributes_values_view_updated = {'bezeichnung': 'Bezeichnung4'}
+  attributes_values_view_invalid = {'bezeichnung': INVALID_STRING}
 
   def setUp(self):
     self.init()
