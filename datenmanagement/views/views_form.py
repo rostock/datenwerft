@@ -14,7 +14,6 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from d3.utils import generiere_link_zu_kennzeichen, lade_d3_session_id
-from d3.views.views_process import D3ContextMixin
 from datenmanagement.utils import (
   get_field_name_for_address_type,
   get_thumb_url,

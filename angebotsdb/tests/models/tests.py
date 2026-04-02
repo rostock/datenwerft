@@ -19,7 +19,6 @@ from angebotsdb.models.services import (
 from ..abstract import ModelTestCase
 from ..constant_vars import (
   VALID_DATE_A,
-  VALID_DATE_B,
   VALID_POINT_DB,
   VALID_STRING_A,
   VALID_STRING_B,

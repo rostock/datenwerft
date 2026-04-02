@@ -14,7 +14,6 @@ from ..constant_vars import (
   VALID_DATE_A,
   VALID_POINT_DB,
   VALID_STRING_A,
-  VALID_STRING_B,
   VALID_ZIP,
 )
 from ..functions import login_as_provider, login_as_reviewer, login_no_role

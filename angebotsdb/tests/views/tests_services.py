@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.test import override_settings
 from django.urls import reverse
 
-from angebotsdb.models.base import Law, OrgUnit, Provider, Topic
+from angebotsdb.models.base import Law, Provider, Topic
 from angebotsdb.models.services import ChildrenAndYouthService, FamilyService, WoftGService
 
 from ..abstract import FormViewTestCase, MockResponse, ViewTestCase

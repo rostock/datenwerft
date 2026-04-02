@@ -5,7 +5,7 @@ from django.urls import reverse
 from angebotsdb.constants_vars import ADMIN_GROUP, USERS_GROUP
 
 from .constant_vars import DATABASES, PASSWORD, USERNAME, USERNAME_PROVIDER, USERNAME_REVIEWER
-from .functions import get_object, login_as_admin, login_as_provider, login_as_reviewer, login_no_role
+from .functions import get_object
 
 
 class MockResponse:
