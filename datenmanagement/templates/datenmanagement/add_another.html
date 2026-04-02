@@ -4,7 +4,6 @@
 {% block title %}{{ model_verbose_name_plural }} – weiterer Datensatz? | {% endblock %}
 
 {% block content %}
-  <div class="container-xxl"
   {% if messages %}
     {% for message in messages %}
       {% if message.tags and message.tags == 'success' %}
