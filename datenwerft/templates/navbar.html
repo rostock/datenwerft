@@ -18,9 +18,9 @@
               {% if user.is_superuser %}
                 <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-user"></i> {{ user.username }}</a>
               {% elif user.is_staff %}
-                <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-user"></i> {{ user.first_name }} {{ user.last_name }}</a>
+                <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-user"></i> {{ user.get_full_name|default:user.username }}</a>
               {% else %}
-                <span class="nav-link"><i class="fas fa-user"></i> {{ user.first_name }} {{ user.last_name }}</span>
+                <span class="nav-link"><i class="fas fa-user"></i> {{ user.get_full_name|default:user.username }}</span>
               {% endif %}
             </li>
           {% endif %}

@@ -5078,7 +5078,7 @@ class LichtwellenleiterinfrastrukturTest(DefaultComplexModelTestCase):
   def setUp(self):
     self.init()
 
-  def test_is_complexmodel(self):
+  def test_is_simplemodel(self):
     self.generic_is_complexmodel_test()
 
   def test_create(self):

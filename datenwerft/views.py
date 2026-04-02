@@ -1,6 +1,8 @@
+from django.apps import apps
 from django.shortcuts import redirect, render
 from django.views.generic.base import TemplateView
 
+from angebotsdb.utils import is_angebotsdb_user
 from antragsmanagement.utils import is_antragsmanagement_user
 from bemas.utils import is_bemas_user
 from fmm.utils import is_fmm_user
@@ -29,6 +31,7 @@ class IndexView(TemplateView):
         and not is_antragsmanagement_user(request.user)
         and not is_bemas_user(request.user)
         and not is_fmm_user(request.user)
+        and not is_angebotsdb_user(request.user)
       ):
         return redirect('datenmanagement:index')
       elif is_antragsmanagement_user(request.user, only_antragsmanagement_user_check=True):
@@ -37,8 +40,40 @@ class IndexView(TemplateView):
         return redirect('bemas:index')
       elif is_fmm_user(request.user, only_fmm_user_check=True):
         return redirect('fmm:index')
+      elif is_angebotsdb_user(request.user, only_angebotsdb_user_check=True):
+        return redirect('angebotsdb:index')
 
     return super(IndexView, self).dispatch(request, *args, **kwargs)
+
+  def get_context_data(self, **kwargs):
+    # Initialize context from parent class
+    context = super().get_context_data(**kwargs)
+
+    # add installed apps to template context
+    context['apps'] = []
+    for app in apps.get_app_configs():
+      if hasattr(app, 'datenwerft_app') and app.datenwerft_app:
+        context['apps'].append(
+          {
+            'name': getattr(app, 'verbose_name', app.name),
+            'description': getattr(app, 'description', ''),
+            'url': getattr(app, 'url', f'/{app.name}/'),
+          }
+        )
+
+    # add installed admin apps to template context
+    context['admin_apps'] = []
+    for app in apps.get_app_configs():
+      if hasattr(app, 'admin_app') and app.admin_app:
+        context['admin_apps'].append(
+          {
+            'name': getattr(app, 'verbose_name', app.name),
+            'description': getattr(app, 'description', ''),
+            'url': getattr(app, 'url', f'/admin/{app.name}/'),
+          }
+        )
+
+    return context
 
 
 def error_400(request, exception=None):
@@ -48,7 +83,7 @@ def error_400(request, exception=None):
     'error_message': 'Die Anfrage kann nicht bearbeitet werden, da sie fehlerhaft war '
     '(fehlerhafte Syntax und/oder unbekannte Zeichen in der Anfrage).',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=400)
 
 
 def error_403(request, exception=None):
@@ -57,7 +92,7 @@ def error_403(request, exception=None):
     'error_text': 'Forbidden',
     'error_message': 'Sie dürfen auf die von Ihnen angefragte Ressource nicht zugreifen.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=403)
 
 
 def error_404(request, exception=None):
@@ -69,7 +104,7 @@ def error_404(request, exception=None):
     '(vorallem Groß- und Kleinschreibung), Ihr Lesezeichen und/oder '
     'die Seite, von der Sie gekommen sind.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=404)
 
 
 def error_405(request, exception=None):
@@ -79,7 +114,7 @@ def error_405(request, exception=None):
     'error_message': 'Die Anforderungsmethode ist dem Server zwar bekannt ist, '
     'wird aber von der Zielressource nicht unterstützt.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=405)
 
 
 def error_410(request, exception=None):
@@ -89,7 +124,7 @@ def error_410(request, exception=None):
     'error_message': 'Die von Ihnen angefragte Ressource existiert nicht mehr '
     'und es ist keine Weiterleitung bekannt.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=410)
 
 
 def error_500(request, exception=None):
@@ -100,7 +135,7 @@ def error_500(request, exception=None):
     'da auf dem Server ein unerwarteter Fehler aufgetreten ist. '
     'Bitte versuchen Sie es zu einem späteren Zeitpunkt wieder.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=500)
 
 
 def error_501(request, exception=None):
@@ -110,7 +145,7 @@ def error_501(request, exception=None):
     'error_message': 'Die Anfrage kann nicht bearbeitet werden, '
     'da der Server nicht über die hierfür nötige Funktionalität verfügt.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=501)
 
 
 def error_502(request, exception=None):
@@ -121,7 +156,7 @@ def error_502(request, exception=None):
     'weil im weiteren Verlauf ein Fehler aufgetreten ist. '
     'Bitte versuchen Sie es zu einem späteren Zeitpunkt wieder.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=502)
 
 
 def error_503(request, exception=None):
@@ -132,4 +167,4 @@ def error_503(request, exception=None):
     'oder -Wartungsarbeiten zur Zeit nicht bearbeitet werden. '
     'Bitte versuchen Sie es zu einem späteren Zeitpunkt wieder.',
   }
-  return render(request, 'error.html', context)
+  return render(request, 'error.html', context, status=503)

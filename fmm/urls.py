@@ -24,61 +24,61 @@ app_name = 'fmm'
 urlpatterns = [
   # main page
   path(
-    route='',
+    '',
     view=login_required(IndexView.as_view()),
     name='index',
   ),
   # composing table data
   path(
-    route='tabledata',
+    'tabledata',
     view=login_required(TableDataView.as_view()),
     name='tabledata',
   ),
   # table page
   path(
-    route='table',
+    'table',
     view=login_required(TableView.as_view()),
     name='table',
   ),
   # overview page
   path(
-    route='overview/<pk>',
+    'overview/<pk>',
     view=login_required(OverviewView.as_view()),
     name='overview',
   ),
   # form page for creating a FMF instance
   path(
-    route='fmf/create',
+    'fmf/create',
     view=login_required(FmfCreateView.as_view()),
     name='fmf_create',
   ),
   # form page for updating a FMF instance
   path(
-    route='fmf/update/<pk>',
+    'fmf/update/<pk>',
     view=login_required(FmfUpdateView.as_view()),
     name='fmf_update',
   ),
   # form page for deleting a FMF instance
   path(
-    route='fmf/delete/<pk>',
+    'fmf/delete/<pk>',
     view=login_required(FmfDeleteView.as_view()),
     name='fmf_delete',
   ),
   # form page for creating a Paket Umwelt instance
   path(
-    route='paketumwelt/create/<fmf_pk>',
+    'paketumwelt/create/<fmf_pk>',
     view=login_required(PaketUmweltCreateView.as_view()),
     name='paketumwelt_create',
   ),
   # form page for updating a Paket Umwelt instance
   path(
-    route='paketumwelt/update/<pk>',
+    'paketumwelt/update/<pk>',
     view=login_required(PaketUmweltUpdateView.as_view()),
     name='paketumwelt_update',
   ),
   # form page for deleting a Paket Umwelt instance
   path(
-    route='paketumwelt/delete/<pk>',
+    'paketumwelt/delete/<pk>',
     view=login_required(PaketUmweltDeleteView.as_view()),
     name='paketumwelt_delete',
   ),

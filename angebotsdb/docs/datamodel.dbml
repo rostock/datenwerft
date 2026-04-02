@@ -1,0 +1,331 @@
+// =====================================================================
+// AngebotsDB – Datenmodell (DBML)
+// =====================================================================
+
+// ----- Stammdaten / Lookup-Tabellen ----------------------------------
+
+Table topic {
+  id integer [pk, increment]
+  name varchar(255) [not null, note: 'Bezeichnung']
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Kategorien zur Klassifizierung von Angeboten'
+}
+
+Table host {
+  id integer [pk, increment]
+  name varchar(255) [not null, note: 'Bezeichnung']
+  description text
+  logo image
+  address varchar(255)
+  contact_person varchar(255)
+  email varchar(255)
+  phone varchar(255)
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Träger / anbietende Einrichtung'
+}
+
+Table law {
+  id integer [pk, increment]
+  law_book varchar(25) [not null, note: 'z. B. SGB VIII']
+  paragraph varchar(25) [not null, note: 'z. B. 8a']
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Gesetzliche Grundlagen'
+}
+
+Table target_group {
+  id integer [pk, increment]
+  name varchar(100) [not null, unique, note: 'Zielgruppe']
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Zielgruppen (z. B. Jugendliche, Eltern)'
+}
+
+Table tag {
+  id integer [pk, increment]
+  name varchar(100) [not null, unique, note: 'Bezeichnung']
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Freie Schlagworte'
+}
+
+// ----- Benutzerverwaltung --------------------------------------------
+
+Table angebotsdb_organisational_unit {
+  id integer [pk, increment]
+  name varchar(255) [not null, unique, note: 'Bezeichnung']
+  description text
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Organisationseinheit der Verwaltung (OE)'
+}
+
+Table angebotsdb_org_unit_service_permission {
+  id integer [pk, increment]
+  organisational_unit_id integer [not null, ref: > angebotsdb_organisational_unit.id]
+  service_type varchar(100) [not null, note: 'Lowercase-Modellname']
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  indexes {
+    (organisational_unit_id, service_type) [unique]
+  }
+
+  Note: 'Definiert, welche Angebotstypen eine OE prüfen darf'
+}
+
+Table user_profile {
+  id integer [pk, increment]
+  user_id integer [not null, unique, note: 'FK → auth_user (Cross-DB)']
+  provider_id integer [null, ref: > host.id]
+  organisational_unit_id integer [null, ref: > angebotsdb_organisational_unit.id]
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Benutzerprofil – verknüpft User mit Träger oder OE'
+}
+
+// ----- Service (abstrakte Basis → konkrete Typen) --------------------
+
+Table angebotsdb_childrenandyouthservice {
+  id integer [pk, increment]
+  name varchar(255) [not null]
+  description text [not null]
+  geometry point [not null, note: 'SRID 25833']
+  street varchar(150) [not null]
+  zip integer [not null]
+  city varchar(100) [not null]
+  email varchar(255) [not null]
+  contact_hours text
+  expiry_date date [not null]
+  info_url varchar(500)
+  status varchar(20) [not null, default: 'draft', note: 'draft | in_review | revision_needed | published']
+  host_id integer [not null, ref: > host.id]
+  published_version_id integer [null, ref: > angebotsdb_childrenandyouthservice.id]
+  setting text
+  application_needed boolean [not null]
+  phone varchar(255) [not null]
+  costs float [not null]
+  catchment_area_urls json [note: 'PyGeoAPI-URIs']
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Angebote für Kinder und Jugendliche'
+}
+
+Table angebotsdb_familyservice {
+  id integer [pk, increment]
+  name varchar(255) [not null]
+  description text [not null]
+  geometry point [not null, note: 'SRID 25833']
+  street varchar(150) [not null]
+  zip integer [not null]
+  city varchar(100) [not null]
+  email varchar(255) [not null]
+  contact_hours text
+  expiry_date date [not null]
+  info_url varchar(500)
+  status varchar(20) [not null, default: 'draft', note: 'draft | in_review | revision_needed | published']
+  host_id integer [not null, ref: > host.id]
+  published_version_id integer [null, ref: > angebotsdb_familyservice.id]
+  setting text [not null]
+  application_needed boolean [not null]
+  phone varchar(255) [not null]
+  costs float [not null]
+  catchment_area_urls json [note: 'PyGeoAPI-URIs']
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Angebote für Familien'
+}
+
+Table angebotsdb_woftgservice {
+  id integer [pk, increment]
+  name varchar(255) [not null]
+  description text [not null]
+  geometry point [not null, note: 'SRID 25833']
+  street varchar(150) [not null]
+  zip integer [not null]
+  city varchar(100) [not null]
+  email varchar(255) [not null]
+  contact_hours text
+  expiry_date date [not null]
+  info_url varchar(500)
+  status varchar(20) [not null, default: 'draft', note: 'draft | in_review | revision_needed | published']
+  host_id integer [not null, ref: > host.id]
+  published_version_id integer [null, ref: > angebotsdb_woftgservice.id]
+  setting text [not null]
+  application_needed boolean [not null]
+  phone varchar(255) [not null]
+  costs float [not null]
+  handicap_accessible boolean [not null]
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Angebote im Rahmen des WoftG'
+}
+
+// ----- M2M-Zwischentabellen (Service ↔ Stammdaten) -------------------
+
+Table angebotsdb_childrenandyouthservice_topic {
+  childrenandyouthservice_id integer [ref: > angebotsdb_childrenandyouthservice.id]
+  topic_id integer [ref: > topic.id]
+
+  indexes {
+    (childrenandyouthservice_id, topic_id) [pk]
+  }
+}
+
+Table angebotsdb_childrenandyouthservice_target_group {
+  childrenandyouthservice_id integer [ref: > angebotsdb_childrenandyouthservice.id]
+  target_group_id integer [ref: > target_group.id]
+
+  indexes {
+    (childrenandyouthservice_id, target_group_id) [pk]
+  }
+}
+
+Table angebotsdb_childrenandyouthservice_tags {
+  childrenandyouthservice_id integer [ref: > angebotsdb_childrenandyouthservice.id]
+  tag_id integer [ref: > tag.id]
+
+  indexes {
+    (childrenandyouthservice_id, tag_id) [pk]
+  }
+}
+
+Table angebotsdb_childrenandyouthservice_legal_basis {
+  childrenandyouthservice_id integer [ref: > angebotsdb_childrenandyouthservice.id]
+  law_id integer [ref: > law.id]
+
+  indexes {
+    (childrenandyouthservice_id, law_id) [pk]
+  }
+}
+
+Table angebotsdb_familyservice_topic {
+  familyservice_id integer [ref: > angebotsdb_familyservice.id]
+  topic_id integer [ref: > topic.id]
+
+  indexes {
+    (familyservice_id, topic_id) [pk]
+  }
+}
+
+Table angebotsdb_familyservice_target_group {
+  familyservice_id integer [ref: > angebotsdb_familyservice.id]
+  target_group_id integer [ref: > target_group.id]
+
+  indexes {
+    (familyservice_id, target_group_id) [pk]
+  }
+}
+
+Table angebotsdb_familyservice_tags {
+  familyservice_id integer [ref: > angebotsdb_familyservice.id]
+  tag_id integer [ref: > tag.id]
+
+  indexes {
+    (familyservice_id, tag_id) [pk]
+  }
+}
+
+Table angebotsdb_familyservice_legal_basis {
+  familyservice_id integer [ref: > angebotsdb_familyservice.id]
+  law_id integer [ref: > law.id]
+
+  indexes {
+    (familyservice_id, law_id) [pk]
+  }
+}
+
+Table angebotsdb_woftgservice_topic {
+  woftgservice_id integer [ref: > angebotsdb_woftgservice.id]
+  topic_id integer [ref: > topic.id]
+
+  indexes {
+    (woftgservice_id, topic_id) [pk]
+  }
+}
+
+Table angebotsdb_woftgservice_target_group {
+  woftgservice_id integer [ref: > angebotsdb_woftgservice.id]
+  target_group_id integer [ref: > target_group.id]
+
+  indexes {
+    (woftgservice_id, target_group_id) [pk]
+  }
+}
+
+Table angebotsdb_woftgservice_tags {
+  woftgservice_id integer [ref: > angebotsdb_woftgservice.id]
+  tag_id integer [ref: > tag.id]
+
+  indexes {
+    (woftgservice_id, tag_id) [pk]
+  }
+}
+
+Table angebotsdb_woftgservice_legal_basis {
+  woftgservice_id integer [ref: > angebotsdb_woftgservice.id]
+  law_id integer [ref: > law.id]
+
+  indexes {
+    (woftgservice_id, law_id) [pk]
+  }
+}
+
+// ----- Bilder --------------------------------------------------------
+
+Table service_image {
+  id integer [pk, increment]
+  service_type varchar(100) [not null, note: 'Lowercase-Modellname']
+  service_id integer [not null]
+  image image [not null]
+  position integer [not null, default: 0]
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Bilder zu einem Service (generische Zuordnung per service_type + service_id)'
+}
+
+// ----- Redaktionsprozess ---------------------------------------------
+
+Table review_task {
+  id integer [pk, increment]
+  service_type varchar(100) [not null, note: 'Lowercase-Modellname']
+  service_id integer [not null]
+  assigned_org_unit_id integer [not null, ref: > angebotsdb_organisational_unit.id]
+  created_by_user_id integer [not null, note: 'FK → auth_user (Cross-DB)']
+  reviewed_by_user_id integer [note: 'FK → auth_user (Cross-DB)']
+  task_status varchar(20) [not null, default: 'pending', note: 'pending | approved | rejected']
+  comments json [note: 'Feld-Kommentare des Reviewers']
+  approved_snapshot json [note: 'Snapshot bei letzter Freigabe']
+  submitted_snapshot json [note: 'Snapshot bei Einreichung']
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Prüfauftrag – wird bei Einreichung eines Angebots erstellt'
+}
+
+Table inbox_message {
+  id integer [pk, increment]
+  message_type varchar(30) [not null, note: 'review_request | revision_request']
+  review_task_id integer [not null, ref: > review_task.id]
+  target_org_unit_id integer [ref: > angebotsdb_organisational_unit.id]
+  target_provider_id integer [ref: > host.id]
+  is_read boolean [not null, default: false]
+  is_resolved boolean [not null, default: false]
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Inbox-Nachricht – informiert OE oder Träger über Aufgaben'
+}

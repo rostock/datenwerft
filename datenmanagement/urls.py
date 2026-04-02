@@ -25,16 +25,15 @@ from .views.views_list_map import (
   TableListView,
 )
 
+router = DefaultRouter()
+
 app_name = 'datenmanagement'
 
-router = DefaultRouter()
 models = apps.get_app_config(app_name).get_models()
 for model in models:
-  model_name = model.__name__.lower()
+  model_name_lower = model.__name__.lower()
   router.register(
-    prefix=model_name,
-    viewset=DatenmanagementViewSet.create_custom(model=model),
-    basename=model_name,
+    model_name_lower, DatenmanagementViewSet.create_custom(model=model), basename=model_name_lower
   )
 
 api_urlpatterns = router.urls
@@ -56,12 +55,10 @@ def permission_required(*perms):
 
 urlpatterns = [
   # main page
-  path(route='', view=login_required(IndexView.as_view()), name='index'),
+  path('', view=login_required(IndexView.as_view()), name='index'),
   # passes a file to FME Server and returns the generated GeoJSON
   path(
-    route='gisfiletogeojson',
-    view=login_required(GISFiletoGeoJSON.as_view()),
-    name='gisfiletogeojson',
+    'gisfiletogeojson', view=login_required(GISFiletoGeoJSON.as_view()), name='gisfiletogeojson'
   ),
 ]
 
@@ -77,7 +74,7 @@ for model in models:
   # entry page of a model
   urlpatterns.append(
     path(
-      route=model_name,
+      model_name,
       view=permission_required(
         'datenmanagement.add_' + model_name_lower,
         'datenmanagement.change_' + model_name_lower,
@@ -91,7 +88,7 @@ for model in models:
   # table data composition of a model
   urlpatterns.append(
     path(
-      route=model_name + '/data',
+      model_name + '/data',
       view=permission_required('datenmanagement.view_' + model_name_lower)(
         TableDataCompositionView.as_view(model=model)
       ),
@@ -103,7 +100,7 @@ for model in models:
   # filter by subset
   urlpatterns.append(
     path(
-      route=model_name + '/data/subset/<subset_id>',
+      model_name + '/data/subset/<subset_id>',
       view=permission_required('datenmanagement.view_' + model_name_lower)(
         TableDataCompositionView.as_view(model=model)
       ),
@@ -114,7 +111,7 @@ for model in models:
   # table page of a model
   urlpatterns.append(
     path(
-      route=model_name + '/list',
+      model_name + '/list',
       view=permission_required(
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
@@ -128,7 +125,7 @@ for model in models:
   # filter by subset
   urlpatterns.append(
     path(
-      route=model_name + '/list/subset/<subset_id>',
+      model_name + '/list/subset/<subset_id>',
       view=permission_required(
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
@@ -141,7 +138,7 @@ for model in models:
   # map data composition of a model
   urlpatterns.append(
     path(
-      route=model_name + '/mapdata',
+      model_name + '/mapdata',
       view=permission_required('datenmanagement.view_' + model_name_lower)(
         MapDataCompositionView.as_view(model=model)
       ),
@@ -153,7 +150,7 @@ for model in models:
   # filter by subset
   urlpatterns.append(
     path(
-      route=model_name + '/mapdata/subset/<subset_id>',
+      model_name + '/mapdata/subset/<subset_id>',
       view=permission_required('datenmanagement.view_' + model_name_lower)(
         MapDataCompositionView.as_view(model=model)
       ),
@@ -164,7 +161,7 @@ for model in models:
   # map page of a model
   urlpatterns.append(
     path(
-      route=model_name + '/map',
+      model_name + '/map',
       view=permission_required(
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
@@ -178,7 +175,7 @@ for model in models:
   # filter by subset
   urlpatterns.append(
     path(
-      route=model_name + '/map/subset/<subset_id>',
+      model_name + '/map/subset/<subset_id>',
       view=permission_required(
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
@@ -191,7 +188,7 @@ for model in models:
   # form page for creating an object of a model
   urlpatterns.append(
     path(
-      route=model_name + '/add',
+      model_name + '/add',
       view=permission_required('datenmanagement.add_' + model_name_lower)(
         DataAddView.as_view(model=model, template_name=set_form_template(model))
       ),
@@ -202,7 +199,7 @@ for model in models:
   # page for creating another object of a model, based on the object just created
   urlpatterns.append(
     path(
-      route=model_name + '/add_another',
+      model_name + '/add_another',
       view=permission_required('datenmanagement.add_' + model_name_lower)(
         AddAnotherView.as_view(model=model)
       ),
@@ -213,7 +210,7 @@ for model in models:
   # form page for updating an object of a model
   urlpatterns.append(
     path(
-      route=model_name + '/change/<pk>',
+      model_name + '/change/<pk>',
       view=permission_required(
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
@@ -226,7 +223,7 @@ for model in models:
   # form page for deleting an object of a model
   urlpatterns.append(
     path(
-      route=model_name + '/delete/<pk>',
+      model_name + '/delete/<pk>',
       view=permission_required('datenmanagement.delete_' + model_name_lower)(
         DataDeleteView.as_view(model=model, template_name='datenmanagement/delete.html')
       ),
@@ -237,7 +234,7 @@ for model in models:
   # assigns a specific value to a specific field of an object of a model
   urlpatterns.append(
     path(
-      route=model_name + '/assign/<pk>',
+      model_name + '/assign/<pk>',
       view=permission_required('datenmanagement.change_' + model_name_lower)(assign_object_value),
       name=model_name + '_assign',
     )
@@ -246,7 +243,7 @@ for model in models:
   # deletes an object of a model directly from the database
   urlpatterns.append(
     path(
-      route=model_name + '/deleteimmediately/<pk>',
+      model_name + '/deleteimmediately/<pk>',
       view=permission_required('datenmanagement.delete_' + model_name_lower)(
         delete_object_immediately
       ),
@@ -257,7 +254,7 @@ for model in models:
   # queries the geometries of a model
   urlpatterns.append(
     path(
-      route=model_name + '/geometry',
+      model_name + '/geometry',
       view=permission_required('datenmanagement.view_' + model_name_lower)(
         GeometryView.as_view(model=model)
       ),
@@ -269,7 +266,7 @@ for model in models:
   if model_name == 'Punktwolken':
     urlpatterns.append(
       path(
-        route=model_name + '/download/<pk>',
+        model_name + '/download/<pk>',
         view=permission_required('datenmanagement.view_' + model_name_lower)(download_pointcloud),
         name='download_pointcloud',
       )

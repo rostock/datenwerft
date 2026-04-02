@@ -1,0 +1,147 @@
+/* ── Address + Contact + Map Grid ──
+   CSS Grid Layout für den Adress-/Kontaktzeiten-/Karten-Block.
+   Bootstrap hat keine Utilities für grid-template-columns, grid-column, grid-row. */
+
+#address-contact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 0.5rem;
+  /* Bootstrap-Row-Gutter nachahmen für bündige Ausrichtung. */
+  --bs-gutter-x: 1.5rem;
+  margin-left: calc(var(--bs-gutter-x) * -0.5);
+  margin-right: calc(var(--bs-gutter-x) * -0.25);
+}
+
+#address-contact-grid > * {
+  padding-left: calc((var(--bs-gutter-x) * 0.5) + 1px);
+  padding-right: calc(var(--bs-gutter-x) * 0.25);
+}
+
+/* Mobile: Karte hat feste Höhe */
+.acg-map {
+  height: 250px;
+}
+
+/* Tablet: 2-Spalten-Layout, Karte zwischen Adresse und Einzugsgebiet */
+@media (min-width: 800px) {
+  #address-contact-grid {
+    grid-template-columns: 3fr 9fr;
+  }
+  .acg-address-label {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .acg-address-fields {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .acg-map {
+    grid-column: 2;
+    grid-row: 2;
+    height: 300px;
+  }
+  .acg-contact-label {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .acg-contact-hours {
+    grid-column: 2;
+    grid-row: 3;
+  }
+  .acg-label {
+    padding-top: 0.375rem;
+  }
+}
+
+/* Desktop: 3-Spalten-Layout, Karte neben den Adressfeldern */
+@media (min-width: 1400px) {
+  #address-contact-grid {
+    grid-template-columns: 3fr 4.5fr 4.5fr;
+  }
+  .acg-address-fields {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .acg-map {
+    grid-column: 3;
+    grid-row: 1 / 3;
+    height: auto;
+    min-height: 140px;
+    position: relative;
+  }
+  .acg-contact-label {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .acg-contact-hours {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  #map-preview-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+    right: calc(var(--bs-gutter-x, 1.5rem) * 0.25);
+  }
+}
+
+/* ── Leaflet Map im Vorschau-Container ──
+   Überschreibt django-leaflet Defaults (height: 50vh, min-height: 300px). */
+
+#map-preview-container .leaflet-container {
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+}
+
+/* ── Adresssuche Dropdown ──
+   z-index und max-height haben keine Bootstrap-Klassen-Entsprechung. */
+
+#address-suggestions {
+  display: none;
+  z-index: 1050;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.catchment-area-select + span.select2-container .select2-selection--multiple {
+  min-height: 76px;
+}
+
+/* ── Revision-Comments Sidebar ── */
+
+.container-with-sidebar {
+  max-width: 1700px;
+}
+
+.form-with-comments {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.form-with-comments > form {
+  flex: 1;
+  min-width: 0;
+}
+
+.revision-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 5rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .form-with-comments {
+    flex-direction: column-reverse;
+  }
+  .revision-sidebar {
+    width: 100%;
+    position: static;
+  }
+}

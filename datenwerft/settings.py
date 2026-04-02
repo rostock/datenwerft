@@ -37,6 +37,7 @@ LOCAL_APPS = [
   'fmm',
   'gdihrocodelists',
   'gdihrometadata',
+  'angebotsdb',
   'd3',
   'pygeoapi',
 ]

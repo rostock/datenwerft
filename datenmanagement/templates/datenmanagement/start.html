@@ -5,36 +5,38 @@
 {% block title %}{{ model_verbose_name_plural }} – Möglichkeiten | {% endblock %}
 
 {% block content %}
-  {% if messages %}
-    {% for message in messages %}
-      {% if message.tags and message.tags == 'success' %}
-        <div class="alert alert-success" role="alert">
-          <i class="fa-solid fa-circle-check"></i>
-          {{ message|safe }}
-        </div>
+  <div class="container-xxl">
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags and message.tags == 'success' %}
+          <div class="alert alert-success" role="alert">
+            <i class="fa-solid fa-circle-check"></i>
+            {{ message|safe }}
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    <h2>{{ model_verbose_name_plural }}</h2>
+    {% if model_description %}
+      <h4><small>{{ model_description }}</small></h4>
+    {% endif %}
+    <h4 class="mt-3"><em>Was möchten Sie tun?</em></h4>
+    <div class="d-grid mt-3 gap-3 mx-auto">
+      {% if url_model_add %}
+        <a class="btn btn-lg btn-primary" role="button" href="{{ url_model_add }}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
       {% endif %}
-    {% endfor %}
-  {% endif %}
-  <h2>{{ model_verbose_name_plural }}</h2>
-  {% if model_description %}
-    <h4><small>{{ model_description }}</small></h4>
-  {% endif %}
-  <h4 class="mt-3"><em>Was möchten Sie tun?</em></h4>
-  <div class="d-grid mt-3 gap-3 mx-auto">
-    {% if url_model_add %}
-      <a class="btn btn-lg btn-primary" role="button" href="{{ url_model_add }}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
-    {% endif %}
-    {% if url_model_list %}
-      <a class="btn btn-lg btn-secondary" role="button" href="{{ url_model_list }}"><i class="fas fa-table"></i> alle Datensätze in Tabelle auflisten</a>
-    {% endif %}
-    {% if url_model_map %}
-      <a class="btn btn-lg btn-secondary" role="button" href="{{ url_model_map }}"><i class="fas fa-map"></i> alle Datensätze auf Karte anzeigen</a>
-    {% endif %}
-    <a class="btn btn-lg btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-backward"></i> zurück</a>
+      {% if url_model_list %}
+        <a class="btn btn-lg btn-secondary" role="button" href="{{ url_model_list }}"><i class="fas fa-table"></i> alle Datensätze in Tabelle auflisten</a>
+      {% endif %}
+      {% if url_model_map %}
+        <a class="btn btn-lg btn-secondary" role="button" href="{{ url_model_map }}"><i class="fas fa-map"></i> alle Datensätze auf Karte anzeigen</a>
+      {% endif %}
+      <a class="btn btn-lg btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-backward"></i> zurück</a>
+    </div>
+    <script>
+      setTimeout(function () {
+        $('.alert-success').alert('close');
+      }, 3000);
+    </script>
   </div>
-  <script>
-    setTimeout(function () {
-      $('.alert-success').alert('close');
-    }, 3000);
-  </script>
 {% endblock %}
