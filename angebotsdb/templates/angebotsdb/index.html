@@ -114,14 +114,14 @@
                 <h3><i class="fa-fw {{ tile.icon }} me-2"></i>{{ tile.verbose_name }}</h3>
                 <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
                   <div class="col d-grid">
-                    {% with url_name='angebotsdb:'|add:tile.model_name|add:'_list' %}
+                    {% with url_name="angebotsdb:"|add:tile.model_name|add:"_list" %}
                     <a href="{% url url_name %}" class="btn btn-{{ tile.color }}">
                       <i class="fa-fw fa-solid fa-table me-2"></i>Auflisten
                     </a>
                     {% endwith %}
                   </div>
                   <div class="col d-grid">
-                    {% with url_name='angebotsdb:'|add:tile.model_name|add:'_create' %}
+                    {% with url_name="angebotsdb:"|add:tile.model_name|add:"_create" %}
                     <a href="{% url url_name %}" class="btn btn-{{ tile.color }}">
                       <i class="fa-fw fa-solid fa-circle-plus me-2"></i>Hinzufügen
                     </a>
@@ -139,7 +139,7 @@
                 <div class="row row-cols-1 row-cols-md-2 g-2 mt-4">
                   {% for button in tile.buttons %}
                   <div class="col d-grid">
-                    {% with url_name='angebotsdb:'|add:button.model_name|add:'_list' %}
+                    {% with url_name="angebotsdb:"|add:button.model_name|add:"_list" %}
                     <a href="{% url url_name %}" class="btn btn-{{ tile.color }} w-100">
                       <i class="fa-fw {{ button.icon }} me-2"></i>{{ button.verbose_name }}
                     </a>

@@ -129,6 +129,17 @@
   text-transform: uppercase;
 }
 
+#review-table thead th:nth-child(1) { width: 25%; }
+#review-table thead th:nth-child(2) { width: 40%; }
+#review-table thead th:nth-child(3) { width: 35%; }
+
+
+/* ── Trennlinie im Aktionsbereich ─────────────────────────────────────────── */
+
+.review-action-vr {
+  height: 2.5rem;
+}
+
 #review-table td {
   vertical-align: top;
   padding-top: 0.75rem;

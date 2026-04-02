@@ -100,6 +100,7 @@
    z-index und max-height haben keine Bootstrap-Klassen-Entsprechung. */
 
 #address-suggestions {
+  display: none;
   z-index: 1050;
   max-height: 250px;
   overflow-y: auto;
