@@ -1,6 +1,8 @@
+from django.apps import apps
 from django.shortcuts import redirect, render
 from django.views.generic.base import TemplateView
 
+from angebotsdb.utils import is_angebotsdb_user
 from antragsmanagement.utils import is_antragsmanagement_user
 from bemas.utils import is_bemas_user
 from fmm.utils import is_fmm_user
@@ -29,8 +31,11 @@ class IndexView(TemplateView):
         and not is_antragsmanagement_user(request.user)
         and not is_bemas_user(request.user)
         and not is_fmm_user(request.user)
+        and not is_angebotsdb_user(request.user)
       ):
         return redirect('datenmanagement:index')
+      elif is_angebotsdb_user(request.user, only_angebotsdb_user_check=True):
+        return redirect('angebotsdb:index')
       elif is_antragsmanagement_user(request.user, only_antragsmanagement_user_check=True):
         return redirect('antragsmanagement:index')
       elif is_bemas_user(request.user, only_bemas_user_check=True):
@@ -39,6 +44,36 @@ class IndexView(TemplateView):
         return redirect('fmm:index')
 
     return super(IndexView, self).dispatch(request, *args, **kwargs)
+
+  def get_context_data(self, **kwargs):
+    # Initialize context from parent class
+    context = super().get_context_data(**kwargs)
+
+    # add installed apps to template context
+    context['apps'] = []
+    for app in apps.get_app_configs():
+      if hasattr(app, 'datenwerft_app') and app.datenwerft_app:
+        context['apps'].append(
+          {
+            'name': getattr(app, 'verbose_name', app.name),
+            'description': getattr(app, 'description', ''),
+            'url': getattr(app, 'url', f'/{app.name}/'),
+          }
+        )
+
+    # add installed admin apps to template context
+    context['admin_apps'] = []
+    for app in apps.get_app_configs():
+      if hasattr(app, 'admin_app') and app.admin_app:
+        context['admin_apps'].append(
+          {
+            'name': getattr(app, 'verbose_name', app.name),
+            'description': getattr(app, 'description', ''),
+            'url': getattr(app, 'url', f'/admin/{app.name}/'),
+          }
+        )
+
+    return context
 
 
 def error_400(request, exception=None):

@@ -59,6 +59,8 @@ urlpatterns = [
   path(route='d3/', view=include('d3.urls')),
   # ...Datenmanagement app
   path(route='datenmanagement/', view=include('datenmanagement.urls')),
+  # ...Angebotsdatenbank
+  path(route='angebotsdb/', view=include('angebotsdb.urls')),
   # ...Antragsmanagement app
   path(route='antragsmanagement/', view=include('antragsmanagement.urls')),
   # ...BEMAS app
