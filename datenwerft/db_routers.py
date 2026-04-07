@@ -1,8 +1,3 @@
-from django.utils.translation.trans_null import _
-
-import angebotsdb
-
-
 class DatabaseRouter:
   """
   router to control all database operations
