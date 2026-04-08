@@ -296,8 +296,8 @@ class OrgUnitServicePermission(Base):
 
   class Meta:
     db_table = 'angebotsdb_org_unit_service_permission'
-    verbose_name = 'OrgUnit-Service-Berechtigung'
-    verbose_name_plural = 'OrgUnit-Service-Berechtigungen'
+    verbose_name = 'OE-Angebot-Berechtigung'
+    verbose_name_plural = 'OE-Angebot-Berechtigungen'
     # Verhindert Duplikate: Eine OrgUnit kann jeden Service-Typ nur einmal haben
     unique_together = [['organisational_unit', 'service_type']]
 
