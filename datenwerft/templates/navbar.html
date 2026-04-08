@@ -14,14 +14,19 @@
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav me-auto">
           {% if user.is_authenticated %}
-            <li class="nav-item active">
-              {% if user.is_superuser %}
-                <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-user"></i> {{ user.username }}</a>
-              {% elif user.is_staff %}
-                <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-user"></i> {{ user.first_name }} {{ user.last_name }}</a>
-              {% else %}
-                <span class="nav-link"><i class="fas fa-user"></i> {{ user.first_name }} {{ user.last_name }}</span>
-              {% endif %}
+            <li class="nav-item dropdown active">
+              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user"></i> {% if user.is_superuser %}{{ user.username }}{% else %}{{ user.first_name }} {{ user.last_name }}{% endif %}
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                {% if user.is_superuser or user.is_staff %}
+                  <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fas fa-screwdriver-wrench"></i> Administration</a></li>
+                {% endif %}
+                {% if user.has_usable_password %}
+                  {% if user.is_superuser or user.is_staff %}<li><hr class="dropdown-divider"></li>{% endif %}
+                  <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}"><i class="fas fa-key"></i> Passwort ändern</a></li>
+                {% endif %}
+              </ul>
             </li>
           {% endif %}
           <li class="nav-item">

@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.models import Group, Permission, User
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
@@ -43,6 +44,21 @@ class ContentTypeViewSet(viewsets.ModelViewSet):
   queryset = ContentType.objects.all()
   serializer_class = ContentTypeSerializer
   # lookup_field = 'model'
+
+
+class LocalUserPasswordChangeView(PasswordChangeView):
+  """
+  Passwort-Änderung für lokale Django-Nutzer (Nicht-LDAP).
+  LDAP-Nutzer haben kein nutzbares Django-Passwort und werden abgewiesen.
+  """
+
+  template_name = 'accounts/password_change.html'
+  success_url = reverse_lazy('accounts:password_change_done')
+
+  def dispatch(self, request, *args, **kwargs):
+    if not request.user.is_authenticated or not request.user.has_usable_password():
+      raise PermissionDenied
+    return super().dispatch(request, *args, **kwargs)
 
 
 class PreLoginView(LoginView):
