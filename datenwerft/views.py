@@ -1,5 +1,6 @@
 from django.apps import apps
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.generic.base import TemplateView
 
 from angebotsdb.utils import is_angebotsdb_user
@@ -55,9 +56,10 @@ class IndexView(TemplateView):
       if hasattr(app, 'datenwerft_app') and app.datenwerft_app:
         context['apps'].append(
           {
-            'name': getattr(app, 'verbose_name', app.name),
+            'verbose_name': getattr(app, 'verbose_name', app.name),
+            'name': app.name,
             'description': getattr(app, 'description', ''),
-            'url': getattr(app, 'url', f'/{app.name}/'),
+            'url': reverse(f'{app.name}:index'),
           }
         )
 
@@ -69,7 +71,7 @@ class IndexView(TemplateView):
           {
             'name': getattr(app, 'verbose_name', app.name),
             'description': getattr(app, 'description', ''),
-            'url': getattr(app, 'url', f'/admin/{app.name}/'),
+            'url': reverse('admin:app_list', kwargs={'app_label': app.name}),
           }
         )
 
