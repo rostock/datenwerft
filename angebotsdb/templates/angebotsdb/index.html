@@ -61,23 +61,6 @@
         </div>
       </div>
 
-      <!-- Freiplatzfinder -->
-      <div id="grid-item-4" class="grid-item">
-        <div class="card bg-secondary-subtle border-secondary text-center h-100">
-          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
-            <h3><i class="fa-fw fa-solid fa-people-roof me-2"></i>Freiplatzfinder</h3>
-            <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
-              <div class="col d-grid">
-                <button class="btn btn-primary" disabled><i class="fa-fw fa-solid fa-table me-2"></i>Auflisten</button>
-              </div>
-              <div class="col d-grid">
-                <button class="btn btn-primary" disabled><i class="fa-fw fa-solid fa-circle-plus me-2"></i>Hinzufügen</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Inbox -->
       <div id="grid-item-5" class="grid-item">
         <div class="card {% if inbox_count and inbox_count > 0 %}bg-warning-subtle border-warning{% else %}bg-primary-subtle border-primary{% endif %} text-center h-100">
@@ -153,6 +136,42 @@
           {% endif %}
         {% endif %}
       {% endfor %}
+
+      <!-- Freiplatzfinder -->
+      <div id="grid-item-4" class="grid-item">
+        <div class="card bg-secondary-subtle border-secondary text-center h-100">
+          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
+            <h3><i class="fa-fw fa-solid fa-people-roof me-2"></i>Freiplatzfinder</h3>
+            <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
+              <div class="col d-grid">
+                <button class="btn btn-secondary" disabled><i class="fa-fw fa-solid fa-table me-2"></i>Auflisten</button>
+              </div>
+              <div class="col d-grid">
+                <button class="btn btn-secondary" disabled><i class="fa-fw fa-solid fa-circle-plus me-2"></i>Hinzufügen</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fehlermeldungsprotokoll -->
+      <div id="grid-item-fehlermeldung" class="grid-item">
+        <div class="card bg-danger-subtle border-danger text-center h-100">
+          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
+            <h3><i class="fa-fw fa-solid fa-triangle-exclamation me-2"></i>Fehlermeldung</h3>
+            <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
+              <div class="col d-grid">
+                <a href="https://nextcloud.sv.rostock.de/apps/forms/s/2X9EXi43ifLoyCwJ3Egj4Y9R"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn btn-danger">
+                  <i class="fa-fw fa-solid fa-arrow-up-right-from-square me-2"></i>Zum Formular
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
     <!-- End of Grid Container -->
     </div>
