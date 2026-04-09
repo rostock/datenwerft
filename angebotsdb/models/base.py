@@ -119,7 +119,7 @@ class Provider(Base):
   phone = CharField(max_length=255, verbose_name='Telefonnummer', null=True, blank=True)
 
   class Meta:
-    db_table = 'host'
+    db_table = 'provider'
     verbose_name = 'Träger'
     verbose_name_plural = 'Träger'
     ordering = ['name']
