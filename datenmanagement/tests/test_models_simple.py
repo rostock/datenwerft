@@ -2229,15 +2229,20 @@ class BrunnenTest(DefaultSimpleModelTestCase):
       'aktiv': True,
       'art': str(art_brunnen.pk),
       'lagebeschreibung': 'Lagebeschreibung3',
+      'endteufe': str('{}'),
       'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'art': str(art_brunnen.pk),
       'lagebeschreibung': 'Lagebeschreibung4',
+      'endteufe': str('{}'),
       'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {'lagebeschreibung': INVALID_STRING}
+    cls.attributes_values_view_invalid = {
+      'lagebeschreibung': INVALID_STRING,
+      'endteufe': str('{}'),
+    }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -13951,6 +13956,7 @@ class WegesperrenTest(DefaultSimpleModelTestCase):
       'id': '00000000',
       'eigentuemer': str(bewirtschafter_eigentuemer1.pk),
       'ausfuehrung': str(ausfuehrung1.pk),
+      'laengen': str('{}'),
       'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
@@ -13959,9 +13965,10 @@ class WegesperrenTest(DefaultSimpleModelTestCase):
       'id': '00000000',
       'eigentuemer': str(bewirtschafter_eigentuemer2.pk),
       'ausfuehrung': str(ausfuehrung2.pk),
+      'laengen': str('{}'),
       'geometrie': VALID_POINT_VIEW,
     }
-    cls.attributes_values_view_invalid = {'lagebeschreibung': INVALID_STRING}
+    cls.attributes_values_view_invalid = {'lagebeschreibung': INVALID_STRING, 'laengen': str('{}')}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
