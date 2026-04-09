@@ -4995,10 +4995,15 @@ class Reinigungsreviere(SimpleModel):
         'layers': 'hro.reinigungsreviere.reinigungsreviere',
       },
       {
-        'title': 'Geh- und Radwegereinigung',
+        'title': 'Gehwege-Reinigung',
         'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
-        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung_flaechenhaft,'
-        'hro.geh_und_radwegereinigung.geh_und_radwegereinigung_linienhaft',
+        'layers': 'hro.geh_und_radwegereinigung.gehwegereinigung_flaechenhaft,'
+        'hro.geh_und_radwegereinigung.gehwegereinigung_linienhaft',
+      },
+      {
+        'title': 'Radwege-Reinigung',
+        'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
+        'layers': 'hro.geh_und_radwegereinigung.radwegereinigung',
       },
       {
         'title': 'Straßenreinigung',
