@@ -81,9 +81,7 @@ class TopicUpdateViewTest(FormViewTestCase):
     )
 
   def test_post_error_missing_name(self):
-    self.generic_post_test(
-      login_as_admin, 'topic_update', {'pk': self.test_object.pk}, {}, 200
-    )
+    self.generic_post_test(login_as_admin, 'topic_update', {'pk': self.test_object.pk}, {}, 200)
 
 
 class TopicDeleteViewTest(FormViewTestCase):
@@ -103,9 +101,7 @@ class TopicDeleteViewTest(FormViewTestCase):
     )
 
   def test_post_success(self):
-    self.generic_post_test(
-      login_as_admin, 'topic_delete', {'pk': self.test_object.pk}, {}, 302
-    )
+    self.generic_post_test(login_as_admin, 'topic_delete', {'pk': self.test_object.pk}, {}, 302)
 
   def test_post_ajax_delete_as_admin(self):
     self.generic_ajax_delete_test(
@@ -146,8 +142,7 @@ class LawCreateViewTest(ViewTestCase):
 
   def test_post_success(self):
     self.generic_post_test(
-      login_as_admin, 'law_create', None,
-      {'law_book': 'SGB VIII', 'paragraph': '8a'}, 302
+      login_as_admin, 'law_create', None, {'law_book': 'SGB VIII', 'paragraph': '8a'}, 302
     )
 
   def test_post_error_missing_fields(self):
@@ -171,20 +166,19 @@ class LawUpdateViewTest(FormViewTestCase):
     )
 
   def test_get_no_role_403(self):
-    self.generic_get_test(
-      login_no_role, 'law_update', {'pk': self.test_object.pk}, 403, HTML, ''
-    )
+    self.generic_get_test(login_no_role, 'law_update', {'pk': self.test_object.pk}, 403, HTML, '')
 
   def test_post_success(self):
     self.generic_post_test(
-      login_as_admin, 'law_update', {'pk': self.test_object.pk},
-      {'law_book': 'BGB', 'paragraph': '123'}, 302
+      login_as_admin,
+      'law_update',
+      {'pk': self.test_object.pk},
+      {'law_book': 'BGB', 'paragraph': '123'},
+      302,
     )
 
   def test_post_error_missing_fields(self):
-    self.generic_post_test(
-      login_as_admin, 'law_update', {'pk': self.test_object.pk}, {}, 200
-    )
+    self.generic_post_test(login_as_admin, 'law_update', {'pk': self.test_object.pk}, {}, 200)
 
 
 class LawDeleteViewTest(FormViewTestCase):
@@ -199,14 +193,10 @@ class LawDeleteViewTest(FormViewTestCase):
     self.init()
 
   def test_post_success(self):
-    self.generic_post_test(
-      login_as_admin, 'law_delete', {'pk': self.test_object.pk}, {}, 302
-    )
+    self.generic_post_test(login_as_admin, 'law_delete', {'pk': self.test_object.pk}, {}, 302)
 
   def test_post_ajax_delete_as_admin(self):
-    self.generic_ajax_delete_test(
-      login_as_admin, 'law_delete', {'pk': self.test_object.pk}, True
-    )
+    self.generic_ajax_delete_test(login_as_admin, 'law_delete', {'pk': self.test_object.pk}, True)
 
 
 # ---------------------------------------------------------------------------
@@ -241,9 +231,7 @@ class ProviderCreateViewTest(ViewTestCase):
     self.generic_get_test(login_no_role, 'provider_create', None, 403, HTML, '')
 
   def test_post_success(self):
-    self.generic_post_test(
-      login_as_admin, 'provider_create', None, {'name': VALID_STRING_A}, 302
-    )
+    self.generic_post_test(login_as_admin, 'provider_create', None, {'name': VALID_STRING_A}, 302)
 
   def test_post_error_missing_name(self):
     self.generic_post_test(login_as_admin, 'provider_create', None, {}, 200)
@@ -272,8 +260,7 @@ class ProviderUpdateViewTest(FormViewTestCase):
 
   def test_post_success(self):
     self.generic_post_test(
-      login_as_admin, 'provider_update', {'pk': self.test_object.pk},
-      {'name': VALID_STRING_B}, 302
+      login_as_admin, 'provider_update', {'pk': self.test_object.pk}, {'name': VALID_STRING_B}, 302
     )
 
 
@@ -289,9 +276,7 @@ class ProviderDeleteViewTest(FormViewTestCase):
     self.init()
 
   def test_post_success(self):
-    self.generic_post_test(
-      login_as_admin, 'provider_delete', {'pk': self.test_object.pk}, {}, 302
-    )
+    self.generic_post_test(login_as_admin, 'provider_delete', {'pk': self.test_object.pk}, {}, 302)
 
   def test_post_ajax_delete_as_admin(self):
     self.generic_ajax_delete_test(
@@ -313,9 +298,7 @@ class OrgUnitListViewTest(ViewTestCase):
     self.init()
 
   def test_get_as_admin(self):
-    self.generic_get_test(
-      login_as_admin, 'orgunit_list', None, 200, HTML, 'Organisationseinheit'
-    )
+    self.generic_get_test(login_as_admin, 'orgunit_list', None, 200, HTML, 'Organisationseinheit')
 
 
 class OrgUnitCreateViewTest(ViewTestCase):
@@ -335,9 +318,7 @@ class OrgUnitCreateViewTest(ViewTestCase):
     self.generic_get_test(login_no_role, 'orgunit_create', None, 403, HTML, '')
 
   def test_post_success(self):
-    self.generic_post_test(
-      login_as_admin, 'orgunit_create', None, {'name': VALID_STRING_A}, 302
-    )
+    self.generic_post_test(login_as_admin, 'orgunit_create', None, {'name': VALID_STRING_A}, 302)
 
   def test_post_error_missing_name(self):
     self.generic_post_test(login_as_admin, 'orgunit_create', None, {}, 200)
@@ -366,8 +347,7 @@ class OrgUnitUpdateViewTest(FormViewTestCase):
 
   def test_post_success(self):
     self.generic_post_test(
-      login_as_admin, 'orgunit_update', {'pk': self.test_object.pk},
-      {'name': VALID_STRING_B}, 302
+      login_as_admin, 'orgunit_update', {'pk': self.test_object.pk}, {'name': VALID_STRING_B}, 302
     )
 
 
@@ -383,9 +363,7 @@ class OrgUnitDeleteViewTest(FormViewTestCase):
     self.init()
 
   def test_post_success(self):
-    self.generic_post_test(
-      login_as_admin, 'orgunit_delete', {'pk': self.test_object.pk}, {}, 302
-    )
+    self.generic_post_test(login_as_admin, 'orgunit_delete', {'pk': self.test_object.pk}, {}, 302)
 
   def test_post_ajax_delete_as_admin(self):
     self.generic_ajax_delete_test(
@@ -425,9 +403,7 @@ class TagCreateViewTest(ViewTestCase):
     self.generic_get_test(login_no_role, 'tag_create', None, 403, HTML, '')
 
   def test_post_success(self):
-    self.generic_post_test(
-      login_as_admin, 'tag_create', None, {'name': VALID_STRING_A}, 302
-    )
+    self.generic_post_test(login_as_admin, 'tag_create', None, {'name': VALID_STRING_A}, 302)
 
 
 class TagUpdateViewTest(FormViewTestCase):
@@ -448,8 +424,7 @@ class TagUpdateViewTest(FormViewTestCase):
 
   def test_post_success(self):
     self.generic_post_test(
-      login_as_admin, 'tag_update', {'pk': self.test_object.pk},
-      {'name': VALID_STRING_B}, 302
+      login_as_admin, 'tag_update', {'pk': self.test_object.pk}, {'name': VALID_STRING_B}, 302
     )
 
 
@@ -508,6 +483,9 @@ class TargetGroupUpdateViewTest(FormViewTestCase):
 
   def test_post_success(self):
     self.generic_post_test(
-      login_as_admin, 'targetgroup_update', {'pk': self.test_object.pk},
-      {'name': VALID_STRING_B}, 302
+      login_as_admin,
+      'targetgroup_update',
+      {'pk': self.test_object.pk},
+      {'name': VALID_STRING_B},
+      302,
     )

@@ -214,9 +214,7 @@ class GenericCreateView(CreateView):
 
   def dispatch(self, request, *args, **kwargs):
     if not (
-      is_angebotsdb_user(request.user)
-      or request.user.is_superuser
-      or request.user.is_staff
+      is_angebotsdb_user(request.user) or request.user.is_superuser or request.user.is_staff
     ):
       return HttpResponseForbidden("You don't have permission to access this resource")
     self.fields = '__all__'

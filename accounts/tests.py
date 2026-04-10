@@ -105,11 +105,14 @@ class TestPasswordChangeView(AccountTestCase):
     """
     Nicht-eingeloggte Nutzer erhalten auch bei POST einen 403-Fehler.
     """
-    response = self.client.post(self.URL, data={
-      'old_password': self.PASSWORD,
-      'new_password1': self.NEW_PASSWORD,
-      'new_password2': self.NEW_PASSWORD,
-    })
+    response = self.client.post(
+      self.URL,
+      data={
+        'old_password': self.PASSWORD,
+        'new_password1': self.NEW_PASSWORD,
+        'new_password2': self.NEW_PASSWORD,
+      },
+    )
     self.assertEqual(response.status_code, 403)
 
   def test_ldap_user_get(self):
@@ -129,11 +132,14 @@ class TestPasswordChangeView(AccountTestCase):
     self.test_user.set_unusable_password()
     self.test_user.save()
     self.client.force_login(self.test_user)
-    response = self.client.post(self.URL, data={
-      'old_password': self.PASSWORD,
-      'new_password1': self.NEW_PASSWORD,
-      'new_password2': self.NEW_PASSWORD,
-    })
+    response = self.client.post(
+      self.URL,
+      data={
+        'old_password': self.PASSWORD,
+        'new_password1': self.NEW_PASSWORD,
+        'new_password2': self.NEW_PASSWORD,
+      },
+    )
     self.assertEqual(response.status_code, 403)
 
   def test_local_user_get(self):
@@ -149,11 +155,14 @@ class TestPasswordChangeView(AccountTestCase):
     Lokale Django-Nutzer werden nach erfolgreichem Passwort-Ändern zur Done-Seite weitergeleitet.
     """
     self.client.force_login(self.test_user)
-    response = self.client.post(self.URL, data={
-      'old_password': self.PASSWORD,
-      'new_password1': self.NEW_PASSWORD,
-      'new_password2': self.NEW_PASSWORD,
-    })
+    response = self.client.post(
+      self.URL,
+      data={
+        'old_password': self.PASSWORD,
+        'new_password1': self.NEW_PASSWORD,
+        'new_password2': self.NEW_PASSWORD,
+      },
+    )
     self.assertRedirects(response, reverse('accounts:password_change_done'))
 
   def test_local_user_post_wrong_old_password(self):
@@ -161,11 +170,14 @@ class TestPasswordChangeView(AccountTestCase):
     Ein falsches aktuelles Passwort führt zu einem Formfehler, kein Redirect.
     """
     self.client.force_login(self.test_user)
-    response = self.client.post(self.URL, data={
-      'old_password': 'WrongPassword!',
-      'new_password1': self.NEW_PASSWORD,
-      'new_password2': self.NEW_PASSWORD,
-    })
+    response = self.client.post(
+      self.URL,
+      data={
+        'old_password': 'WrongPassword!',
+        'new_password1': self.NEW_PASSWORD,
+        'new_password2': self.NEW_PASSWORD,
+      },
+    )
     self.assertEqual(response.status_code, 200)
     self.assertTrue(response.context['form'].errors)
 
@@ -174,10 +186,13 @@ class TestPasswordChangeView(AccountTestCase):
     Unterschiedliche neue Passwörter führen zu einem Formfehler, kein Redirect.
     """
     self.client.force_login(self.test_user)
-    response = self.client.post(self.URL, data={
-      'old_password': self.PASSWORD,
-      'new_password1': self.NEW_PASSWORD,
-      'new_password2': self.NEW_PASSWORD + 'X',
-    })
+    response = self.client.post(
+      self.URL,
+      data={
+        'old_password': self.PASSWORD,
+        'new_password1': self.NEW_PASSWORD,
+        'new_password2': self.NEW_PASSWORD + 'X',
+      },
+    )
     self.assertEqual(response.status_code, 200)
     self.assertTrue(response.context['form'].errors)

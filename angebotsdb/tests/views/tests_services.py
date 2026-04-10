@@ -8,13 +8,13 @@ from angebotsdb.models.services import ChildrenAndYouthService, FamilyService, W
 
 from ..abstract import FormViewTestCase, MockResponse, ViewTestCase
 from ..constant_vars import (
+  PASSWORD,
+  USERNAME_PROVIDER,
   VALID_DATE_A,
   VALID_POINT_DB,
   VALID_STRING_A,
   VALID_STRING_B,
   VALID_ZIP,
-  USERNAME_PROVIDER,
-  PASSWORD,
 )
 from ..functions import login_as_admin, login_as_provider, login_no_role
 
@@ -63,8 +63,7 @@ class ChildrenAndYouthServiceListViewTest(ViewTestCase):
 
   def test_get_as_admin(self):
     self.generic_get_test(
-      login_as_admin, 'childrenandyouthservice_list', None, 200, HTML,
-      'Kinder'
+      login_as_admin, 'childrenandyouthservice_list', None, 200, HTML, 'Kinder'
     )
 
 
@@ -93,9 +92,7 @@ class ChildrenAndYouthServiceCreateViewTest(ViewTestCase):
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
-    self.generic_get_test(
-      login_no_role, 'childrenandyouthservice_create', None, 403, HTML, ''
-    )
+    self.generic_get_test(login_no_role, 'childrenandyouthservice_create', None, 403, HTML, '')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_success_as_provider(self, mock_get):
@@ -127,9 +124,7 @@ class ChildrenAndYouthServiceCreateViewTest(ViewTestCase):
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_error_missing_fields(self, mock_get):
-    self.generic_post_test(
-      login_as_provider, 'childrenandyouthservice_create', None, {}, 200
-    )
+    self.generic_post_test(login_as_provider, 'childrenandyouthservice_create', None, {}, 200)
 
 
 class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
@@ -176,15 +171,18 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
   def test_get_as_provider_200(self, mock_get):
     """Provider-Nutzer als Besitzer des Service → Formular wird angezeigt."""
     self.generic_get_test(
-      login_as_provider, 'childrenandyouthservice_update',
-      {'pk': self.test_object.pk}, 200, HTML, VALID_STRING_A
+      login_as_provider,
+      'childrenandyouthservice_update',
+      {'pk': self.test_object.pk},
+      200,
+      HTML,
+      VALID_STRING_A,
     )
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
     self.generic_get_test(
-      login_no_role, 'childrenandyouthservice_update',
-      {'pk': self.test_object.pk}, 403, HTML, ''
+      login_no_role, 'childrenandyouthservice_update', {'pk': self.test_object.pk}, 403, HTML, ''
     )
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
@@ -193,8 +191,7 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     self.test_object.status = 'in_review'
     self.test_object.save(update_fields=['status'])
     self.generic_get_test(
-      login_as_admin, 'childrenandyouthservice_update',
-      {'pk': self.test_object.pk}, 200, HTML, ''
+      login_as_admin, 'childrenandyouthservice_update', {'pk': self.test_object.pk}, 200, HTML, ''
     )
     # Status zurücksetzen für nachfolgende Tests
     self.test_object.status = 'draft'
@@ -203,15 +200,17 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_success_as_provider(self, mock_get):
     self.generic_post_test(
-      login_as_provider, 'childrenandyouthservice_update',
-      {'pk': self.test_object.pk}, self._valid_form_data(), 302
+      login_as_provider,
+      'childrenandyouthservice_update',
+      {'pk': self.test_object.pk},
+      self._valid_form_data(),
+      302,
     )
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_error_missing_required_fields(self, mock_get):
     self.generic_post_test(
-      login_as_provider, 'childrenandyouthservice_update',
-      {'pk': self.test_object.pk}, {}, 200
+      login_as_provider, 'childrenandyouthservice_update', {'pk': self.test_object.pk}, {}, 200
     )
 
 
@@ -252,15 +251,18 @@ class ChildrenAndYouthServiceDetailViewTest(FormViewTestCase):
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_as_admin(self, mock_get):
     self.generic_get_test(
-      login_as_admin, 'childrenandyouthservice_detail',
-      {'pk': self.test_object.pk}, 200, HTML, VALID_STRING_A
+      login_as_admin,
+      'childrenandyouthservice_detail',
+      {'pk': self.test_object.pk},
+      200,
+      HTML,
+      VALID_STRING_A,
     )
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
     self.generic_get_test(
-      login_no_role, 'childrenandyouthservice_detail',
-      {'pk': self.test_object.pk}, 403, HTML, ''
+      login_no_role, 'childrenandyouthservice_detail', {'pk': self.test_object.pk}, 403, HTML, ''
     )
 
 
@@ -301,8 +303,7 @@ class ChildrenAndYouthServiceDeleteViewTest(FormViewTestCase):
 
   def test_get_no_role_403(self):
     self.generic_get_test(
-      login_no_role, 'childrenandyouthservice_delete',
-      {'pk': self.test_object.pk}, 403, HTML, ''
+      login_no_role, 'childrenandyouthservice_delete', {'pk': self.test_object.pk}, 403, HTML, ''
     )
 
   def test_post_ajax_delete_as_provider(self):
@@ -312,8 +313,7 @@ class ChildrenAndYouthServiceDeleteViewTest(FormViewTestCase):
 
   def test_post_delete_as_provider(self):
     self.generic_post_test(
-      login_as_provider, 'childrenandyouthservice_delete',
-      {'pk': self.test_object.pk}, {}, 302
+      login_as_provider, 'childrenandyouthservice_delete', {'pk': self.test_object.pk}, {}, 302
     )
 
 
@@ -355,9 +355,7 @@ class FamilyServiceCreateViewTest(ViewTestCase):
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_as_provider_200(self, mock_get):
-    self.generic_get_test(
-      login_as_provider, 'familyservice_create', None, 200, HTML, 'Angebot'
-    )
+    self.generic_get_test(login_as_provider, 'familyservice_create', None, 200, HTML, 'Angebot')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
@@ -413,8 +411,7 @@ class FamilyServiceDeleteViewTest(FormViewTestCase):
 
   def test_post_delete_as_provider(self):
     self.generic_post_test(
-      login_as_provider, 'familyservice_delete',
-      {'pk': self.test_object.pk}, {}, 302
+      login_as_provider, 'familyservice_delete', {'pk': self.test_object.pk}, {}, 302
     )
 
 
@@ -457,9 +454,7 @@ class WoftGServiceCreateViewTest(ViewTestCase):
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_as_provider_200(self, mock_get):
-    self.generic_get_test(
-      login_as_provider, 'woftgservice_create', None, 200, HTML, 'Angebot'
-    )
+    self.generic_get_test(login_as_provider, 'woftgservice_create', None, 200, HTML, 'Angebot')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
@@ -516,6 +511,5 @@ class WoftGServiceDeleteViewTest(FormViewTestCase):
 
   def test_post_delete_as_provider(self):
     self.generic_post_test(
-      login_as_provider, 'woftgservice_delete',
-      {'pk': self.test_object.pk}, {}, 302
+      login_as_provider, 'woftgservice_delete', {'pk': self.test_object.pk}, {}, 302
     )

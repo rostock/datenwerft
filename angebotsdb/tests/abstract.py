@@ -172,6 +172,7 @@ class ViewTestCase(DefaultTestCase):
     :param expected_success: True wenn JSON-Antwort {'success': True} erwartet wird
     """
     import json
+
     login_fn(self)
     url = reverse(f'angebotsdb:{view_name}', kwargs=view_args)
     response = self.client.post(url, {}, headers={'x-requested-with': 'XMLHttpRequest'})

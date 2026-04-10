@@ -87,9 +87,7 @@ class SubmitForReviewViewTest(FormViewTestCase):
 
   def test_post_as_provider_success(self):
     """Provider-Nutzer (Besitzer des Service) kann Service zur Prüfung einreichen."""
-    self.generic_post_test(
-      login_as_provider, 'submit_for_review', self._view_args(), {}, 302
-    )
+    self.generic_post_test(login_as_provider, 'submit_for_review', self._view_args(), {}, 302)
     self.test_object.refresh_from_db()
     self.assertEqual(self.test_object.status, 'in_review')
     self.assertEqual(
@@ -117,18 +115,14 @@ class SubmitForReviewViewTest(FormViewTestCase):
     """Service mit Status in_review kann nicht erneut eingereicht werden."""
     self.test_object.status = 'in_review'
     self.test_object.save(update_fields=['status'])
-    self.generic_post_test(
-      login_as_provider, 'submit_for_review', self._view_args(), {}, 400
-    )
+    self.generic_post_test(login_as_provider, 'submit_for_review', self._view_args(), {}, 400)
     # Status zurücksetzen
     self.test_object.status = 'draft'
     self.test_object.save(update_fields=['status'])
 
   def test_get_redirects_to_list(self):
     """GET-Anfragen werden zur Listen-Ansicht weitergeleitet."""
-    self.generic_get_test(
-      login_as_provider, 'submit_for_review', self._view_args(), 302, HTML, ''
-    )
+    self.generic_get_test(login_as_provider, 'submit_for_review', self._view_args(), 302, HTML, '')
 
 
 # ---------------------------------------------------------------------------
@@ -154,9 +148,7 @@ class ReviewServiceViewTest(FormViewTestCase):
       organisational_unit=cls.test_org_unit,
       service_type='childrenandyouthservice',
     )
-    cls.test_object = _create_service_with_deps(
-      cls.test_provider, topic, law, status='in_review'
-    )
+    cls.test_object = _create_service_with_deps(cls.test_provider, topic, law, status='in_review')
     cls.test_review_task = ReviewTask.objects.create(
       service_type='childrenandyouthservice',
       service_id=cls.test_object.pk,
@@ -201,8 +193,11 @@ class ReviewServiceViewTest(FormViewTestCase):
     self.test_object.save(update_fields=['status'])
 
     self.generic_post_test(
-      login_as_reviewer, 'review_service', self._view_args(),
-      {'action': 'reject', 'comment_name': 'Bitte Bezeichnung ändern.'}, 302
+      login_as_reviewer,
+      'review_service',
+      self._view_args(),
+      {'action': 'reject', 'comment_name': 'Bitte Bezeichnung ändern.'},
+      302,
     )
     self.test_review_task.refresh_from_db()
     self.assertEqual(self.test_review_task.task_status, 'rejected')
@@ -225,8 +220,7 @@ class ReviewServiceViewTest(FormViewTestCase):
     self.test_review_task.save(update_fields=['task_status'])
 
     self.generic_post_test(
-      login_as_reviewer, 'review_service', self._view_args(),
-      {'action': 'reject'}, 400
+      login_as_reviewer, 'review_service', self._view_args(), {'action': 'reject'}, 400
     )
 
   def test_post_approve_with_comment_400(self):
@@ -237,8 +231,11 @@ class ReviewServiceViewTest(FormViewTestCase):
     self.test_review_task.save(update_fields=['comments'])
 
     self.generic_post_test(
-      login_as_reviewer, 'review_service', self._view_args(),
-      {'action': 'approve', 'comment_name': 'Kommentar'}, 400
+      login_as_reviewer,
+      'review_service',
+      self._view_args(),
+      {'action': 'approve', 'comment_name': 'Kommentar'},
+      400,
     )
 
   def test_post_already_closed_task_400(self):
@@ -247,8 +244,7 @@ class ReviewServiceViewTest(FormViewTestCase):
     self.test_review_task.save(update_fields=['task_status'])
 
     self.generic_post_test(
-      login_as_reviewer, 'review_service', self._view_args(),
-      {'action': 'approve'}, 400
+      login_as_reviewer, 'review_service', self._view_args(), {'action': 'approve'}, 400
     )
     # Zurücksetzen für andere Tests
     self.test_review_task.task_status = 'pending'

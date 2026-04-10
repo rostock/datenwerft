@@ -9,13 +9,13 @@
     <a class="text-black" data-bs-toggle="collapse" href="#yourApps" aria-expanded="true" aria-controls="yourApps">
       <h1 class="mb-4">
         <i class="fa-fw fa-solid fa-angle-down" id="caretIconYourApps"></i>
-        Deine Apps
+        Apps
       </h1>
     </a>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 g-4 text-center mb-5 collapse show" id="yourApps">
       {% for app in apps %}
         <div class="col">
-          <div class="card h-100 bg-primary-subtle border-primary shadow rounded text-black">
+          <div class="card h-100 bg-primary-subtle border-primary rounded text-black">
             <div class="card-header bg-primary-subtle border-primary">
               <h2>{{ app.verbose_name }}</h2>
             </div>
@@ -49,13 +49,13 @@
       <a class="text-black" data-bs-toggle="collapse" href="#admin-apps" aria-expanded="false" aria-controls="admin-apps">
         <h1 class="mb-4">
           <i class="fa-fw fa-solid fa-angle-right" id="caretIconAdminApps"></i>
-          Deine Admin Apps
+          Admin-Apps
         </h1>
       </a>
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 g-4 text-center mb-5 collapse" id="admin-apps">
         {% for app in admin_apps %}
           <div class="col">
-            <div class="card h-100 bg-danger-subtle border-danger shadow rounded text-black">
+            <div class="card h-100 bg-danger-subtle border-danger rounded text-black">
               <div class="card-header bg-danger-subtle border-danger">
                 <h2>{{ app.name }}</h2>
               </div>
@@ -65,7 +65,7 @@
               <ul class="list-group list-group-flush border-0">
                 <li class="list-group-item bg-danger-subtle">
                   <div class="d-grid">
-                    <a class="btn btn-danger text-white" href="{{ app.url }}">Adminbereich öffnen</a>
+                    <a class="btn btn-danger text-white" href="{{ app.url }}">Administration öffnen</a>
                   </div>
                 </li>
               </ul>
