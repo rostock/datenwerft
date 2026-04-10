@@ -34,7 +34,6 @@ class FetchModelDatabaseConfigRequestView(JsonView):
 
     try:
       model = apps.get_model(app_label=content_type.app_label, model_name=content_type.model)
-      print(model.objects.model._meta.pk.name)
       db_table = model.objects.model._meta.db_table
       schema = db_table.split('"."')[0]
       table = db_table.split('"."')[1]
