@@ -5,6 +5,7 @@ class DatabaseRouter:
   """
 
   route_app_labels = {
+    'angebotsdb',
     'antragsmanagement',
     'bemas',
     'datenmanagement',
@@ -18,40 +19,46 @@ class DatabaseRouter:
     all read access to models of various apps
     are routed to the corresponding database
     """
-    if model._meta.app_label in self.route_app_labels:
-      if model._meta.app_label == 'antragsmanagement':
+    match model._meta.app_label:
+      case 'angebotsdb':
+        return 'angebotsdb'
+      case 'antragsmanagement':
         return 'antragsmanagement'
-      elif model._meta.app_label == 'bemas':
+      case 'bemas':
         return 'bemas'
-      elif model._meta.app_label == 'datenmanagement':
+      case 'datenmanagement':
         return 'datenmanagement'
-      elif model._meta.app_label == 'fmm':
+      case 'fmm':
         return 'fmm'
-      elif model._meta.app_label == 'gdihrocodelists':
+      case 'gdihrocodelists':
         return 'gdihrocodelists'
-      elif model._meta.app_label == 'gdihrometadata':
+      case 'gdihrometadata':
         return 'gdihrometadata'
-    return 'default'
+      case _:
+        return 'default'
 
   def db_for_write(self, model, **hints):
     """
     all write access to models of various apps
     are routed to the corresponding database
     """
-    if model._meta.app_label in self.route_app_labels:
-      if model._meta.app_label == 'antragsmanagement':
+    match model._meta.app_label:
+      case 'angebotsdb':
+        return 'angebotsdb'
+      case 'antragsmanagement':
         return 'antragsmanagement'
-      elif model._meta.app_label == 'bemas':
+      case 'bemas':
         return 'bemas'
-      elif model._meta.app_label == 'datenmanagement':
+      case 'datenmanagement':
         return 'datenmanagement'
-      elif model._meta.app_label == 'fmm':
+      case 'fmm':
         return 'fmm'
-      elif model._meta.app_label == 'gdihrocodelists':
+      case 'gdihrocodelists':
         return 'gdihrocodelists'
-      elif model._meta.app_label == 'gdihrometadata':
+      case 'gdihrometadata':
         return 'gdihrometadata'
-    return 'default'
+      case _:
+        return 'default'
 
   def allow_relation(self, obj1, obj2, **hints):
     """

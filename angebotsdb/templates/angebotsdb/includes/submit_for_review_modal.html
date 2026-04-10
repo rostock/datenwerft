@@ -1,0 +1,54 @@
+<!-- Zur Prüfung freigeben-Modal -->
+<div class="modal fade" id="submitForReviewModal" tabindex="-1" aria-labelledby="submitForReviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="submitForReviewModalLabel">
+          <i class="fa-solid fa-paper-plane me-2"></i>Zur Prüfung freigeben
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body">
+        <p>Möchten Sie <strong id="submitForReviewObjectName"></strong> zur Prüfung freigeben?</p>
+        <p class="text-muted small">
+          Das Angebot wird in den Status <em>In Prüfung</em> versetzt und kann bis zur Entscheidung nicht mehr bearbeitet werden.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fa-solid fa-times me-1"></i>Abbrechen
+        </button>
+        <form id="submitForReviewForm" method="post" action="" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-paper-plane me-1"></i>Zur Prüfung freigeben
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const submitForReviewModal = document.getElementById('submitForReviewModal');
+    const submitForReviewForm = document.getElementById('submitForReviewForm');
+
+    if (submitForReviewModal) {
+      submitForReviewModal.addEventListener('show.bs.modal', function(event) {
+        let button;
+        if (event.relatedTarget.tagName === 'SPAN') {
+          button = event.relatedTarget.querySelector('button');
+        } else {
+          button = event.relatedTarget;
+        }
+
+        const submitUrl = button.getAttribute('data-submit-url');
+        const objectName = button.getAttribute('data-object-name');
+
+        document.getElementById('submitForReviewObjectName').textContent = objectName;
+        submitForReviewForm.action = submitUrl;
+      });
+    }
+  });
+</script>

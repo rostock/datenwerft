@@ -32,6 +32,7 @@ LOCAL_APPS = [
   'accounts',
   'toolbox',
   'datenmanagement',
+  'angebotsdb',
   'antragsmanagement',
   'bemas',
   'fmm',

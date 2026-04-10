@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load angebotsdb_tags %}
+{% load static %}
+
+{% block title %}AngebotsDB | {% endblock %}
+
+{% block content %}
+  <div class="container-xxl">
+    {% if is_angebotsdb_user %}
+    <a href="{% url 'angebotsdb:index' %}">
+      <i class="fa-solid fa-angle-left me"></i>
+      Zurück zum Dashboard
+    </a>
+    <h1 class="mb-4">{% if model_icon_plural %}<i class="{{ model_icon_plural }}"></i> {% elif model_icon %}<i class="{{ model_icon }}"></i> {% endif %}{{ model_verbose_name_plural|default:model_name }}</h1>
+    <div class="mb-3">
+      {% if user_can_create %}
+        <a href="{% dynamic_url model_lower 'create' %}" class="btn btn-primary me-2">{{ model_verbose_name }} hinzufügen</a>
+      {% endif %}
+    </div>
+    {% if object_list %}
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            {% if list_fields %}
+              {% for key, value in list_fields.items %}
+                  <th scope="col">{{ value }}</th>
+                {% endfor %}
+            {% else %}
+              <th scope="col">{{ model_verbose_name|default:model_name }}</th>
+              <th scope="col">Zuletzt aktualisiert</th>
+            {% endif %}
+            <th scope="col">Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in annotated_objects %}
+            {% with obj=item.obj display_number=item.display_number is_fork=item.is_fork tree_prefix=item.tree_prefix has_draft_copy=item.has_draft_copy actions=item.actions %}
+            <tr{% if is_fork %} class="table-secondary"{% endif %}>
+              <td>{% if is_fork %}<span class="text-muted font-monospace">{{ tree_prefix }}</span>{% else %}{{ display_number }}{% endif %}</td>
+              {% if list_fields %}
+                {% for key, value in list_fields.items %}
+                  <td>
+                    {% if key == '__str__' %}
+                      {{ obj }}
+                    {% elif key == 'updated_at' or key == 'created_at' %}
+                      {{ obj|get_attribute:key|date:"d.m.Y H:i" }}
+                    {% elif key == 'status' %}
+                      {% with status_val=obj.status is_copy=obj.published_version %}
+                        {% if is_copy %}
+                          {# Draft-Copy eines veröffentlichten Service #}
+                          {% if status_val == 'draft' %}
+                            <span class="badge bg-secondary">
+                              <i class="fa-solid fa-code-branch me-1"></i>Überarbeitung (Entwurf)
+                            </span>
+                          {% elif status_val == 'in_review' %}
+                            <span class="badge bg-info text-dark">
+                              <i class="fa-solid fa-code-branch me-1"></i>Überarbeitung (In Prüfung)
+                            </span>
+                          {% elif status_val == 'revision_needed' %}
+                            <span class="badge bg-warning text-dark">
+                              <i class="fa-solid fa-code-branch me-1"></i>Überarbeitung (Kommentare)
+                            </span>
+                          {% else %}
+                            <span class="badge bg-light text-dark">
+                              <i class="fa-solid fa-code-branch me-1"></i>{{ status_val }}
+                            </span>
+                          {% endif %}
+                        {% else %}
+                          {# Normaler (originaler) Service #}
+                          {% if status_val == 'draft' %}
+                            <span class="badge bg-secondary">
+                              <i class="fa-solid fa-pencil me-1"></i>Entwurf
+                            </span>
+                          {% elif status_val == 'in_review' %}
+                            <span class="badge bg-info text-dark">
+                              <i class="fa-solid fa-magnifying-glass me-1"></i>In Prüfung
+                            </span>
+                          {% elif status_val == 'revision_needed' %}
+                            <span class="badge bg-warning text-dark">
+                              <i class="fa-solid fa-triangle-exclamation me-1"></i>Überarbeitung nötig
+                            </span>
+                          {% elif status_val == 'published' %}
+                            <span class="badge bg-success">
+                              <i class="fa-solid fa-circle-check me-1"></i>Veröffentlicht
+                            </span>
+                          {% else %}
+                            <span class="badge bg-light text-dark">{{ status_val }}</span>
+                          {% endif %}
+                        {% endif %}
+                      {% endwith %}
+                    {% else %}
+                      {{ obj|get_attribute:key|default_if_none:"" }}
+                    {% endif %}
+                  </td>
+                {% endfor %}
+              {% else %}
+                <td>{{ obj }}</td>
+                <td>{{ obj.updated_at|date:"d.m.Y H:i" }}</td>
+              {% endif %}
+              <td>
+                {# ── Bearbeiten / Ansehen ── #}
+                {% if actions.edit %}
+                  <a href="{% dynamic_url model_lower 'update' obj.pk %}" class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Bearbeiten">
+                    <i class="fa-solid fa-edit"></i>
+                  </a>
+                {% elif actions.view %}
+                  <a href="{% dynamic_url model_lower 'detail' obj.pk %}" class="btn btn-sm btn-outline-secondary me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Ansehen">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                {% endif %}
+                {# ── Zur Prüfung freigeben ── #}
+                {% if actions.submit_for_review %}
+                  <span data-bs-toggle="modal" data-bs-target="#submitForReviewModal">
+                    <button type="button" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Zur Prüfung freigeben" data-submit-url="{% url 'angebotsdb:submit_for_review' model_lower obj.pk %}" data-object-name="{{ obj }}">
+                      <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                  </span>
+                {% endif %}
+                {# ── Löschen ── #}
+                {% if actions.delete %}
+                  <span data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Löschen" data-object-id="{{ obj.pk }}" data-object-name="{{ obj }}" data-model-name="{{ model_verbose_name|default:model_name }}" data-model-lower="{{ model_lower }}" data-delete-url="{% dynamic_url model_lower 'delete' obj.pk %}" data-list-url="{% dynamic_url model_lower 'list' %}" data-object-data='{{ obj|to_json }}'>
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endwith %}
+          {% endfor %}
+        </tbody>
+
+      </table>
+    {% else %}
+      <p class="text-muted">Keine Einträge vorhanden.</p>
+    {% endif %}
+
+    <!-- Löschen-Modal -->
+    {% include "angebotsdb/includes/delete_modal.html" %}
+
+    <!-- Zur Prüfung freigeben-Modal -->
+    {% include "angebotsdb/includes/submit_for_review_modal.html" %}
+
+    <!-- JavaScript für Tooltips -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Bootstrap Tooltips initialisieren
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+      });
+    </script>
+    {% else %}
+    <div class="alert alert-warning mt-4">
+      Sie haben keine Berechtigung, auf diese Liste zuzugreifen.
+    </div>
+    {% endif %}
+  </div>
+{% endblock %}
