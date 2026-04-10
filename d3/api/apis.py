@@ -393,12 +393,6 @@ T000008201"
         + ' Message: '
         + response.text
       )
-      raise Exception(
-        'Suche nach ID zu übergebenem Kennzeichen ist fehlgeschlagen. Status code: '
-        + str(response.status_code)
-        + ' Message: '
-        + response.text
-      )
 
     try:
       response_json = response.json()

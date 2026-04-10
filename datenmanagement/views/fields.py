@@ -55,6 +55,8 @@ class ArrayDecimalField(CharField):
   """
 
   def to_python(self, value):
-    if isinstance(value, str) or value is None:
+    if isinstance(value, str):
+      if value == '' or value is None:
+        return None
       return value
     return str(value)

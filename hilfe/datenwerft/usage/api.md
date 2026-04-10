@@ -26,6 +26,17 @@ bzw. mittels [API-Token](../admin.md#api-token-hinzufügen). Wird ein API-Token 
 muss dieser als HTTP-Header mit dem Namen `Authorization` und dem Inhalt
 `Token [API-Token]` (Beispiel: `Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b`) übergeben werden.
 
+## Browser-Ansicht/-Dokumentation
+
+Für einen schnellen Überblick kann die API in den einzelnen Bereichen (= Apps) auch im Browser
+angesehen werden, und zwar mittels entsprechender HTML-Ansicht/-Dokumentation:
+
+| Bereich (= App) | Startseite der HTML-Ansicht/-Dokumentation |
+| --- | --- |
+| Datenmanagement | `/api/datenmanagement/` |
+| *GDI.HRO Codelists* | `/api/gdihrocodelists/` |
+| *GDI.HRO Metadata* | `/api/gdihrometadata/` |
+
 ## Beispiele
 
 ### Datenmanagement
