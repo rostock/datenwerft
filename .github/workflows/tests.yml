@@ -41,9 +41,9 @@ jobs:
           --health-retries 5
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
       - name: Set up Python
@@ -85,6 +85,8 @@ jobs:
         run: python manage.py test toolbox
       - name: Run tests on app Datenmanagement
         run: python manage.py test datenmanagement
+      - name: Run tests on app Angebotsdatenbank
+        run: python manage.py test angebotsdb
       - name: Run tests on app Antragsmanagement
         run: python manage.py test antragsmanagement
       - name: Run tests on app BEMAS
