@@ -11,7 +11,7 @@
 /* ── Tabellen-Zeile: Feld seit letzter Freigabe geändert ──────────────────── */
 
 .review-field-changed {
-  background-color: rgba(255, 193, 7, 0.08) !important;
+  background-color: rgb(255 193 7 / 8%) !important;
   border-left: 3px solid #ffc107;
 }
 
@@ -23,7 +23,7 @@
 /* ── Tabellen-Zeile: Kommentar vorhanden ──────────────────────────────────── */
 
 .review-row-commented {
-  background-color: rgba(220, 53, 69, 0.06) !important;
+  background-color: rgb(220 53 69 / 6%) !important;
   border-left: 3px solid #dc3545;
 }
 
@@ -81,7 +81,7 @@
 
 .comment-field:focus {
   border-color: #e0a800;
-  box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+  box-shadow: 0 0 0 0.2rem rgb(255 193 7 / 25%);
 }
 
 
@@ -164,7 +164,7 @@
 
 /* ── Responsive: auf kleinen Screens Kommentar-Spalte volle Breite ────────── */
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   #review-table thead th:last-child,
   #review-table tbody td:last-child {
     display: block;
