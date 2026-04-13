@@ -114,12 +114,14 @@ npm install
 ```bash
 # ohne uv
 source .venv/bin/activate
+python manage.py migrate --database=angebotsdb angebotsdb
 python manage.py migrate --database=antragsmanagement antragsmanagement
 python manage.py migrate --database=bemas bemas
 python manage.py migrate --database=fmm fmm
 python manage.py migrate --database=gdihrocodelists gdihrocodelists
 python manage.py migrate --database=gdihrometadata gdihrometadata
 python manage.py migrate
+python manage.py angebotsdb_roles_permissions
 python manage.py antragsmanagement_roles_permissions
 python manage.py bemas_roles_permissions
 python manage.py fmm_roles_permissions
@@ -128,12 +130,14 @@ python manage.py gdihrometadata_roles_permissions
 python manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 
 # mit uv
+uv run manage.py migrate --database=angebotsdb angebotsdb
 uv run manage.py migrate --database=antragsmanagement antragsmanagement
 uv run manage.py migrate --database=bemas bemas
 uv run manage.py migrate --database=fmm fmm
 uv run manage.py migrate --database=gdihrocodelists gdihrocodelists
 uv run manage.py migrate --database=gdihrometadata gdihrometadata
 uv run manage.py migrate
+uv run manage.py angebotsdb_roles_permissions
 uv run manage.py antragsmanagement_roles_permissions
 uv run manage.py bemas_roles_permissions
 uv run manage.py fmm_roles_permissions
@@ -392,6 +396,24 @@ uv run manage.py test toolbox
   # mit uv
   uv run manage.py test datenmanagement
   ```
+
+- Tests der App _Angebotsdatenbank_ durchführen:
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test angebotsdb.tests.views.tests_base_models.TopicUpdateViewTest.test_post_success
+
+  # mit uv
+  uv run manage.py test angebotsdb.tests.views.tests_base_models.TopicUpdateViewTest.test_post_success
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test angebotsdb
+
+  # mit uv
+  uv run manage.py test angebotsdb
 
 - Tests der App _Antragsmanagement_ durchführen:
   - Einzeltest (Beispiel):
