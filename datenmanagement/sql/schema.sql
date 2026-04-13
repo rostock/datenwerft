@@ -2174,7 +2174,8 @@ CREATE TABLE fachdaten.brunnen_hro (
     endteufe numeric(3,1)[],
     entnahmemenge integer,
     geometrie public.geometry(Point,25833) NOT NULL,
-    d3_link character varying(255)
+    d3_link character varying(255),
+    bemerkungen character varying(255)
 );
 
 
