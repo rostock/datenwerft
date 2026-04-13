@@ -115,6 +115,7 @@
   overflow-y: auto;
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .catchment-area-select + span.select2-container .select2-selection--multiple {
   min-height: 76px;
 }

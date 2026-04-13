@@ -53,7 +53,7 @@
 .review-field-value {
   display: block;
   white-space: pre-wrap;      /* Zeilenumbrüche aus Textareas erhalten */
-  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 
