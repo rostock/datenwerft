@@ -6,8 +6,10 @@
   display: grid;
   grid-template-columns: 1fr;
   row-gap: 0.5rem;
+
   /* Bootstrap-Row-Gutter nachahmen für bündige Ausrichtung. */
   --bs-gutter-x: 1.5rem;
+
   margin-left: calc(var(--bs-gutter-x) * -0.5);
   margin-right: calc(var(--bs-gutter-x) * -0.25);
 }
@@ -23,45 +25,53 @@
 }
 
 /* Tablet: 2-Spalten-Layout, Karte zwischen Adresse und Einzugsgebiet */
-@media (min-width: 800px) {
+@media (width >= 800px) {
   #address-contact-grid {
     grid-template-columns: 3fr 9fr;
   }
+
   .acg-address-label {
     grid-column: 1;
     grid-row: 1;
   }
+
   .acg-address-fields {
     grid-column: 2;
     grid-row: 1;
   }
+
   .acg-map {
     grid-column: 2;
     grid-row: 2;
     height: 300px;
   }
+
   .acg-contact-label {
     grid-column: 1;
     grid-row: 3;
   }
+
   .acg-contact-hours {
     grid-column: 2;
     grid-row: 3;
   }
+
   .acg-label {
     padding-top: 0.375rem;
   }
 }
 
 /* Desktop: 3-Spalten-Layout, Karte neben den Adressfeldern */
-@media (min-width: 1400px) {
+@media (width >= 1400px) {
   #address-contact-grid {
     grid-template-columns: 3fr 4.5fr 4.5fr;
   }
+
   .acg-address-fields {
     grid-column: 2;
     grid-row: 1;
   }
+
   .acg-map {
     grid-column: 3;
     grid-row: 1 / 3;
@@ -69,10 +79,12 @@
     min-height: 140px;
     position: relative;
   }
+
   .acg-contact-label {
     grid-column: 1;
     grid-row: 2;
   }
+
   .acg-contact-hours {
     grid-column: 2;
     grid-row: 2;
@@ -80,10 +92,7 @@
 
   #map-preview-container {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
-    right: calc(var(--bs-gutter-x, 1.5rem) * 0.25);
+    inset: 0 calc(var(--bs-gutter-x, 1.5rem) * 0.25) 0 calc(var(--bs-gutter-x, 1.5rem) * 0.5);
   }
 }
 
@@ -106,6 +115,7 @@
   overflow-y: auto;
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .catchment-area-select + span.select2-container .select2-selection--multiple {
   min-height: 76px;
 }
@@ -136,10 +146,11 @@
   overflow-y: auto;
 }
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .form-with-comments {
     flex-direction: column-reverse;
   }
+
   .revision-sidebar {
     width: 100%;
     position: static;
