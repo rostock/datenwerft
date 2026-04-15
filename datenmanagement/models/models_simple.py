@@ -1021,6 +1021,13 @@ class Brunnen(SimpleModel):
   entnahmemenge = PositiveIntegerMinField(
     verbose_name='Entnahmemenge (in m³/a)', min_value=1, blank=True, null=True
   )
+  bemerkungen = CharField(
+    verbose_name='Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
@@ -1044,6 +1051,7 @@ class Brunnen(SimpleModel):
       'in_betrieb': 'in Betrieb?',
       'endteufe': 'Endteufe(n) (in m)',
       'entnahmemenge': 'Entnahmemenge (in m³/a)',
+      'bemerkungen': 'Bemerkungen',
     }
     list_fields_with_date = ['datum_bescheid', 'datum_befristung']
     list_fields_with_foreign_key = {'art': 'art'}
@@ -1060,6 +1068,7 @@ class Brunnen(SimpleModel):
       'in_betrieb': 'in Betrieb?',
       'endteufe': 'Endteufe(n) (in m)',
       'entnahmemenge': 'Entnahmemenge (in m³/a)',
+      'bemerkungen': 'Bemerkungen',
     }
     map_filter_fields_as_list = ['art']
 

@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -28,15 +28,15 @@ jobs:
       - name: Check Python rules via ruff
         run: ruff check
       - name: Check Django rules via djLint
-        run: djlint datenwerft/templates/*.html accounts/templates/accounts/log*.html accounts/templates/accounts/test.html antragsmanagement/templates/antragsmanagement/*.html bemas/templates/bemas/*.html datenmanagement/templates/datenmanagement/*.html fmm/templates/fmm/*.html
+        run: djlint datenwerft/templates/*.html accounts/templates/accounts/log*.html accounts/templates/accounts/test.html angebotsdb/templates/angebotsdb/*.html antragsmanagement/templates/antragsmanagement/*.html bemas/templates/bemas/*.html datenmanagement/templates/datenmanagement/*.html fmm/templates/fmm/*.html
   linting_js_css:
     name: Linting JavaScript and CSS
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
       - name: Install Node.js dependencies
@@ -44,4 +44,4 @@ jobs:
       - name: Check CSS rules via Stylelint
         run: npx stylelint "datenwerft/**/*.css" "datenmanagement/**/*.css"
       - name: Check JavaScript rules via ESLint
-        run: npx eslint "datenwerft/static" "antragsmanagement/static" "bemas/static" "datenmanagement/static"
+        run: npx eslint "datenwerft/static" "angebotsdb/static" "antragsmanagement/static" "bemas/static" "datenmanagement/static"
