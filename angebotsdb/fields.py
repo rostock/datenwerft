@@ -1,18 +1,28 @@
+import hashlib
 import logging
 
-import requests
+import httpx
+from django.core.cache import cache
 from django.forms import MultipleChoiceField, widgets
 
 logger = logging.getLogger(__name__)
 
+_PYGEOAPI_CACHE_TTL = 600  # 10 Minuten
 
-def resolve_pygeoapi_uris(uris, endpoint, params, label_property):
+
+def _fetch_pygeoapi_label_map(endpoint, params_tuple, label_property):
   """
-  Löst eine Liste von PyGeoAPI-URIs zu lesbaren Labels auf.
-  Gibt bei Fehler die rohen URIs zurück (Fallback).
+  Lädt alle Features vom PyGeoAPI-Endpunkt und gibt ein URI→Label-Dict zurück.
+  Gecacht für :data:`_PYGEOAPI_CACHE_TTL` Sekunden über Djangos Cache-Framework.
   """
+  cache_key = (
+    'pygeoapi_' + hashlib.md5(f'{endpoint}|{params_tuple}|{label_property}'.encode()).hexdigest()
+  )
+  cached = cache.get(cache_key)
+  if cached is not None:
+    return cached
   try:
-    response = requests.get(endpoint, params=params, timeout=10)
+    response = httpx.get(endpoint, params=dict(params_tuple), timeout=10)
     response.raise_for_status()
     data = response.json()
     base_url = endpoint.rstrip('/')
@@ -28,10 +38,24 @@ def resolve_pygeoapi_uris(uris, endpoint, params, label_property):
         uri = f'{base_url}/{feature_id}'
       if uri and label:
         uri_to_label[uri] = label
-    return [uri_to_label.get(u, u) for u in uris]
-  except requests.RequestException as e:
-    logger.error('PyGeoAPI resolve failed for %s: %s', endpoint, e)
-    return list(uris)
+    cache.set(cache_key, uri_to_label, timeout=_PYGEOAPI_CACHE_TTL)
+    return uri_to_label
+  except httpx.HTTPError as e:
+    logger.error('PyGeoAPI fetch failed for %s: %s', endpoint, e)
+    return {}
+
+
+def resolve_pygeoapi_uris(uris, endpoint, params, label_property):
+  """
+  Löst eine Liste von PyGeoAPI-URIs zu lesbaren Labels auf.
+  Gibt bei Fehler die rohen URIs zurück (Fallback).
+  """
+  label_map = _fetch_pygeoapi_label_map(
+    endpoint,
+    tuple(sorted(params.items())),
+    label_property,
+  )
+  return [label_map.get(u, u) for u in uris]
 
 
 class PyGeoAPIMultipleChoiceField(MultipleChoiceField):
@@ -73,26 +97,11 @@ class PyGeoAPIMultipleChoiceField(MultipleChoiceField):
     super().__init__(choices=choices, **kwargs)
 
   def _fetch_choices(self, endpoint, params, label_property):
-    try:
-      response = requests.get(endpoint, params=params, timeout=10)
-      response.raise_for_status()
-      data = response.json()
-      base_url = endpoint.rstrip('/')
-      choices = []
-      for feature in data.get('features', []):
-        label = feature.get('properties', {}).get(label_property, '')
-        feature_id = feature.get('id')
-        # Prefer self link if present, otherwise construct URI from endpoint + id
-        uri = next(
-          (link['href'] for link in feature.get('links', []) if link.get('rel') == 'self'),
-          None,
-        )
-        if uri is None and feature_id is not None:
-          uri = f'{base_url}/{feature_id}'
-        if uri and label:
-          choices.append((uri, label))
-      choices.sort(key=lambda x: x[1])
-      return choices
-    except requests.RequestException as e:
-      logger.error('PyGeoAPI fetch failed for %s: %s', endpoint, e)
-      return []
+    label_map = _fetch_pygeoapi_label_map(
+      endpoint,
+      tuple(sorted(params.items())),
+      label_property,
+    )
+    choices = list(label_map.items())
+    choices.sort(key=lambda x: x[1])
+    return choices
