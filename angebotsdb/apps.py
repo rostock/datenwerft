@@ -7,3 +7,6 @@ class AngebotsDBConfig(AppConfig):
   verbose_name = 'Angebotsdatenbank'
   description = 'Angebotsdatenbank'
   datenwerft_app = True
+
+  def ready(self):
+    from . import signals  # noqa: F401
