@@ -196,6 +196,9 @@
                       </div>
                     {% elif field.name == 'logo' %}
                       {% if form.instance.logo %}
+                        {% if user_can_save and not readonly %}
+                          <input type="hidden" name="{{ field.html_name }}-clear" id="logo-clear-input" value="">
+                        {% endif %}
                         <div class="d-flex align-items-center mb-2" id="logo-preview-row">
                           <a href="{{ form.instance.logo.url }}" target="_blank" class="me-2 flex-shrink-0">
                             <img src="{{ form.instance.logo.url }}" alt="Logo"
@@ -203,7 +206,6 @@
                           </a>
                           <span class="me-auto">{{ form.instance.logo.name|cut:"angebotsdb/hosts/" }}</span>
                           {% if user_can_save and not readonly %}
-                            <input type="hidden" name="{{ field.html_name }}-clear" id="logo-clear-input" value="">
                             <button type="button" class="btn btn-sm btn-outline-danger ms-2"
                                     id="logo-delete-btn">
                               <i class="fa-solid fa-xmark"></i>
