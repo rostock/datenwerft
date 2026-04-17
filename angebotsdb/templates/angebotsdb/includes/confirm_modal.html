@@ -1,0 +1,51 @@
+<!-- Wiederverwendbares Bestätigungs-Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1"
+     aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModalLabel">
+          <i class="fa-solid fa-exclamation-triangle me-2"></i>
+          <span id="confirmModalTitle"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body" id="confirmModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="confirmModalBtn">
+          <i class="fa-solid fa-trash me-1"></i>Ja, löschen
+        </button>
+        <button type="button" class="btn btn-outline-secondary"
+                data-bs-dismiss="modal">
+          <i class="fa-solid fa-times me-1"></i>Abbrechen
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /**
+   * Zeigt das generische Bestätigungs-Modal.
+   * @param {string} title  - Titel des Modals
+   * @param {string} body   - Bestätigungstext im Modal-Body
+   * @param {Function} onConfirm - Callback, der bei Bestätigung aufgerufen wird
+   */
+  function showConfirmModal(title, body, onConfirm) {
+    document.getElementById('confirmModalTitle').textContent = title;
+    document.getElementById('confirmModalBody').textContent = body;
+
+    var btn = document.getElementById('confirmModalBtn');
+    // Alten Handler entfernen, damit er nicht mehrfach feuert
+    var newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+    newBtn.addEventListener('click', function() {
+      bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+      onConfirm();
+    });
+
+    var modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    modal.show();
+  }
+</script>

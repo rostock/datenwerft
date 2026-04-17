@@ -92,7 +92,10 @@
             });
           }
           
-          detailRow.innerHTML = `<strong>${key}:</strong> ${displayValue}`;
+          const strong = document.createElement('strong');
+          strong.textContent = `${key}:`;
+          detailRow.appendChild(strong);
+          detailRow.appendChild(document.createTextNode(` ${String(displayValue)}`));
           detailsContainer.appendChild(detailRow);
         }
       }
@@ -129,7 +132,10 @@
           
           // Zur Listenansicht weiterleiten
           const listUrl = deleteForm.getAttribute('data-list-url');
-          window.location.href = listUrl;
+          const safeUrl = new URL(listUrl, window.location.origin);
+          if (safeUrl.origin === window.location.origin) {
+            window.location.href = safeUrl.href;
+          }
         } else {
           throw new Error('Fehler beim Löschen');
         }

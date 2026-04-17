@@ -194,6 +194,29 @@
                         <span class="input-group-text">#</span>
                         {{ field }}
                       </div>
+                    {% elif field.name == 'logo' %}
+                      {% if form.instance.logo %}
+                        <div class="d-flex align-items-center mb-2" id="logo-preview-row">
+                          <a href="{{ form.instance.logo.url }}" target="_blank" class="me-2 flex-shrink-0">
+                            <img src="{{ form.instance.logo.url }}" alt="Logo"
+                                 width="60" height="60" class="rounded object-fit-cover">
+                          </a>
+                          <span class="me-auto">{{ form.instance.logo.name|cut:"angebotsdb/hosts/" }}</span>
+                          {% if user_can_save and not readonly %}
+                            <input type="hidden" name="{{ field.html_name }}-clear" id="logo-clear-input" value="">
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-2"
+                                    id="logo-delete-btn">
+                              <i class="fa-solid fa-xmark"></i>
+                            </button>
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                      {% if user_can_save and not readonly %}
+                        <div class="input-group">
+                          <input type="file" name="{{ field.html_name }}" class="form-control"
+                                 id="{{ field.id_for_label }}" accept="image/*">
+                        </div>
+                      {% endif %}
                     {% elif field.type == 'file' %}
                       <div class="input-group">
                         <label class="input-group-text" for="{{ field.id }}">Upload</label>
@@ -627,23 +650,43 @@
             });
           }
 
+          // Logo löschen
+          var logoDeleteBtn = document.getElementById('logo-delete-btn');
+          if (logoDeleteBtn) {
+            logoDeleteBtn.addEventListener('click', function() {
+              showConfirmModal(
+                'Logo löschen',
+                'Soll das Logo wirklich gelöscht werden?',
+                function() {
+                  document.getElementById('logo-clear-input').value = 'on';
+                  document.getElementById('logo-preview-row').remove();
+                }
+              );
+            });
+          }
+
           // Bestehende Bilder per AJAX löschen
           document.querySelectorAll('.delete-image-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
               const imageId = this.dataset.imageId;
-              if (!confirm('Bild wirklich löschen?')) return;
-              fetch('/angebotsdb/service-image/' + imageId + '/delete/', {
-                method: 'POST',
-                headers: {
-                  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                  'X-Requested-With': 'XMLHttpRequest',
-                },
-              }).then(function(r) { return r.json(); }).then(function(data) {
-                if (data.success) {
-                  const row = document.querySelector('.existing-image-row[data-image-id="' + imageId + '"]');
-                  if (row) row.remove();
+              showConfirmModal(
+                'Bild löschen',
+                'Soll dieses Bild wirklich gelöscht werden?',
+                function() {
+                  fetch('/angebotsdb/service-image/' + imageId + '/delete/', {
+                    method: 'POST',
+                    headers: {
+                      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                      'X-Requested-With': 'XMLHttpRequest',
+                    },
+                  }).then(function(r) { return r.json(); }).then(function(data) {
+                    if (data.success) {
+                      const row = document.querySelector('.existing-image-row[data-image-id="' + imageId + '"]');
+                      if (row) row.remove();
+                    }
+                  });
                 }
-              });
+              );
             });
           });
         });
@@ -656,6 +699,6 @@
   </div>
   <script src="{% static 'js/form.js' %}"></script>
 
-  <!-- Löschen-Modal -->
+  {% include "angebotsdb/includes/confirm_modal.html" %}
   {% include "angebotsdb/includes/delete_modal.html" %}
 {% endblock %}

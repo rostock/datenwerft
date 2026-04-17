@@ -108,4 +108,6 @@ def save_dashboard_layout(request):
     return JsonResponse({'status': 'success'})
   except Exception as e:
     logger.error(f'Error saving dashboard layout: {e}')
-    return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse(
+      {'status': 'error', 'message': 'Ein interner Fehler ist aufgetreten.'}, status=400
+    )

@@ -19,7 +19,7 @@ from ..constant_vars import (
 from ..functions import login_as_admin, login_as_provider, login_no_role
 
 HTML = 'text/html; charset=utf-8'
-PYGEOAPI_PATCH = 'angebotsdb.fields.requests.get'
+PYGEOAPI_PATCH = 'angebotsdb.fields.httpx.get'
 
 
 def _base_service_form_data(topic_pk, law_pk):

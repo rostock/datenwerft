@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -29,6 +30,8 @@ from ..utils import (
   is_angebotsdb_user,
 )
 from .functions import add_permission_context_elements
+
+logger = logging.getLogger(__name__)
 
 
 def _set_geometry_from_request(request, instance):
@@ -843,11 +846,12 @@ class GenericDeleteView(DeleteView):
           }
         )
       except PermissionDenied as e:
-        return JsonResponse({'success': False, 'message': str(e)}, status=403)
+        logger.warning(f'Permission denied when deleting object: {e}')
+        return JsonResponse({'success': False, 'message': 'Keine Berechtigung.'}, status=403)
       except Exception as e:
-        # Fehlermeldung zurückgeben
+        logger.error(f'Error deleting object: {e}')
         return JsonResponse(
-          {'success': False, 'message': f'Fehler beim Löschen: {str(e)}'}, status=400
+          {'success': False, 'message': 'Ein interner Fehler ist aufgetreten.'}, status=400
         )
     else:
       return super().post(request, *args, **kwargs)
