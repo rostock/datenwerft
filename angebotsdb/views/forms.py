@@ -13,8 +13,6 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
-logger = logging.getLogger(__name__)
-
 from ..constants_vars import ADMIN_GROUP, USERS_GROUP
 from ..fields import PyGeoAPIMultipleChoiceField
 from ..models.base import Law, Provider, ReviewTask, Tag, TargetGroup, Topic, UserProfile
@@ -32,6 +30,8 @@ from ..utils import (
   is_angebotsdb_user,
 )
 from .functions import add_permission_context_elements
+
+logger = logging.getLogger(__name__)
 
 
 def _set_geometry_from_request(request, instance):
