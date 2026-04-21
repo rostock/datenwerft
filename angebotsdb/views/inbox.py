@@ -2,6 +2,7 @@ import logging
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 
@@ -48,13 +49,16 @@ class InboxListView(View):
 
       # Aktion-URL je nach Nachrichtentyp
       if msg.message_type == 'review_request':
-        action_url = f'/angebotsdb/review/{review_task.pk}/'
+        action_url = reverse('angebotsdb:review_service', kwargs={'task_id': review_task.pk})
         action_label = 'Prüfen'
         action_icon = 'fa-solid fa-magnifying-glass'
       else:
         # revision_request → UpdateView des jeweiligen Service-Typs
         action_url = (
-          f'/angebotsdb/{review_task.service_type}/{review_task.service_id}/update'
+          reverse(
+            f'angebotsdb:{review_task.service_type}_update',
+            kwargs={'pk': review_task.service_id},
+          )
           if service is not None
           else '#'
         )
