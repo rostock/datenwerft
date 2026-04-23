@@ -112,6 +112,10 @@ url_message = (
   'und daher folgendes Format aufweisen (Beispiel): '
   'http[s]://abc-123.098_zyx.xyz-567/def/abc'
 )
+wasserbuch_blatt_regex = r'^[0-9]+$'
+wasserbuch_blatt_message = (
+  'Das <strong><em>Wasserbuch-Blatt</em></strong> muss aus mindestens einer Ziffer bestehen.'
+)
 standard_validators = [
   RegexValidator(regex=akut_regex, message=akut_message),
   RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message),
