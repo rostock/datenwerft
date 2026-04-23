@@ -477,6 +477,18 @@ CREATE TABLE codelisten.arten_adressunsicherheiten (
 
 
 --
+-- Name: arten_benutzung_wasserrechte; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.arten_benutzung_wasserrechte (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art character varying(255) NOT NULL
+);
+
+
+--
 -- Name: arten_beschilderung_radwegweisung; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -3477,6 +3489,33 @@ CREATE TABLE fachdaten.versenkpoller_hro (
 
 
 --
+-- Name: wasserrechte_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.wasserrechte_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    fid smallint NOT NULL,
+    d3 character varying(16),
+    d3_link character varying(255),
+    aktenzeichen character varying(255) NOT NULL,
+    einleitpunkt_nummer smallint,
+    art_benutzung uuid NOT NULL,
+    zweck character varying(255),
+    einleitmenge numeric(7,3),
+    wasserbuch_blatt character varying(4),
+    erlaubnisinhaber character varying(255) NOT NULL,
+    datum_bescheid date,
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: adressunsicherheiten_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -4597,12 +4636,12 @@ CREATE TABLE fachdaten_strassenbezug.wegesperren_hro (
     eigentuemer uuid NOT NULL,
     hersteller uuid,
     ausfuehrung uuid NOT NULL,
-    laengen smallint[],
     baujahr smallint,
     schliessung uuid,
     anlieger uuid,
     foto character varying(255),
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    laengen smallint[]
 );
 
 
@@ -4764,6 +4803,22 @@ ALTER TABLE ONLY codelisten.arten_adressunsicherheiten
 
 ALTER TABLE ONLY codelisten.arten_adressunsicherheiten
     ADD CONSTRAINT arten_adressunsicherheiten_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: arten_benutzung_wasserrechte arten_benutzung_wasserrechte_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_benutzung_wasserrechte
+    ADD CONSTRAINT arten_benutzung_wasserrechte_art_unique UNIQUE (art);
+
+
+--
+-- Name: arten_benutzung_wasserrechte arten_benutzung_wasserrechte_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_benutzung_wasserrechte
+    ADD CONSTRAINT arten_benutzung_wasserrechte_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7303,6 +7358,22 @@ ALTER TABLE ONLY fachdaten.versenkpoller_hro
 
 
 --
+-- Name: wasserrechte_hro wasserrechte_hro_fid_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.wasserrechte_hro
+    ADD CONSTRAINT wasserrechte_hro_fid_unique UNIQUE (fid);
+
+
+--
+-- Name: wasserrechte_hro wasserrechte_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.wasserrechte_hro
+    ADD CONSTRAINT wasserrechte_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: adressunsicherheiten_hro adressunsicherheiten_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -9085,6 +9156,14 @@ ALTER TABLE ONLY fachdaten.versenkpoller_hro
 
 ALTER TABLE ONLY fachdaten.versenkpoller_hro
     ADD CONSTRAINT versenkpoller_hro_wartungsfirmen_fk FOREIGN KEY (wartungsfirma) REFERENCES codelisten.wartungsfirmen_versenkpoller(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: wasserrechte_hro wasserrechte_hro_arten_benutzung_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.wasserrechte_hro
+    ADD CONSTRAINT wasserrechte_hro_arten_benutzung_fk FOREIGN KEY (art_benutzung) REFERENCES codelisten.arten_benutzung_wasserrechte(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
