@@ -6715,6 +6715,129 @@ post_save.connect(delete_photo_after_emptied, sender=Versenkpoller)
 post_delete.connect(delete_photo, sender=Versenkpoller)
 
 
+class Wasserrechte(SimpleModel):
+  """
+  Wasserrechte
+  """
+
+  fid = PositiveSmallIntegerMinField(verbose_name='FID', min_value=1)
+  d3 = CharField(
+    verbose_name=' d.3-Vorgangsnummer',
+    max_length=16,
+    blank=True,
+    null=True,
+    validators=[RegexValidator(regex=brunnen_d3_regex, message=brunnen_d3_message)],
+  )
+  d3_link = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False,
+  )
+  aktenzeichen = CharField(
+    verbose_name='Aktenzeichen',
+    max_length=255,
+    validators=standard_validators,
+  )
+  einleitpunkt_nummer = PositiveSmallIntegerMinField(
+    verbose_name='Nummer des Einleitpunkts', min_value=1, blank=True, null=True
+  )
+  art_benutzung = ForeignKey(
+    to=Arten_Benutzung_Wasserrechte,
+    verbose_name='Art der Benutzung',
+    on_delete=RESTRICT,
+    db_column='art_benutzung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_arten_benutzung',
+  )
+  zweck = CharField(
+    verbose_name='Zweck',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators,
+  )
+  einleitmenge = DecimalField(
+    verbose_name='Einleitmenge (in l/s)',
+    max_digits=7,
+    decimal_places=3,
+    validators=[
+      MinValueValidator(
+        Decimal('0.001'),
+        'Die <strong><em>Einleitmenge</em></strong> muss mindestens 0,001 l/s betragen.',
+      ),
+      MaxValueValidator(
+        Decimal('9999.999'),
+        'Die <strong><em>Einleitmenge</em></strong> darf höchstens 9.999,999 l/s betragen.',
+      ),
+    ],
+    blank=True,
+    null=True,
+  )
+  wasserbuch_blatt = CharField(
+    verbose_name='Wasserbuch-Blatt',
+    max_length=4,
+    blank=True,
+    null=True,
+    validators=[RegexValidator(regex=wasserbuch_blatt_regex, message=wasserbuch_blatt_message)],
+  )
+  erlaubnisinhaber = CharField(
+    verbose_name='Erlaubnisinhaber', max_length=255, validators=standard_validators
+  )
+  datum_bescheid = DateField(verbose_name='Datum des Bescheids', blank=True, null=True)
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten"."wasserrechte_hro'
+    verbose_name = 'Wasserrecht'
+    verbose_name_plural = 'Wasserrechte'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Wasserrechte in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'Point'
+    geometry_coordinates_input = True
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'fid': 'FID',
+      'd3': 'd.3-Vorgang',
+      'aktenzeichen': 'Aktenzeichen',
+      'einleitpunkt_nummer': 'Nummer des Einleitpunkts',
+      'art_benutzung': 'Art der Benutzung',
+      'zweck': 'Zweck',
+      'einleitmenge': 'Einleitmenge (in l/s)',
+      'wasserbuch_blatt': 'Wasserbuch-Blatt',
+      'erlaubnisinhaber': 'Erlaubnisinhaber',
+      'datum_bescheid': 'Datum des Bescheids',
+    }
+    list_fields_with_date = ['datum_bescheid']
+    list_fields_with_decimal = ['einleitmenge']
+    list_fields_with_foreign_key = {'art_benutzung': 'art'}
+    map_feature_tooltip_fields = ['fid']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'fid': 'FID',
+      'd3': 'd.3-Vorgang',
+      'aktenzeichen': 'Aktenzeichen',
+      'einleitpunkt_nummer': 'Nummer des Einleitpunkts',
+      'art_benutzung': 'Art der Benutzung',
+      'zweck': 'Zweck',
+      'einleitmenge': 'Einleitmenge (in l/s)',
+      'wasserbuch_blatt': 'Wasserbuch-Blatt',
+      'erlaubnisinhaber': 'Erlaubnisinhaber',
+      'datum_bescheid': 'Datum des Bescheids',
+    }
+    map_filter_fields_as_list = ['art_benutzung']
+
+  def __str__(self):
+    return f'{self.fid}'
+
+  def d3_element(self):
+    if self.d3_link:
+      return create_d3_link(self.d3, self.d3_link)
+    return self.d3
+
+
 class Wegesperren(SimpleModel):
   """
   Wegesperren

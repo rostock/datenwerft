@@ -423,6 +423,20 @@ class Arten_Adressunsicherheiten(Art):
     description = 'Arten von Adressunsicherheiten'
 
 
+class Arten_Benutzung_Wasserrechte(Art):
+  """
+  Arten der Benutzung von Wasserrechten
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten"."arten_benutzung_wasserrechte'
+    verbose_name = 'Art der Benutzung eines Wasserrechts'
+    verbose_name_plural = 'Arten der Benutzung von Wasserrechten'
+
+  class BasemodelMeta(Art.BasemodelMeta):
+    description = 'Arten der Benutzung von Wasserrechten'
+
+
 class Arten_Beschilderung_Radwegweisung(Art):
   """
   Arten von Beschilderung der Radwegweisung

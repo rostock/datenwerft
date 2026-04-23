@@ -31,8 +31,6 @@ def delete_file_on_serviceimage_delete(sender, instance, **kwargs):
   if not instance.image:
     return
   name = instance.image.name
-  still_referenced = (
-    ServiceImage.objects.filter(image=name).exclude(pk=instance.pk).exists()
-  )
+  still_referenced = ServiceImage.objects.filter(image=name).exclude(pk=instance.pk).exists()
   if not still_referenced:
     instance.image.delete(save=False)
