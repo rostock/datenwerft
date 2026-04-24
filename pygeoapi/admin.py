@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.forms import ModelChoiceField, ModelForm, Select
 from django.forms.widgets import Textarea
+from django.utils.translation import gettext_lazy as _
+
+from gdihrometadata.models import Service, ServiceType
 
 from .models import (
   Collection,
@@ -23,29 +26,56 @@ class CollectionCrsForInline(admin.StackedInline):
   extra = 0
 
 
-class DatenbankVerbindungChoiceField(ModelChoiceField):
+class ServiceChoiceField(ModelChoiceField):
   def label_from_instance(self, obj):
-    return '(%d) %s' % (obj.id, obj.dbname)
+    return f'({obj.name}) {obj.title}'
 
 
 class CollectionForm(ModelForm):
   required_css_class = 'required'
 
-  database_connection = DatenbankVerbindungChoiceField(queryset=DatabaseConnection.objects.all())
+  service = ServiceChoiceField(
+    queryset=Service.objects.filter(type=ServiceType.API_FEATURES),
+    widget=Select(attrs={'class': 'select2'}),
+    label=_('Service aus GDI.HRO Metadata'),
+  )
 
   class Meta:
-    widgets = {
-      'model': Select(attrs={'class': 'select2 load-database-config'}),
-      'description': Textarea(),
-    }
+    exclude = ['service_id']
+
+  def save(self, commit=True):
+    instance = super().save(commit=False)
+    service = self.cleaned_data['service']
+    if service:
+      instance.service_id = service.pk
+    if commit:
+      instance.save()
+    return instance
+
+
+@admin.register(DatabaseConnection)
+class DatabaseConnectionForAdmin(admin.ModelAdmin):
+  ordering = ['host', 'dbname', 'user']
+  list_display = (
+    'id',
+    'host',
+    'dbname',
+    'user',
+  )
+  search_fields = (
+    'host',
+    'dbname',
+    'user',
+  )
+  empty_value_display = ''
 
 
 @admin.register(Collection)
 class CollectionForAdmin(admin.ModelAdmin):
   ordering = ['name']
-  list_display = ('model', 'name', 'title', 'deactivated')
+  list_display = ('name', 'title', 'deactivated')
   fields = [
-    'model',
+    'service',
     'database_connection',
     'name',
     'title',
@@ -76,11 +106,3 @@ class CollectionForAdmin(admin.ModelAdmin):
   def delete_queryset(self, request, queryset):
     super().delete_queryset(request, queryset)
     reload_pygeoapi()
-
-
-@admin.register(DatabaseConnection)
-class DatenbankVerbindungForAdmin(admin.ModelAdmin):
-  ordering = ['dbname']
-  list_display = ('id', 'dbname')
-  fields = ['host', 'port', 'dbname', 'user', 'password']
-  search_fields = ['dbname']

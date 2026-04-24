@@ -1,37 +1,51 @@
 from decimal import Decimal
 
-from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db.models import CASCADE, PROTECT, ForeignKey, Model, OneToOneField
-from django.db.models.fields import AutoField, BooleanField, CharField, DecimalField, IntegerField
+from django.db.models import CASCADE, PROTECT, ForeignKey, Model
+from django.db.models.fields import (
+  AutoField,
+  BigIntegerField,
+  BooleanField,
+  CharField,
+  DecimalField,
+  PositiveSmallIntegerField,
+  TextField,
+)
+from django.utils.translation import gettext_lazy as _
+
+from gdihrometadata.models import Service
 
 
 class DatabaseConnection(Model):
-  id = AutoField(primary_key=True)
-  host = CharField(verbose_name='Host', max_length=255)
-  port = IntegerField(verbose_name='Port')
-  dbname = CharField(verbose_name='Datenbank', max_length=1024)
-  user = CharField(verbose_name='Username', max_length=1024)
-  password = CharField(verbose_name='Passwort', max_length=1024)
+  id = AutoField(verbose_name=_('ID'), primary_key=True, editable=False)
+  host = CharField(verbose_name=_('Host'), max_length=100)
+  port = PositiveSmallIntegerField(verbose_name=_('Port'), default=5432)
+  dbname = CharField(verbose_name=_('Datenbank'), max_length=100)
+  user = CharField(verbose_name=_('Benutzername'), max_length=100)
+  password = CharField(verbose_name=_('Passwort'), max_length=100)
 
   class Meta:
-    verbose_name = 'Datenbankverbindung'
-    verbose_name_plural = 'Datenbankverbindungen'
     db_table = 'pygeoapi_database_connection'
+    ordering = ['host', 'dbname', 'user']
+    verbose_name = _('Datenbankverbindung')
+    verbose_name_plural = _('Datenbankverbindungen')
 
   def __str__(self):
-    return f'{self.id})'
+    return f'{self.host} → {self.dbname} → {self.user}'
 
 
 class Collection(Model):
-  id = AutoField(primary_key=True)
-  model = OneToOneField(
-    ContentType, on_delete=CASCADE, limit_choices_to={'app_label': 'datenmanagement'}
+  id = AutoField(verbose_name=_('ID'), primary_key=True, editable=False)
+  service_id = BigIntegerField(unique=True)
+  name = CharField(verbose_name=_('Name'), unique=True, max_length=100)
+  title = CharField(verbose_name=_('Titel'), max_length=255)
+  description = TextField(verbose_name=_('Beschreibung'))
+  database_connection = ForeignKey(
+    DatabaseConnection,
+    on_delete=PROTECT,
+    related_name='collection_database_connections',
+    verbose_name=_('Datenbankverbindung'),
   )
-  database_connection = ForeignKey(DatabaseConnection, on_delete=PROTECT)
-  name = CharField(verbose_name='Name', max_length=255, unique=True)
-  title = CharField(verbose_name='Titel', max_length=255)
-  description = CharField(verbose_name='Beschreibung', max_length=1024)
   schema = CharField(verbose_name='Datenbank Schema', max_length=255)
   table = CharField(verbose_name='Datenbank Tabelle', max_length=255)
   id_field = CharField(verbose_name='ID Feld', max_length=255)
@@ -100,12 +114,13 @@ class Collection(Model):
   deactivated = BooleanField(verbose_name='deaktiviert')
 
   class Meta:
-    verbose_name = 'Collection'
-    verbose_name_plural = 'Collections'
     db_table = 'pygeoapi_collection'
+    ordering = ['name']
+    verbose_name = _('Kollektion')
+    verbose_name_plural = _('Kollektionen')
 
   def __str__(self):
-    return f'{self.id})'
+    return f'{self.name}'
 
 
 class CollectionKeyword(Model):
