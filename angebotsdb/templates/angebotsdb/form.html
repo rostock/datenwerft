@@ -448,6 +448,68 @@
 
             let debounceTimer = null;
             let lastResults = [];
+            let activeIndex = -1;
+
+            function selectSuggestion(feat) {
+              let t = feat.properties._title_;
+              streetField.value = t.indexOf(', ') !== -1
+                ? t.substring(t.lastIndexOf(', ') + 2)
+                : t;
+
+              if (zipField && feat.properties.postleitzahl) {
+                zipField.value = feat.properties.postleitzahl;
+              }
+
+              if (cityField && feat.properties.gemeinde_name) {
+                let gm = feat.properties.gemeinde_name;
+                if (gm.indexOf(',') !== -1) gm = gm.substring(0, gm.indexOf(','));
+                cityField.value = gm;
+              }
+
+              if (feat.geometry && feat.geometry.coordinates) {
+                let coords25833 = feat.geometry.coordinates;
+                if (typeof proj4 !== 'undefined') {
+                  proj4.defs('EPSG:25833', '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs');
+                  let coords4326 = proj4('EPSG:25833', 'EPSG:4326', coords25833);
+                  setMapMarker(coords4326[1], coords4326[0]);
+                  updateGeometryField(coords4326[1], coords4326[0]);
+                }
+              }
+
+              suggestionsBox.style.display = 'none';
+              suggestionsBox.innerHTML = '';
+              activeIndex = -1;
+            }
+
+            function setActiveItem(index) {
+              let items = suggestionsBox.querySelectorAll('a');
+              items.forEach(function(item) { item.classList.remove('active'); item.removeAttribute('aria-selected'); });
+              if (index >= 0 && index < items.length) {
+                items[index].classList.add('active');
+                items[index].setAttribute('aria-selected', 'true');
+                items[index].scrollIntoView({ block: 'nearest' });
+              }
+              activeIndex = index;
+            }
+
+            streetField.addEventListener('keydown', function(e) {
+              let items = suggestionsBox.querySelectorAll('a');
+              if (suggestionsBox.style.display === 'none' || items.length === 0) return;
+
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setActiveItem(Math.min(activeIndex + 1, items.length - 1));
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setActiveItem(Math.max(activeIndex - 1, 0));
+              } else if (e.key === 'Enter' && activeIndex >= 0) {
+                e.preventDefault();
+                selectSuggestion(lastResults[activeIndex]);
+              } else if (e.key === 'Escape') {
+                suggestionsBox.style.display = 'none';
+                activeIndex = -1;
+              }
+            });
 
             // Adresssuche bei Eingabe
             streetField.addEventListener('input', function() {
@@ -508,39 +570,7 @@
 
                       item.addEventListener('click', function(e) {
                         e.preventDefault();
-                        let feat = lastResults[parseInt(this.dataset.index)];
-
-                        // Straße und Hausnummer setzen
-                        let t = feat.properties._title_;
-                        streetField.value = t.indexOf(', ') !== -1
-                          ? t.substring(t.lastIndexOf(', ') + 2)
-                          : t;
-
-                        // PLZ setzen
-                        if (zipField && feat.properties.postleitzahl) {
-                          zipField.value = feat.properties.postleitzahl;
-                        }
-
-                        // Gemeinde setzen
-                        if (cityField && feat.properties.gemeinde_name) {
-                          let gm = feat.properties.gemeinde_name;
-                          if (gm.indexOf(',') !== -1) gm = gm.substring(0, gm.indexOf(','));
-                          cityField.value = gm;
-                        }
-
-                        // Marker auf Karte setzen (EPSG:25833 → EPSG:4326)
-                        if (feat.geometry && feat.geometry.coordinates) {
-                          let coords25833 = feat.geometry.coordinates;
-                          if (typeof proj4 !== 'undefined') {
-                            proj4.defs('EPSG:25833', '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs');
-                            let coords4326 = proj4('EPSG:25833', 'EPSG:4326', coords25833);
-                            setMapMarker(coords4326[1], coords4326[0]);
-                            updateGeometryField(coords4326[1], coords4326[0]);
-                          }
-                        }
-
-                        suggestionsBox.style.display = 'none';
-                        suggestionsBox.innerHTML = '';
+                        selectSuggestion(lastResults[parseInt(this.dataset.index)]);
                       });
 
                       suggestionsBox.appendChild(item);
