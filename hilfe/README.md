@@ -128,3 +128,11 @@ Hier finden Sie Hilfestellungen zum System zur Administration von Metadaten im R
 ### [Administration](gdihrometadata/admin.md)
 
 ### [Berechtigungen](gdihrometadata/permissions.md)
+
+## *pygeoapi*-Konfiguration
+
+Hier finden Sie Hilfestellungen zum System zur Konfiguration von *pygeoapi* im Rahmen der GDI.HRO.
+
+### [Administration](pygeoapi/admin.md)
+
+### [Berechtigungen](pygeoapi/permissions.md)
