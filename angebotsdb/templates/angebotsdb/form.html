@@ -535,6 +535,7 @@
                     }
 
                     data.features.forEach(function(feature, index) {
+                      if (lastResults.length >= 5) return;
                       // Nur nicht-historische Adressen anzeigen
                       if (feature.properties.historisch) return;
                       if (feature.properties.objektgruppe.replace(/ HRO/, '') !== 'Adresse') return;
