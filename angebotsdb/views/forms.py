@@ -52,6 +52,29 @@ def _set_geometry_from_request(request, instance):
       pass
 
 
+def _has_address_geometry(model):
+  """True für Service-Subklassen und Provider (Modelle mit Adress-Autocomplete + Geometrie)."""
+  return (not model._meta.abstract and issubclass(model, Service)) or model is Provider
+
+
+def _validate_geometry(form):
+  """
+  Prüft ob die Geometrie auf der Form-Instanz gültig gesetzt wurde.
+  Gibt True zurück wenn gültig, fügt sonst einen Feldfehler hinzu und gibt False zurück.
+  """
+  geom = form.instance.geometry
+  if not geom or (geom.x == 0 and geom.y == 0):
+    form.add_error(
+      'street',
+      ValidationError(
+        'Bitte wählen Sie eine Adresse aus den Vorschlägen aus, '
+        'damit die Position des Angebots automatisch gesetzt wird.'
+      ),
+    )
+    return False
+  return True
+
+
 class CreatableMultipleChoiceField(ModelMultipleChoiceField):
   """
   A custom ModelMultipleChoiceField that accepts both existing object IDs and new names. When
@@ -258,6 +281,9 @@ class GenericCreateView(CreateView):
         'model': used_model,
         'exclude': ['host', 'status', 'published_version', 'geometry'],
       }
+    elif used_model is Provider:
+      # geometry wird via Hidden-Field gesetzt → aus dem Formular ausschließen
+      _meta_attrs = {'model': used_model, 'exclude': ['geometry']}
     else:
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
@@ -371,8 +397,12 @@ class GenericCreateView(CreateView):
           ),
         )
         return self.form_invalid(form)
-      # Geometrie aus Hidden-Field übernehmen
+
+    # Geometrie aus Hidden-Field übernehmen und validieren (Service + Provider)
+    if _has_address_geometry(self.model):
       _set_geometry_from_request(self.request, form.instance)
+      if not _validate_geometry(form):
+        return self.form_invalid(form)
 
     # IntegrityError abfangen, die z.B. bei unique_together-Verletzungen entsteht
     try:
@@ -418,6 +448,10 @@ class GenericCreateView(CreateView):
     if is_service_model:
       context['user_can_save'] = authorized_to_edit(self.request.user)
       context['service_images'] = []
+      context['is_service_model'] = True
+      context['addresssearch_url'] = reverse_lazy('toolbox:addresssearch')
+    elif self.model is Provider:
+      context['user_can_save'] = True
       context['is_service_model'] = True
       context['addresssearch_url'] = reverse_lazy('toolbox:addresssearch')
     else:
@@ -530,6 +564,8 @@ class GenericUpdateView(UpdateView):
         'model': used_model,
         'exclude': ['host', 'status', 'published_version', 'geometry'],
       }
+    elif used_model is Provider:
+      _meta_attrs = {'model': used_model, 'exclude': ['geometry']}
     else:
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
@@ -612,9 +648,11 @@ class GenericUpdateView(UpdateView):
     if is_service_model and not authorized_to_edit(self.request.user, self.object):
       raise PermissionDenied('Sie haben keine Berechtigung, dieses Angebot zu bearbeiten.')
 
-    # Geometrie aus Hidden-Field übernehmen
-    if is_service_model:
+    # Geometrie aus Hidden-Field übernehmen und validieren (Service + Provider)
+    if _has_address_geometry(self.model):
       _set_geometry_from_request(self.request, form.instance)
+      if not _validate_geometry(form):
+        return self.form_invalid(form)
 
     # Lazy Draft-Erstellung: Bei published Services wird nicht direkt gespeichert,
     # sondern ein Draft-Copy mit den Änderungen erstellt.
@@ -691,6 +729,9 @@ class GenericUpdateView(UpdateView):
       context['form_locked'] = False
 
     if is_service_model:
+      context['is_service_model'] = True
+      context['addresssearch_url'] = reverse_lazy('toolbox:addresssearch')
+    elif self.model is Provider:
       context['is_service_model'] = True
       context['addresssearch_url'] = reverse_lazy('toolbox:addresssearch')
 

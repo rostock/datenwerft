@@ -16,3 +16,5 @@ VALID_DATE_A = date(2027, 12, 31)
 VALID_DATE_B = date(2028, 6, 30)
 VALID_ZIP = 18055
 VALID_POINT_DB = Point(307845, 6005103, srid=25833)
+# GeoJSON-Punkt in EPSG:4326 (entspricht ca. VALID_POINT_DB) — für Formular-POST-Tests
+VALID_GEOJSON_4326 = '{"type": "Point", "coordinates": [12.1431, 54.0865]}'

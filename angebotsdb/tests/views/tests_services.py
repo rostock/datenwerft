@@ -11,6 +11,7 @@ from ..constant_vars import (
   PASSWORD,
   USERNAME_PROVIDER,
   VALID_DATE_A,
+  VALID_GEOJSON_4326,
   VALID_POINT_DB,
   VALID_STRING_A,
   VALID_STRING_B,
@@ -45,6 +46,7 @@ def _base_service_form_data(topic_pk, law_pk):
     'topic': [str(topic_pk)],
     'legal_basis': [str(law_pk)],
     # catchment_area_urls: blank=True, required=False → weglassen
+    'geometry': VALID_GEOJSON_4326,
   }
 
 

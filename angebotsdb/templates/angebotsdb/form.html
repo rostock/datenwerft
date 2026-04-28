@@ -109,7 +109,7 @@
               {% if field.name == 'street' and is_service_model %}
                 <div class="mb-3" id="address-contact-grid">
                   {# ── Labels ── #}
-                  <div class="acg-address-label acg-label order-1">Adresse:</div>
+                  <div class="acg-address-label acg-label order-1"><strong>Adresse:*</strong></div>
                   <div class="acg-contact-label acg-label order-4">Einzugsgebiet:</div>
                   {# ── Adressfelder ── #}
                   <div class="acg-address-fields order-2">
@@ -120,6 +120,9 @@
                     {% if field.errors %}
                       <div class="text-danger mb-2">{{ field.errors }}</div>
                     {% endif %}
+                    <div id="address-geometry-error" class="text-danger mb-2 d-none">
+                      Bitte wählen Sie eine Adresse aus den Vorschlägen aus.
+                    </div>
                     {% for inner_field in form %}
                       {% if inner_field.name == 'zip' %}
                         <div class="mb-2">{{ inner_field }}</div>
@@ -450,6 +453,59 @@
             let lastResults = [];
             let activeIndex = -1;
 
+            const geomField = document.getElementById('id_geometrie');
+            const errorDiv = document.getElementById('address-geometry-error');
+
+            // Bei Bearbeitungsformularen bereits vorhandene gültige Geometrie erkennen
+            let geometryIsSet = false;
+            if (geomField) {
+              try {
+                let existing = JSON.parse(geomField.value);
+                if (existing.coordinates && existing.coordinates.length >= 2 &&
+                    existing.coordinates[0] !== 0 && existing.coordinates[1] !== 0) {
+                  geometryIsSet = true;
+                }
+              } catch(e) {}
+            }
+
+            function buildSuggestionItem(feat, index) {
+              let title = feat.properties._title_;
+              let streetPart = title.indexOf(', ') !== -1
+                ? title.substring(title.lastIndexOf(', ') + 2)
+                : title;
+              let gemeinde = feat.properties.gemeinde_name || '';
+              if (gemeinde.indexOf(',') !== -1) gemeinde = gemeinde.substring(0, gemeinde.indexOf(','));
+
+              let item = document.createElement('a');
+              item.href = '#';
+              item.className = 'list-group-item list-group-item-action';
+              item.dataset.index = index;
+
+              let displayText = '<strong>' + streetPart + '</strong>';
+              if (feat.properties.postleitzahl) {
+                displayText += ' <small class="text-muted">' + feat.properties.postleitzahl + ' ' + gemeinde + '</small>';
+              }
+              if (feat.properties.gemeindeteil_abkuerzung) {
+                displayText += ' <small>(' + feat.properties.gemeindeteil_abkuerzung + ')</small>';
+              }
+              item.innerHTML = displayText;
+              item.addEventListener('click', function(e) {
+                e.preventDefault();
+                selectSuggestion(lastResults[parseInt(this.dataset.index)]);
+              });
+              return item;
+            }
+
+            function renderSuggestions(arr) {
+              lastResults = arr;
+              suggestionsBox.innerHTML = '';
+              arr.forEach(function(feat, index) {
+                suggestionsBox.appendChild(buildSuggestionItem(feat, index));
+              });
+              suggestionsBox.style.display = arr.length > 0 ? 'block' : 'none';
+              activeIndex = -1;
+            }
+
             function selectSuggestion(feat) {
               let t = feat.properties._title_;
               streetField.value = t.indexOf(', ') !== -1
@@ -478,7 +534,10 @@
 
               suggestionsBox.style.display = 'none';
               suggestionsBox.innerHTML = '';
+              lastResults = [];
               activeIndex = -1;
+              geometryIsSet = true;
+              if (errorDiv) errorDiv.classList.add('d-none');
             }
 
             function setActiveItem(index) {
@@ -498,13 +557,25 @@
 
               if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                setActiveItem(Math.min(activeIndex + 1, items.length - 1));
+                setActiveItem(Math.min(activeIndex + 1, lastResults.length - 1));
               } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 setActiveItem(Math.max(activeIndex - 1, 0));
               } else if (e.key === 'Enter' && activeIndex >= 0) {
                 e.preventDefault();
                 selectSuggestion(lastResults[activeIndex]);
+              } else if (e.key === 'Tab' && activeIndex >= 0) {
+                e.preventDefault();
+                // Nur Straßenname (ohne Hausnummer) übernehmen → Nutzer tippt Hausnummer nach
+                let feat = lastResults[activeIndex];
+                let t = feat.properties._title_;
+                let streetWithNr = t.indexOf(', ') !== -1 ? t.substring(t.lastIndexOf(', ') + 2) : t;
+                streetField.value = streetWithNr.replace(/\s+\d[\w\-\/]*\s*$/, '').trim();
+                suggestionsBox.style.display = 'none';
+                suggestionsBox.innerHTML = '';
+                lastResults = [];
+                activeIndex = -1;
+                geometryIsSet = false;
               } else if (e.key === 'Escape') {
                 suggestionsBox.style.display = 'none';
                 activeIndex = -1;
@@ -513,6 +584,17 @@
 
             // Adresssuche bei Eingabe
             streetField.addEventListener('input', function() {
+              // Manuelle Eingabe → Geometrie zurücksetzen
+              if (geometryIsSet) {
+                geometryIsSet = false;
+                if (geomField) geomField.value = '{ "type": "Point", "coordinates": [] }';
+                if (window.currMap) {
+                  window.currMap.eachLayer(function(layer) {
+                    if (layer._drawnByGeoman) window.currMap.removeLayer(layer);
+                  });
+                }
+              }
+
               clearTimeout(debounceTimer);
               let query = streetField.value.trim();
 
@@ -526,62 +608,22 @@
                 fetch(addressSearchUrl + '?class=address_hro&query=' + encodeURIComponent(query))
                   .then(function(r) { return r.json(); })
                   .then(function(data) {
-                    suggestionsBox.innerHTML = '';
-                    lastResults = [];
-
                     if (!data.features || data.features.length === 0) {
                       suggestionsBox.style.display = 'none';
+                      suggestionsBox.innerHTML = '';
                       return;
                     }
 
-                    data.features.forEach(function(feature, index) {
-                      if (lastResults.length >= 5) return;
+                    let filtered = [];
+                    data.features.forEach(function(feature) {
+                      if (filtered.length >= 5) return;
                       // Nur nicht-historische Adressen anzeigen
                       if (feature.properties.historisch) return;
                       if (feature.properties.objektgruppe.replace(/ HRO/, '') !== 'Adresse') return;
-
-                      lastResults.push(feature);
-
-                      // Straße+Hausnummer aus _title_ extrahieren (nach dem letzten ", ")
-                      let title = feature.properties._title_;
-                      let streetPart = title;
-                      if (title.indexOf(', ') !== -1) {
-                        streetPart = title.substring(title.lastIndexOf(', ') + 2);
-                      }
-
-                      // Gemeinde-Name (ggf. bis zum ersten Komma)
-                      let gemeinde = feature.properties.gemeinde_name || '';
-                      if (gemeinde.indexOf(',') !== -1) {
-                        gemeinde = gemeinde.substring(0, gemeinde.indexOf(','));
-                      }
-
-                      let item = document.createElement('a');
-                      item.href = '#';
-                      item.className = 'list-group-item list-group-item-action';
-                      item.dataset.index = lastResults.length - 1;
-
-                      let displayText = '<strong>' + streetPart + '</strong>';
-                      if (feature.properties.postleitzahl) {
-                        displayText += ' <small class="text-muted">' + feature.properties.postleitzahl + ' ' + gemeinde + '</small>';
-                      }
-                      if (feature.properties.gemeindeteil_abkuerzung) {
-                        displayText += ' <small>(' + feature.properties.gemeindeteil_abkuerzung + ')</small>';
-                      }
-                      item.innerHTML = displayText;
-
-                      item.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        selectSuggestion(lastResults[parseInt(this.dataset.index)]);
-                      });
-
-                      suggestionsBox.appendChild(item);
+                      filtered.push(feature);
                     });
 
-                    if (suggestionsBox.children.length > 0) {
-                      suggestionsBox.style.display = 'block';
-                    } else {
-                      suggestionsBox.style.display = 'none';
-                    }
+                    renderSuggestions(filtered);
                   })
                   .catch(function(err) { console.error('Adresssuche fehlgeschlagen:', err); });
               }, 300);
@@ -593,6 +635,20 @@
                 suggestionsBox.style.display = 'none';
               }
             });
+
+            // Submit-Validierung: Geometrie muss via Vorschlag gesetzt worden sein
+            let formEl = document.getElementById('form');
+            if (formEl) {
+              formEl.addEventListener('submit', function(e) {
+                if (!geometryIsSet) {
+                  e.preventDefault();
+                  if (errorDiv) {
+                    errorDiv.classList.remove('d-none');
+                    errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                  }
+                }
+              });
+            }
           });
         </script>
       {% endif %}
