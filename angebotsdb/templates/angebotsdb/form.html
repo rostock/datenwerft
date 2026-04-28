@@ -109,7 +109,22 @@
               {% if field.name == 'street' and is_service_model %}
                 <div class="mb-3" id="address-contact-grid">
                   {# ── Labels ── #}
-                  <div class="acg-address-label acg-label order-1"><strong>Adresse:*</strong></div>
+                  <div class="acg-address-label acg-label order-1">
+                    <strong>Adresse:*</strong>
+                    <span data-bs-toggle="tooltip"
+                          data-bs-placement="right"
+                          data-bs-html="true"
+                          data-bs-trigger="click"
+                          data-bs-custom-class="tooltip-left"
+                          title="Geben Sie mindestens 3 Zeichen ein – Vorschläge erscheinen automatisch.<br>Nur durch Auswahl eines Vorschlags wird die Position gesetzt.<br><br><strong>Tastatur:</strong><br>↑ ↓ &nbsp; durch Vorschläge navigieren<br>↵ &nbsp; vollständige Adresse übernehmen<br>Tab &nbsp; nur Straßenname übernehmen<br>Esc &nbsp; Dropdown schließen">
+                      <span class="tooltip-icon-regular">
+                        <i class="fa-regular fa-circle-question ms-1 text-muted small"></i>
+                      </span>
+                      <span class="tooltip-icon-solid d-none">
+                        <i class="fa-solid fa-circle-question ms-1 small"></i>
+                      </span>
+                    </span>
+                  </div>
                   <div class="acg-contact-label acg-label order-4">Einzugsgebiet:</div>
                   {# ── Adressfelder ── #}
                   <div class="acg-address-fields order-2">
@@ -441,6 +456,23 @@
         {# ── Adresssuche am Straßenfeld ── #}
         <script>
           document.addEventListener('DOMContentLoaded', function() {
+            // Bootstrap Tooltips initialisieren (Klick-Trigger)
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
+              new bootstrap.Tooltip(el, { trigger: 'click' });
+              let iconRegular = el.querySelector('.tooltip-icon-regular');
+              let iconSolid = el.querySelector('.tooltip-icon-solid');
+              if (iconRegular && iconSolid) {
+                el.addEventListener('mouseenter', function() {
+                  iconRegular.classList.add('d-none');
+                  iconSolid.classList.remove('d-none');
+                });
+                el.addEventListener('mouseleave', function() {
+                  iconSolid.classList.add('d-none');
+                  iconRegular.classList.remove('d-none');
+                });
+              }
+            });
+
             const streetField = document.getElementById('id_street');
             const zipField = document.getElementById('id_zip');
             const cityField = document.getElementById('id_city');

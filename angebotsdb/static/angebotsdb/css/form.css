@@ -156,3 +156,11 @@
     position: static;
   }
 }
+
+[data-bs-toggle="tooltip"] {
+  cursor: pointer;
+}
+
+.tooltip-left .tooltip-inner {
+  text-align: left;
+}
