@@ -1,7 +1,13 @@
 from angebotsdb.models.base import Law, OrgUnit, Provider, Tag, TargetGroup, Topic
 
 from ..abstract import FormViewTestCase, ViewTestCase
-from ..constant_vars import VALID_STRING_A, VALID_STRING_B
+from ..constant_vars import (
+  VALID_GEOJSON_4326,
+  VALID_POINT_DB,
+  VALID_STRING_A,
+  VALID_STRING_B,
+  VALID_ZIP,
+)
 from ..functions import login_as_admin, login_no_role
 
 HTML = 'text/html; charset=utf-8'
@@ -231,7 +237,25 @@ class ProviderCreateViewTest(ViewTestCase):
     self.generic_get_test(login_no_role, 'provider_create', None, 403, HTML, '')
 
   def test_post_success(self):
-    self.generic_post_test(login_as_admin, 'provider_create', None, {'name': VALID_STRING_A}, 302)
+    self.generic_post_test(
+      login_as_admin,
+      'provider_create',
+      None,
+      {
+        'name': VALID_STRING_A,
+        'street': 'Teststraße 1',
+        'zip': str(VALID_ZIP),
+        'city': 'Rostock',
+        'geometry': VALID_GEOJSON_4326,
+      },
+      302,
+    )
+
+  def test_post_error_missing_geometry(self):
+    # Kein Adress-Vorschlag ausgewählt (fehlende Geometrie) → Fehler
+    self.generic_post_test(
+      login_as_admin, 'provider_create', None, {'name': VALID_STRING_A}, 200
+    )
 
   def test_post_error_missing_name(self):
     self.generic_post_test(login_as_admin, 'provider_create', None, {}, 200)
@@ -243,7 +267,17 @@ class ProviderUpdateViewTest(FormViewTestCase):
   """
 
   model = Provider
-  attributes_values_db_initial = {'name': VALID_STRING_A}
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    cls.test_object = Provider.objects.create(
+      name=VALID_STRING_A,
+      street='Teststraße 1',
+      zip=VALID_ZIP,
+      city='Rostock',
+      geometry=VALID_POINT_DB,
+    )
 
   def setUp(self):
     self.init()
@@ -260,7 +294,27 @@ class ProviderUpdateViewTest(FormViewTestCase):
 
   def test_post_success(self):
     self.generic_post_test(
-      login_as_admin, 'provider_update', {'pk': self.test_object.pk}, {'name': VALID_STRING_B}, 302
+      login_as_admin,
+      'provider_update',
+      {'pk': self.test_object.pk},
+      {
+        'name': VALID_STRING_B,
+        'street': 'Neue Straße 5',
+        'zip': str(VALID_ZIP),
+        'city': 'Rostock',
+        'geometry': VALID_GEOJSON_4326,
+      },
+      302,
+    )
+
+  def test_post_success_without_geometry_in_post_keeps_existing(self):
+    # Wenn kein geometry-Feld im POST (aber DB hat gültige Geometrie) → OK
+    self.generic_post_test(
+      login_as_admin,
+      'provider_update',
+      {'pk': self.test_object.pk},
+      {'name': VALID_STRING_B},
+      302,
     )
 
 

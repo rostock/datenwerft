@@ -1,5 +1,6 @@
 from django.apps import apps
 from django.contrib.auth.models import User
+from django.contrib.gis.db.models import PointField
 from django.db.models import (
   CASCADE,
   SET_NULL,
@@ -113,7 +114,10 @@ class Provider(Base):
     null=True,
     blank=True,
   )
-  address = CharField(max_length=255, verbose_name='Adresse', null=True, blank=True)
+  street = CharField(max_length=150, verbose_name='Straße und Hausnummer', null=True, blank=True)
+  zip = IntegerField(verbose_name='PLZ', null=True, blank=True)
+  city = CharField(max_length=100, verbose_name='Gemeinde', null=True, blank=True)
+  geometry = PointField('Geometrie', srid=25833, null=True, blank=True)
   contact_person = CharField(max_length=255, verbose_name='Ansprechpartner', null=True, blank=True)
   email = EmailField(max_length=255, verbose_name='E-Mail', null=True, blank=True)
   phone = CharField(max_length=255, verbose_name='Telefonnummer', null=True, blank=True)
