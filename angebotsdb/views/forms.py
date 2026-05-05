@@ -790,13 +790,17 @@ class GenericUpdateView(UpdateView):
     if hasattr(self.object, 'geometry') and self.object.geometry:
       try:
         geom = self.object.geometry
-        # Transformiere von EPSG:25833 zu EPSG:4326
         geom_transformed = geom.transform(4326, clone=True)
-        # Konvertiere zu GeoJSON
         geojson = json.loads(geom_transformed.geojson)
         context['geometry'] = json.dumps(geojson)
         context['model_geometry_type'] = geom.geom_type
-      except Exception:
+      except Exception as e:
+        logger.error(
+          'Geometrie-Transformation fehlgeschlagen für %s pk=%s: %s',
+          self.model.__name__,
+          self.object.pk,
+          e,
+        )
         context['geometry'] = None
     else:
       context['geometry'] = None
