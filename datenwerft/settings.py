@@ -36,6 +36,7 @@ LOCAL_APPS = [
   'antragsmanagement',
   'bemas',
   'fmm',
+  'stadtbereichskatalog',
   'gdihrocodelists',
   'gdihrometadata',
   'd3',
@@ -66,7 +67,7 @@ TEMPLATES = [
       BASE_DIR / 'antragsmanagement/templates',
       BASE_DIR / 'bemas/templates',
       BASE_DIR / 'fmm/templates',
-      BASE_DIR / 'pygeoapi/templates',
+      BASE_DIR / 'stadtbereichskatalog/templates',
     ],
     'APP_DIRS': True,
     'OPTIONS': {
@@ -83,6 +84,7 @@ TEMPLATES = [
         'antragsmanagement_tags': 'antragsmanagement.tags',
         'bemas_tags': 'bemas.tags',
         'fmm_tags': 'fmm.tags',
+        'stadtbereichskatalog_tags': 'stadtbereichskatalog.tags',
       },
     },
   },
@@ -346,6 +348,21 @@ FMM_ICONS = {
   'table': 'table',
   'update': 'pen',
   'warning': 'triangle-exclamation',
+}
+
+
+# Stadtbereichskatalog app:
+# icons
+
+STADTBEREICHSKATALOG_ICONS = {
+  'categories': 'folder-tree',
+  'data': 'chart-simple',
+  'delete': 'trash-can',
+  'edit': 'pen-to-square',
+  'import': 'file-import',
+  'indicators': 'gauge',
+  'metadata': 'tag',
+  'sources': 'book',
 }
 
 

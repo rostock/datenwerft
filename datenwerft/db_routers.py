@@ -12,6 +12,7 @@ class DatabaseRouter:
     'fmm',
     'gdihrocodelists',
     'gdihrometadata',
+    'stadtbereichskatalog',
   }
 
   def db_for_read(self, model, **hints):
@@ -34,6 +35,8 @@ class DatabaseRouter:
         return 'gdihrocodelists'
       case 'gdihrometadata':
         return 'gdihrometadata'
+      case 'stadtbereichskatalog':
+        return 'stadtbereichskatalog'
       case _:
         return 'default'
 
@@ -57,6 +60,8 @@ class DatabaseRouter:
         return 'gdihrocodelists'
       case 'gdihrometadata':
         return 'gdihrometadata'
+      case 'stadtbereichskatalog':
+        return 'stadtbereichskatalog'
       case _:
         return 'default'
 
@@ -68,10 +73,16 @@ class DatabaseRouter:
 
   def allow_migrate(self, db, app_label, model_name=None, **hints):
     """
-    ensure that all models of Datenmanagement app are never subject to migration
+    ensure that all models of Datenmanagement and Stadtbereichskatalog apps
+    are never subject to migration
     """
     if app_label in self.route_app_labels:
-      if app_label == 'datenmanagement' or db == 'datenmanagement':
+      if (
+        app_label == 'datenmanagement'
+        or db == 'datenmanagement'
+        or app_label == 'stadtbereichskatalog'
+        or db == 'stadtbereichskatalog'
+      ):
         return False
       else:
         return db == app_label

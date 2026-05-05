@@ -7,6 +7,7 @@ from angebotsdb.utils import is_angebotsdb_user
 from antragsmanagement.utils import is_antragsmanagement_user
 from bemas.utils import is_bemas_user
 from fmm.utils import is_fmm_user
+from stadtbereichskatalog.utils import is_stadtbereichskatalog_user
 
 
 class IndexView(TemplateView):
@@ -29,10 +30,11 @@ class IndexView(TemplateView):
       if (
         not request.user.is_superuser
         and not request.user.is_staff
+        and not is_angebotsdb_user(request.user)
         and not is_antragsmanagement_user(request.user)
         and not is_bemas_user(request.user)
         and not is_fmm_user(request.user)
-        and not is_angebotsdb_user(request.user)
+        and not is_stadtbereichskatalog_user(request.user)
       ):
         return redirect('datenmanagement:index')
       elif is_angebotsdb_user(request.user, only_angebotsdb_user_check=True):
@@ -43,6 +45,8 @@ class IndexView(TemplateView):
         return redirect('bemas:index')
       elif is_fmm_user(request.user, only_fmm_user_check=True):
         return redirect('fmm:index')
+      elif is_stadtbereichskatalog_user(request.user, only_stadtbereichskatalog_user_check=True):
+        return redirect('stadtbereichskatalog:index')
 
     return super(IndexView, self).dispatch(request, *args, **kwargs)
 
@@ -56,8 +60,8 @@ class IndexView(TemplateView):
       if hasattr(app, 'datenwerft_app') and app.datenwerft_app:
         context['apps'].append(
           {
-            'verbose_name': getattr(app, 'verbose_name', app.name),
             'name': app.name,
+            'verbose_name': getattr(app, 'verbose_name', app.name),
             'description': getattr(app, 'description', ''),
             'url': reverse(f'{app.name}:index'),
           }

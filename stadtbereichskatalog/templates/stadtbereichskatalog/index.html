@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load stadtbereichskatalog_tags %}
+{% load static %}
+
+{% block title %}{{ app.verbose_name }} | {% endblock %}
+
+{% block content %}
+  {% if is_stadtbereichskatalog_user %}
+    <h2 class="text-center">{{ app.verbose_name }}</h2>
+    <h5 class="text-center text-muted">{{ app.description }}</h5>
+    <div class="mt-1 mb-3 row g-4">
+      <div class="col">
+        <div class="alert alert-primary h-100 text-center">
+          <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'metadata'|get_icon }}"></i></p>
+          <p class="fs-3">Metadaten</p>
+          <div class="d-grid gap-2 col-6 mx-auto">
+            <a class="btn btn-lg btn-primary fs-5" role="button" href="#"><i class="fas fa-{{ 'categories'|get_icon }}"></i>{% if not is_mobile %} Themenbereiche und Kategorien{% endif %}</a>
+            <a class="btn btn-lg btn-primary fs-5" role="button" href="#"><i class="fas fa-{{ 'indicators'|get_icon }}"></i>{% if not is_mobile %} Indikatoren{% endif %}</a>
+            <a class="btn btn-lg btn-primary fs-5" role="button" href="#"><i class="fas fa-{{ 'sources'|get_icon }}"></i>{% if not is_mobile %} Quellenangaben{% endif %}</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="alert alert-primary h-100 text-center">
+          <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'data'|get_icon }}"></i></p>
+          <p class="fs-3">Daten</p>
+          <div class="d-grid gap-2 col-6 mx-auto">
+            <a class="btn btn-lg btn-success fs-5" role="button" href="#"><i class="fas fa-{{ 'import'|get_icon }}"></i>{% if not is_mobile %} Import{% endif %}</a>
+            <a class="btn btn-lg btn-warning fs-5" role="button" href="#"><i class="fas fa-{{ 'edit'|get_icon }}"></i>{% if not is_mobile %} Bearbeitung{% endif %}</a>
+            <a class="btn btn-lg btn-danger fs-5" role="button" href="#"><i class="fas fa-{{ 'delete'|get_icon }}"></i>{% if not is_mobile %} Löschung{% endif %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      setTimeout(function () {
+        $('.alert-success').alert('close');
+        $('.alert-warning').alert('close');
+      }, 3000);
+    </script>
+  {% else %}
+    {% include "stadtbereichskatalog/notice_no-permissions.html" %}
+  {% endif %}
+{% endblock %}

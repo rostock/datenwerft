@@ -120,6 +120,7 @@ python manage.py migrate --database=bemas bemas
 python manage.py migrate --database=fmm fmm
 python manage.py migrate --database=gdihrocodelists gdihrocodelists
 python manage.py migrate --database=gdihrometadata gdihrometadata
+python manage.py migrate --database=stadtbereichskatalog stadtbereichskatalog
 python manage.py migrate
 python manage.py angebotsdb_roles_permissions
 python manage.py antragsmanagement_roles_permissions
@@ -137,6 +138,7 @@ uv run manage.py migrate --database=bemas bemas
 uv run manage.py migrate --database=fmm fmm
 uv run manage.py migrate --database=gdihrocodelists gdihrocodelists
 uv run manage.py migrate --database=gdihrometadata gdihrometadata
+uv run manage.py migrate --database=stadtbereichskatalog stadtbereichskatalog
 uv run manage.py migrate
 uv run manage.py angebotsdb_roles_permissions
 uv run manage.py antragsmanagement_roles_permissions
@@ -145,6 +147,7 @@ uv run manage.py fmm_roles_permissions
 uv run manage.py gdihrocodelists_roles_permissions
 uv run manage.py gdihrometadata_roles_permissions
 uv run manage.py pygeoapi_roles_permissions
+uv run manage.py stadtbereichskatalog_roles_permissions
 uv run manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 ```
 
@@ -506,6 +509,24 @@ uv run manage.py test toolbox
 
   # mit uv
   uv run manage.py test gdihrometadata
+
+- Tests der App _Stadtbereichskatalog_ durchführen:
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test stadtbereichskatalog.tests.IndexViewTest.test_get_with_permissions
+
+  # mit uv
+  uv run manage.py test stadtbereichskatalog.tests.IndexViewTest.test_get_with_permissions
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test stadtbereichskatalog
+
+  # mit uv
+  uv run manage.py test stadtbereichskatalog
 
 ## CI/CD
 
