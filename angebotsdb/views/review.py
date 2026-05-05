@@ -249,34 +249,34 @@ class SubmitForReviewView(View):
     ).update(is_resolved=True)
 
     # ── ReviewTask erstellen ─────────────────────────────────────────────────
-    # Falls mehrere OrgUnits zuständig sind, erstellen wir einen Task pro OrgUnit.
     service.status = 'in_review'
     service.save(update_fields=['status'])
 
-    for permission in responsible_org_units:
-      review_task = ReviewTask.objects.create(
-        service_type=service_type,
-        service_id=service_id,
-        assigned_org_unit=permission.organisational_unit,
-        created_by_user_id=request.user.id,
-        task_status='pending',
-        submitted_snapshot=submitted_snapshot,
-        approved_snapshot=approved_snapshot,
-      )
+    first_permission = responsible_org_units.first()
+    review_task = ReviewTask.objects.create(
+      service_type=service_type,
+      service_id=service_id,
+      assigned_org_unit=first_permission.organisational_unit if first_permission else None,
+      created_by_user_id=request.user.id,
+      task_status='pending',
+      submitted_snapshot=submitted_snapshot,
+      approved_snapshot=approved_snapshot,
+    )
 
+    for permission in responsible_org_units:
       InboxMessage.objects.create(
         message_type='review_request',
         review_task=review_task,
         target_org_unit=permission.organisational_unit,
       )
 
-      logger.info(
-        'ReviewTask #%s erstellt für service_type=%s service_id=%s OrgUnit=%s',
-        review_task.pk,
-        service_type,
-        service_id,
-        permission.organisational_unit,
-      )
+    logger.info(
+      'ReviewTask #%s erstellt für service_type=%s service_id=%s (%s OrgUnit(s))',
+      review_task.pk,
+      service_type,
+      service_id,
+      responsible_org_units.count(),
+    )
 
     # ── Redirect zurück zur Listen-Ansicht ───────────────────────────────────
     list_url = reverse(f'angebotsdb:{service_type}_list')
