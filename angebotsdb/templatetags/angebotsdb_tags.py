@@ -4,7 +4,7 @@ from django import template
 from django.core.serializers.json import DjangoJSONEncoder
 from django.urls import reverse
 
-from ..fields import _fetch_pygeoapi_label_map
+from ..fields import _fetch_pygeoapi_label_map, get_pygeoapi_config
 
 register = template.Library()
 
@@ -51,7 +51,7 @@ def to_json(obj):
       elif hasattr(field_value, 'isoformat'):  # DateTime, Date, Time fields
         data[display_name] = field_value.isoformat()
       elif field_name in pygeoapi_fields and isinstance(field_value, list) and field_value:
-        config = pygeoapi_fields[field_name]
+        config = get_pygeoapi_config(pygeoapi_fields[field_name])
         label_map = _fetch_pygeoapi_label_map(
           config['endpoint'],
           tuple(sorted(config.get('params', {}).items())),

@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
 
-from ..fields import resolve_pygeoapi_uris
+from ..fields import get_pygeoapi_config, resolve_pygeoapi_uris
 from ..models.base import InboxMessage, OrgUnitServicePermission, ReviewTask
 from ..utils import (
   apply_draft_to_published,
@@ -71,7 +71,8 @@ def _get_review_fields(service, review_task):
 
     raw_value = submitted.get(field.name)
 
-    pygeoapi_config = pygeoapi_fields.get(field.name)
+    raw_config = pygeoapi_fields.get(field.name)
+    pygeoapi_config = get_pygeoapi_config(raw_config) if raw_config else None
     if pygeoapi_config and isinstance(raw_value, list):
       resolved = resolve_pygeoapi_uris(
         raw_value,

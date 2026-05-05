@@ -14,7 +14,7 @@ from django.views import View
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from ..constants_vars import ADMIN_GROUP, USERS_GROUP
-from ..fields import PyGeoAPIMultipleChoiceField
+from ..fields import PyGeoAPIMultipleChoiceField, get_pygeoapi_config
 from ..models.base import Law, Provider, ReviewTask, Tag, TargetGroup, Topic, UserProfile
 from ..models.services import Service, ServiceImage
 from ..utils import (
@@ -352,8 +352,9 @@ class GenericCreateView(CreateView):
             ),
           )
 
-        for field_name, config in getattr(used_model, 'PYGEOAPI_FIELDS', {}).items():
+        for field_name, config_or_key in getattr(used_model, 'PYGEOAPI_FIELDS', {}).items():
           if field_name in self.fields:
+            config = get_pygeoapi_config(config_or_key)
             current_field = self.fields[field_name]
             self.fields[field_name] = PyGeoAPIMultipleChoiceField(
               endpoint=config['endpoint'],
@@ -600,10 +601,9 @@ class GenericUpdateView(UpdateView):
             ),
           )
 
-        for field_name, config in getattr(used_model, 'PYGEOAPI_FIELDS', {}).items():
+        for field_name, config_or_key in getattr(used_model, 'PYGEOAPI_FIELDS', {}).items():
           if field_name in self.fields:
-            from ..fields import PyGeoAPIMultipleChoiceField
-
+            config = get_pygeoapi_config(config_or_key)
             current_field = self.fields[field_name]
             existing = (
               getattr(self.instance, field_name, None) or []
