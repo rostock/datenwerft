@@ -6,9 +6,9 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.views import View
 
-logger = logging.getLogger(__name__)
-
 from ..models.services import ChildrenAndYouthService, Service
+
+logger = logging.getLogger(__name__)
 
 
 class JsonView(View):
