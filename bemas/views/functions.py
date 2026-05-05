@@ -493,7 +493,7 @@ def generate_foreign_key_link_simplified(target_model, target_object, link_text=
   if not link_text:
     link_text = str(target_object)
   target_model_name = target_model.__name__.lower()
-  icon = '<i class="fas fa-' + get_icon_from_settings(target_model_name) + '"></i>'
+  icon = '<i class="fa-solid fa-' + get_icon_from_settings(target_model_name) + '"></i>'
   return (
     '<a href="'
     + reverse('bemas:' + target_model_name + '_update', args=[target_object.pk])
@@ -681,7 +681,7 @@ def transform_activity_objects(activity_objects):
     # set appropriate model information
     model = apps.get_app_config('bemas').get_model(activity_object.model)
     model_title = model._meta.verbose_name
-    model_icon = '<i class="fas fa-{}"></i>'.format(get_icon_from_settings(model.__name__.lower()))
+    model_icon = '<i class="fa-solid fa-{}"></i>'.format(get_icon_from_settings(model.__name__.lower()))
     model_text = model_icon + ' ' + model_title
     # set appropriate action information
     action = LOG_ACTIONS[activity_object.action]

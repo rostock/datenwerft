@@ -25,10 +25,10 @@
     {% if messages %}
       {% include "bemas/container-messages.html" %}
     {% endif %}
-    <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name_plural }}</em></h2>
+    <h2><i class="fa-solid fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name_plural }}</em></h2>
     <h4><small>{{ objectclass_description }}</small></h4>
     {% if logentry_url %}
-      <a href="{{ logentry_url }}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
+      <a href="{{ logentry_url }}"><i class="fa-solid fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
     {% endif %}
     {% if objects_count == 0 %}
       <h4 class="mt-3">
@@ -37,23 +37,23 @@
     {% endif %}
     <div class="d-grid mt-5 gap-2{% if not is_mobile %} d-md-block{% endif %}">
       {% if objectclass_creation_url %}
-        <a class="btn btn-primary" role="button" href="{{ objectclass_creation_url }}"><i class="fas fa-{{ 'create'|get_icon }}"></i> {{ objectclass_new }} {{ objectclass_verbose_name }} anlegen</a>
+        <a class="btn btn-primary" role="button" href="{{ objectclass_creation_url }}"><i class="fa-solid fa-{{ 'create'|get_icon }}"></i> {{ objectclass_new }} {{ objectclass_verbose_name }} anlegen</a>
       {% endif %}
       {% if objectclass_name == 'Organization' %}
-        <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
+        <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}"><i class="fa-solid fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
       {% endif %}
       {% if objects_count > 0 and objectclass_name == 'Complaint' or objects_count > 0 and objectclass_name == 'Originator' %}
-        <button id="subsetter" class="btn btn-secondary" type="button"><i class="fas fa-{{ 'map'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte {{ objectclass_verbose_name_plural }}</button>
+        <button id="subsetter" class="btn btn-secondary" type="button"><i class="fa-solid fa-{{ 'map'|get_icon }}"></i> <i class="fa-solid fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte {{ objectclass_verbose_name_plural }}</button>
       {% endif %}
       {% if objectclass_name == 'LogEntry' and model and reference_table_url %}
         {% if object_pk and reference_object_url %}
-          <a class="btn btn-warning" role="button" href="{{ reference_object_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> <em>{{ model|beautify_model_string:False|safe }}</em> mit der ID <em>{{ object_pk }}</em></a>
+          <a class="btn btn-warning" role="button" href="{{ reference_object_url }}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> <em>{{ model|beautify_model_string:False|safe }}</em> mit der ID <em>{{ object_pk }}</em></a>
         {% endif %}
-        <a class="btn btn-warning" role="button" href="{{ reference_table_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> <em>{{ model|beautify_model_string|safe }}</em></a>
+        <a class="btn btn-warning" role="button" href="{{ reference_table_url }}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> <em>{{ model|beautify_model_string|safe }}</em></a>
       {% elif objectclass_name == 'Event' and complaint_pk and complaint_url %}
-         <a class="btn btn-warning" role="button" href="{{ complaint_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> <em><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerde</em> mit der ID <em>{{ complaint_pk }}</em></a>
+         <a class="btn btn-warning" role="button" href="{{ complaint_url }}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> <em><i class="fa-solid fa-{{ 'complaint'|get_icon }}"></i> Beschwerde</em> mit der ID <em>{{ complaint_pk }}</em></a>
       {% endif %}
-      <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'index'|get_icon }}"></i> Startseite</a>
+      <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fa-solid fa-{{ 'index'|get_icon }}"></i> Startseite</a>
     </div>
     {% if objects_count > 0 %}
       <div class="d-grid mt-5 mb-3 gap-2 mx-auto">

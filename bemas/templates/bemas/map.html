@@ -29,19 +29,19 @@
 
 {% block content %}
   {% if is_bemas_user %}
-    <h2><i class="fas fa-{{ 'map'|get_icon }}"></i> Immissions- und Emissionsorte</h2>
-    <h4><small>Karte mit allen <span style="color:{{ complaints_color }}"><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden</span> und <span style="color:{{ originators_color }}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursachern</span></small></h4>
+    <h2><i class="fa-solid fa-{{ 'map'|get_icon }}"></i> Immissions- und Emissionsorte</h2>
+    <h4><small>Karte mit allen <span style="color:{{ complaints_color }}"><i class="fa-solid fa-{{ 'complaint'|get_icon }}"></i> Beschwerden</span> und <span style="color:{{ originators_color }}"><i class="fa-solid fa-{{ 'originator'|get_icon }}"></i> Verursachern</span></small></h4>
     {% if objects_count == 0 %}
       <h4 class="mt-3">
         <em>Keine Beschwerden und Verursacher vorhanden!</em>
       </h4>
     {% endif %}
     <div class="d-grid mt-3 mb-3 gap-2{% if not is_mobile %} d-md-block{% endif %}">
-      <a class="btn btn-secondary" role="button" href="{% url 'bemas:complaint_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle Beschwerden</a>
-      <button id="complaints-subsetter" class="btn btn-secondary" type="button" disabled><i class="fas fa-{{ 'table'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Beschwerden</button>
-      <a class="btn btn-secondary" role="button" href="{% url 'bemas:originator_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle Verursacher</a>
-      <button id="originators-subsetter" class="btn btn-secondary" type="button" disabled><i class="fas fa-{{ 'table'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Verursacher</button>
-      <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'index'|get_icon }}"></i> Startseite</a>
+      <a class="btn btn-secondary" role="button" href="{% url 'bemas:complaint_table' %}"><i class="fa-solid fa-{{ 'table'|get_icon }}"></i> alle Beschwerden</a>
+      <button id="complaints-subsetter" class="btn btn-secondary" type="button" disabled><i class="fa-solid fa-{{ 'table'|get_icon }}"></i> <i class="fa-solid fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Beschwerden</button>
+      <a class="btn btn-secondary" role="button" href="{% url 'bemas:originator_table' %}"><i class="fa-solid fa-{{ 'table'|get_icon }}"></i> alle Verursacher</a>
+      <button id="originators-subsetter" class="btn btn-secondary" type="button" disabled><i class="fa-solid fa-{{ 'table'|get_icon }}"></i> <i class="fa-solid fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Verursacher</button>
+      <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fa-solid fa-{{ 'index'|get_icon }}"></i> Startseite</a>
     </div>
     {% if objects_count > 0 %}
       {% if model and subset_pk %}
@@ -59,11 +59,11 @@
             <div id="collapse-filter-one-click" class="accordion-collapse collapse" aria-labelledby="heading-filter-one-click">
               <div class="accordion-body">
                 <div id="filter-one-click-buttons" class="btn-group-vertical">
-                  <button id="complaints-in-progress" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> nur Beschwerden in Bearbeitung (ohne Verursacher)</button>
-                  <button id="complaints-in-progress-with-originators" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> nur Beschwerden in Bearbeitung und deren Verursacher</button>
+                  <button id="complaints-in-progress" class="filter-one-click-button btn btn-outline-success"><i class="fa-solid fa-{{ 'filter_on'|get_icon }}"></i> nur Beschwerden in Bearbeitung (ohne Verursacher)</button>
+                  <button id="complaints-in-progress-with-originators" class="filter-one-click-button btn btn-outline-success"><i class="fa-solid fa-{{ 'filter_on'|get_icon }}"></i> nur Beschwerden in Bearbeitung und deren Verursacher</button>
                 </div>
                 <div class="d-grid mt-4">
-                  <button id="filter-one-click-reset" class="btn btn-warning" disabled><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Ein-Klick-Filter zurücksetzen</button>
+                  <button id="filter-one-click-reset" class="btn btn-warning" disabled><i class="fa-solid fa-{{ 'filter_off'|get_icon }}"></i> Ein-Klick-Filter zurücksetzen</button>
                 </div>
               </div>
             </div>
@@ -71,7 +71,7 @@
           <div id="complaints-filter" class="accordion-item">
             <h2 id="heading-complaints-filter" class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-complaints-filter" aria-expanded="false" aria-controls="collapse-complaints-filter">
-                Filter für <i class="ms-1 me-1 fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden
+                Filter für <i class="ms-1 me-1 fa-solid fa-{{ 'complaint'|get_icon }}"></i> Beschwerden
               </button>
             </h2>
             <div id="collapse-complaints-filter" class="accordion-collapse collapse" aria-labelledby="heading-complaints-filter">
@@ -83,7 +83,7 @@
                   <div class="input-group">
                     <input id="filter-input-complaints-id" type="text" name="complaints-id" class="form-control filter-input" data-type="text">
                     <button class="input-reset btn btn-outline-secondary">
-                      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                      <i class="fa-solid fa-{{ 'delete'|get_icon }}"></i>
                     </button>
                   </div>
                 </div>
@@ -93,14 +93,14 @@
                   <div class="input-group">
                     <input id="filter-input-complaints-date_of_receipt-left" type="date" name="complaints-date_of_receipt-left" class="form-control filter-input datetime-input" step="1" data-type="date" data-intervalside="left">
                     <button class="input-reset btn btn-outline-secondary">
-                      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                      <i class="fa-solid fa-{{ 'delete'|get_icon }}"></i>
                     </button>
                   </div>
                   <small><label for="filter-input-complaints-date_of_receipt-right" class="form-label mt-2"><em>und</em></label></small>
                   <div class="input-group">
                     <input id="filter-input-complaints-date_of_receipt-right" type="date" name="complaints-date_of_receipt-right" class="form-control filter-input datetime-input" step="1" data-type="date" data-intervalside="right">
                     <button class="input-reset btn btn-outline-secondary">
-                      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                      <i class="fa-solid fa-{{ 'delete'|get_icon }}"></i>
                     </button>
                   </div>
                 </div>
@@ -113,7 +113,7 @@
                       {% endfor %}
                     </select>
                     <button class="input-reset btn btn-outline-secondary">
-                      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                      <i class="fa-solid fa-{{ 'delete'|get_icon }}"></i>
                     </button>
                   </div>
                 </div>
@@ -126,7 +126,7 @@
                       {% endfor %}
                     </select>
                     <button class="input-reset btn btn-outline-secondary">
-                      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                      <i class="fa-solid fa-{{ 'delete'|get_icon }}"></i>
                     </button>
                   </div>
                 </div>
@@ -135,7 +135,7 @@
                   <div class="input-group">
                     <input id="filter-input-complaints-originator" type="text" name="complaints-originator" class="form-control filter-input" data-type="text">
                     <button class="input-reset btn btn-outline-secondary">
-                      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                      <i class="fa-solid fa-{{ 'delete'|get_icon }}"></i>
                     </button>
                   </div>
                 </div>
@@ -144,13 +144,13 @@
                   <div class="input-group">
                     <input id="filter-input-complaints-description" type="text" name="complaints-description" class="form-control filter-input" data-type="text">
                     <button class="input-reset btn btn-outline-secondary">
-                      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                      <i class="fa-solid fa-{{ 'delete'|get_icon }}"></i>
                     </button>
                   </div>
                 </div>
                 <div id="complaints-filter-buttons" class="d-grid mt-4 gap-2">
-                  <button id="complaints-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter auf Beschwerden anwenden</button>
-                  <button id="complaints-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter für Beschwerden zurücksetzen</button>
+                  <button id="complaints-filter-apply" class="btn btn-success"><i class="fa-solid fa-{{ 'filter_on'|get_icon }}"></i> Filter auf Beschwerden anwenden</button>
+                  <button id="complaints-filter-reset" class="btn btn-warning"><i class="fa-solid fa-{{ 'filter_off'|get_icon }}"></i> Filter für Beschwerden zurücksetzen</button>
                 </div>
               </div>
             </div>
@@ -158,7 +158,7 @@
           <div id="originators-filter" class="accordion-item">
             <h2 id="heading-originators-filter" class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-originators-filter" aria-expanded="false" aria-controls="collapse-originators-filter">
-                Filter für <i class="ms-1 me-1 fas fa-{{ 'originator'|get_icon }}"></i> Verursacher
+                Filter für <i class="ms-1 me-1 fa-solid fa-{{ 'originator'|get_icon }}"></i> Verursacher
               </button>
             </h2>
             <div id="collapse-originators-filter" class="accordion-collapse collapse" aria-labelledby="heading-originators-filter">
@@ -174,7 +174,7 @@
                       {% endfor %}
                     </select>
                     <button class="input-reset btn btn-outline-secondary">
-                      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                      <i class="fa-solid fa-{{ 'delete'|get_icon }}"></i>
                     </button>
                   </div>
                 </div>
@@ -188,7 +188,7 @@
                         {% endfor %}
                       </select>
                       <button class="input-reset btn btn-outline-secondary">
-                        <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                        <i class="fa-solid fa-{{ 'delete'|get_icon }}"></i>
                       </button>
                     </div>
                   </div>
@@ -204,7 +204,7 @@
                         {% endfor %}
                       </select>
                       <button class="input-reset btn btn-outline-secondary">
-                        <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                        <i class="fa-solid fa-{{ 'delete'|get_icon }}"></i>
                       </button>
                     </div>
                   </div>
@@ -214,13 +214,13 @@
                   <div class="input-group">
                     <input id="filter-input-originators-description" type="text" name="originators-description" class="form-control filter-input" data-type="text">
                     <button class="input-reset btn btn-outline-secondary">
-                      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                      <i class="fa-solid fa-{{ 'delete'|get_icon }}"></i>
                     </button>
                   </div>
                 </div>
                 <div id="originators-filter-buttons" class="d-grid mt-4 gap-2">
-                  <button id="originators-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter auf Verursacher anwenden</button>
-                  <button id="originators-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter für Verursacher zurücksetzen</button>
+                  <button id="originators-filter-apply" class="btn btn-success"><i class="fa-solid fa-{{ 'filter_on'|get_icon }}"></i> Filter auf Verursacher anwenden</button>
+                  <button id="originators-filter-reset" class="btn btn-warning"><i class="fa-solid fa-{{ 'filter_off'|get_icon }}"></i> Filter für Verursacher zurücksetzen</button>
                 </div>
               </div>
             </div>
@@ -234,9 +234,9 @@
             <div id="collapse-map-control" class="accordion-collapse collapse" aria-labelledby="heading-map-control">
               <div class="accordion-body">
                 <div class="d-grid gap-2">
-                  <button id="complaints-map-extent-filter" class="btn btn-success"><i class="fas fa-{{ 'map_with_filter'|get_icon }}"></i> aktuell gefilterte Beschwerden</button>
-                  <button id="originators-map-extent-filter" class="btn btn-success"><i class="fas fa-{{ 'map_with_filter'|get_icon }}"></i> aktuell gefilterte Verursacher</button>
-                  <button id="map-extent-initial" class="btn btn-warning"><i class="fas fa-{{ 'show_on_map'|get_icon }}"></i> gesamt</button>
+                  <button id="complaints-map-extent-filter" class="btn btn-success"><i class="fa-solid fa-{{ 'map_with_filter'|get_icon }}"></i> aktuell gefilterte Beschwerden</button>
+                  <button id="originators-map-extent-filter" class="btn btn-success"><i class="fa-solid fa-{{ 'map_with_filter'|get_icon }}"></i> aktuell gefilterte Verursacher</button>
+                  <button id="map-extent-initial" class="btn btn-warning"><i class="fa-solid fa-{{ 'show_on_map'|get_icon }}"></i> gesamt</button>
                 </div>
               </div>
             </div>

@@ -759,7 +759,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               )
               + '">'
             )
-            links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+            links += '<i class="fa-solid fa-' + get_icon_from_settings('update') + '"></i> '
             links += 'Antrag</a>'
             event = CleanupEventEvent.objects.filter(cleanupevent_request=item['id']).first()
             if event:
@@ -773,7 +773,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
                 )
                 + '">'
               )
-              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+              links += '<i class="fa-solid fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Aktionsdaten</a>'
             venue = CleanupEventVenue.objects.filter(cleanupevent_request=item['id']).first()
             if venue:
@@ -787,7 +787,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
                 )
                 + '">'
               )
-              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+              links += '<i class="fa-solid fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Treffpunkt</a>'
             details = CleanupEventDetails.objects.filter(cleanupevent_request=item['id']).first()
             if details:
@@ -801,7 +801,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
                 )
                 + '">'
               )
-              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+              links += '<i class="fa-solid fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Detailangaben</a>'
             container = CleanupEventContainer.objects.filter(
               cleanupevent_request=item['id']
@@ -817,7 +817,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
                 )
                 + '">'
               )
-              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+              links += '<i class="fa-solid fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Containerdaten</a>'
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-danger" role="button" '
               links += 'title="Containerdaten löschen" '
@@ -829,7 +829,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
                 )
                 + '">'
               )
-              links += '<i class="fas fa-' + get_icon_from_settings('delete') + '"></i> '
+              links += '<i class="fa-solid fa-' + get_icon_from_settings('delete') + '"></i> '
               links += 'Containerdaten</a>'
             else:
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
@@ -842,7 +842,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
                 )
                 + '">'
               )
-              links += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
+              links += '<i class="fa-solid fa-' + get_icon_from_settings('create') + '"></i> '
               links += 'Containerdaten</a>'
             dump = CleanupEventDump.objects.filter(cleanupevent_request=item['id']).first()
             if dump:
@@ -856,7 +856,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
                 )
                 + '">'
               )
-              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+              links += '<i class="fa-solid fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Müllablageplatz</a>'
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-danger" role="button" '
               links += 'title="Müllablageplatz löschen" '
@@ -867,7 +867,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
                 )
                 + '">'
               )
-              links += '<i class="fas fa-' + get_icon_from_settings('delete') + '"></i> '
+              links += '<i class="fa-solid fa-' + get_icon_from_settings('delete') + '"></i> '
               links += 'Müllablageplatz</a>'
             else:
               links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
@@ -880,7 +880,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
                 )
                 + '">'
               )
-              links += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
+              links += '<i class="fa-solid fa-' + get_icon_from_settings('create') + '"></i> '
               links += 'Müllablageplatz</a>'
             item_data.append(links)
             comments = ''
@@ -893,8 +893,8 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               comments += 'request-comment-list" '
               comments += 'title="vorhandene(n) Kommentar(e) ansehen" '
               comments += 'data-request-pk=' + str(item['id']) + ' data-list-url=' + list_url + '>'
-              comments += '<i class="fas fa-' + get_icon_from_settings('list') + '"></i> '
-              comments += '<i class="fas fa-' + get_icon_from_settings('comment') + '"></i>'
+              comments += '<i class="fa-solid fa-' + get_icon_from_settings('list') + '"></i> '
+              comments += '<i class="fa-solid fa-' + get_icon_from_settings('comment') + '"></i>'
               comments += '</button>'
               comments += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
             else:
@@ -908,8 +908,8 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               )
               + '">'
             )
-            comments += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
-            comments += '<i class="fas fa-' + get_icon_from_settings('comment') + '"></i></a>'
+            comments += '<i class="fa-solid fa-' + get_icon_from_settings('create') + '"></i> '
+            comments += '<i class="fa-solid fa-' + get_icon_from_settings('comment') + '"></i></a>'
             item_data.append(comments)
         json_data.append(item_data)
     return json_data

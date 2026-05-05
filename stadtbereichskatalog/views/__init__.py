@@ -1,1 +1,1 @@
-from .views_general import *
+from .views import *

@@ -33,41 +33,41 @@ function buildTooltipHtmlCleanupEventRequest(feature) {
   html += '</div>';
   html += '<div class="leaflet-popup-section">';
   if (feature.properties._link_request) {
-    html += '<a title="Antrag ansehen oder bearbeiten" href="' + feature.properties._link_request + '"><i ' + 'class="fas fa-pen"></i> Antrag</a>';
+    html += '<a title="Antrag ansehen oder bearbeiten" href="' + feature.properties._link_request + '"><i ' + 'class="fa-solid fa-pen"></i> Antrag</a>';
   }
   if (feature.properties._link_event) {
     html +=  '<br>';
-    html +=  '<a title="Aktionsdaten ansehen oder bearbeiten" href="' + feature.properties._link_event + '"><i ' + 'class="fas fa-pen"></i> Aktionsdaten</a>';
+    html +=  '<a title="Aktionsdaten ansehen oder bearbeiten" href="' + feature.properties._link_event + '"><i ' + 'class="fa-solid fa-pen"></i> Aktionsdaten</a>';
   }
   if (feature.properties._link_venue) {
     html +=  '<br>';
-    html +=  '<a title="Treffpunkt ansehen oder bearbeiten" href="' + feature.properties._link_venue + '"><i ' + 'class="fas fa-pen"></i> Treffpunkt</a>';
+    html +=  '<a title="Treffpunkt ansehen oder bearbeiten" href="' + feature.properties._link_venue + '"><i ' + 'class="fa-solid fa-pen"></i> Treffpunkt</a>';
   }
   if (feature.properties._link_details) {
     html +=  '<br>';
-    html +=  '<a title="Detailangaben ansehen oder bearbeiten" href="' + feature.properties._link_details + '"><i ' + 'class="fas fa-pen"></i> Detailangaben</a>';
+    html +=  '<a title="Detailangaben ansehen oder bearbeiten" href="' + feature.properties._link_details + '"><i ' + 'class="fa-solid fa-pen"></i> Detailangaben</a>';
   }
   if (feature.properties._link_container) {
     html +=  '<br>';
     if (feature.properties._link_container.includes('update'))
-      html +=  '<a title="Containerdaten ansehen oder bearbeiten" href="' + feature.properties._link_container + '"><i ' + 'class="fas fa-pen"></i> Container</a>';
+      html +=  '<a title="Containerdaten ansehen oder bearbeiten" href="' + feature.properties._link_container + '"><i ' + 'class="fa-solid fa-pen"></i> Container</a>';
     else
-      html +=  '<a title="neue Containerdaten anlegen" href="' + feature.properties._link_container + '"><i ' + 'class="fas fa-circle-plus"></i> Container</a>';
+      html +=  '<a title="neue Containerdaten anlegen" href="' + feature.properties._link_container + '"><i ' + 'class="fa-solid fa-circle-plus"></i> Container</a>';
   }
   if (feature.properties._link_container_delete) {
     html +=  '<br>';
-    html +=  '<a title="Containerdaten löschen" href="' + feature.properties._link_container_delete + '"><i ' + 'class="fas fa-trash"></i> Containerdaten</a>';
+    html +=  '<a title="Containerdaten löschen" href="' + feature.properties._link_container_delete + '"><i ' + 'class="fa-solid fa-trash"></i> Containerdaten</a>';
   }
   if (feature.properties._link_dump) {
     html +=  '<br>';
     if (feature.properties._link_dump.includes('update'))
-      html +=  '<a title="Müllablageplatz ansehen oder bearbeiten" href="' + feature.properties._link_dump + '"><i ' + 'class="fas fa-pen"></i> Müllablageplatz</a>';
+      html +=  '<a title="Müllablageplatz ansehen oder bearbeiten" href="' + feature.properties._link_dump + '"><i ' + 'class="fa-solid fa-pen"></i> Müllablageplatz</a>';
     else
-      html +=  '<a title="neuen Müllablageplatz anlegen" href="' + feature.properties._link_dump + '"><i ' + 'class="fas fa-circle-plus"></i> Müllablageplatz</a>';
+      html +=  '<a title="neuen Müllablageplatz anlegen" href="' + feature.properties._link_dump + '"><i ' + 'class="fa-solid fa-circle-plus"></i> Müllablageplatz</a>';
   }
   if (feature.properties._link_dump_delete) {
     html +=  '<br>';
-    html +=  '<a title="Müllablageplatz löschen" href="' + feature.properties._link_dump_delete + '"><i ' + 'class="fas fa-trash"></i> Müllablageplatz</a>';
+    html +=  '<a title="Müllablageplatz löschen" href="' + feature.properties._link_dump_delete + '"><i ' + 'class="fa-solid fa-trash"></i> Müllablageplatz</a>';
   }
   html +=   '<table class="mt-2">';
   html +=     '<tbody>';

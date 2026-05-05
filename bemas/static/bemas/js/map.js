@@ -245,11 +245,11 @@ function setGeoJsonFeaturePropertiesAndActions(feature, layer) {
   let html = '';
   html += '<div class="leaflet-popup-title">';
   html +=   '<strong>' + feature.properties._title + '</strong>';
-  html +=    '<a class="ms-2" href="' + feature.properties._link_update + '"><i class="fas fa-pen" title="' + feature.properties._title + ' ansehen oder bearbeiten"></i></a>';
-  html +=    '<a class="ms-2" href="' + feature.properties._link_delete + '"><i class="fas fa-trash" title="' + feature.properties._title + ' löschen"></i></a>';
+  html +=    '<a class="ms-2" href="' + feature.properties._link_update + '"><i class="fa-solid fa-pen" title="' + feature.properties._title + ' ansehen oder bearbeiten"></i></a>';
+  html +=    '<a class="ms-2" href="' + feature.properties._link_delete + '"><i class="fa-solid fa-trash" title="' + feature.properties._title + ' löschen"></i></a>';
   if (feature.properties._link_events)
-    html +=  '<a class="ms-2" href="' + feature.properties._link_events + '"><i class="fas fa-paperclip" title="Journalereignisse anzeigen"></i></a>';
-  html +=    '<a class="ms-2" href="' + feature.properties._link_logentries + '"><i class="fas fa-clock-rotate-left" title="Einträge im Bearbeitungsverlauf anzeigen"></i></a>';
+    html +=  '<a class="ms-2" href="' + feature.properties._link_events + '"><i class="fa-solid fa-paperclip" title="Journalereignisse anzeigen"></i></a>';
+  html +=    '<a class="ms-2" href="' + feature.properties._link_logentries + '"><i class="fa-solid fa-clock-rotate-left" title="Einträge im Bearbeitungsverlauf anzeigen"></i></a>';
   html += '</div>';
   html += '<div class="leaflet-popup-section">';
   html +=   '<table>';

@@ -18,6 +18,19 @@ def add_app_context_elements(context):
   return context
 
 
+def add_model_context_elements(context, model):
+  """
+  adds model related elements to a context and returns it
+
+  :param context: context
+  :param model: model
+  :return: context with model related elements added
+  """
+  context['model_verbose_name'] = model._meta.verbose_name
+  context['model_verbose_name_plural'] = model._meta.verbose_name_plural
+  return context
+
+
 def add_permissions_context_elements(context, user):
   """
   adds permissions related elements to a context and returns it
@@ -49,3 +62,16 @@ def add_useragent_context_elements(context, request):
   else:
     context['is_mobile'] = False
   return context
+
+
+def get_model_objects(model, count=False):
+  """
+  either gets all objects of passed model and returns them
+  or counts objects of passed model and returns the count
+
+  :param model: model
+  :param count: return objects count instead of objects?
+  :return: either all objects of passed model or objects count of passed model
+  """
+  objects = model.objects.all()
+  return objects.count() if count else objects

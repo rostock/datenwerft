@@ -60,7 +60,7 @@
         {% if object and associated_objects %}
           <ul>
             {% for associated_object in associated_objects %}
-              <li>{{ associated_object.title }} <em>{{ associated_object.name }}</em> <a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></li>
+              <li>{{ associated_object.title }} <em>{{ associated_object.name }}</em> <a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></li>
               {% if associated_object.preview_img_url %}
                 <a href="{{ associated_object.preview_img_url }}" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…">
                   <img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px">
@@ -75,7 +75,7 @@
           <hr>
           {% for associated_new_entry in associated_new %}
             <p class="{% if forloop.last %}mb-1{% else %}mb-3{% endif %}">
-              <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }} anlegen</a>
+              <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }} anlegen</a>
             </p>
           {% endfor %}
         {% endif %}
@@ -90,29 +90,29 @@
     {% comment %}   Form Action Buttons for desktop mode   {% endcomment %}
     {% if not forms_in_mobile_mode and not is_mobile %}
       {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-        <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if object %}Änderungen{% else %}neuen Datensatz{% endif %} speichern</button>
+        <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fa-solid fa-floppy-disk"></i> {% if object %}Änderungen{% else %}neuen Datensatz{% endif %} speichern</button>
       {% endif %}
       {% if url_model_add %}
-        <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> als neuen Datensatz klonen</button>
+        <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fa-solid fa-clone"></i> als neuen Datensatz klonen</button>
       {% endif %}
       {% if url_model_delete_object %}
-        <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> Datensatz löschen</a>
+        <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fa-solid fa-trash"></i> Datensatz löschen</a>
       {% endif %}
-      <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
+      <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fa-solid fa-hand"></i> abbrechen</a>
     {% endif %}
 
     {% comment %}   Form Action Buttons for mobile mode   {% endcomment %}
     {% if forms_in_mobile_mode or is_mobile %}
       {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-        <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> speichern</button>
+        <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fa-solid fa-floppy-disk"></i> speichern</button>
       {% endif %}
       {% if url_model_add %}
-        <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> klonen</button>
+        <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fa-solid fa-clone"></i> klonen</button>
       {% endif %}
       {% if url_model_delete_object %}
-        <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> löschen</a>
+        <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fa-solid fa-trash"></i> löschen</a>
       {% endif %}
-      <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
+      <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fa-solid fa-hand"></i> abbrechen</a>
     {% endif %}
   </div>
 {% endblock %}

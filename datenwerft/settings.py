@@ -355,14 +355,15 @@ FMM_ICONS = {
 # icons
 
 STADTBEREICHSKATALOG_ICONS = {
-  'categories': 'folder-tree',
+  'back': 'backward-step',
+  'category': 'folder-tree',
   'data': 'chart-simple',
   'delete': 'trash-can',
   'edit': 'pen-to-square',
   'import': 'file-import',
-  'indicators': 'gauge',
+  'indicator': 'gauge',
   'metadata': 'tag',
-  'sources': 'book',
+  'source': 'book',
 }
 
 

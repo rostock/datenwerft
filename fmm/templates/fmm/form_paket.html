@@ -7,7 +7,7 @@
     {% block errors %}
       {{ block.super }}
     {% endblock %}
-    <h2>{% if object %}bearbeiten{% else %}neu{% endif %} → <i class="me-2 fas fa-{{ model_icon|get_icon }}"></i>{{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
+    <h2>{% if object %}bearbeiten{% else %}neu{% endif %} → <i class="me-2 fa-solid fa-{{ model_icon|get_icon }}"></i>{{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
     <form class="form mt-4 flex-container-column" method="post" action="" id="form">
       {% csrf_token %}
       <input type="hidden" name="original_referer_url" value="{{ referer_url }}">
@@ -15,9 +15,9 @@
         {{ block.super }}
       {% endblock %}
       <div class="d-grid mt-3 mb-3 gap-2">
-        <button class="btn btn-success" type="submit"><i class="me-2 fas fa-{{ 'save'|get_icon }}"></i>speichern</button>
-        <a class="btn btn-warning" role="button" href="{{ referer_url }}"><i class="me-2 fas fa-{{ 'cancel'|get_icon }}"></i>abbrechen</a>
-        <a class="btn btn-warning" role="button" href="{% url 'fmm:index' %}"><i class="me-2 fas fa-{{ 'index'|get_icon }}"></i>Startseite</a>
+        <button class="btn btn-success" type="submit"><i class="me-2 fa-solid fa-{{ 'save'|get_icon }}"></i>speichern</button>
+        <a class="btn btn-warning" role="button" href="{{ referer_url }}"><i class="me-2 fa-solid fa-{{ 'cancel'|get_icon }}"></i>abbrechen</a>
+        <a class="btn btn-warning" role="button" href="{% url 'fmm:index' %}"><i class="me-2 fa-solid fa-{{ 'index'|get_icon }}"></i>Startseite</a>
       </div>
     </form>
     <script>

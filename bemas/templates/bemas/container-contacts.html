@@ -1,6 +1,6 @@
 {% load bemas_tags %}
 <div class="alert alert-primary mt-4" role="alert">
-  <h5 class="alert-heading"><i class="fas fa-{{ 'contact'|get_icon }}"></i> Ansprechpartner:in(nen)</h5>
+  <h5 class="alert-heading"><i class="fa-solid fa-{{ 'contact'|get_icon }}"></i> Ansprechpartner:in(nen)</h5>
   {% if contacts %}
     <ul>
       {% for contact in contacts %}
@@ -13,5 +13,5 @@
     (noch) keine:r vorhanden
   {% endif %}
   <hr>
-  <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}?organization={{ object.pk }}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
+  <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}?organization={{ object.pk }}"><i class="fa-solid fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
 </div>

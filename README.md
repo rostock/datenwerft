@@ -74,6 +74,7 @@ uv sync
 1. leere _PostgreSQL_-Datenbank für die Anwendungsadministration anlegen
 2. leere _PostgreSQL_-Datenbank für die App _GDI.HRO Codelists_ anlegen
 2. leere _PostgreSQL_-Datenbank für die App _GDI.HRO Metadata_ anlegen
+2. leere _PostgreSQL_-Datenbank für die App _Stadtbereichskatalog_ anlegen
 3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Antragsmanagement_ anlegen
 4. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _BEMAS_ anlegen
 5. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Datenmanagement_ anlegen
@@ -120,7 +121,6 @@ python manage.py migrate --database=bemas bemas
 python manage.py migrate --database=fmm fmm
 python manage.py migrate --database=gdihrocodelists gdihrocodelists
 python manage.py migrate --database=gdihrometadata gdihrometadata
-python manage.py migrate --database=stadtbereichskatalog stadtbereichskatalog
 python manage.py migrate
 python manage.py angebotsdb_roles_permissions
 python manage.py antragsmanagement_roles_permissions
@@ -129,6 +129,7 @@ python manage.py fmm_roles_permissions
 python manage.py gdihrocodelists_roles_permissions
 python manage.py gdihrometadata_roles_permissions
 python manage.py pygeoapi_roles_permissions
+python manage.py stadtbereichskatalog_roles_permissions
 python manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 
 # mit uv
@@ -138,7 +139,6 @@ uv run manage.py migrate --database=bemas bemas
 uv run manage.py migrate --database=fmm fmm
 uv run manage.py migrate --database=gdihrocodelists gdihrocodelists
 uv run manage.py migrate --database=gdihrometadata gdihrometadata
-uv run manage.py migrate --database=stadtbereichskatalog stadtbereichskatalog
 uv run manage.py migrate
 uv run manage.py angebotsdb_roles_permissions
 uv run manage.py antragsmanagement_roles_permissions

@@ -66,7 +66,7 @@ class ObjectTableDataView(BaseDatatableView):
           data, value = None, getattr(item, column.name)
           # "icon" columns
           if column.name == 'icon':
-            item_data.append('<i class="fas fa-{}"></i>'.format(value))
+            item_data.append('<i class="fa-solid fa-{}"></i>'.format(value))
           # address related columns
           elif column.name.startswith('address_') and not address_handled:
             # append address string only once
@@ -90,7 +90,7 @@ class ObjectTableDataView(BaseDatatableView):
         ) or self.request.user.has_perm('antragsmanagement.change_' + permission_suffix):
           link = '<a class="btn btn-sm btn-outline-warning" role="button" href="'
           link += reverse(self.update_view_name, kwargs={'pk': item_pk})
-          link += '"><i class="fas fa-' + get_icon_from_settings('update')
+          link += '"><i class="fa-solid fa-' + get_icon_from_settings('update')
           link += '" title="' + self.model._meta.verbose_name
           link += ' ansehen oder bearbeiten"></i></a>'
           item_data.append(link)

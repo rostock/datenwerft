@@ -6,9 +6,9 @@
 
 {% block content %}
   {% if is_bemas_user %}
-    <h2><i class="fas fa-{{ 'orphaned_data'|get_icon }}"></i> verwaiste Objekte</h2>
+    <h2><i class="fa-solid fa-{{ 'orphaned_data'|get_icon }}"></i> verwaiste Objekte</h2>
     <div class="alert alert-primary mt-3 mb-3" role="alert">
-      <h5 class="alert-heading"><i class="fas fa-{{ 'organization'|get_icon }}"></i> Organisationen</h5>
+      <h5 class="alert-heading"><i class="fa-solid fa-{{ 'organization'|get_icon }}"></i> Organisationen</h5>
       {% if orphaned_organizations %}
         Folgende Organisation(en) ist/sind nicht als Betreiberin(nen) mit Verursachern und auch nicht als Beschwerdeführerin(nen) mit Beschwerden verbunden:
         <ul class="object-list">
@@ -23,7 +23,7 @@
       {% endif %}
     </div>
     <div class="alert alert-primary mt-3 mb-3" role="alert">
-      <h5 class="alert-heading"><i class="fas fa-{{ 'person'|get_icon }}"></i> Personen</h5>
+      <h5 class="alert-heading"><i class="fa-solid fa-{{ 'person'|get_icon }}"></i> Personen</h5>
       {% if orphaned_persons %}
         Folgende Person(en) ist/sind nicht als Ansprechpartner:in(nen) mit Organisationen, nicht
         als Betreiber:in(nen) mit Verursachern und auch nicht als Beschwerdeführer:in(nen) mit
@@ -43,7 +43,7 @@
       {% endif %}
     </div>
     <div class="alert alert-primary mt-3 mb-3" role="alert">
-      <h5 class="alert-heading"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher</h5>
+      <h5 class="alert-heading"><i class="fa-solid fa-{{ 'originator'|get_icon }}"></i> Verursacher</h5>
       {% if orphaned_originators %}
         Folgende(r) Verursacher ist/sind nicht mit Beschwerden verbunden:
         <ul class="object-list">
@@ -57,7 +57,7 @@
         keine verwaisten Verursacher vorhanden
       {% endif %}
     </div>
-    <a class="btn btn-warning mb-3" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'index'|get_icon }}"></i> Startseite</a>
+    <a class="btn btn-warning mb-3" role="button" href="{% url 'bemas:index' %}"><i class="fa-solid fa-{{ 'index'|get_icon }}"></i> Startseite</a>
   {% else %}
     {% include "bemas/notice-norights.html" %}
   {% endif %}

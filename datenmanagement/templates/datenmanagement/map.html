@@ -56,13 +56,13 @@
   </h4>
   <div class="d-grid mb-3 gap-2{% if not is_mobile %} d-md-block{% endif %}">
     {% if url_model_add %}
-      <a class="btn btn-primary" role="button" href="{{ url_model_add }}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
+      <a class="btn btn-primary" role="button" href="{{ url_model_add }}"><i class="fa-solid fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}
     {% if objects_count > 0 and url_model_list %}
-      <a class="btn btn-secondary" role="button" href="{{ url_model_list }}"><i class="fas fa-table"></i> alle Datensätze in Tabelle auflisten</a>
-      <button id="subsetter" class="btn btn-secondary" disabled><i class="fas fa-table"></i> <i class="fas fa-filter"></i> aktuelle Filtermenge in Tabelle übernehmen</button>
+      <a class="btn btn-secondary" role="button" href="{{ url_model_list }}"><i class="fa-solid fa-table"></i> alle Datensätze in Tabelle auflisten</a>
+      <button id="subsetter" class="btn btn-secondary" disabled><i class="fa-solid fa-table"></i> <i class="fa-solid fa-filter"></i> aktuelle Filtermenge in Tabelle übernehmen</button>
     {% endif %}
-    <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-backward"></i> zurück</a>
+    <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fa-solid fa-backward"></i> zurück</a>
   </div>
   {% if objects_count > 0 %}
     {% if subset_id %}
@@ -83,13 +83,13 @@
               <div class="input-group mb-2">
                 <label for="deadline-year-input" class="mt-2 me-2">Stichjahr für Ein-Klick-Filter:</label>
                 <input id="deadline-year-input" type="number" name="stichjahr" class="form-control filter-one-click-other">
-                <button class="deadline-year-set filter-one-click-other btn btn-outline-secondary"><i class="fas fa-check" title="setzen"></i></button>
-                <button class="deadline-year-reset filter-one-click-other btn btn-outline-secondary"><i class="fas fa-undo" title="zurücksetzen"></i></button>
+                <button class="deadline-year-set filter-one-click-other btn btn-outline-secondary"><i class="fa-solid fa-check" title="setzen"></i></button>
+                <button class="deadline-year-reset filter-one-click-other btn btn-outline-secondary"><i class="fa-solid fa-undo" title="zurücksetzen"></i></button>
               </div>
               <div id="filter-one-click" class="btn-group-vertical">
-                  <button id="baustellen-geplant-ende-nicht-abgeschlossen" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-gears"></i> beendet, aber Status != abgeschlossen</button>
-                  <button id="baustellen-geplant-beginn-nicht-imbau" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-gears"></i> begonnen (nicht beendet), aber Status != im Bau (LP8) und Status != abgeschlossen</button>
-                <button id="baustellen-geplant-stichjahr" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-gears"></i> Stichjahr <span id="deadline-year-span"></span> sowie Status != strategische Planung, Status != im Bau (LP8) und Status != abgeschlossen</button>
+                  <button id="baustellen-geplant-ende-nicht-abgeschlossen" class="filter-one-click-button btn btn-outline-success"><i class="fa-solid fa-gears"></i> beendet, aber Status != abgeschlossen</button>
+                  <button id="baustellen-geplant-beginn-nicht-imbau" class="filter-one-click-button btn btn-outline-success"><i class="fa-solid fa-gears"></i> begonnen (nicht beendet), aber Status != im Bau (LP8) und Status != abgeschlossen</button>
+                <button id="baustellen-geplant-stichjahr" class="filter-one-click-button btn btn-outline-success"><i class="fa-solid fa-gears"></i> Stichjahr <span id="deadline-year-span"></span> sowie Status != strategische Planung, Status != im Bau (LP8) und Status != abgeschlossen</button>
               </div>
             {% endif %}
             <hr>
@@ -101,7 +101,7 @@
                 <div class="input-group">
                   <input id="filter-input-deadline-year" type="number" name="deadline-year" class="form-control filter-input" data-type="date" data-nullable data-intervalside="both" data-logic="positive">
                   <button class="input-reset btn btn-outline-secondary">
-                    <i class="fas fa-trash" title="Filterfeld leeren"></i>
+                    <i class="fa-solid fa-trash" title="Filterfeld leeren"></i>
                   </button>
                 </div>
               </div>
@@ -114,7 +114,7 @@
                 <div class="input-group">
                   <input id="filter-input-deadline" type="date" name="deadline" class="form-control filter-input datetime-input" data-type="date" data-nullable data-intervalside="both" data-logic="positive">
                   <button class="input-reset btn btn-outline-secondary">
-                    <i class="fas fa-trash" title="Filterfeld leeren"></i>
+                    <i class="fa-solid fa-trash" title="Filterfeld leeren"></i>
                   </button>
                 </div>
               </div>
@@ -131,7 +131,7 @@
                       {% if 'Date' in map_intervalfilter_field|get_type_of_field:model_name %}
                         <input id="filter-input-{{ map_intervalfilter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_intervalfilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_intervalfilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_intervalfilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_intervalfilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" data-logic="positive" {% if map_intervalfilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
                         <button class="input-reset btn btn-outline-secondary">
-                          <i class="fas fa-trash" title="Filterfeld leeren"></i>
+                          <i class="fa-solid fa-trash" title="Filterfeld leeren"></i>
                         </button>
                       {% else %}
                         <input id="filter-input-{{ map_intervalfilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_intervalfilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input" data-type="text" {% if map_intervalfilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" data-logic="positive">
@@ -144,7 +144,7 @@
                       {% if 'Date' in map_intervalfilter_field|get_type_of_field:model_name %}
                         <input id="filter-input-{{ map_intervalfilter_fields|get_list_item_by_index:naechster_index }}" type="{% if map_intervalfilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_intervalfilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input datetime-input" data-type="{% if map_intervalfilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_intervalfilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" data-logic="positive" {% if map_intervalfilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
                         <button class="input-reset btn btn-outline-secondary">
-                          <i class="fas fa-trash" title="Filterfeld leeren"></i>
+                          <i class="fa-solid fa-trash" title="Filterfeld leeren"></i>
                         </button>
                       {% else %}
                         <input id="filter-input-{{ map_intervalfilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_intervalfilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input" data-type="text" {% if map_intervalfilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" data-logic="positive">
@@ -165,7 +165,7 @@
                     <div class="input-group">
                       <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" data-logic="positive" {% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
                       <button class="input-reset btn btn-outline-secondary">
-                        <i class="fas fa-trash" title="Filterfeld leeren"></i>
+                        <i class="fa-solid fa-trash" title="Filterfeld leeren"></i>
                       </button>
                     </div>
                   {% elif map_filter_field|get_type_of_field:model_name == 'BooleanField' %}
@@ -180,7 +180,7 @@
                           <option value="False">nein</option>
                         </select>
                         <button class="input-reset btn btn-outline-secondary">
-                          <i class="fas fa-trash" title="Filterfeld leeren"></i>
+                          <i class="fa-solid fa-trash" title="Filterfeld leeren"></i>
                         </button>
                       </div>
                     {% endif %}
@@ -188,7 +188,7 @@
                     <div class="input-group">
                       <select id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-select filter-input" data-type="list" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" data-logic="positive"></select>
                       <button class="input-reset btn btn-outline-secondary">
-                        <i class="fas fa-trash" title="Filterfeld leeren"></i>
+                        <i class="fa-solid fa-trash" title="Filterfeld leeren"></i>
                       </button>
                     </div>
                   {% elif map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' or map_filter_fields_as_checkbox and map_filter_field in map_filter_fields_as_checkbox %}
@@ -210,7 +210,7 @@
                     <div class="input-group">
                       <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input" data-type="text" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" data-logic="positive">
                       <button class="input-reset btn btn-outline-secondary">
-                        <i class="fas fa-trash" title="Filterfeld leeren"></i>
+                        <i class="fa-solid fa-trash" title="Filterfeld leeren"></i>
                       </button>
                     </div>
                   {% endif %}
@@ -219,16 +219,16 @@
             </div>
           {% endif %}
           <div id="filter-buttons" class="d-grid mt-4 gap-2">
-            <button id="filter-apply" class="btn btn-success"><i class="fas fa-filter"></i> Filter anwenden</button>
-            <button id="filter-reset" class="btn btn-warning"><i class="fas fa-filter-circle-xmark"></i> Filter zurücksetzen</button>
+            <button id="filter-apply" class="btn btn-success"><i class="fa-solid fa-filter"></i> Filter anwenden</button>
+            <button id="filter-reset" class="btn btn-warning"><i class="fa-solid fa-filter-circle-xmark"></i> Filter zurücksetzen</button>
           </div>
         </div>
       {% endif %}
       <div {% if map_filters_enabled %}id="map-control"{% endif %}{% if not is_mobile %} class="side"{% endif %}>
         <h5>Kartenausschnitt</h5>
         <div class="d-grid mt-2 gap-2">
-          <button id="map-extent-filter" class="btn btn-success"><i class="fas fa-map-location"></i> {% if map_filters_enabled %}aktuelle Filtermenge{% else %}alle Objekte{% endif %}</button>
-          <button id="map-extent-initial" class="btn btn-warning"><i class="fas fa-map"></i> gesamt</button>
+          <button id="map-extent-filter" class="btn btn-success"><i class="fa-solid fa-map-location"></i> {% if map_filters_enabled %}aktuelle Filtermenge{% else %}alle Objekte{% endif %}</button>
+          <button id="map-extent-initial" class="btn btn-warning"><i class="fa-solid fa-map"></i> gesamt</button>
         </div>
       </div>
       <div id="address-search"{% if not is_mobile %} class="side"{% endif %}>

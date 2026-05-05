@@ -263,7 +263,7 @@ class TableDataCompositionView(BaseDatatableView):
             + ' title="Datensatz bearbeiten" href="'
             + link
             + '">'
-            + '<i class="fas fa-edit"></i></a>'
+            + '<i class="fa-solid fa-edit"></i></a>'
           )
         elif self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower):
           link = reverse('datenmanagement:' + self.model_name + '_change', args=[item_pk])
@@ -272,7 +272,7 @@ class TableDataCompositionView(BaseDatatableView):
             + ' title="Datensatz ansehen" href="'
             + link
             + '">'
-            + '<i class="fas fa-eye"></i></a>'
+            + '<i class="fa-solid fa-eye"></i></a>'
           )
         if self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
           link = reverse('datenmanagement:' + self.model_name + '_delete', args=[item_pk])
@@ -281,7 +281,7 @@ class TableDataCompositionView(BaseDatatableView):
             + ' title="Datensatz löschen" href="'
             + link
             + '">'
-            + '<i class="fas fa-trash"></i></a>'
+            + '<i class="fa-solid fa-trash"></i></a>'
           )
         item_data.append(links)
       json_data.append(item_data)
