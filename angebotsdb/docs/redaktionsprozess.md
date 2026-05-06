@@ -41,7 +41,7 @@ sequenceDiagram
     T->>App: Felder ausfüllen & speichern
 
     T->>App: Zur Prüfung einreichen
-    Note over App: Service.status → in_review<br/>ReviewTask erstellen (pending)<br/>InboxMessage → OrgUnit (review_request)
+    Note over App: Service.status → in_review<br/>ReviewTask erstellen (pending)<br/>InboxMessage je zuständiger OrgUnit (review_request)
 
     R->>App: Inbox öffnen
     App->>R: Prüfauftrag anzeigen (mit Diff)
@@ -55,7 +55,7 @@ sequenceDiagram
         T->>App: Inbox öffnen
         App->>T: Kommentare des Reviewers anzeigen
         T->>App: Angebot überarbeiten & erneut einreichen
-        Note over App: Service.status → in_review<br/>Neuer ReviewTask (pending)
+        Note over App: Service.status → in_review<br/>Neuer ReviewTask (pending)<br/>InboxMessage je zuständiger OrgUnit (review_request)
     end
 ```
 

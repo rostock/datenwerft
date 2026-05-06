@@ -445,9 +445,11 @@ class ReviewTask(Base):
   # Zuordnung
   assigned_org_unit = ForeignKey(
     'OrgUnit',
-    on_delete=CASCADE,
+    on_delete=SET_NULL,
     related_name='review_tasks',
     verbose_name='Zuständige OE',
+    null=True,
+    blank=True,
   )
   created_by_user_id = IntegerField(
     verbose_name='Erstellt von (User-ID)',

@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
 
-from ..fields import resolve_pygeoapi_uris
+from ..fields import get_pygeoapi_config, resolve_pygeoapi_uris
 from ..models.base import InboxMessage, OrgUnitServicePermission, ReviewTask
 from ..utils import (
   apply_draft_to_published,
@@ -71,7 +71,8 @@ def _get_review_fields(service, review_task):
 
     raw_value = submitted.get(field.name)
 
-    pygeoapi_config = pygeoapi_fields.get(field.name)
+    raw_config = pygeoapi_fields.get(field.name)
+    pygeoapi_config = get_pygeoapi_config(raw_config) if raw_config else None
     if pygeoapi_config and isinstance(raw_value, list):
       resolved = resolve_pygeoapi_uris(
         raw_value,
@@ -248,34 +249,34 @@ class SubmitForReviewView(View):
     ).update(is_resolved=True)
 
     # ── ReviewTask erstellen ─────────────────────────────────────────────────
-    # Falls mehrere OrgUnits zuständig sind, erstellen wir einen Task pro OrgUnit.
     service.status = 'in_review'
     service.save(update_fields=['status'])
 
-    for permission in responsible_org_units:
-      review_task = ReviewTask.objects.create(
-        service_type=service_type,
-        service_id=service_id,
-        assigned_org_unit=permission.organisational_unit,
-        created_by_user_id=request.user.id,
-        task_status='pending',
-        submitted_snapshot=submitted_snapshot,
-        approved_snapshot=approved_snapshot,
-      )
+    first_permission = responsible_org_units.first()
+    review_task = ReviewTask.objects.create(
+      service_type=service_type,
+      service_id=service_id,
+      assigned_org_unit=first_permission.organisational_unit if first_permission else None,
+      created_by_user_id=request.user.id,
+      task_status='pending',
+      submitted_snapshot=submitted_snapshot,
+      approved_snapshot=approved_snapshot,
+    )
 
+    for permission in responsible_org_units:
       InboxMessage.objects.create(
         message_type='review_request',
         review_task=review_task,
         target_org_unit=permission.organisational_unit,
       )
 
-      logger.info(
-        'ReviewTask #%s erstellt für service_type=%s service_id=%s OrgUnit=%s',
-        review_task.pk,
-        service_type,
-        service_id,
-        permission.organisational_unit,
-      )
+    logger.info(
+      'ReviewTask #%s erstellt für service_type=%s service_id=%s (%s OrgUnit(s))',
+      review_task.pk,
+      service_type,
+      service_id,
+      responsible_org_units.count(),
+    )
 
     # ── Redirect zurück zur Listen-Ansicht ───────────────────────────────────
     list_url = reverse(f'angebotsdb:{service_type}_list')
