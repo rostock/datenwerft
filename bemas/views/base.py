@@ -244,7 +244,9 @@ class GenericTableDataView(BaseDatatableView):
             map_link += 'title="' + title + ' auf Karte anzeigen" href="'
             map_link += reverse('bemas:map')
             map_link += '?center=' + str(point.x) + ',' + str(point.y) + '">'
-            map_link += '<i class="fa-solid fa-' + get_icon_from_settings('show_on_map') + '"></i></a>'
+            map_link += (
+              '<i class="fa-solid fa-' + get_icon_from_settings('show_on_map') + '"></i></a>'
+            )
           item_data.append(
             '<a class="btn btn-sm btn-outline-warning" role="button" '
             + 'title="'

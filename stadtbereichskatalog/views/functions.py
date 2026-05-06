@@ -1,4 +1,4 @@
-from django_user_agents.utils import get_user_agent
+from django.forms import Textarea
 
 from ..apps import StadtbereichskatalogConfig as appConfig
 from ..utils import is_stadtbereichskatalog_user
@@ -12,6 +12,7 @@ def add_app_context_elements(context):
   :return: context with global app related elements added
   """
   context['app'] = {
+    'name': getattr(appConfig, 'name', appConfig.name),
     'verbose_name': getattr(appConfig, 'verbose_name', appConfig.name),
     'description': getattr(appConfig, 'description', ''),
   }
@@ -48,20 +49,29 @@ def add_permissions_context_elements(context, user):
   return context
 
 
-def add_useragent_context_elements(context, request):
+def assign_widget(field):
   """
-  adds user agent related elements to a context and returns it
+  creates corresponding form field (widget) to passed model field and returns it
 
-  :param context: context
-  :param request: request
-  :return: context with user agent related elements added
+  :param field: form field
+  :return: corresponding form field (widget) to passed model field
   """
-  user_agent = get_user_agent(request)
-  if user_agent.is_mobile or user_agent.is_tablet:
-    context['is_mobile'] = True
-  else:
-    context['is_mobile'] = False
-  return context
+  form_field = field.formfield()
+  # handle inputs
+  if hasattr(form_field.widget, 'input_type'):
+    if form_field.widget.input_type == 'checkbox':
+      form_field.widget.attrs['class'] = 'form-check-input'
+    elif form_field.widget.input_type == 'select':
+      form_field.widget.attrs['class'] = 'form-select'
+    else:
+      form_field.widget.attrs['class'] = 'form-control'
+    if form_field.widget.input_type == 'number':
+      form_field.widget.attrs['min'] = 0
+  # handle text areas
+  elif issubclass(form_field.widget.__class__, Textarea):
+    form_field.widget.attrs['class'] = 'form-control'
+    form_field.widget.attrs['rows'] = 10
+  return form_field
 
 
 def get_model_objects(model, count=False):

@@ -1,0 +1,65 @@
+{% extends "form.html" %}
+{% load toolbox_tags %}
+{% load stadtbereichskatalog_tags %}
+{% load static %}
+
+{% block title %}{{ model_verbose_name_plural }} – Formular | {% endblock %}
+
+{% block scripts %}
+  <!-- inherit from form.html -->
+  {{ block.super }}
+  <!-- add scripts for antragsmanagement -->
+  <script src="{% static "js/form.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+  {% if is_stadtbereichskatalog_user %}
+    {% block errors %}
+      {% if form.errors %}
+        {% include "stadtbereichskatalog/container_errors.html" %}
+      {% endif %}
+    {% endblock %}
+    <h2>
+      {% if custom_header %}
+        {{ custom_header }}
+      {% else %}
+        <i class="fa-solid fa-{{ 'edit'|get_icon }}"></i> {{ model_verbose_name }}: <em>{{ object }}</em>
+      {% endif %}
+    </h2>
+    <form class="form mt-4 flex-container-column" method="post" action="" id="form">
+      {% csrf_token %}
+      <div>
+        <table class="table">
+          {% for field in form %}
+            <tr{% if hidden_fields and field.name in hidden_fields %} style="display: none;"{% endif %}>
+              <td class="cell-label">
+                {{ field.label_tag }}
+              </td>
+              {% autoescape off %}
+                <td class="cell-field">
+                  {{ field }}
+                </td>
+              {% endautoescape %}
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <div class="d-grid mt-3 mb-3 gap-2">
+        <button class="btn btn-success" type="submit"><i class="fa-solid fa-{{ 'save'|get_icon }}"></i> speichern</button>
+        <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fa-solid fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+      </div>
+    </form>
+    <script>
+      /**
+       * @function
+       *
+       * main function
+       */
+      $(document).ready(function () {
+        keepDjangoRequiredMessages();
+      });
+    </script>
+  {% else %}
+    {% include "stadtbereichskatalog/notice_no-permissions.html" %}
+  {% endif %}
+{% endblock %}

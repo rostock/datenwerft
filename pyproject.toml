@@ -82,7 +82,7 @@ select = [
   "T10", # flake8 print
   "TCH", # flake8 type-checking
   "W",   # pycodestyle warnings
-  "YTT", # wrong usage of sys.info
+  "YTT", # wrong metadata of sys.info
 ]
 fixable = ["ALL"]
 unfixable = []

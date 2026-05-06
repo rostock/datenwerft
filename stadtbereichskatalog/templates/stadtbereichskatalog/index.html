@@ -14,9 +14,10 @@
           <p class="mt-4 mb-0 fs-1"><i class="fa-solid fa-{{ 'metadata'|get_icon }}"></i></p>
           <p class="fs-3">Metadaten</p>
           <div class="d-grid gap-2 col-6 mx-auto">
-            <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'stadtbereichskatalog:category_table' %}"><i class="fa-solid fa-{{ 'category'|get_icon }}"></i>{% if not is_mobile %} Themenbereiche und Kategorien{% endif %}</a>
-            <a class="btn btn-lg btn-primary fs-5" role="button" href="#"><i class="fa-solid fa-{{ 'indicator'|get_icon }}"></i>{% if not is_mobile %} Indikatoren{% endif %}</a>
-            <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'stadtbereichskatalog:source_table' %}"><i class="fa-solid fa-{{ 'source'|get_icon }}"></i>{% if not is_mobile %} Quellenangaben{% endif %}</a>
+            <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url app.name|add:':topic_table' %}"><i class="fa-solid fa-{{ 'topic'|get_icon }}"></i> Themenbereiche</a>
+            <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url app.name|add:':category_table' %}"><i class="fa-solid fa-{{ 'category'|get_icon }}"></i> Kategorien</a>
+            <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url app.name|add:':source_table' %}"><i class="fa-solid fa-{{ 'source'|get_icon }}"></i> Quellenangaben</a>
+            <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url app.name|add:':indicator_table' %}"><i class="fa-solid fa-{{ 'indicator'|get_icon }}"></i> Indikatoren</a>
           </div>
         </div>
       </div>
@@ -25,9 +26,9 @@
           <p class="mt-4 mb-0 fs-1"><i class="fa-solid fa-{{ 'data'|get_icon }}"></i></p>
           <p class="fs-3">Daten</p>
           <div class="d-grid gap-2 col-6 mx-auto">
-            <a class="btn btn-lg btn-success fs-5" role="button" href="#"><i class="fa-solid fa-{{ 'import'|get_icon }}"></i>{% if not is_mobile %} Import{% endif %}</a>
-            <a class="btn btn-lg btn-warning fs-5" role="button" href="#"><i class="fa-solid fa-{{ 'edit'|get_icon }}"></i>{% if not is_mobile %} Bearbeitung{% endif %}</a>
-            <a class="btn btn-lg btn-danger fs-5" role="button" href="#"><i class="fa-solid fa-{{ 'delete'|get_icon }}"></i>{% if not is_mobile %} Löschung{% endif %}</a>
+            <a class="btn btn-lg btn-success fs-5" role="button" href="#"><i class="fa-solid fa-{{ 'import'|get_icon }}"></i> Import</a>
+            <a class="btn btn-lg btn-warning fs-5" role="button" href="#"><i class="fa-solid fa-{{ 'edit'|get_icon }}"></i> Bearbeitung</a>
+            <a class="btn btn-lg btn-danger fs-5" role="button" href="#"><i class="fa-solid fa-{{ 'delete'|get_icon }}"></i> Löschung</a>
           </div>
         </div>
       </div>

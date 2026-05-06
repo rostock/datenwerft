@@ -4,6 +4,7 @@ from django.urls import reverse
 
 from stadtbereichskatalog.constants_vars import GROUP
 
+from ..apps import StadtbereichskatalogConfig as appConfig
 from .constants_vars import DATABASES, PASSWORD, USERNAME
 from .functions import login
 
@@ -47,7 +48,7 @@ class ViewTestCase(DefaultTestCase):
     # log test user in
     login(self, assign_permissions)
     # prepare the GET
-    url = reverse(f'stadtbereichskatalog:{view_name}')
+    url = reverse(f'{appConfig.name}:{view_name}')
     # try GETting the view
     response = self.client.get(url)
     # status code of response as expected?

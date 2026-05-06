@@ -27,8 +27,8 @@
         Keine {{ model_verbose_name_plural }} vorhanden!
       </h4>
     {% endif %}
-    <div class="d-grid mt-5 gap-2{% if not is_mobile %} d-md-block{% endif %}">
-      <a class="btn btn-warning" role="button" href="{% url 'stadtbereichskatalog:index' %}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> Startseite</a>
+    <div class="d-grid mt-5 gap-2 d-md-block">
+      <a class="btn btn-primary" role="button" href="{% url app.name|add:':index' %}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> Startseite</a>
     </div>
     {% if objects_count > 0 %}
       <div class="d-grid mt-5 mb-3 gap-2 mx-auto">

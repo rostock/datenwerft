@@ -357,13 +357,20 @@ FMM_ICONS = {
 STADTBEREICHSKATALOG_ICONS = {
   'back': 'backward-step',
   'category': 'folder-tree',
+  'cancel': 'hand',
   'data': 'chart-simple',
   'delete': 'trash-can',
   'edit': 'pen-to-square',
+  'error': 'circle-exclamation',
   'import': 'file-import',
   'indicator': 'gauge',
+  'info': 'circle-info',
   'metadata': 'tag',
+  'ok': 'circle-check',
+  'save': 'floppy-disk',
   'source': 'book',
+  'topic': 'folder',
+  'warning': 'triangle-exclamation',
 }
 
 

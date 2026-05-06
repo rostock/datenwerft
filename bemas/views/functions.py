@@ -681,7 +681,9 @@ def transform_activity_objects(activity_objects):
     # set appropriate model information
     model = apps.get_app_config('bemas').get_model(activity_object.model)
     model_title = model._meta.verbose_name
-    model_icon = '<i class="fa-solid fa-{}"></i>'.format(get_icon_from_settings(model.__name__.lower()))
+    model_icon = '<i class="fa-solid fa-{}"></i>'.format(
+      get_icon_from_settings(model.__name__.lower())
+    )
     model_text = model_icon + ' ' + model_title
     # set appropriate action information
     action = LOG_ACTIONS[activity_object.action]
