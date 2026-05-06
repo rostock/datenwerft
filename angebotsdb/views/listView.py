@@ -56,36 +56,28 @@ class ListView(TemplateView):
     context = add_permission_context_elements(context, self.request.user)
     if self.model:
       is_service_model = not self.model._meta.abstract and issubclass(self.model, Service)
+      is_admin = self.request.user.is_superuser or is_angebotsdb_admin(self.request.user)
 
       if is_service_model:
-        if self.request.user.is_superuser or is_angebotsdb_admin(self.request.user):
-          # Admins sehen nur die Originale — Draft-Copies sind über die
-          # Review-Inbox zugänglich, nicht über die normale Listenansicht.
-          queryset = self.model.objects.filter(published_version__isnull=True)
+        provider = get_user_provider(self.request.user)
+        if is_admin:
+          # Admins sehen alle Services inklusive Draft-Copies
+          queryset = self.model.objects.all()
+        elif provider:
+          # Provider sehen alle eigenen Services (Originale + Forks)
+          queryset = self.model.objects.filter(host=provider)
         else:
-          provider = get_user_provider(self.request.user)
-          if provider:
-            # Provider sehen:
-            # 1. Alle eigenen originalen Services (published_version=None)
-            # 2. Eigene Draft-Copies als separate Einträge mit eigenem Status-Badge
-            queryset = self.model.objects.filter(host=provider)
-          else:
-            # Nutzer ohne OE sehen alle originalen Services (wie Admins),
-            # aber ohne Zugriff auf Draft-Copies
-            queryset = self.model.objects.filter(published_version__isnull=True)
+          # Nutzer ohne Provider sehen nur Originale
+          queryset = self.model.objects.filter(published_version__isnull=True)
       else:
+        provider = None
         queryset = self.model.objects.all()
 
       # Hierarchische Liste für das Template aufbauen:
-      # Bei Providern erscheinen Forks (Draft-Copies) direkt unter ihrem Original
-      # mit Sub-Nummerierung (1.1, 2.1, ...) und Einrückung.
-      provider = get_user_provider(self.request.user) if is_service_model else None
-      provider_with_forks = (
-        is_service_model
-        and not (self.request.user.is_superuser or is_angebotsdb_admin(self.request.user))
-        and provider
-      )
-      if provider_with_forks:
+      # Bei Providern und Admins erscheinen Forks (Draft-Copies) direkt unter
+      # ihrem Original mit Sub-Nummerierung (1.1, 2.1, ...) und Einrückung.
+      show_forks = is_service_model and (is_admin or provider is not None)
+      if show_forks:
         originals = queryset.filter(published_version__isnull=True)
         annotated_objects = []
         parent_num = 0
@@ -153,7 +145,6 @@ class ListView(TemplateView):
       context['model_icon'] = getattr(self.model, 'icon', None)
       context['model_icon_plural'] = getattr(self.model, 'icon_plural', None)
 
-      is_admin = self.request.user.is_superuser or is_angebotsdb_admin(self.request.user)
       context['user_can_create'] = is_admin or self.model != Provider
 
     return context
