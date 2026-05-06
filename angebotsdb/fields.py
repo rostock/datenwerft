@@ -45,6 +45,18 @@ def _fetch_pygeoapi_label_map(endpoint, params_tuple, label_property):
     return {}
 
 
+def get_pygeoapi_config(config_or_key):
+  """
+  Löst einen PYGEOAPI_FIELDS-Value auf:
+  bei String-Key Lookup in settings.ANGEBOTSDB_PYGEOAPI.
+  """
+  if isinstance(config_or_key, str):
+    from django.conf import settings
+
+    return settings.ANGEBOTSDB_PYGEOAPI[config_or_key]
+  return config_or_key
+
+
 def resolve_pygeoapi_uris(uris, endpoint, params, label_property):
   """
   Löst eine Liste von PyGeoAPI-URIs zu lesbaren Labels auf.

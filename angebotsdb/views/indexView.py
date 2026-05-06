@@ -4,6 +4,7 @@ import logging
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.gis.geos import Point
 from django.http import JsonResponse
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -46,7 +47,9 @@ class IndexView(TemplateView):
         continue
       if issubclass(model, Service):
         total += (
-          model.objects.filter(status='published').exclude(geometry__equals='POINT(0 0)').count()
+          model.objects.filter(status='published')
+          .exclude(geometry=Point(0, 0, srid=25833))
+          .count()
         )
       mode = getattr(model, 'dashboard_mode', None)
       if mode == 'tile':

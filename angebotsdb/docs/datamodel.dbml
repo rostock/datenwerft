@@ -303,7 +303,7 @@ Table review_task {
   id integer [pk, increment]
   service_type varchar(100) [not null, note: 'Lowercase-Modellname']
   service_id integer [not null]
-  assigned_org_unit_id integer [not null, ref: > angebotsdb_organisational_unit.id]
+  assigned_org_unit_id integer [null, ref: > angebotsdb_organisational_unit.id, note: 'Primäre OE (nullable seit Bugfix Ein-Task-pro-Einreichung)']
   created_by_user_id integer [not null, note: 'FK → auth_user (Cross-DB)']
   reviewed_by_user_id integer [note: 'FK → auth_user (Cross-DB)']
   task_status varchar(20) [not null, default: 'pending', note: 'pending | approved | rejected']

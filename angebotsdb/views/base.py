@@ -1,3 +1,4 @@
+import logging
 from json import loads
 
 from django.apps import apps
@@ -6,6 +7,8 @@ from django.urls import reverse
 from django.views import View
 
 from ..models.services import ChildrenAndYouthService, Service
+
+logger = logging.getLogger(__name__)
 
 
 class JsonView(View):
@@ -141,13 +144,19 @@ class GenericMapDataView(JsonView):
       for curr_object in objects:
         # only include objects with valid geometry (not default POINT(0 0))
         if hasattr(curr_object, 'geometry') and curr_object.geometry:
-          # skip default/empty geometry
-          if curr_object.geometry.wkt == 'POINT (0 0)':
+          geom = curr_object.geometry
+          if geom.x == 0 and geom.y == 0:
             continue
-          # create GeoJSON feature
-          feature = create_geojson_feature(curr_object)
-          # add GeoJSON feature to GeoJSON feature collection
-          feature_collection['features'].append(feature)
+          try:
+            feature = create_geojson_feature(curr_object)
+            feature_collection['features'].append(feature)
+          except Exception as e:
+            logger.error(
+              'GeoJSON-Feature-Erstellung fehlgeschlagen für %s pk=%s: %s',
+              curr_object.__class__.__name__,
+              curr_object.pk,
+              e,
+            )
 
     return feature_collection
 
@@ -173,9 +182,17 @@ class CombinedMapDataView(JsonView):
     for model in service_models:
       for obj in get_model_objects(model, count_only=False):
         if hasattr(obj, 'geometry') and obj.geometry:
-          if obj.geometry.wkt == 'POINT (0 0)':
+          if obj.geometry.x == 0 and obj.geometry.y == 0:
             continue
-          feature_collection['features'].append(create_geojson_feature(obj))
+          try:
+            feature_collection['features'].append(create_geojson_feature(obj))
+          except Exception as e:
+            logger.error(
+              'GeoJSON-Feature-Erstellung fehlgeschlagen für %s pk=%s: %s',
+              model.__name__,
+              obj.pk,
+              e,
+            )
     return feature_collection
 
   def get(self, request, *args, **kwargs):
