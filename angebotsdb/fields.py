@@ -46,10 +46,13 @@ def _fetch_pygeoapi_label_map(endpoint, params_tuple, label_property):
 
 
 def get_pygeoapi_config(config_or_key):
-  """Löst einen PYGEOAPI_FIELDS-Value auf: bei String-Key Lookup in settings.ANGEBOTSDB_PYGEOAPI.
+  """
+  Löst einen PYGEOAPI_FIELDS-Value auf:
+  bei String-Key Lookup in settings.ANGEBOTSDB_PYGEOAPI.
   """
   if isinstance(config_or_key, str):
     from django.conf import settings
+
     return settings.ANGEBOTSDB_PYGEOAPI[config_or_key]
   return config_or_key
 

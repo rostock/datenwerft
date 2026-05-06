@@ -14,6 +14,7 @@ Für jede Gruppe:
 - InboxMessages der Duplikate werden als erledigt markiert.
 - Duplikate werden gelöscht.
 """
+
 import logging
 from datetime import timedelta
 
@@ -98,9 +99,7 @@ def _process_groups(groups, dry_run, stdout, style):
     permissions = OrgUnitServicePermission.objects.filter(service_type=service_type)
     for perm in permissions:
       if perm.organisational_unit_id not in existing_org_units:
-        stdout.write(
-          f'  → Erstelle InboxMessage für OrgUnit #{perm.organisational_unit_id}'
-        )
+        stdout.write(f'  → Erstelle InboxMessage für OrgUnit #{perm.organisational_unit_id}')
         if not dry_run:
           InboxMessage.objects.create(
             message_type='review_request',
@@ -111,9 +110,7 @@ def _process_groups(groups, dry_run, stdout, style):
     # assigned_org_unit des kanonischen Tasks auf erste Berechtigung setzen
     first_perm = permissions.first()
     if first_perm and canonical.assigned_org_unit_id != first_perm.organisational_unit_id:
-      stdout.write(
-        f'  → Setze assigned_org_unit auf OrgUnit #{first_perm.organisational_unit_id}'
-      )
+      stdout.write(f'  → Setze assigned_org_unit auf OrgUnit #{first_perm.organisational_unit_id}')
       if not dry_run:
         canonical.assigned_org_unit = first_perm.organisational_unit
         canonical.save(update_fields=['assigned_org_unit'])
@@ -140,9 +137,9 @@ class Command(BaseCommand):
   def handle(self, *args, **options):
     dry_run = options['dry_run']
     if dry_run:
-      self.stdout.write(self.style.WARNING(
-        'Dry-run-Modus: keine Änderungen werden gespeichert.\n'
-      ))
+      self.stdout.write(
+        self.style.WARNING('Dry-run-Modus: keine Änderungen werden gespeichert.\n')
+      )
 
     groups = _find_duplicate_groups()
 
