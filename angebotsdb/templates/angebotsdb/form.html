@@ -383,23 +383,6 @@
             window.featureGeometry = [];
             window.geometryType = 'Point';
 
-            // Keine Zeichen-Controls — Karte ist nur Vorschau
-            map.pm.addControls({
-              position: 'topleft',
-              drawCircleMarker: false,
-              drawCircle: false,
-              drawPolyline: false,
-              drawRectangle: false,
-              drawPolygon: false,
-              drawText: false,
-              drawMarker: false,
-              dragMode: false,
-              editMode: false,
-              cutPolygon: false,
-              rotateMode: false,
-              removalMode: false
-            });
-
             // Bestehende Geometrie auf der Karte anzeigen
             try {
               let geojsonStr = document.getElementById('id_geometrie').value;

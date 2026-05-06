@@ -160,11 +160,7 @@ class ChildrenAndYouthService(Service):
   dashboard_color = 'primary'
   dashboard_admin_only = False
   PYGEOAPI_FIELDS = {
-    'catchment_area_urls': {
-      'endpoint': 'https://geo.sv.rostock.de/service/ogcapi/collections/gemeindeteile/items',
-      'params': {'f': 'json', 'gemeinde': 'bbc6d790-2c4d-11e5-98d1-0050569b7e95'},
-      'label_property': 'bezeichnung',
-    }
+    'catchment_area_urls': 'gemeindeteile_rostock',
   }
 
   # Database Fields
@@ -202,11 +198,7 @@ class FamilyService(Service):
   dashboard_color = 'primary'
   dashboard_admin_only = False
   PYGEOAPI_FIELDS = {
-    'catchment_area_urls': {
-      'endpoint': 'https://geo.sv.rostock.de/service/ogcapi/collections/gemeindeteile/items',
-      'params': {'f': 'json', 'gemeinde': 'bbc6d790-2c4d-11e5-98d1-0050569b7e95'},
-      'label_property': 'bezeichnung',
-    }
+    'catchment_area_urls': 'gemeindeteile_rostock',
   }
 
   # Database Fields

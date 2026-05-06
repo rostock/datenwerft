@@ -253,9 +253,7 @@ class ProviderCreateViewTest(ViewTestCase):
 
   def test_post_error_missing_geometry(self):
     # Kein Adress-Vorschlag ausgewählt (fehlende Geometrie) → Fehler
-    self.generic_post_test(
-      login_as_admin, 'provider_create', None, {'name': VALID_STRING_A}, 200
-    )
+    self.generic_post_test(login_as_admin, 'provider_create', None, {'name': VALID_STRING_A}, 200)
 
   def test_post_error_missing_name(self):
     self.generic_post_test(login_as_admin, 'provider_create', None, {}, 200)
