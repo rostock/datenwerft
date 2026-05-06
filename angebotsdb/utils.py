@@ -3,7 +3,7 @@ from urllib.parse import quote
 
 from django.apps import apps
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Min, Q
 
 from .constants_vars import ADMIN_GROUP, USERS_GROUP
 from .models.base import InboxMessage, Law, OrgUnitServicePermission, Provider, Topic, UserProfile
@@ -132,7 +132,16 @@ def get_inbox_messages(user):
   """
 
   if user.is_superuser or is_angebotsdb_admin(user):
-    return InboxMessage.objects.filter(is_resolved=False).order_by('-created_at')
+    # Eine review_request pro ReviewTask (niedrigste ID) + alle revision_requests
+    min_ids = (
+      InboxMessage.objects.filter(is_resolved=False, message_type='review_request')
+      .values('review_task_id')
+      .annotate(min_id=Min('id'))
+      .values_list('min_id', flat=True)
+    )
+    return InboxMessage.objects.filter(
+      Q(id__in=list(min_ids)) | Q(is_resolved=False, message_type='revision_request')
+    ).order_by('-created_at')
 
   org_unit = get_user_org_unit(user)
   provider = get_user_provider(user)
