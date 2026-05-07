@@ -19,7 +19,7 @@ class DefaultTestCase(TestCase):
   def init(self):
     self.test_group: Group = Group.objects.create(name=GROUP)
     # assign permissions to test group
-    permissions = Permission.objects.filter(content_type__app_label='stadtbereichskatalog')
+    permissions = Permission.objects.filter(content_type__app_label=appConfig.name)
     for permission in permissions:
       self.test_group.permissions.add(permission)
     self.test_user: User = User.objects.create_user(username=USERNAME, password=PASSWORD)

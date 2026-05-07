@@ -1,3 +1,4 @@
+from django.db import connections
 from django.forms import Textarea
 
 from ..apps import StadtbereichskatalogConfig as appConfig
@@ -72,6 +73,104 @@ def assign_widget(field):
     form_field.widget.attrs['class'] = 'form-control'
     form_field.widget.attrs['rows'] = 10
   return form_field
+
+
+def get_database_columns(schema_name, table_name):
+  """
+  gets all columns of passed table within passed database schema and returns them
+
+  :param schema_name: name of database schema
+  :param table_name: name of database table
+  :return: all columns of passed table within passed database schema
+  """
+  connection = connections['stadtbereichskatalog']
+  with connection.cursor() as cursor:
+    # columns
+    cursor.execute(
+      """
+      SELECT
+       c.column_name,
+       c.data_type,
+       c.is_nullable
+        FROM information_schema.columns c
+         WHERE c.table_schema = %s
+         AND c.table_name = %s
+          ORDER BY c.ordinal_position
+    """,
+      [schema_name, table_name],
+    )
+    columns = cursor.fetchall()
+
+    # primary keys
+    cursor.execute(
+      """
+      SELECT
+       kcu.column_name
+        FROM information_schema.table_constraints tc
+        JOIN information_schema.key_column_usage kcu
+         ON tc.constraint_name = kcu.constraint_name
+         AND tc.table_schema = kcu.table_schema
+          WHERE tc.constraint_type = 'PRIMARY KEY'
+          AND tc.table_schema = %s
+          AND tc.table_name = %s
+    """,
+      [schema_name, table_name],
+    )
+    primary_keys = {row[0] for row in cursor.fetchall()}
+
+    result = []
+    for name, dtype, nullable in columns:
+      is_nullable = nullable == 'YES'
+      result.append(
+        {
+          'name': name,
+          'type': dtype,
+          'required': not is_nullable,
+          'primary_key': name in primary_keys,
+        }
+      )
+    return result
+
+
+def get_database_schemas():
+  """
+  gets all database schemas and returns their names
+
+  :return: names of all database schemas
+  """
+  connection = connections['stadtbereichskatalog']
+  with connection.cursor() as cursor:
+    cursor.execute("""
+      SELECT schema_name
+       FROM information_schema.schemata
+        WHERE schema_name NOT IN (
+         'geo', 'grafana', 'information_schema', 'metadaten', 'pg_catalog', 'pg_toast', 'public'
+        )
+         ORDER BY schema_name
+    """)
+    return [row[0] for row in cursor.fetchall()]
+
+
+def get_database_tables(schema_name):
+  """
+  gets all tables of passed database schema and returns their names
+
+  :param schema_name: name of database schema
+  :return: names of all tables of passed database schema
+  """
+  connection = connections['stadtbereichskatalog']
+  with connection.cursor() as cursor:
+    cursor.execute(
+      """
+      SELECT table_name
+       FROM information_schema.tables
+        WHERE table_schema = %s
+        AND table_type = 'BASE TABLE'
+         ORDER BY table_name
+    """,
+      [schema_name],
+    )
+    return [row[0] for row in cursor.fetchall()]
 
 
 def get_model_objects(model, count=False):

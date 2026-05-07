@@ -17,6 +17,10 @@ from .views import (
   TopicEditView,
   TopicTableDataView,
   TopicTableView,
+  data_import_mapping,
+  database_columns,
+  database_tables,
+  preview_csv,
 )
 
 router = routers.DefaultRouter()
@@ -123,5 +127,29 @@ urlpatterns = [
       IndicatorEditView.as_view(success_url=reverse_lazy(f'{app_name}:indicator_table'))
     ),
     name='indicator_edit',
+  ),
+  # page for importing and mapping data
+  path(
+    route='data/import/mapping',
+    view=login_required(data_import_mapping),
+    name='data_import_mapping',
+  ),
+  # JSON with all tables of database schema
+  path(
+    route='get-database-tables',
+    view=login_required(database_tables),
+    name='get_database_tables',
+  ),
+  # JSON with all columns of table within database schema
+  path(
+    route='get-database-columns',
+    view=login_required(database_columns),
+    name='get_database_columns',
+  ),
+  # JSON with all headers and a preview of the first few rows of CSV file
+  path(
+    route='preview-csv',
+    view=login_required(preview_csv),
+    name='preview_csv',
   ),
 ]
