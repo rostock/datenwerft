@@ -75,14 +75,14 @@ class GenericTableDataView(BaseDatatableView):
             value = getattr(item, column.name)
             # codelist specific column "icon"
             if issubclass(self.model, Codelist) and column.name == 'icon':
-              item_data.append('<i class="fas fa-{}"></i>'.format(value))
+              item_data.append('<i class="fa-solid fa-{}"></i>'.format(value))
             # log entry specific column "model"
             elif issubclass(self.model, LogEntry) and column.name == 'model':
               # generate appropriate text (link in most cases)
               model = apps.get_app_config('bemas').get_model(value)
               model_name = model.__name__.lower()
               model_title = model._meta.verbose_name_plural
-              icon = '<i class="fas fa-{}"></i>'.format(get_icon_from_settings(model_name))
+              icon = '<i class="fa-solid fa-{}"></i>'.format(get_icon_from_settings(model_name))
               text = icon + ' ' + model_title
               if value != 'Contact':
                 text = (
@@ -124,7 +124,7 @@ class GenericTableDataView(BaseDatatableView):
               # add icon and foreign key text
               elif hasattr(get_foreign_key_target_model(column), 'icon'):
                 foreign_key_target_object = get_foreign_key_target_object(item, column)
-                icon = '<i class="fas fa-' + foreign_key_target_object.icon + '"></i> '
+                icon = '<i class="fa-solid fa-' + foreign_key_target_object.icon + '"></i> '
                 item_data.append(icon + escape(value))
               # foreign key to codelist and if codelist entry icon is not available:
               # add foreign key text
@@ -182,7 +182,7 @@ class GenericTableDataView(BaseDatatableView):
           # designate anonymous complaint if necessary
           if not data:
             data = (
-              '<em><i class="fas fa-'
+              '<em><i class="fa-solid fa-'
               + get_icon_from_settings('originator_without_operator')
               + '"></i> unbekannte Betreiberverhältnisse</em>'
             )
@@ -206,7 +206,7 @@ class GenericTableDataView(BaseDatatableView):
           # designate anonymous complaint if necessary
           if not data:
             data = (
-              '<em><i class="fas fa-'
+              '<em><i class="fa-solid fa-'
               + get_icon_from_settings('anonymous_complaint')
               + '"></i> anonyme Beschwerde</em>'
             )
@@ -228,14 +228,14 @@ class GenericTableDataView(BaseDatatableView):
             log_entry_link += reverse(
               'bemas:logentry_table_model_object', args=[self.model.__name__, item_pk]
             )
-            log_entry_link += '"><i class="fas fa-' + get_icon_from_settings('logentry')
+            log_entry_link += '"><i class="fa-solid fa-' + get_icon_from_settings('logentry')
             log_entry_link += '"></i></a>'
           event_link = ''
           if issubclass(self.model, Complaint):
             event_link = '<a class="ms-2 btn btn-sm btn-outline-primary" '
             event_link += 'title="Journalereignisse anzeigen" href="'
             event_link += reverse('bemas:event_table_complaint', args=[item_pk])
-            event_link += '"><i class="fas fa-' + get_icon_from_settings('event')
+            event_link += '"><i class="fa-solid fa-' + get_icon_from_settings('event')
             event_link += '"></i></a>'
           map_link = ''
           if issubclass(self.model, Complaint) or issubclass(self.model, Originator):
@@ -244,14 +244,16 @@ class GenericTableDataView(BaseDatatableView):
             map_link += 'title="' + title + ' auf Karte anzeigen" href="'
             map_link += reverse('bemas:map')
             map_link += '?center=' + str(point.x) + ',' + str(point.y) + '">'
-            map_link += '<i class="fas fa-' + get_icon_from_settings('show_on_map') + '"></i></a>'
+            map_link += (
+              '<i class="fa-solid fa-' + get_icon_from_settings('show_on_map') + '"></i></a>'
+            )
           item_data.append(
             '<a class="btn btn-sm btn-outline-warning" role="button" '
             + 'title="'
             + title
             + ' ansehen oder bearbeiten" href="'
             + reverse('bemas:' + view_name_prefix + '_update', args=[item_pk])
-            + '"><i class="fas fa-'
+            + '"><i class="fa-solid fa-'
             + get_icon_from_settings('update')
             + '"></i></a>'
             + '<a class="ms-2 btn btn-sm btn-outline-danger" role="button" '
@@ -259,7 +261,7 @@ class GenericTableDataView(BaseDatatableView):
             + title
             + ' löschen" href="'
             + reverse('bemas:' + view_name_prefix + '_delete', args=[item_pk])
-            + '"><i class="fas fa-'
+            + '"><i class="fa-solid fa-'
             + get_icon_from_settings('delete')
             + '"></i></a>'
             + event_link

@@ -1,2 +1,3 @@
+djangorestframework-stubs
 djlint
 ruff

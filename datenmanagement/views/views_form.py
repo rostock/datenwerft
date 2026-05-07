@@ -170,7 +170,7 @@ class DataAddView(CreateView):
       None, 'datenmanagement:' + self.model.__name__ + '_add_another', True
     )
     # store object just created and original referer in session
-    # for usage in next view
+    # for metadata in next view
     if hasattr(self.request, 'session'):
       self.request.session['object_just_created'] = str(object_just_created)
       self.request.session['object_just_created_pk'] = str(object_just_created.pk)

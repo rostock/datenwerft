@@ -102,11 +102,11 @@ class TableDataView(BaseDatatableView):
         # append links
         links = '<a class="btn btn-sm btn-outline-warning" role="button" href="'
         links += reverse(viewname='fmm:overview', kwargs={'pk': item['id']})
-        links += '"><i class="fas fa-' + get_icon_from_settings('overview')
+        links += '"><i class="fa-solid fa-' + get_icon_from_settings('overview')
         links += '" title="Übersichtsseite öffnen"></i></a>'
         links += '<a class="ms-1 btn btn-sm btn-outline-danger" role="button" href="'
         links += reverse(viewname='fmm:fmf_delete', kwargs={'pk': item['id']})
-        links += '"><i class="fas fa-' + get_icon_from_settings('delete')
+        links += '"><i class="fa-solid fa-' + get_icon_from_settings('delete')
         links += '" title="löschen"></i></a>'
         item_data.append(links)
         json_data.append(item_data)

@@ -16,48 +16,48 @@
           {% if user.is_authenticated %}
             <li class="nav-item dropdown active">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-user"></i> {% if user.is_superuser %}{{ user.username }}{% else %}{{ user.first_name }} {{ user.last_name }}{% endif %}
+                <i class="fa-solid fa-user"></i> {% if user.is_superuser %}{{ user.username }}{% else %}{{ user.first_name }} {{ user.last_name }}{% endif %}
               </a>
               <ul class="dropdown-menu" aria-labelledby="userDropdown">
                 {% if user.is_superuser or user.is_staff %}
-                  <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fas fa-screwdriver-wrench"></i> Administration</a></li>
+                  <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa-solid fa-screwdriver-wrench"></i> Administration</a></li>
                 {% endif %}
                 {% if user.has_usable_password %}
                   {% if user.is_superuser or user.is_staff %}<li><hr class="dropdown-divider"></li>{% endif %}
-                  <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}"><i class="fas fa-key"></i> Passwort ändern</a></li>
+                  <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}"><i class="fa-solid fa-key"></i> Passwort ändern</a></li>
                 {% endif %}
               </ul>
             </li>
           {% endif %}
           <li class="nav-item">
-            <a class="nav-link" href="https://github.com/rostock/datenwerft/blob/main/hilfe" target="_blank" rel="noopener noreferrer"><i class="fas fa-circle-question"></i> Hilfe</a>
+            <a class="nav-link" href="https://github.com/rostock/datenwerft/blob/main/hilfe" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-circle-question"></i> Hilfe</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://geo.sv.rostock.de/datenschutz.html" target="_blank" rel="noopener noreferrer"><i class="fas fa-lock"></i> Datenschutz</a>
+            <a class="nav-link" href="https://geo.sv.rostock.de/datenschutz.html" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-lock"></i> Datenschutz</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://geo.sv.rostock.de/impressum.html" target="_blank" rel="noopener noreferrer"><i class="fas fa-stamp"></i> Impressum</a>
+            <a class="nav-link" href="https://geo.sv.rostock.de/impressum.html" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-stamp"></i> Impressum</a>
           </li>
           <li class="nav-item dropdown">
 
             <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme">
-              <i class="fas fa-circle-half-stroke bi me-1 my-1 theme-icon-active"></i> Modus
+              <i class="fa-solid fa-circle-half-stroke bi me-1 my-1 theme-icon-active"></i> Modus
               <span class="d-lg-none ms-2" id="bd-theme-text"></span>
             </button>
             <ul class="dropdown-menu" aria-labelledby="bd-theme-text" data-bs-popper="static">
               <li>
                 <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
-                  <i class="fas fa-desktop bi me-2 opacity-50"></i> wie System
+                  <i class="fa-solid fa-desktop bi me-2 opacity-50"></i> wie System
                 </button>
               </li>
               <li>
                 <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
-                  <i class="fas fa-sun bi me-2 opacity-50"></i> Hellmodus
+                  <i class="fa-solid fa-sun bi me-2 opacity-50"></i> Hellmodus
                 </button>
               </li>
               <li>
                 <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
-                  <i class="fas fa-moon bi me-2 opacity-50"></i> Dunkelmodus
+                  <i class="fa-solid fa-moon bi me-2 opacity-50"></i> Dunkelmodus
                 </button>
               </li>
             </ul>
@@ -66,11 +66,11 @@
         {% if user.is_authenticated %}
           <form class="form-inline mt-2 mt-md-0" method="post" action="{% url 'accounts:logout' %}">
             {% csrf_token %}
-            <button class="btn btn-danger" type="submit"><i class="fas fa-right-from-bracket"></i> abmelden</button>
+            <button class="btn btn-danger" type="submit"><i class="fa-solid fa-right-from-bracket"></i> abmelden</button>
           </form>
         {% else %}
           <form class="form-inline mt-2 mt-md-0">
-            <a class="btn btn-primary" role="button" href="{% url 'accounts:login' %}"><i class="fas fa-right-to-bracket"></i> Anmeldung</a>
+            <a class="btn btn-primary" role="button" href="{% url 'accounts:login' %}"><i class="fa-solid fa-right-to-bracket"></i> Anmeldung</a>
           </form>
         {% endif %}
       </div>

@@ -37,13 +37,13 @@
   </h4>
   <div class="d-grid gap-2{% if not is_mobile %} d-md-block{% endif %}">
     {% if url_model_add %}
-      <a class="btn btn-primary" role="button" href="{{ url_model_add }}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
+      <a class="btn btn-primary" role="button" href="{{ url_model_add }}"><i class="fa-solid fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}
     {% if objects_count > 0 and url_model_map %}
-      <a class="btn btn-secondary" role="button" href="{{ url_model_map }}"><i class="fas fa-map"></i> alle Datensätze auf Karte anzeigen</a>
-      <button id="subsetter" class="btn btn-secondary"><i class="fas fa-map"></i> <i class="fas fa-filter"></i> aktuelle Filtermenge auf Karte übernehmen</button>
+      <a class="btn btn-secondary" role="button" href="{{ url_model_map }}"><i class="fa-solid fa-map"></i> alle Datensätze auf Karte anzeigen</a>
+      <button id="subsetter" class="btn btn-secondary"><i class="fa-solid fa-map"></i> <i class="fa-solid fa-filter"></i> aktuelle Filtermenge auf Karte übernehmen</button>
     {% endif %}
-    <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-backward"></i> zurück</a>
+    <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fa-solid fa-backward"></i> zurück</a>
   </div>
   {% if objects_count > 0 %}
     {% if suitables|length > 0 %}
@@ -73,7 +73,7 @@
         <thead>
           <tr>
             {% if actions %}
-              <th id="check-all" class="no-export no-search no-sort" title="alle sichtbaren Datensätze für Export aus-/abwählen"><i class="fas fa-check-square"></i></th>
+              <th id="check-all" class="no-export no-search no-sort" title="alle sichtbaren Datensätze für Export aus-/abwählen"><i class="fa-solid fa-check-square"></i></th>
             {% endif %}
             {% for column_title in column_titles %}
               <th>{{ column_title }}</th>

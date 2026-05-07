@@ -9,9 +9,9 @@
     {% if messages %}
       {% include "bemas/container-messages.html" %}
     {% endif %}
-    <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em></h2>
+    <h2><i class="fa-solid fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em></h2>
     {% if objectclass_logentry_url %}
-      <a href="{{ objectclass_logentry_url }}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
+      <a href="{{ objectclass_logentry_url }}"><i class="fa-solid fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
     {% endif %}
     <form class="form mt-4" method="post" action="">
       {% csrf_token %}
@@ -24,8 +24,8 @@
         {% include "bemas/container-deletion-hints.html" %}
       {% endif %}
       <div class="d-grid mt-4 mb-3 gap-2">
-        <button class="btn btn-danger" type="submit"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}{{ objectclass_verbose_name }} {% endif %}löschen</button>
-        <a class="btn btn-warning" role="button" href="{{ objectclass_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+        <button class="btn btn-danger" type="submit"><i class="fa-solid fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}{{ objectclass_verbose_name }} {% endif %}löschen</button>
+        <a class="btn btn-warning" role="button" href="{{ objectclass_cancel_url }}"><i class="fa-solid fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
       </div>
     </form>
   {% else %}

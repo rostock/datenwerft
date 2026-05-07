@@ -97,3 +97,5 @@ jobs:
         run: python manage.py test gdihrocodelists
       - name: Run tests on app GDI.HRO Metadata
         run: python manage.py test gdihrometadata
+      - name: Run tests on app Stadtbereichskatalog
+        run: python manage.py test stadtbereichskatalog

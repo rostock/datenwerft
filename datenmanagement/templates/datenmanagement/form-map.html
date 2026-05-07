@@ -496,7 +496,7 @@
                   // if the user has the right to change the model...
                   if (window.userHasModelChangePermission) {
                     // add button to add another field
-                    let addAnotherField = $('<span><i class="add-another-field fas fa-circle-plus text-primary" title="weiteren Wert hinzufügen"></i></span>');
+                    let addAnotherField = $('<span><i class="add-another-field fa-solid fa-circle-plus text-primary" title="weiteren Wert hinzufügen"></i></span>');
                     addAnotherField.insertAfter(currentField.parent().is('.input-group') ? currentField.parent() : currentField);
                     // by clicking on the previously added button...
                     addAnotherField.click(function () {
@@ -832,15 +832,15 @@
                 {% if model_geometry_type == 'Point' or address_type and not address_mandatory %}
                   <div class="d-grid mt-3 gap-2">
                     {% if model_geometry_type == 'Point' and address_type == 'Adresse' %}
-                      <button disabled id="addressToMap" class="btn btn-primary" type="button"><i class="fas fa-location-dot"></i> Marker auf aktuelle Adresse setzen</button>
+                      <button disabled id="addressToMap" class="btn btn-primary" type="button"><i class="fa-solid fa-location-dot"></i> Marker auf aktuelle Adresse setzen</button>
                     {% endif %}
                     {% if not address_mandatory %}
                       {% if address_type == 'Adresse' %}
-                        <button disabled id="mapToAddress" class="btn btn-primary" type="button"><i class="fas fa-house"></i> Adresse aus Karte übernehmen</button>
+                        <button disabled id="mapToAddress" class="btn btn-primary" type="button"><i class="fa-solid fa-house"></i> Adresse aus Karte übernehmen</button>
                       {% elif address_type == 'Straße' %}
-                        <button disabled id="mapToStreet" class="btn btn-primary" type="button"><i class="fas fa-road"></i> Straße aus Karte übernehmen</button>
+                        <button disabled id="mapToStreet" class="btn btn-primary" type="button"><i class="fa-solid fa-road"></i> Straße aus Karte übernehmen</button>
                       {% elif address_type == 'Gemeindeteil' %}
-                        <button disabled id="mapToDistrict" class="btn btn-primary" type="button"><i class="fas fa-circle-dot"></i> Gemeindeteil aus Karte übernehmen</button>
+                        <button disabled id="mapToDistrict" class="btn btn-primary" type="button"><i class="fa-solid fa-circle-dot"></i> Gemeindeteil aus Karte übernehmen</button>
                       {% endif %}
                     {% endif %}
                   </div>

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load stadtbereichskatalog_tags %}
+{% load static %}
+
+{% block title %}{{ model_verbose_name_plural }} – Tabelle | {% endblock %}
+
+{% block style %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'datatables/datatables.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/list.css' %}">
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'datatables/datatables.min.js' %}"></script>
+  <script src="{% static 'bemas/js/table.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  {% if is_stadtbereichskatalog_user %}
+    {% if messages %}
+      {% include "stadtbereichskatalog/container_messages.html" %}
+    {% endif %}
+    <h2><i class="fa-solid fa-{{ icon|get_icon }}"></i> <em>{{ model_verbose_name_plural }}</em></h2>
+    {% if objects_count == 0 %}
+      <h4 class="mt-3">
+        Keine {{ model_verbose_name_plural }} vorhanden!
+      </h4>
+    {% endif %}
+    <div class="d-grid mt-5 gap-2 d-md-block">
+      <a class="btn btn-primary" role="button" href="{% url app.name|add:':index' %}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> Startseite</a>
+    </div>
+    {% if objects_count > 0 %}
+      <div class="d-grid mt-5 mb-3 gap-2 mx-auto">
+        {% include "antragsmanagement/container_table_warning.html" %}
+        <table id="datasets" class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              {% for column_title in column_titles %}
+                <th>{{ column_title }}</th>
+              {% endfor %}
+              <th class="no-export no-search no-sort"><em>Redaktion</em></th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+      <!-- eslint-disable-next-script -->
+      <script>
+        window.dataUrl = '{{ tabledata_url }}';
+        window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
+      </script>
+      <script>
+        setTimeout(function () {
+          $('.alert-success').alert('close');
+        }, 3000);
+
+        /**
+         * @function
+         *
+         * main function
+         */
+        $(document).ready(function() {
+          initDataTable(window.dataUrl, window.languageUrl);
+        });
+      </script>
+    {% endif %}
+  {% else %}
+    {% include "stadtbereichskatalog/notice_no-permissions.html" %}
+  {% endif %}
+{% endblock %}

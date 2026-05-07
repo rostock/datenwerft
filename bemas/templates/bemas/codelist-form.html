@@ -32,14 +32,14 @@
 {% endblock %}
 
 {% block headline %}
-  <i class="fas fa-{{ 'codelist'|get_icon }}"></i> <em>{{ codelist_verbose_name }}</em>
+  <i class="fa-solid fa-{{ 'codelist'|get_icon }}"></i> <em>{{ codelist_verbose_name }}</em>
 {% endblock %}
 
 {% block form-control-buttons %}
-  <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}neuen Codelisteneintrag{% endif %} {% endif %}speichern</button>
+  <button class="btn btn-success" type="submit"><i class="fa-solid fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}neuen Codelisteneintrag{% endif %} {% endif %}speichern</button>
   {% if object %}
-    <a class="btn btn-danger" role="button" href="{{ codelist_deletion_url }}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}Codelisteneintrag {% endif %}löschen</a>
+    <a class="btn btn-danger" role="button" href="{{ codelist_deletion_url }}"><i class="fa-solid fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}Codelisteneintrag {% endif %}löschen</a>
   {% endif %}
-  <a class="btn btn-warning" role="button" href="{{ codelist_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+  <a class="btn btn-warning" role="button" href="{{ codelist_cancel_url }}"><i class="fa-solid fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
 {% endblock %}
 

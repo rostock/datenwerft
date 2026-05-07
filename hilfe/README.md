@@ -16,7 +16,8 @@ wie etwa zur An- und Abmeldung oder zur Navigation über die Titelleiste.
 ## Datenmanagement
 
 Hier finden Sie Hilfestellungen zur Standard-Umgebung der Anwendung *Datenwerft.HRO,*
-dem Datenmanagement – zum Beispiel: Wie können Datensätze übersichtlich angezeigt werden?
+dem Datenmanagement (System zur Bearbeitung von Daten im Rahmen der GDI.HRO) –
+zum Beispiel: Wie können Datensätze übersichtlich angezeigt werden?
 Wie können neue Datensätze angelegt werden?
 
 ### [Administration](datenmanagement/admin.md)
@@ -112,6 +113,24 @@ für potenziell zu entwickelnde Flächen für Wohnraum, Gewerbe etc. (*FMF)*.
 #### [Tabelle](fmm/usage/table.md)
 
 #### [Karte](fmm/usage/map.md)
+
+## *Stadtbereichskatalog*
+
+Hier finden Sie Hilfestellungen zum System zur Bearbeitung der Inhalte des *Stadtbereichskatalogs.*
+
+### [Administration](stadtbereichskatalog/admin.md)
+
+### [Glossar](stadtbereichskatalog/glossary.md)
+
+### [Berechtigungen](stadtbereichskatalog/permissions.md)
+
+### [Startseite (Dashboard)](stadtbereichskatalog/dashboard.md)
+
+### Bereich *Metadaten*
+
+#### [Tabellenansichten](stadtbereichskatalog/metadata/table.md)
+
+#### [Datensatz bearbeiten](stadtbereichskatalog/metadata/edit.md)
 
 ## *GDI.HRO Codelists*
 

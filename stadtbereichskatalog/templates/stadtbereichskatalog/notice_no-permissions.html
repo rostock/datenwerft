@@ -1,0 +1,9 @@
+{% load stadtbereichskatalog_tags %}
+<div class="d-grid mb-2 gap-2 d-md-block">
+  <a class="btn btn-primary" role="button" href="{% url 'index' %}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> zurück</a>
+</div>
+<div class="alert alert-secondary text-center" role="alert">
+  <h4 class="alert-heading">
+    <i class="fa-solid fa-{{ 'info'|get_icon }}"></i> Sie haben leider (noch) keine Rechte für die App {{ app.verbose_name }}.
+  </h4>
+</div>

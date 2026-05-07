@@ -36,6 +36,7 @@ LOCAL_APPS = [
   'antragsmanagement',
   'bemas',
   'fmm',
+  'stadtbereichskatalog',
   'gdihrocodelists',
   'gdihrometadata',
   'd3',
@@ -66,7 +67,7 @@ TEMPLATES = [
       BASE_DIR / 'antragsmanagement/templates',
       BASE_DIR / 'bemas/templates',
       BASE_DIR / 'fmm/templates',
-      BASE_DIR / 'pygeoapi/templates',
+      BASE_DIR / 'stadtbereichskatalog/templates',
     ],
     'APP_DIRS': True,
     'OPTIONS': {
@@ -83,6 +84,7 @@ TEMPLATES = [
         'antragsmanagement_tags': 'antragsmanagement.tags',
         'bemas_tags': 'bemas.tags',
         'fmm_tags': 'fmm.tags',
+        'stadtbereichskatalog_tags': 'stadtbereichskatalog.tags',
       },
     },
   },
@@ -345,6 +347,29 @@ FMM_ICONS = {
   'save': 'floppy-disk',
   'table': 'table',
   'update': 'pen',
+  'warning': 'triangle-exclamation',
+}
+
+
+# Stadtbereichskatalog app:
+# icons
+
+STADTBEREICHSKATALOG_ICONS = {
+  'back': 'backward-step',
+  'category': 'folder-tree',
+  'cancel': 'hand',
+  'data': 'chart-simple',
+  'delete': 'trash-can',
+  'edit': 'pen-to-square',
+  'error': 'circle-exclamation',
+  'import': 'file-import',
+  'indicator': 'gauge',
+  'info': 'circle-info',
+  'metadata': 'tag',
+  'ok': 'circle-check',
+  'save': 'floppy-disk',
+  'source': 'book',
+  'topic': 'folder',
   'warning': 'triangle-exclamation',
 }
 

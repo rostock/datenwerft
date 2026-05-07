@@ -6,7 +6,7 @@
 
 {% block content %}
   {% if is_bemas_user %}
-    <h2><i class="fas fa-{{ 'codelist'|get_icon }}"></i> Codelisten</h2>
+    <h2><i class="fa-solid fa-{{ 'codelist'|get_icon }}"></i> Codelisten</h2>
     <div class="list-group mt-3 mb-3">
       {% for codelist in codelists %}
         <a class="list-group-item list-group-item-action list-group-item-primary" href="{{ codelist.table_url }}">
@@ -15,7 +15,7 @@
         </a>
       {% endfor %}
     </div>
-    <a class="btn btn-warning mb-3" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'index'|get_icon }}"></i> Startseite</a>
+    <a class="btn btn-warning mb-3" role="button" href="{% url 'bemas:index' %}"><i class="fa-solid fa-{{ 'index'|get_icon }}"></i> Startseite</a>
   {% else %}
     {% include "bemas/notice-norights.html" %}
   {% endif %}

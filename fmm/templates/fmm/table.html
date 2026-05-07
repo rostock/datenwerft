@@ -21,7 +21,7 @@
     {% if messages %}
       {% include "fmm/container_messages.html" %}
     {% endif %}
-    <h2><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF</h2>
+    <h2><i class="me-2 fa-solid fa-{{ 'fmf'|get_icon }}"></i>FMF</h2>
     <input type="hidden" name="original_referer_url" value="{{ referer_url }}">
     {% if objects_count == 0 %}
       <h4 class="mt-3">
@@ -29,10 +29,10 @@
       </h4>
     {% endif %}
     <div class="d-grid mt-5 gap-2{% if not is_mobile %} d-md-block{% endif %}">
-      <a class="btn btn-primary" role="button" href="{% url 'fmm:fmf_create' %}"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fas fa-{{ 'create'|get_icon }}"></i></a>
-      <a class="btn btn-primary" role="button" href="#"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fas fa-{{ 'map'|get_icon }}"></i></a>
-      <a class="btn btn-warning" role="button" href="{{ referer_url }}"><i class="me-2 fas fa-{{ 'back'|get_icon }}"></i>zurück</a>
-      <a class="btn btn-warning" role="button" href="{% url 'fmm:index' %}"><i class="me-2 fas fa-{{ 'index'|get_icon }}"></i>Startseite</a>
+      <a class="btn btn-primary" role="button" href="{% url 'fmm:fmf_create' %}"><i class="me-2 fa-solid fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fa-solid fa-{{ 'create'|get_icon }}"></i></a>
+      <a class="btn btn-primary" role="button" href="#"><i class="me-2 fa-solid fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fa-solid fa-{{ 'map'|get_icon }}"></i></a>
+      <a class="btn btn-warning" role="button" href="{{ referer_url }}"><i class="me-2 fa-solid fa-{{ 'back'|get_icon }}"></i>zurück</a>
+      <a class="btn btn-warning" role="button" href="{% url 'fmm:index' %}"><i class="me-2 fa-solid fa-{{ 'index'|get_icon }}"></i>Startseite</a>
     </div>
     {% if objects_count > 0 %}
       <div class="d-grid mt-5 mb-3 gap-2 mx-auto">

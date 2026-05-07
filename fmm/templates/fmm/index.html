@@ -13,15 +13,15 @@
       <div class="row g-4">
         <div class="col-4">
           <div class="alert alert-primary h-100 text-center no-padding-bottom">
-            <p class="mt-4 mb-4 fs-1"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF</p>
+            <p class="mt-4 mb-4 fs-1"><i class="me-2 fa-solid fa-{{ 'fmf'|get_icon }}"></i>FMF</p>
             <div class="mb-4 d-grid col-4 mx-auto">
-              <a class="btn btn-lg btn-primary fs-2" role="button" href="{% url 'fmm:fmf_create' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="neue FMF erstellen"><i class="fas fa-{{ 'create'|get_icon }}"></i></a>
+              <a class="btn btn-lg btn-primary fs-2" role="button" href="{% url 'fmm:fmf_create' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="neue FMF erstellen"><i class="fa-solid fa-{{ 'create'|get_icon }}"></i></a>
             </div>
           </div>
         </div>
         <div class="col-8">
           <div class="card bg-light h-100">
-            <div class="card-header"><i class="me-2 fas fa-{{ 'activity'|get_icon }}"></i>letzte Änderungen an FMF</div>
+            <div class="card-header"><i class="me-2 fa-solid fa-{{ 'activity'|get_icon }}"></i>letzte Änderungen an FMF</div>
             <div class="card-body">
               <table class="table table-borderless small mb0">
                 <thead>
@@ -57,17 +57,17 @@
       <div class="mt-1 row g-4">
         <div class="col">
           <div class="alert alert-primary h-100 text-center no-padding-bottom">
-            <p class="mt-4 mb-4 fs-1"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF</p>
+            <p class="mt-4 mb-4 fs-1"><i class="me-2 fa-solid fa-{{ 'fmf'|get_icon }}"></i>FMF</p>
             <div class="mb-4 d-grid col-4 mx-auto">
-              <a class="btn btn-lg btn-primary fs-2" role="button" href="{% url 'fmm:table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle vorhandenen FMF in Tabelle auflisten"><i class="fas fa-{{ 'table'|get_icon }}"></i></a>
+              <a class="btn btn-lg btn-primary fs-2" role="button" href="{% url 'fmm:table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle vorhandenen FMF in Tabelle auflisten"><i class="fa-solid fa-{{ 'table'|get_icon }}"></i></a>
             </div>
           </div>
         </div>
         <div class="col">
           <div class="alert alert-primary h-100 text-center no-padding-bottom">
-            <p class="mt-4 mb-4 fs-1"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF</p>
+            <p class="mt-4 mb-4 fs-1"><i class="me-2 fa-solid fa-{{ 'fmf'|get_icon }}"></i>FMF</p>
             <div class="mb-4 d-grid col-4 mx-auto">
-              <a class="btn btn-lg btn-primary fs-2" role="button" href="#" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle vorhandenen FMF auf Karte anzeigen"><i class="fas fa-{{ 'map'|get_icon }}"></i></a>
+              <a class="btn btn-lg btn-primary fs-2" role="button" href="#" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle vorhandenen FMF auf Karte anzeigen"><i class="fa-solid fa-{{ 'map'|get_icon }}"></i></a>
             </div>
           </div>
         </div>
@@ -79,9 +79,9 @@
     {% else %}
       <div class="row">
         <div class="d-grid gap-2">
-          <a class="btn btn-lg btn-primary" role="button" href="{% url 'fmm:fmf_create' %}"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fas fa-{{ 'create'|get_icon }}"></i></a>
-          <a class="btn btn-lg btn-primary" role="button" href="{% url 'fmm:table' %}"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fas fa-{{ 'table'|get_icon }}"></i></a>
-          <a class="btn btn-lg btn-primary" role="button" href="#"><i class="me-2 fas fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fas fa-{{ 'map'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'fmm:fmf_create' %}"><i class="me-2 fa-solid fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fa-solid fa-{{ 'create'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'fmm:table' %}"><i class="me-2 fa-solid fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fa-solid fa-{{ 'table'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="#"><i class="me-2 fa-solid fa-{{ 'fmf'|get_icon }}"></i>FMF<i class="ms-2 fa-solid fa-{{ 'map'|get_icon }}"></i></a>
         </div>
       </div>
     {% endif %}

@@ -67,6 +67,8 @@ urlpatterns = [
   path(route='bemas/', view=include('bemas.urls')),
   # ...FMM app
   path(route='fmm/', view=include('fmm.urls')),
+  # ...Stadtbereichskatalog app
+  path(route='stadtbereichskatalog/', view=include('stadtbereichskatalog.urls')),
   # ...GDI.HRO Codelists app
   path(route='gdihrocodelists/', view=include('gdihrocodelists.urls')),
   # ...GDI.HRO Metadata app

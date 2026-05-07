@@ -74,6 +74,7 @@ uv sync
 1. leere _PostgreSQL_-Datenbank für die Anwendungsadministration anlegen
 2. leere _PostgreSQL_-Datenbank für die App _GDI.HRO Codelists_ anlegen
 2. leere _PostgreSQL_-Datenbank für die App _GDI.HRO Metadata_ anlegen
+2. leere _PostgreSQL_-Datenbank für die App _Stadtbereichskatalog_ anlegen
 3. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Antragsmanagement_ anlegen
 4. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _BEMAS_ anlegen
 5. leere _PostgreSQL_-Datenbank mit der Erweiterung _PostGIS_ für die App _Datenmanagement_ anlegen
@@ -128,6 +129,7 @@ python manage.py fmm_roles_permissions
 python manage.py gdihrocodelists_roles_permissions
 python manage.py gdihrometadata_roles_permissions
 python manage.py pygeoapi_roles_permissions
+python manage.py stadtbereichskatalog_roles_permissions
 python manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 
 # mit uv
@@ -145,6 +147,7 @@ uv run manage.py fmm_roles_permissions
 uv run manage.py gdihrocodelists_roles_permissions
 uv run manage.py gdihrometadata_roles_permissions
 uv run manage.py pygeoapi_roles_permissions
+uv run manage.py stadtbereichskatalog_roles_permissions
 uv run manage.py loaddata --database=gdihrometadata gdihrometadata_initial-data.json
 ```
 
@@ -506,6 +509,24 @@ uv run manage.py test toolbox
 
   # mit uv
   uv run manage.py test gdihrometadata
+
+- Tests der App _Stadtbereichskatalog_ durchführen:
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test stadtbereichskatalog.tests.IndexViewTest.test_get_with_permissions
+
+  # mit uv
+  uv run manage.py test stadtbereichskatalog.tests.IndexViewTest.test_get_with_permissions
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test stadtbereichskatalog
+
+  # mit uv
+  uv run manage.py test stadtbereichskatalog
 
 ## CI/CD
 
