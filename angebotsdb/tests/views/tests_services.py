@@ -201,6 +201,50 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_success_as_provider(self, mock_get):
+    """POST mit gültigen Daten auf draft-Service: Redirect 302 + DB-Werte aktualisiert."""
+    self.generic_post_test(
+      login_as_provider,
+      'childrenandyouthservice_update',
+      {'pk': self.test_object.pk},
+      self._valid_form_data(),
+      302,
+    )
+    self.test_object.refresh_from_db()
+    self.assertEqual(self.test_object.name, VALID_STRING_B)
+    self.assertEqual(self.test_object.status, 'draft')
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_post_error_missing_required_fields(self, mock_get):
+    self.generic_post_test(
+      login_as_provider, 'childrenandyouthservice_update', {'pk': self.test_object.pk}, {}, 200
+    )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_revision_needed_shows_form(self, mock_get):
+    """Service mit Status revision_needed → Formular wird zur Bearbeitung angezeigt."""
+    self.test_object.status = 'revision_needed'
+    self.test_object.save(update_fields=['status'])
+    self.generic_get_test(
+      login_as_provider,
+      'childrenandyouthservice_update',
+      {'pk': self.test_object.pk},
+      200,
+      HTML,
+      VALID_STRING_A,
+    )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_post_revision_needed_saves_changes(self, mock_get):
+    """Speichern eines revision_needed-Service aktualisiert DB-Werte UND updated_at.
+
+    Regressionstest für Bug-Report: Provider berichtete, dass Änderungen an Services
+    im Status revision_needed nicht gespeichert wurden (updated_at blieb alt).
+    """
+    self.test_object.status = 'revision_needed'
+    self.test_object.save()  # voller Save, damit updated_at definitiv gesetzt ist
+    self.test_object.refresh_from_db()
+    original_updated_at = self.test_object.updated_at
+
     self.generic_post_test(
       login_as_provider,
       'childrenandyouthservice_update',
@@ -209,11 +253,102 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
       302,
     )
 
+    self.test_object.refresh_from_db()
+    self.assertEqual(self.test_object.name, VALID_STRING_B)
+    self.assertEqual(self.test_object.status, 'revision_needed')
+    self.assertGreaterEqual(self.test_object.updated_at, original_updated_at)
+
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
-  def test_post_error_missing_required_fields(self, mock_get):
+  def test_post_in_review_returns_403(self, mock_get):
+    """POST auf in_review-Service wird durch _form_locked-Schutz mit 403 blockiert."""
+    self.test_object.status = 'in_review'
+    self.test_object.save(update_fields=['status'])
     self.generic_post_test(
-      login_as_provider, 'childrenandyouthservice_update', {'pk': self.test_object.pk}, {}, 200
+      login_as_provider,
+      'childrenandyouthservice_update',
+      {'pk': self.test_object.pk},
+      self._valid_form_data(),
+      403,
     )
+    # Original-Daten dürfen nicht verändert worden sein
+    self.test_object.refresh_from_db()
+    self.assertEqual(self.test_object.name, VALID_STRING_A)
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_post_published_creates_draft_copy(self, mock_get):
+    """POST auf published-Service erzeugt Draft-Copy; Original bleibt unverändert."""
+    self.test_object.status = 'published'
+    self.test_object.save(update_fields=['status'])
+
+    self.generic_post_test(
+      login_as_provider,
+      'childrenandyouthservice_update',
+      {'pk': self.test_object.pk},
+      self._valid_form_data(),
+      302,
+    )
+
+    # Original unverändert (außer ggf. updated_at, das prüfen wir nicht)
+    self.test_object.refresh_from_db()
+    self.assertEqual(self.test_object.name, VALID_STRING_A)
+    self.assertEqual(self.test_object.status, 'published')
+
+    # Genau eine Draft-Copy mit den neuen Daten existiert
+    drafts = ChildrenAndYouthService.objects.filter(published_version=self.test_object)
+    self.assertEqual(drafts.count(), 1)
+    draft = drafts.first()
+    self.assertEqual(draft.name, VALID_STRING_B)
+    self.assertEqual(draft.status, 'draft')
+    self.assertEqual(draft.host, self.test_provider)
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_published_with_existing_draft_redirects(self, mock_get):
+    """GET auf published-Service mit existierender Draft-Copy → Redirect zur Draft-URL."""
+    self.test_object.status = 'published'
+    self.test_object.save(update_fields=['status'])
+    draft = ChildrenAndYouthService.objects.create(
+      name='Draft-Kopie',
+      description='Testbeschreibung',
+      street='Teststraße 1',
+      zip=VALID_ZIP,
+      city='Rostock',
+      email='test@test.de',
+      host=self.test_provider,
+      expiry_date=VALID_DATE_A,
+      application_needed=False,
+      phone='0381 123456',
+      costs=0.0,
+      geometry=VALID_POINT_DB,
+      status='revision_needed',
+      published_version=self.test_object,
+    )
+    draft.topic.set([self.test_topic])
+    draft.legal_basis.set([self.test_law])
+
+    login_as_provider(self)
+    url = reverse('angebotsdb:childrenandyouthservice_update', kwargs={'pk': self.test_object.pk})
+    response = self.client.get(url)
+    self.assertEqual(response.status_code, 302)
+    expected_url = reverse('angebotsdb:childrenandyouthservice_update', kwargs={'pk': draft.pk})
+    self.assertEqual(response.url, expected_url)
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_post_other_provider_returns_403(self, mock_get):
+    """Provider darf Service eines fremden Providers nicht speichern (PermissionDenied)."""
+    other_provider = Provider.objects.create(name='Anderer Träger')
+    self.test_object.host = other_provider
+    self.test_object.save(update_fields=['host'])
+
+    login_as_provider(self)
+    url = reverse('angebotsdb:childrenandyouthservice_update', kwargs={'pk': self.test_object.pk})
+    response = self.client.post(url, self._valid_form_data())
+    self.assertEqual(response.status_code, 403)
+
+    # Original-Daten dürfen nicht verändert worden sein
+    self.test_object.refresh_from_db()
+    self.assertEqual(self.test_object.name, VALID_STRING_A)
 
 
 class ChildrenAndYouthServiceDetailViewTest(FormViewTestCase):
@@ -370,6 +505,135 @@ class FamilyServiceCreateViewTest(ViewTestCase):
     )
 
 
+class FamilyServiceUpdateViewTest(FormViewTestCase):
+  """
+  Testklasse für die Bearbeitungs-Ansicht von FamilyService.
+  """
+
+  model = FamilyService
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
+    cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
+    cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
+    service = FamilyService.objects.create(
+      name=VALID_STRING_A,
+      description='Testbeschreibung',
+      street='Teststraße 1',
+      zip=VALID_ZIP,
+      city='Rostock',
+      email='test@test.de',
+      host=cls.test_provider,
+      expiry_date=VALID_DATE_A,
+      application_needed=False,
+      phone='0381 123456',
+      costs=0.0,
+      setting='Gruppenberatung',
+      geometry=VALID_POINT_DB,
+      status='draft',
+    )
+    service.topic.set([cls.test_topic])
+    service.legal_basis.set([cls.test_law])
+    cls.test_object = service
+
+  def setUp(self):
+    self.init()
+
+  def _valid_form_data(self):
+    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk)
+    data['name'] = VALID_STRING_B
+    data['setting'] = 'Gruppenberatung'
+    return data
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_provider_200(self, mock_get):
+    self.generic_get_test(
+      login_as_provider,
+      'familyservice_update',
+      {'pk': self.test_object.pk},
+      200,
+      HTML,
+      VALID_STRING_A,
+    )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_post_success_as_provider(self, mock_get):
+    self.generic_post_test(
+      login_as_provider,
+      'familyservice_update',
+      {'pk': self.test_object.pk},
+      self._valid_form_data(),
+      302,
+    )
+    self.test_object.refresh_from_db()
+    self.assertEqual(self.test_object.name, VALID_STRING_B)
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_post_revision_needed_saves_changes(self, mock_get):
+    """Regressionstest: revision_needed-Save aktualisiert die DB."""
+    self.test_object.status = 'revision_needed'
+    self.test_object.save()
+    self.generic_post_test(
+      login_as_provider,
+      'familyservice_update',
+      {'pk': self.test_object.pk},
+      self._valid_form_data(),
+      302,
+    )
+    self.test_object.refresh_from_db()
+    self.assertEqual(self.test_object.name, VALID_STRING_B)
+    self.assertEqual(self.test_object.status, 'revision_needed')
+
+
+class FamilyServiceDetailViewTest(FormViewTestCase):
+  """
+  Testklasse für die Detailansicht (readonly) von FamilyService.
+  """
+
+  model = FamilyService
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
+    cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
+    cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
+    service = FamilyService.objects.create(
+      name=VALID_STRING_A,
+      description='Testbeschreibung',
+      street='Teststraße 1',
+      zip=VALID_ZIP,
+      city='Rostock',
+      email='test@test.de',
+      host=cls.test_provider,
+      expiry_date=VALID_DATE_A,
+      application_needed=False,
+      phone='0381 123456',
+      costs=0.0,
+      setting='Gruppenberatung',
+      geometry=VALID_POINT_DB,
+    )
+    service.topic.set([cls.test_topic])
+    service.legal_basis.set([cls.test_law])
+    cls.test_object = service
+
+  def setUp(self):
+    self.init()
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_admin(self, mock_get):
+    self.generic_get_test(
+      login_as_admin,
+      'familyservice_detail',
+      {'pk': self.test_object.pk},
+      200,
+      HTML,
+      VALID_STRING_A,
+    )
+
+
 class FamilyServiceDeleteViewTest(FormViewTestCase):
   """
   Testklasse für die Lösch-Ansicht von FamilyService.
@@ -466,6 +730,137 @@ class WoftGServiceCreateViewTest(ViewTestCase):
   def test_post_success_as_provider(self, mock_get):
     self.generic_post_test(
       login_as_provider, 'woftgservice_create', None, self._valid_form_data(), 302
+    )
+
+
+class WoftGServiceUpdateViewTest(FormViewTestCase):
+  """
+  Testklasse für die Bearbeitungs-Ansicht von WoftGService.
+  """
+
+  model = WoftGService
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
+    cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
+    cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
+    service = WoftGService.objects.create(
+      name=VALID_STRING_A,
+      description='Testbeschreibung',
+      street='Teststraße 1',
+      zip=VALID_ZIP,
+      city='Rostock',
+      email='test@test.de',
+      host=cls.test_provider,
+      expiry_date=VALID_DATE_A,
+      application_needed=False,
+      phone='0381 123456',
+      costs=0.0,
+      setting='Einzelberatung',
+      handicap_accessible=False,
+      geometry=VALID_POINT_DB,
+      status='draft',
+    )
+    service.topic.set([cls.test_topic])
+    service.legal_basis.set([cls.test_law])
+    cls.test_object = service
+
+  def setUp(self):
+    self.init()
+
+  def _valid_form_data(self):
+    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk)
+    data['name'] = VALID_STRING_B
+    data['setting'] = 'Einzelberatung'
+    return data
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_provider_200(self, mock_get):
+    self.generic_get_test(
+      login_as_provider,
+      'woftgservice_update',
+      {'pk': self.test_object.pk},
+      200,
+      HTML,
+      VALID_STRING_A,
+    )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_post_success_as_provider(self, mock_get):
+    self.generic_post_test(
+      login_as_provider,
+      'woftgservice_update',
+      {'pk': self.test_object.pk},
+      self._valid_form_data(),
+      302,
+    )
+    self.test_object.refresh_from_db()
+    self.assertEqual(self.test_object.name, VALID_STRING_B)
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_post_revision_needed_saves_changes(self, mock_get):
+    """Regressionstest: revision_needed-Save aktualisiert die DB."""
+    self.test_object.status = 'revision_needed'
+    self.test_object.save()
+    self.generic_post_test(
+      login_as_provider,
+      'woftgservice_update',
+      {'pk': self.test_object.pk},
+      self._valid_form_data(),
+      302,
+    )
+    self.test_object.refresh_from_db()
+    self.assertEqual(self.test_object.name, VALID_STRING_B)
+    self.assertEqual(self.test_object.status, 'revision_needed')
+
+
+class WoftGServiceDetailViewTest(FormViewTestCase):
+  """
+  Testklasse für die Detailansicht (readonly) von WoftGService.
+  """
+
+  model = WoftGService
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
+    cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
+    cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
+    service = WoftGService.objects.create(
+      name=VALID_STRING_A,
+      description='Testbeschreibung',
+      street='Teststraße 1',
+      zip=VALID_ZIP,
+      city='Rostock',
+      email='test@test.de',
+      host=cls.test_provider,
+      expiry_date=VALID_DATE_A,
+      application_needed=False,
+      phone='0381 123456',
+      costs=0.0,
+      setting='Einzelberatung',
+      handicap_accessible=False,
+      geometry=VALID_POINT_DB,
+    )
+    service.topic.set([cls.test_topic])
+    service.legal_basis.set([cls.test_law])
+    cls.test_object = service
+
+  def setUp(self):
+    self.init()
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_admin(self, mock_get):
+    self.generic_get_test(
+      login_as_admin,
+      'woftgservice_detail',
+      {'pk': self.test_object.pk},
+      200,
+      HTML,
+      VALID_STRING_A,
     )
 
 
