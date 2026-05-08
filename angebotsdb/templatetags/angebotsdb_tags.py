@@ -103,6 +103,15 @@ def get_attribute(obj, attr):
         return getattr(obj, display_method)()
 
     attribute = getattr(obj, attr)
+
+    # ManyToMany / Reverse-FK: Manager → komma-separierte Liste der Items
+    try:
+      field = obj._meta.get_field(attr)
+      if field.many_to_many or field.one_to_many:
+        return ', '.join(str(item) for item in attribute.all())
+    except Exception:
+      pass
+
     if callable(attribute):
       return attribute()
     return attribute
