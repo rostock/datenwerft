@@ -8,8 +8,6 @@
 {% block scripts %}
   <!-- inherit from form.html -->
   {{ block.super }}
-  <!-- add scripts for antragsmanagement -->
-  <script src="{% static "js/form.js" %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -20,11 +18,7 @@
       {% endif %}
     {% endblock %}
     <h2>
-      {% if custom_header %}
-        {{ custom_header }}
-      {% else %}
-        <i class="fa-solid fa-{{ 'edit'|get_icon }}"></i> {{ model_verbose_name }}: <em>{{ object }}</em>
-      {% endif %}
+      <i class="fa-solid fa-{{ 'edit'|get_icon }}"></i> {{ model_verbose_name }}: <em>{{ object }}</em>
     </h2>
     <form class="form mt-4 flex-container-column" method="post" action="" id="form">
       {% csrf_token %}

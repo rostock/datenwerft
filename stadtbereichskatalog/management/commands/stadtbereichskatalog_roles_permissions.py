@@ -3,12 +3,13 @@ from django.core.management.base import BaseCommand
 
 from stadtbereichskatalog.constants_vars import GROUP
 
+from ...apps import StadtbereichskatalogConfig as appConfig
+
 
 class Command(BaseCommand):
   def handle(self, *args, **options):
     num_groups_existing, num_groups_created = 0, 0
     num_permissions_already_assigned, num_permissions_assigned = 0, 0
-    app_label = 'stadtbereichskatalog'
     # get relevant group name
     group_name = GROUP
     # create group if not existing yet
@@ -18,7 +19,7 @@ class Command(BaseCommand):
     else:
       num_groups_existing += 1
     # assign permissions if not assigned yet
-    permissions = Permission.objects.filter(content_type__app_label=app_label)
+    permissions = Permission.objects.filter(content_type__app_label=appConfig.name)
     for permission in permissions:
       if group.permissions.filter(pk=permission.pk).exists():
         num_permissions_already_assigned += 1
