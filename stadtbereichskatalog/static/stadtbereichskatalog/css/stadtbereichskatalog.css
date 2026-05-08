@@ -1,0 +1,14 @@
+#columns-table td,
+#columns-table th,
+#mapping td,
+#mapping th{
+  padding: 0.5rem;
+}
+
+#mapping .cell-label {
+  width: 20%;
+}
+
+#mapping .cell-field {
+  width: 80%;
+}
