@@ -1,6 +1,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from views import (
+
+from pygeoapi.views import (
   database_columns,
   database_schemas,
   database_tables,
