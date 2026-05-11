@@ -68,6 +68,7 @@ TEMPLATES = [
       BASE_DIR / 'bemas/templates',
       BASE_DIR / 'fmm/templates',
       BASE_DIR / 'stadtbereichskatalog/templates',
+      BASE_DIR / 'pygeoapi/templates',
     ],
     'APP_DIRS': True,
     'OPTIONS': {

@@ -7,7 +7,7 @@ description = "A web application for editing geospatial data, based on Django"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-  "django",
+  "Django",
   "django-auth-ldap",
   "django-datatables-view",
   "django-filter",
@@ -19,15 +19,16 @@ dependencies = [
   "djangorestframework",
   "docutils",
   "httpx",
-  "jinja2",
+  "Jinja2",
   "laspy[laszip,lazrs]",
   "lxml",
-  "pillow",
+  "Pillow",
   "psycopg2-binary",
   "pyblisher",
-  "pyyaml",
+  "PyYAML",
   "redis",
   "requests",
+  "rq",
   "ua-parser",
   "user-agents",
 ]
@@ -36,7 +37,7 @@ dependencies = [
 # Development dependencies
 
 [dependency-groups]
-dev = ["djlint", "ruff"]
+dev = ["djangorestframework-stubs", "djlint", "ruff"]
 
 
 # djLint configuration

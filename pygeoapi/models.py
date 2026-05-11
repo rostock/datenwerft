@@ -35,32 +35,26 @@ class DatabaseConnection(Model):
 
 class Collection(Model):
   id = AutoField(verbose_name=_('ID'), primary_key=True, editable=False)
+  deactivated = BooleanField(verbose_name='deaktiviert')
   service_id = BigIntegerField(unique=True)
   database_connection = ForeignKey(
     DatabaseConnection,
     on_delete=PROTECT,
     related_name='collection_database_connections',
-    verbose_name=_('Datenbankquelle'),
+    verbose_name=_('Datenbankverbindung'),
   )
-  schema = CharField(verbose_name=_('Name des Schemas in der Datenbankquelle'), max_length=100)
-  table = CharField(
-    verbose_name=_('Name der/des Tabelle/Views in der Datenbankquelle'), max_length=100
-  )
-  id_field = CharField(verbose_name=_('Name des ID-Attributs in der Datenquelle'), max_length=100)
+  schema = CharField(verbose_name=_('Name des Schemas'), max_length=100)
+  table = CharField(verbose_name=_('Name der/des Tabelle/Views'), max_length=100)
+  id_field = CharField(verbose_name=_('Name des ID-Attributs'), max_length=100)
   title_field = CharField(
-    verbose_name=_(
-      'Name des Attributs mit (möglichst eindeutiger) Bezeichnung in der Datenquelle'
-    ),
+    verbose_name=_('Name des Attributs mit (möglichst eindeutiger) Bezeichnung'),
     max_length=100,
   )
-  geom_field = CharField(
-    verbose_name=_('Name des Geometrie-Attributs in der Datenquelle'), max_length=100
-  )
+  geom_field = CharField(verbose_name=_('Name des Geometrie-Attributs'), max_length=100)
   storage_crs = CharField(
     choices=StorageCrs.choices,
-    verbose_name=_('Koordinatenreferenzsystem der Geometrie in der Datenquelle'),
+    verbose_name=_('Koordinatenreferenzsystem der Geometrie'),
   )
-  deactivated = BooleanField(verbose_name='deaktiviert')
 
   class Meta:
     db_table = 'pygeoapi_collection'

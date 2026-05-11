@@ -7,6 +7,7 @@ ReviewTasks erstellt. Diese Tasks haben bereits eine unaufgelöste revision_requ
 
 Dieses Kommando markiert alle betroffenen review_request-Messages als erledigt.
 """
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -26,17 +27,15 @@ class Command(BaseCommand):
   def handle(self, *args, **options):
     dry_run = options['dry_run']
     if dry_run:
-      self.stdout.write(self.style.WARNING(
-        'Dry-run-Modus: keine Änderungen werden gespeichert.\n'
-      ))
+      self.stdout.write(
+        self.style.WARNING('Dry-run-Modus: keine Änderungen werden gespeichert.\n')
+      )
 
     # Tasks die eine offene revision_request haben (= abgelehnt, warten auf Provider)
-    rejected_task_ids = (
-      InboxMessage.objects.filter(
-        message_type='revision_request',
-        is_resolved=False,
-      ).values_list('review_task_id', flat=True)
-    )
+    rejected_task_ids = InboxMessage.objects.filter(
+      message_type='revision_request',
+      is_resolved=False,
+    ).values_list('review_task_id', flat=True)
 
     # review_requests auf diesen Tasks die fälschlicherweise noch offen sind
     spurious = InboxMessage.objects.filter(

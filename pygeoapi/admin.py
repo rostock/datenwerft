@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.forms import ModelChoiceField, ModelForm, Select
+from django.forms import ChoiceField, ModelChoiceField, ModelForm, Select
 from django.utils.translation import gettext_lazy as _
 
 from gdihrometadata.models import Service, ServiceType
@@ -19,6 +19,31 @@ class CollectionForm(ModelForm):
     queryset=Service.objects.filter(type=ServiceType.API_FEATURES),
     widget=Select(attrs={'class': 'select2'}),
     label=_('Service-Metadatensatz aus GDI.HRO Metadata'),
+  )
+
+  schema_select = ChoiceField(
+    label=_('Auswahlmöglichkeit für Schema'),
+    required=False,
+  )
+
+  table_select = ChoiceField(
+    label=_('Auswahlmöglichkeit für Tabelle/View'),
+    required=False,
+  )
+
+  id_field_select = ChoiceField(
+    label=_('Auswahlmöglichkeit für ID-Attribut'),
+    required=False,
+  )
+
+  title_field_select = ChoiceField(
+    label=_('Auswahlmöglichkeit für Attribut mit (möglichst eindeutiger) Bezeichnung'),
+    required=False,
+  )
+
+  geom_field_select = ChoiceField(
+    label=_('Auswahlmöglichkeit für Geometrie-Attribut'),
+    required=False,
   )
 
   def __init__(self, *args, **kwargs):
@@ -63,18 +88,36 @@ class DatabaseConnectionAdmin(admin.ModelAdmin):
 class CollectionAdmin(admin.ModelAdmin):
   form = CollectionForm
   list_display = ('id', 'service_display', 'database_connection', 'schema', 'table', 'deactivated')
-  fields = (
-    'service',
-    'database_connection',
-    'schema',
-    'table',
-    'id_field',
-    'title_field',
-    'geom_field',
-    'storage_crs',
-    'deactivated',
-  )
   empty_value_display = ''
+  fieldsets = [
+    (
+      'Sichtbarkeit und Verknüpfung',
+      {
+        'description': 'Konfiguration der Sichtbarkeit und der Verknüpfung mit GDI.HRO Metadata',
+        'fields': ['deactivated', 'service'],
+      },
+    ),
+    (
+      'Datenbankquelle',
+      {
+        'description': 'Konfiguration der Datenbankquelle, aus der die Daten bezogen werden',
+        'fields': [
+          'database_connection',
+          'schema_select',
+          'schema',
+          'table_select',
+          'table',
+          'id_field_select',
+          'id_field',
+          'title_field_select',
+          'title_field',
+          'geom_field_select',
+          'geom_field',
+          'storage_crs',
+        ],
+      },
+    ),
+  ]
 
   def get_queryset(self, request):
     qs = super().get_queryset(request)
