@@ -7,8 +7,14 @@
   <script src="{% static 'select2/select2.min.js' %}"></script>
   <script src="{% static 'pygeoapi/js/change_form.js' %}"></script>
   <link rel="stylesheet" type="text/css" href="{% static 'select2/select2.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/select2-dark-mode.css' %}">
 {% endblock %}
 
 {% block admin_change_form_document_ready %}
   {{ block.super }}
+  <script>
+    const GET_DATABASE_SCHEMAS_URL = "{% url 'pygeoapi:get_database_schemas' %}";
+    const GET_DATABASE_TABLES_URL = "{% url 'pygeoapi:get_database_tables' %}";
+    const GET_DATABASE_COLUMNS_URL = "{% url 'pygeoapi:get_database_columns' %}";
+  </script>
 {% endblock %}

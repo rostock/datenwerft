@@ -104,7 +104,7 @@ $(document).ready(function() {
 async function fetchSchemas(db) {
   try {
     const response = await fetch(
-      `/pygeoapi/get-database-schemas?db=${encodeURIComponent(db)}`,
+      `${GET_DATABASE_SCHEMAS_URL}?db=${encodeURIComponent(db)}`,
       {
         method: 'GET'
       }
@@ -132,7 +132,7 @@ async function fetchSchemas(db) {
 async function fetchTables(db, schema) {
   try {
     const response = await fetch(
-      `/pygeoapi/get-database-tables?db=${encodeURIComponent(db)}&schema=${encodeURIComponent(schema)}`,
+      `${GET_DATABASE_TABLES_URL}?db=${encodeURIComponent(db)}&schema=${encodeURIComponent(schema)}`,
       {
         method: 'GET'
       }
@@ -161,7 +161,7 @@ async function fetchTables(db, schema) {
 async function fetchColumns(db, schema, table) {
   try {
     const response = await fetch(
-      `/pygeoapi/get-database-columns?db=${encodeURIComponent(db)}&schema=${encodeURIComponent(schema)}&table=${encodeURIComponent(table)}`,
+      `${GET_DATABASE_COLUMNS_URL}?db=${encodeURIComponent(db)}&schema=${encodeURIComponent(schema)}&table=${encodeURIComponent(table)}`,
       {
         method: 'GET'
       }
