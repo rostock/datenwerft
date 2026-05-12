@@ -1,5 +1,6 @@
 from django.db import connections
 from django.forms import Textarea
+from psycopg2.sql import SQL, Identifier
 
 from ..apps import StadtbereichskatalogConfig as appConfig
 from ..utils import is_stadtbereichskatalog_user
@@ -171,6 +172,63 @@ def get_database_tables(schema_name):
       [schema_name],
     )
     return [row[0] for row in cursor.fetchall()]
+
+
+def get_distinct_years(schema_name, table_name):
+  """
+  gets all distinct years of passed table within passed database schema and returns them
+
+  :param schema_name: name of database schema
+  :param table_name: name of database table
+  :return: all distinct years of passed table within passed database schema
+  """
+  connection = connections['stadtbereichskatalog']
+  with connection.cursor() as cursor:
+    cursor.execute(  # correct
+      SQL(
+        """
+      SELECT DISTINCT jahr
+       FROM {}.{}
+        ORDER BY jahr DESC
+    """
+      ).format(Identifier(schema_name), Identifier(table_name)),
+      [schema_name, table_name],
+    )
+    return [row[0] for row in cursor.fetchall()]
+
+
+def get_distinct_areas(schema_name, table_name):
+  """
+  gets all distinct areas of passed table within passed database schema and returns them
+
+  :param schema_name: name of database schema
+  :param table_name: name of database table
+  :return: all distinct areas of passed table within passed database schema
+  """
+  connection = connections['stadtbereichskatalog']
+  with connection.cursor() as cursor:
+    cursor.execute(
+      SQL(
+        """
+      SELECT s.kuerzel, s.name
+       FROM {}.{} d
+       JOIN public.stadtbereiche s ON d.stadtbereich = s.kuerzel
+        GROUP BY s.kuerzel, s.name
+         ORDER BY s.sortierung
+    """
+      ).format(Identifier(schema_name), Identifier(table_name)),
+      [schema_name, table_name],
+    )
+    areas = cursor.fetchall()
+    result = []
+    for code, name in areas:
+      result.append(
+        {
+          'code': code,
+          'name': name,
+        }
+      )
+    return result
 
 
 def get_model_objects(model, count=False):

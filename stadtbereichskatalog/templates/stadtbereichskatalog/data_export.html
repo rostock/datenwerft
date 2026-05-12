@@ -2,7 +2,7 @@
 {% load stadtbereichskatalog_tags %}
 {% load static %}
 
-{% block title %}Daten – Mapping | {% endblock %}
+{% block title %}Daten – Export | {% endblock %}
 
 {% block style %}
   {{ block.super }}
@@ -11,16 +11,15 @@
 
 {% block scripts %}
   {{ block.super }}
-  <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
   <script src="{% static 'stadtbereichskatalog/js/asyncFunctions.js' %}"></script>
   <script src="{% static 'stadtbereichskatalog/js/functions.js' %}"></script>
-  <script src="{% static 'stadtbereichskatalog/js/dataImportMapping.js' %}"></script>
+  <script src="{% static 'stadtbereichskatalog/js/dataExport.js' %}"></script>
 {% endblock %}
 
 {% block content %}
   {% if is_stadtbereichskatalog_user %}
     <h2>
-      <i class="fa-solid fa-{{ 'mapping'|get_icon }}"></i> Mapping auf Datenbank
+      <i class="fa-solid fa-{{ 'export'|get_icon }}"></i> Datenexport
     </h2>
     <div class="d-grid mt-5 gap-2 d-md-block">
       <a class="btn btn-primary" role="button" href="{% url app.name|add:':index' %}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> Startseite</a>
@@ -30,7 +29,7 @@
         <tbody>
           <tr>
             <td class="cell-label">
-              <label for="schema-select" class="required">Zielschema</label>
+              <label for="schema-select" class="required">Quellschema</label>
             </td>
             <td class="cell-field">
               <select name="schema" class="form-select" id="schema-select">
@@ -43,7 +42,7 @@
           </tr>
           <tr>
             <td class="cell-label">
-              <label for="table-select" class="required">Zieltabelle</label>
+              <label for="table-select" class="required">Quelltabelle</label>
             </td>
             <td class="cell-field">
               <select name="table" class="form-select" id="table-select" disabled>
@@ -53,31 +52,22 @@
           </tr>
           <tr>
             <td class="cell-label">
-              <label for="columns-table" class="required">Zielspalten</label>
+              <label for="year-select">Filter auf Jahr</label>
             </td>
             <td class="cell-field">
-              <table id="columns-table">
-              </table>
+              <select name="year" class="form-select" id="year-select" disabled>
+                <option value="">---------</option>
+              </select>
             </td>
           </tr>
           <tr>
             <td class="cell-label">
-              <label for="file-input" class="required">Quelldatei</label>
+              <label for="area-select">Filter auf Stadtbereich</label>
             </td>
             <td class="cell-field">
-              <div class="input-group">
-                <input type="file" name="file" accept=".csv" class="form-control" id="file-input" aria-describedby="upload-file" aria-label="Upload">
-                <button class="btn btn-primary" type="button" id="upload-file">Upload</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td class="cell-label">
-              <label for="mapping-table" class="required">Mapping</label>
-            </td>
-            <td class="cell-field">
-              <table id="mapping-table">
-              </table>
+              <select name="area" class="form-select" id="area-select" disabled>
+                <option value="">---------</option>
+              </select>
             </td>
           </tr>
         </tbody>
@@ -86,12 +76,8 @@
     {% include "stadtbereichskatalog/modal_messages.html" %}
     <script>
       const GET_DATABASE_TABLES_URL = "{% url app.name|add:':get_database_tables' %}";
-      const GET_DATABASE_COLUMNS_URL = "{% url app.name|add:':get_database_columns' %}";
-      const PREVIEW_CSV_URL = "{% url app.name|add:':preview_csv' %}";
-      const CSRF_TOKEN = '{{ csrf_token }}';
-      let currentColumns = [];
-      let currentCsvHeaders = [];
-      let currentPreviewRows = [];
+      const GET_DISTINCT_YEARS_URL = "{% url app.name|add:':get_distinct_years' %}";
+      const GET_DISTINCT_AREAS_URL = "{% url app.name|add:':get_distinct_areas' %}";
     </script>
   {% else %}
     {% include "stadtbereichskatalog/notice_no-permissions.html" %}

@@ -1,118 +1,48 @@
 /**
- * @file data_import_mapping.js
+ * @file asyncFunctions.js
  *
- * handles database schema and table selection as well as table structure inspection
+ * contains (helper) functions
  */
-
-$(document).ready(function() {
-
-  $('#schema-select').on('change', async function() {
-    const schema = $(this).val();
-    resetTableSelect();
-    clearColumnsTable();
-    clearMappingTable();
-    if (!schema) {
-      return;
-    }
-    const data = await fetchTables(schema);
-    if (!data || !data.tables) {
-      return;
-    }
-    populateTableSelect(data.tables);
-  });
-
-
-  $('#table-select').on('change', async function() {
-    const schema = $('#schema-select').val();
-    const table = $(this).val();
-    clearColumnsTable();
-    clearMappingTable();
-    if (!schema || !table) {
-      return;
-    }
-    const data = await fetchColumns(schema, table);
-    if (!data || !data.columns) {
-      return;
-    }
-    currentColumns = data.columns;
-    renderColumnsTable(currentColumns);
-    if (currentCsvHeaders.length) {
-      renderMappingTable();
-    }
-  });
-
-
-  $('#upload-file').on('click', async function() {
-    const fileInput = $('#file-input')[0];
-    if (!fileInput.files.length) {
-      alert('Bitte wählen Sie eine Quelldatei aus.');
-      return;
-    }
-    const file = fileInput.files[0];
-    const data = await fetchCsvPreview(file);
-    if (!data) {
-      return;
-    }
-    currentCsvHeaders = data.headers;
-    currentPreviewRows = data.preview_rows;
-    renderMappingTable();
-  });
-
-});
-
 
 /**
- * fetches all tables of passed database schema
+ * clears dropdown
  *
- * @async
  * @function
- * @name fetchTables
+ * @name clearDropdown
  *
- * @param {string} schema - name of database schema
- *
- * @returns {Promise<object|null>}
+ * @param {object} dropdown - dropdown object
  */
-async function fetchTables(schema) {
-  try {
-    const response = await fetch(
-      `${GET_DATABASE_TABLES_URL}?schema=${encodeURIComponent(schema)}`,
-      {
-        method: 'GET'
-      }
-    );
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+function clearDropdown(dropdown) {
+  dropdown.empty();
+  dropdown.append(
+    $('<option>', {
+      value: '',
+      text: '---------'
+    })
+  );
+  dropdown.prop('disabled', true);
 }
 
 
 /**
- * fetches all columns of passed table within passed database schema
+ * populates dropdown
  *
- * @async
  * @function
- * @name fetchColumns
+ * @name populateDropdown
  *
- * @param {string} schema - name of database schema
- * @param {string} table - name of database table
- *
- * @returns {Promise<object|null>}
+ * @param {object} dropdown - dropdown object
+ * @param {Array<string>} values - values
  */
-async function fetchColumns(schema, table) {
-  try {
-    const response = await fetch(
-      `${GET_DATABASE_COLUMNS_URL}?schema=${encodeURIComponent(schema)}&table=${encodeURIComponent(table)}`,
-      {
-        method: 'GET'
-      }
+function populateDropdown(dropdown, values) {
+  $.each(values, function (index, value) {
+    dropdown.append(
+      $('<option>', {
+        value: value,
+        text: value
+      })
     );
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  });
+  dropdown.prop('disabled', false);
 }
 
 
@@ -123,15 +53,7 @@ async function fetchColumns(schema, table) {
  * @name resetTableSelect
  */
 function resetTableSelect() {
-  const $tableSelect = $('#table-select');
-  $tableSelect.empty();
-  $tableSelect.append(
-    $('<option>', {
-      value: '',
-      text: '---------'
-    })
-  );
-  $tableSelect.prop('disabled', true);
+  clearDropdown($('#table-select'));
 }
 
 
@@ -144,16 +66,7 @@ function resetTableSelect() {
  * @param {Array<string>} tables - table names
  */
 function populateTableSelect(tables) {
-  const $tableSelect = $('#table-select');
-  $.each(tables, function (index, table) {
-    $tableSelect.append(
-      $('<option>', {
-        value: table,
-        text: table
-      })
-    );
-  });
-  $tableSelect.prop('disabled', false);
+  populateDropdown($('#table-select'), tables);
 }
 
 
@@ -217,39 +130,6 @@ function renderColumnsTable(columns) {
     `;
     $columnsBody.append(row);
   });
-}
-
-
-/**
- * uploads CSV and fetches preview
- *
- * @async
- * @function
- * @name fetchCsvPreview
- *
- * @param {File} file
- *
- * @returns {Promise<object|null>}
- */
-async function fetchCsvPreview(file) {
-  try {
-    const formData = new FormData();
-    formData.append('file', file);
-    const response = await fetch(
-      PREVIEW_CSV_URL,
-      {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-CSRFToken': CSRF_TOKEN
-        }
-      }
-    );
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
 }
 
 
@@ -348,4 +228,62 @@ function renderMappingTable() {
     $tbody.append(row);
   });
 
+}
+
+
+/**
+ * resets year select dropdown
+ *
+ * @function
+ * @name resetYearSelect
+ */
+function resetYearSelect() {
+  clearDropdown($('#year-select'));
+}
+
+
+/**
+ * populates year select dropdown
+ *
+ * @function
+ * @name populateYearSelect
+ *
+ * @param {Array<string>} years - years
+ */
+function populateYearSelect(years) {
+  populateDropdown($('#year-select'), years);
+}
+
+
+/**
+ * resets area select dropdown
+ *
+ * @function
+ * @name resetAreaSelect
+ */
+function resetAreaSelect() {
+  clearDropdown($('#area-select'));
+}
+
+
+/**
+ * populates area select dropdown
+ *
+ * @function
+ * @name populateAreaSelect
+ *
+ * @param {Array<string>} areas - areas
+ */
+function populateAreaSelect(areas) {
+  const $areaSelect = $('#area-select');
+  $.each(areas, function (index, area) {
+    let text = area.code + ' – ' + area.name;
+    $areaSelect.append(
+      $('<option>', {
+        value: area.code,
+        text: text
+      })
+    );
+  });
+  $areaSelect.prop('disabled', false);
 }

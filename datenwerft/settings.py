@@ -363,6 +363,7 @@ STADTBEREICHSKATALOG_ICONS = {
   'delete': 'trash-can',
   'edit': 'pen-to-square',
   'error': 'circle-exclamation',
+  'export': 'file-export',
   'import': 'file-import',
   'indicator': 'gauge',
   'info': 'circle-info',

@@ -1,5 +1,5 @@
 /**
- * @file change_form.js
+ * @file changeForm.js
  *
  * handles database schema, table, and multiple columns selections
  */
@@ -195,6 +195,28 @@ function clearDropdown(dropdown) {
 
 
 /**
+ * populates dropdown
+ *
+ * @function
+ * @name populateDropdown
+ *
+ * @param {object} dropdown - dropdown object
+ * @param {Array<string>} values - values
+ */
+function populateDropdown(dropdown, values) {
+  $.each(values, function (index, value) {
+    dropdown.append(
+      $('<option>', {
+        value: value,
+        text: value
+      })
+    );
+  });
+  dropdown.prop('disabled', false);
+}
+
+
+/**
  * resets schema select dropdown
  *
  * @function
@@ -226,28 +248,6 @@ function resetFieldSelects() {
   clearDropdown($('#id_id_field_select'));
   clearDropdown($('#id_title_field_select'));
   clearDropdown($('#id_geom_field_select'));
-}
-
-
-/**
- * populates dropdown
- *
- * @function
- * @name populateDropdown
- *
- * @param {object} dropdown - dropdown object
- * @param {Array<string>} values - values
- */
-function populateDropdown(dropdown, values) {
-  $.each(values, function (index, value) {
-    dropdown.append(
-      $('<option>', {
-        value: value,
-        text: value
-      })
-    );
-  });
-  dropdown.prop('disabled', false);
 }
 
 

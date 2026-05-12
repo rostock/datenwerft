@@ -17,9 +17,12 @@ from .views import (
   TopicEditView,
   TopicTableDataView,
   TopicTableView,
+  data_export,
   data_import_mapping,
   database_columns,
   database_tables,
+  distinct_areas,
+  distinct_years,
   preview_csv,
 )
 
@@ -127,6 +130,24 @@ urlpatterns = [
       IndicatorEditView.as_view(success_url=reverse_lazy(f'{app_name}:indicator_table'))
     ),
     name='indicator_edit',
+  ),
+  # page for exporting data
+  path(
+    route='data/export',
+    view=login_required(data_export),
+    name='data_export',
+  ),
+  # JSON with all distinct years of table within database schema
+  path(
+    route='get-distinct-years',
+    view=login_required(distinct_years),
+    name='get_distinct_years',
+  ),
+  # JSON with all distinct areas of table within database schema
+  path(
+    route='get-distinct-areas',
+    view=login_required(distinct_areas),
+    name='get_distinct_areas',
   ),
   # page for importing and mapping data
   path(

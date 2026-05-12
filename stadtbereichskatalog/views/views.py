@@ -20,6 +20,8 @@ from .functions import (
   get_database_columns,
   get_database_schemas,
   get_database_tables,
+  get_distinct_areas,
+  get_distinct_years,
 )
 
 #
@@ -218,6 +220,72 @@ class IndicatorEditView(MetadataEditView):
 #
 # function-based views
 #
+
+
+def data_export(request):
+  """
+  creates and returns view for page for exporting data
+
+  :param request: request object
+  :return: view for page for exporting data
+  """
+
+  # add global app related context elements
+  context = add_app_context_elements({})
+  # add permissions related context elements
+  context = add_permissions_context_elements(context, request.user)
+  # add to context: schemas
+  schemas = get_database_schemas()
+  context['schemas'] = schemas
+  return render(
+    request,
+    template_name='stadtbereichskatalog/data_export.html',
+    context=context,
+  )
+
+
+def distinct_years(request):
+  """
+  creates and returns JSON with all distinct years of passed table within passed database schema
+
+  :param request: request object
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    schema = request.GET.get('schema')
+    table = request.GET.get('table')
+    years = get_distinct_years(schema, table)
+    return JsonResponse(
+      data={'years': years},
+      json_dumps_params={'indent': 2, 'ensure_ascii': False},
+      content_type='application/json; charset=utf-8',
+    )
+
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
+
+
+def distinct_areas(request):
+  """
+  creates and returns JSON with all distinct areas of passed table within passed database schema
+
+  :param request: request object
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    schema = request.GET.get('schema')
+    table = request.GET.get('table')
+    areas = get_distinct_areas(schema, table)
+    return JsonResponse(
+      data={'areas': areas},
+      json_dumps_params={'indent': 2, 'ensure_ascii': False},
+      content_type='application/json; charset=utf-8',
+    )
+
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
 
 
 def data_import_mapping(request):
