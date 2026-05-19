@@ -10,17 +10,43 @@
  * @function
  * @name clearDropdown
  *
- * @param {object} dropdown - dropdown object
+ * @param {object} $dropdown - dropdown object
  */
-function clearDropdown(dropdown) {
-  dropdown.empty();
-  dropdown.append(
+function clearDropdown($dropdown) {
+  $dropdown.empty();
+  $dropdown.append(
     $('<option>', {
       value: '',
       text: '---------'
     })
   );
-  dropdown.prop('disabled', true);
+  disableFormElement($dropdown);
+}
+
+
+/**
+ * disable form element
+ *
+ * @function
+ * @name disableFormElement
+ *
+ * @param {object} $formElement - form element object
+ */
+function disableFormElement($formElement) {
+  $formElement.prop('disabled', true);
+}
+
+
+/**
+ * enable form element
+ *
+ * @function
+ * @name enableFormElement
+ *
+ * @param {object} $formElement - form element object
+ */
+function enableFormElement($formElement) {
+  $formElement.prop('disabled', false);
 }
 
 
@@ -30,19 +56,19 @@ function clearDropdown(dropdown) {
  * @function
  * @name populateDropdown
  *
- * @param {object} dropdown - dropdown object
+ * @param {object} $dropdown - dropdown object
  * @param {Array<string>} values - values
  */
-function populateDropdown(dropdown, values) {
+function populateDropdown($dropdown, values) {
   $.each(values, function (index, value) {
-    dropdown.append(
+    $dropdown.append(
       $('<option>', {
         value: value,
         text: value
       })
     );
   });
-  dropdown.prop('disabled', false);
+  enableFormElement($dropdown);
 }
 
 
@@ -232,6 +258,30 @@ function renderMappingTable() {
 
 
 /**
+ * disables upload input and button
+ *
+ * @function
+ * @name disableUpload
+ */
+function disableUpload() {
+  disableFormElement($('#file-input'));
+  disableFormElement($('#upload-file'));
+}
+
+
+/**
+ * enables upload input and button
+ *
+ * @function
+ * @name enableUpload
+ */
+function enableUpload() {
+  enableFormElement($('#file-input'));
+  enableFormElement($('#upload-file'));
+}
+
+
+/**
  * resets year select dropdown
  *
  * @function
@@ -285,5 +335,5 @@ function populateAreaSelect(areas) {
       })
     );
   });
-  $areaSelect.prop('disabled', false);
+  enableFormElement($areaSelect);
 }
