@@ -146,3 +146,31 @@ async function fetchAreas(schema, table) {
     return null;
   }
 }
+
+
+/**
+ * fetches all distinct elections of passed table within passed database schema
+ *
+ * @async
+ * @function
+ * @name fetchElections
+ *
+ * @param {string} schema - name of database schema
+ * @param {string} table - name of database table
+ *
+ * @returns {Promise<object|null>}
+ */
+async function fetchElections(schema, table) {
+  try {
+    const response = await fetch(
+      `${GET_DISTINCT_ELECTIONS_URL}?schema=${encodeURIComponent(schema)}&table=${encodeURIComponent(table)}`,
+      {
+        method: 'GET'
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}

@@ -70,19 +70,30 @@
               </select>
             </td>
           </tr>
+          <tr>
+            <td class="cell-label">
+              <label for="election-select">Filter auf Wahl</label>
+            </td>
+            <td class="cell-field">
+              <select name="election" class="form-select" id="election-select" disabled>
+                <option value="">---------</option>
+              </select>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
     <div class="btn-group mt-3 mb-3" role="group" aria-label="Export">
       <button type="button" class="btn btn-primary export-button" id="export-csv-standard" disabled><i class="fa-solid fa-{{ 'csv'|get_icon }}"></i> CSV (Standard-konform)</button>
-      <button type="button" class="btn btn-primary export-button" id="export-csv-special" disabled><i class="fa-solid fa-{{ 'csv'|get_icon }}"></i> CSV (Excel-freundlich)</button>
-      <button type="button" class="btn btn-primary export-button" id="export-excel" disabled><i class="fa-solid fa-{{ 'excel'|get_icon }}"></i> Excel</button>
+      <button type="button" class="btn btn-primary ms-1 export-button" id="export-csv-special" disabled><i class="fa-solid fa-{{ 'csv'|get_icon }}"></i> CSV (Excel-freundlich)</button>
+      <button type="button" class="btn btn-primary ms-1 export-button" id="export-excel" disabled><i class="fa-solid fa-{{ 'excel'|get_icon }}"></i> Excel</button>
     </div>
     {% include "stadtbereichskatalog/modal_messages.html" %}
     <script>
       const GET_DATABASE_TABLES_URL = "{% url app.name|add:':get_database_tables' %}";
       const GET_DISTINCT_YEARS_URL = "{% url app.name|add:':get_distinct_years' %}";
       const GET_DISTINCT_AREAS_URL = "{% url app.name|add:':get_distinct_areas' %}";
+      const GET_DISTINCT_ELECTIONS_URL = "{% url app.name|add:':get_distinct_elections' %}";
     </script>
   {% else %}
     {% include "stadtbereichskatalog/notice_no-permissions.html" %}

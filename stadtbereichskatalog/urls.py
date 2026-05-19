@@ -22,6 +22,7 @@ from .views import (
   database_columns,
   database_tables,
   distinct_areas,
+  distinct_elections,
   distinct_years,
   preview_csv,
 )
@@ -148,6 +149,12 @@ urlpatterns = [
     route='get-distinct-areas',
     view=login_required(distinct_areas),
     name='get_distinct_areas',
+  ),
+  # JSON with all distinct elections of table within database schema
+  path(
+    route='get-distinct-elections',
+    view=login_required(distinct_elections),
+    name='get_distinct_elections',
   ),
   # page for importing and mapping data
   path(

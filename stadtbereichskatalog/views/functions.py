@@ -183,16 +183,19 @@ def get_distinct_years(schema_name, table_name):
   :return: all distinct years of passed table within passed database schema
   """
   connection = connections['stadtbereichskatalog']
+  column = 'wahljahr' if schema_name == 'wahlen' else 'jahr'
   with connection.cursor() as cursor:
     cursor.execute(  # correct
       SQL(
         """
-      SELECT DISTINCT jahr
+      SELECT DISTINCT {}
        FROM {}.{}
-        ORDER BY jahr DESC
+        ORDER BY {} DESC
     """
-      ).format(Identifier(schema_name), Identifier(table_name)),
-      [schema_name, table_name],
+      ).format(
+        Identifier(column), Identifier(schema_name), Identifier(table_name), Identifier(column)
+      ),
+      [column, schema_name, table_name, column],
     )
     return [row[0] for row in cursor.fetchall()]
 
@@ -226,6 +229,41 @@ def get_distinct_areas(schema_name, table_name):
         {
           'code': code,
           'name': name,
+        }
+      )
+    return result
+
+
+def get_distinct_elections(schema_name, table_name):
+  """
+  gets all distinct elections of passed table within passed database schema and returns them
+
+  :param schema_name: name of database schema
+  :param table_name: name of database table
+  :return: all distinct elections of passed table within passed database schema
+  """
+  connection = connections['stadtbereichskatalog']
+  with connection.cursor() as cursor:
+    cursor.execute(
+      SQL(
+        """
+      SELECT w.id, w.name, d.wahljahr
+       FROM {}.{} d
+       JOIN public.wahlarten w ON d.wahlart_id = w.id
+        GROUP BY w.id, w.name, d.wahljahr
+         ORDER BY w.name, d.wahljahr DESC
+    """
+      ).format(Identifier(schema_name), Identifier(table_name)),
+      [schema_name, table_name],
+    )
+    elections = cursor.fetchall()
+    result = []
+    for id, name, wahljahr in elections:
+      result.append(
+        {
+          'election': id,
+          'name': name,
+          'year': wahljahr,
         }
       )
     return result

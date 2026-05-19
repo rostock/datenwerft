@@ -21,6 +21,7 @@ from .functions import (
   get_database_schemas,
   get_database_tables,
   get_distinct_areas,
+  get_distinct_elections,
   get_distinct_years,
 )
 
@@ -279,6 +280,29 @@ def distinct_areas(request):
     areas = get_distinct_areas(schema, table)
     return JsonResponse(
       data={'areas': areas},
+      json_dumps_params={'indent': 2, 'ensure_ascii': False},
+      content_type='application/json; charset=utf-8',
+    )
+
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
+
+
+def distinct_elections(request):
+  """
+  creates and returns JSON with all distinct elections
+  of passed table within passed database schema
+
+  :param request: request object
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    schema = request.GET.get('schema')
+    table = request.GET.get('table')
+    elections = get_distinct_elections(schema, table)
+    return JsonResponse(
+      data={'elections': elections},
       json_dumps_params={'indent': 2, 'ensure_ascii': False},
       content_type='application/json; charset=utf-8',
     )

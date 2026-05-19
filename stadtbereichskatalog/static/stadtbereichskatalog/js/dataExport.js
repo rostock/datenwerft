@@ -11,6 +11,7 @@ $(document).ready(function() {
     resetTableSelect();
     resetYearSelect();
     resetAreaSelect();
+    resetElectionSelect();
     disableExport();
     if (!schema) {
       return;
@@ -28,19 +29,41 @@ $(document).ready(function() {
     const table = $(this).val();
     resetYearSelect();
     resetAreaSelect();
+    resetElectionSelect();
     if (!schema || !table) {
       return;
     }
-    const yearsData = await fetchYears(schema, table);
-    if (!yearsData || !yearsData.years) {
-      return;
+
+    // selections generally only if table other than 'kandidaten' selected
+    if (table !== 'kandidaten') {
+
+      // election selection if schema 'wahlen' selected
+      if (schema === 'wahlen') {
+        const electionsData = await fetchElections(schema, table);
+        if (!electionsData || !electionsData.elections) {
+          return;
+        }
+        populateElectionSelect(electionsData.elections);
+      // year selection if schema other than 'wahlen' selected
+      } else {
+        const yearsData = await fetchYears(schema, table);
+        if (!yearsData || !yearsData.years) {
+          return;
+        }
+        populateYearSelect(yearsData.years);
+      }
+
+      // area selection only if table other than '_hro*' selected
+      if (!table.startsWith('_hro')) {
+        const areasData = await fetchAreas(schema, table);
+        if (!areasData || !areasData.areas) {
+          return;
+        }
+        populateAreaSelect(areasData.areas);
+      }
+
     }
-    populateYearSelect(yearsData.years);
-    const areasData = await fetchAreas(schema, table);
-    if (!areasData || !areasData.areas) {
-      return;
-    }
-    populateAreaSelect(areasData.areas);
+
     enableExport();
   });
 

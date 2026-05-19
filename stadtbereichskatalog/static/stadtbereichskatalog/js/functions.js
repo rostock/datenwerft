@@ -363,3 +363,37 @@ function populateAreaSelect(areas) {
   });
   enableFormElement($areaSelect);
 }
+
+
+/**
+ * resets election select dropdown
+ *
+ * @function
+ * @name resetElectionSelect
+ */
+function resetElectionSelect() {
+  clearDropdown($('#election-select'));
+}
+
+
+/**
+ * populates election select dropdown
+ *
+ * @function
+ * @name populateElectionSelect
+ *
+ * @param {Array<string>} elections - elections
+ */
+function populateElectionSelect(elections) {
+  const $electionSelect = $('#election-select');
+  $.each(elections, function (index, election) {
+    let text = election.name + ' ' + election.year;
+    $electionSelect.append(
+      $('<option>', {
+        value: election.election,
+        text: text
+      })
+    );
+  });
+  enableFormElement($electionSelect);
+}
