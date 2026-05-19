@@ -8,10 +8,10 @@ $(document).ready(function() {
 
   $('#schema-select').on('change', async function() {
     const schema = $(this).val();
-    disableUpload();
     resetTableSelect();
     clearColumnsTable();
     clearMappingTable();
+    disableUpload();
     if (!schema) {
       return;
     }

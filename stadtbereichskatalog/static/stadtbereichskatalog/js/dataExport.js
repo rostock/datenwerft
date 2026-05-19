@@ -11,6 +11,7 @@ $(document).ready(function() {
     resetTableSelect();
     resetYearSelect();
     resetAreaSelect();
+    disableExport();
     if (!schema) {
       return;
     }
@@ -40,6 +41,7 @@ $(document).ready(function() {
       return;
     }
     populateAreaSelect(areasData.areas);
+    enableExport();
   });
 
 });

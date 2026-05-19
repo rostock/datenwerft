@@ -282,6 +282,32 @@ function enableUpload() {
 
 
 /**
+ * disables export buttons
+ *
+ * @function
+ * @name disableExport
+ */
+function disableExport() {
+  $('.export-button').each(function() {
+    disableFormElement($(this));
+  });
+}
+
+
+/**
+ * enables export buttons
+ *
+ * @function
+ * @name enableExport
+ */
+function enableExport() {
+  $('.export-button').each(function() {
+    enableFormElement($(this));
+  });
+}
+
+
+/**
  * resets year select dropdown
  *
  * @function
