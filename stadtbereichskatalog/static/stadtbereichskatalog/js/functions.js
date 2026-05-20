@@ -387,13 +387,34 @@ function resetElectionSelect() {
 function populateElectionSelect(elections) {
   const $electionSelect = $('#election-select');
   $.each(elections, function (index, election) {
+    let value = election.election + '___' + election.year;
     let text = election.name + ' ' + election.year;
     $electionSelect.append(
       $('<option>', {
-        value: election.election,
+        value: value,
         text: text
       })
     );
   });
   enableFormElement($electionSelect);
+}
+
+
+/**
+ * builds data export URL
+ *
+ * @function
+ * @name buildDataExportURL
+ *
+ * @param {string} baseURL
+ *
+ * @returns {string}
+ */
+function buildDataExportURL(baseURL) {
+  const schema = $('#schema-select').val();
+  const table = $('#table-select').val();
+  const year = $('#year-select').val();
+  const area = $('#area-select').val();
+  const election = $('#election-select').val();
+  return `${baseURL}?schema=${encodeURIComponent(schema)}&table=${encodeURIComponent(table)}&year=${encodeURIComponent(year)}&area=${encodeURIComponent(area)}&election=${encodeURIComponent(election)}`;
 }

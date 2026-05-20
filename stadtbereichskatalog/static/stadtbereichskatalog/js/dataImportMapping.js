@@ -29,6 +29,7 @@ $(document).ready(function() {
     clearColumnsTable();
     clearMappingTable();
     if (!schema || !table) {
+      disableUpload();
       return;
     }
     const data = await fetchColumns(schema, table);

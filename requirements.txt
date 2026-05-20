@@ -13,6 +13,7 @@ httpx
 Jinja2
 laspy[laszip,lazrs]
 lxml
+openpyxl
 Pillow
 psycopg2-binary
 pyblisher

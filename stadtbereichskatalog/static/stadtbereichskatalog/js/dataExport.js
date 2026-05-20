@@ -31,6 +31,7 @@ $(document).ready(function() {
     resetAreaSelect();
     resetElectionSelect();
     if (!schema || !table) {
+      disableExport();
       return;
     }
 
@@ -65,6 +66,21 @@ $(document).ready(function() {
     }
 
     enableExport();
+  });
+
+
+  $('#export-csv-standard').on('click', function() {
+    window.location.href = buildDataExportURL(EXPORT_CSV_STANDARD_URL);
+  });
+
+
+  $('#export-csv-excel').on('click', function() {
+    window.location.href = buildDataExportURL(EXPORT_CSV_EXCEL_URL);
+  });
+
+
+  $('#export-excel').on('click', function() {
+    window.location.href = buildDataExportURL(EXPORT_EXCEL_URL);
   });
 
 });

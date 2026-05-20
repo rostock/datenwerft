@@ -3,14 +3,14 @@
 ## Inhalt
 
 1. [Allgemein](#allgemein)
-1. [Datenmanagement](#datenmanagement)
-1. [*BEMAS*](#bemas)
-1. [Antragsmanagement](#antragsmanagement)
-1. [*FMM*](#fmm)
-1. [*Stadtbereichskatalog*](#stadtbereichskatalog)
-1. [*GDI.HRO Codelists*](#gdihro-codelists)
-1. [*GDI.HRO Metadata*](#gdihro-metadata)
-1. [*pygeoapi*-Konfiguration](#pygeoapi-konfiguration)
+2. [Datenmanagement](#datenmanagement)
+3. [*BEMAS*](#bemas)
+4. [Antragsmanagement](#antragsmanagement)
+5. [*FMM*](#fmm)
+6. [*Stadtbereichskatalog*](#stadtbereichskatalog)
+7. [*GDI.HRO Codelists*](#gdihro-codelists)
+8. [*GDI.HRO Metadata*](#gdihro-metadata)
+9. [*pygeoapi*-Konfiguration](#pygeoapi-konfiguration)
 
 ## Allgemein
 
@@ -143,6 +143,10 @@ Hier finden Sie Hilfestellungen zum System zur Bearbeitung der Inhalte des *Stad
 #### [Tabellenansichten](stadtbereichskatalog/metadata/table.md)
 
 #### [Datensatz bearbeiten](stadtbereichskatalog/metadata/edit.md)
+
+### Bereich *Daten*
+
+#### [Export](stadtbereichskatalog/data/export.md)
 
 ## *GDI.HRO Codelists*
 

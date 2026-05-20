@@ -24,6 +24,9 @@ from .views import (
   distinct_areas,
   distinct_elections,
   distinct_years,
+  export_csv_excel,
+  export_csv_standard,
+  export_excel,
   preview_csv,
 )
 
@@ -155,6 +158,24 @@ urlpatterns = [
     route='get-distinct-elections',
     view=login_required(distinct_elections),
     name='get_distinct_elections',
+  ),
+  # CSV (standard) with data of table within database schema
+  path(
+    route='export-csv-standard',
+    view=login_required(export_csv_standard),
+    name='export_csv_standard',
+  ),
+  # CSV (Excel friendly) with data of table within database schema
+  path(
+    route='export-csv-excel',
+    view=login_required(export_csv_excel),
+    name='export_csv_excel',
+  ),
+  # XLSX with data of table within database schema
+  path(
+    route='export-excel',
+    view=login_required(export_excel),
+    name='export_excel',
   ),
   # page for importing and mapping data
   path(
