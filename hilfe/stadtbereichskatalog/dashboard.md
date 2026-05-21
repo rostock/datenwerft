@@ -10,5 +10,4 @@ und von oben nach unten gliedert sich das Dashboard wie folgt:
   - Link auf die [Tabelle](metadata/table.md) mit allen vorhandenen **Quellenangaben**
   - Link auf die [Tabelle](metadata/table.md) mit allen vorhandenen **Indikatoren**
 - Bereich **Daten:**
-  - xxx
-  - yyy
+  - Link auf die Seite mit der Möglichkeit zum [Export](data/export.md) von Daten

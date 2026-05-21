@@ -17,9 +17,14 @@ from .base import (
 from .functions import (
   add_app_context_elements,
   add_permissions_context_elements,
+  data_to_csv,
+  data_to_excel,
   get_database_columns,
   get_database_schemas,
   get_database_tables,
+  get_distinct_areas,
+  get_distinct_elections,
+  get_distinct_years,
 )
 
 #
@@ -220,6 +225,194 @@ class IndicatorEditView(MetadataEditView):
 #
 
 
+def data_export(request):
+  """
+  creates and returns view for page for exporting data
+
+  :param request: request object
+  :return: view for page for exporting data
+  """
+
+  # add global app related context elements
+  context = add_app_context_elements({})
+  # add permissions related context elements
+  context = add_permissions_context_elements(context, request.user)
+  # add to context: schemas
+  schemas = get_database_schemas()
+  context['schemas'] = schemas
+  return render(
+    request,
+    template_name='stadtbereichskatalog/data_export.html',
+    context=context,
+  )
+
+
+def database_tables(request):
+  """
+  creates and returns JSON with all tables of passed database schema
+
+  :param request: request object
+  :return: JSON with all tables of passed database schema
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    schema = request.GET.get('schema')
+    tables = get_database_tables(schema)
+    return JsonResponse(
+      data={'tables': tables},
+      json_dumps_params={'indent': 2, 'ensure_ascii': False},
+      content_type='application/json; charset=utf-8',
+    )
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
+
+
+def distinct_years(request):
+  """
+  creates and returns JSON with all distinct years of passed table within passed database schema
+
+  :param request: request object
+  :return: JSON with all distinct years of passed table within passed database schema
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    schema = request.GET.get('schema')
+    table = request.GET.get('table')
+    years = get_distinct_years(schema, table)
+    return JsonResponse(
+      data={'years': years},
+      json_dumps_params={'indent': 2, 'ensure_ascii': False},
+      content_type='application/json; charset=utf-8',
+    )
+
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
+
+
+def distinct_areas(request):
+  """
+  creates and returns JSON with all distinct areas of passed table within passed database schema
+
+  :param request: request object
+  :return: JSON with all distinct areas of passed table within passed database schema
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    schema = request.GET.get('schema')
+    table = request.GET.get('table')
+    areas = get_distinct_areas(schema, table)
+    return JsonResponse(
+      data={'areas': areas},
+      json_dumps_params={'indent': 2, 'ensure_ascii': False},
+      content_type='application/json; charset=utf-8',
+    )
+
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
+
+
+def distinct_elections(request):
+  """
+  creates and returns JSON with all distinct elections
+  of passed table within passed database schema
+
+  :param request: request object
+  :return: JSON with all distinct elections of passed table within passed database schema
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    schema = request.GET.get('schema')
+    table = request.GET.get('table')
+    elections = get_distinct_elections(schema, table)
+    return JsonResponse(
+      data={'elections': elections},
+      json_dumps_params={'indent': 2, 'ensure_ascii': False},
+      content_type='application/json; charset=utf-8',
+    )
+
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
+
+
+def export_csv_standard(request):
+  """
+  creates and returns standard CSV with data from a query
+  based on passed table within passed database schema
+  (and, optionally, passed filters)
+
+  :param request: request object
+  :return: standard CSV with data from a query based on passed table within passed database schema
+  (and, optionally, passed filters)
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    schema = request.GET.get('schema')
+    table = request.GET.get('table')
+    year = request.GET.get('year')
+    area = request.GET.get('area')
+    election = request.GET.get('election')
+
+    return data_to_csv(schema, table, year, area, election, standard=True)
+
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
+
+
+def export_csv_excel(request):
+  """
+  creates and returns Excel friendly CSV with data from a query
+  based on passed table within passed database schema
+  (and, optionally, passed filters)
+
+  :param request: request object
+  :return: Excel friendly CSV with data from a query based on passed table
+  within passed database schema (and, optionally, passed filters)
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    schema = request.GET.get('schema')
+    table = request.GET.get('table')
+    year = request.GET.get('year')
+    area = request.GET.get('area')
+    election = request.GET.get('election')
+
+    return data_to_csv(schema, table, year, area, election, standard=False)
+
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
+
+
+def export_excel(request):
+  """
+  creates and returns XLSX with data from a query
+  based on passed table within passed database schema
+  (and, optionally, passed filters)
+
+  :param request: request object
+  :return: XLSX with data from a query based on passed table
+  within passed database schema (and, optionally, passed filters)
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    schema = request.GET.get('schema')
+    table = request.GET.get('table')
+    year = request.GET.get('year')
+    area = request.GET.get('area')
+    election = request.GET.get('election')
+
+    return data_to_excel(schema, table, year, area, election)
+
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
+
+
 def data_import_mapping(request):
   """
   creates and returns view for page for importing and mapping data
@@ -242,31 +435,12 @@ def data_import_mapping(request):
   )
 
 
-def database_tables(request):
-  """
-  creates and returns JSON with all tables of passed database schema
-
-  :param request: request object
-  """
-
-  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
-    schema = request.GET.get('schema')
-    tables = get_database_tables(schema)
-    return JsonResponse(
-      data={'tables': tables},
-      json_dumps_params={'indent': 2, 'ensure_ascii': False},
-      content_type='application/json; charset=utf-8',
-    )
-  return JsonResponse(
-    data={'has_necessary_permissions': False},
-  )
-
-
 def database_columns(request):
   """
   creates and returns JSON with all columns of passed table within passed database schema
 
   :param request: request object
+  :return: JSON with all columns of passed table within passed database schema
   """
 
   if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
@@ -290,6 +464,7 @@ def preview_csv(request):
   of passed CSV file
 
   :param request: request object
+  :return: JSON with all headers and a preview of the first few rows of passed CSV file
   """
 
   if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):

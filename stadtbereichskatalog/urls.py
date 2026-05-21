@@ -17,9 +17,16 @@ from .views import (
   TopicEditView,
   TopicTableDataView,
   TopicTableView,
+  data_export,
   data_import_mapping,
   database_columns,
   database_tables,
+  distinct_areas,
+  distinct_elections,
+  distinct_years,
+  export_csv_excel,
+  export_csv_standard,
+  export_excel,
   preview_csv,
 )
 
@@ -127,6 +134,48 @@ urlpatterns = [
       IndicatorEditView.as_view(success_url=reverse_lazy(f'{app_name}:indicator_table'))
     ),
     name='indicator_edit',
+  ),
+  # page for exporting data
+  path(
+    route='data/export',
+    view=login_required(data_export),
+    name='data_export',
+  ),
+  # JSON with all distinct years of table within database schema
+  path(
+    route='get-distinct-years',
+    view=login_required(distinct_years),
+    name='get_distinct_years',
+  ),
+  # JSON with all distinct areas of table within database schema
+  path(
+    route='get-distinct-areas',
+    view=login_required(distinct_areas),
+    name='get_distinct_areas',
+  ),
+  # JSON with all distinct elections of table within database schema
+  path(
+    route='get-distinct-elections',
+    view=login_required(distinct_elections),
+    name='get_distinct_elections',
+  ),
+  # CSV (standard) with data of table within database schema
+  path(
+    route='export-csv-standard',
+    view=login_required(export_csv_standard),
+    name='export_csv_standard',
+  ),
+  # CSV (Excel friendly) with data of table within database schema
+  path(
+    route='export-csv-excel',
+    view=login_required(export_csv_excel),
+    name='export_csv_excel',
+  ),
+  # XLSX with data of table within database schema
+  path(
+    route='export-excel',
+    view=login_required(export_excel),
+    name='export_excel',
   ),
   # page for importing and mapping data
   path(
