@@ -2649,9 +2649,7 @@ class Typen_Abfallbehaelter(Typ):
 
   class BasemodelMeta(Typ.BasemodelMeta):
     description = 'Typen von Abfallbehältern'
-    git_repo_of_3d_models = (
-      'https://github.com/rostock/3DModels/tree/main/Thumbnails/Abfallbehaelter'
-    )
+    git_repo_of_3d_models = 'https://github.com/rostock/3DModels/tree/main/Abfallbehaelter/thumbs'
 
 
 class Typen_Erdwaermesonden(Typ):

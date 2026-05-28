@@ -102,9 +102,16 @@ class DataAddView(CreateView):
     referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
     context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
     if self.model.BasemodelMeta.git_repo_of_3d_models:
-      context['thumb_urls_3d_models'] = get_github_files(
-        self.model.BasemodelMeta.git_repo_of_3d_models
+      thumbs = get_github_files(
+        self.model.BasemodelMeta.git_repo_of_3d_models,
+        ['.jpg', '.jpeg', '.png', '.webp'],
+        strip_extension=True,
       )
+      if thumbs is None:
+        context['thumb_urls_3d_models'] = {}
+        context['thumb_urls_3d_models_unreachable'] = True
+      else:
+        context['thumb_urls_3d_models'] = thumbs
     return context
 
   def get_initial(self):
@@ -365,9 +372,16 @@ class DataChangeView(D3ContextMixin, UpdateView):
       elif field_name_for_address_type == 'district' and self.object.gemeindeteil:
         context['current_' + field_name_for_address_type] = self.object.gemeindeteil.pk
     if self.model.BasemodelMeta.git_repo_of_3d_models:
-      context['thumb_urls_3d_models'] = get_github_files(
-        self.model.BasemodelMeta.git_repo_of_3d_models
+      thumbs = get_github_files(
+        self.model.BasemodelMeta.git_repo_of_3d_models,
+        ['.jpg', '.jpeg', '.png', '.webp'],
+        strip_extension=True,
       )
+      if thumbs is None:
+        context['thumb_urls_3d_models'] = {}
+        context['thumb_urls_3d_models_unreachable'] = True
+      else:
+        context['thumb_urls_3d_models'] = thumbs
     # prepare a dictionary for all array fields and their contents that contain more than one value
     array_fields_values = {}
     for field in self.model._meta.get_fields():
