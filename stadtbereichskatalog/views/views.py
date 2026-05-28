@@ -1,5 +1,6 @@
 from csv import DictReader
 from io import TextIOWrapper
+from json import loads
 
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -479,6 +480,52 @@ def preview_csv(request):
     preview_rows = rows[:5]
     return JsonResponse(
       data={'headers': reader.fieldnames, 'preview_rows': preview_rows},
+      json_dumps_params={'indent': 2, 'ensure_ascii': False},
+      content_type='application/json; charset=utf-8',
+    )
+
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
+
+
+def execute_import(request):
+  """
+  imports passed file into passed table within passed database schema accoring to passed mapping
+
+  :param request: request object
+  :return: JSON with import result
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    if request.method != 'POST':
+      return JsonResponse(
+        data={'success': False, 'errors': [{'row': 0, 'message': 'POST required'}]}, status=400
+      )
+    schema = request.POST.get('schema')
+    table = request.POST.get('table')
+    mappings = loads(request.POST.get('mappings', '{}'))
+    uploaded_file = request.FILES.get('file')
+    if not uploaded_file:
+      return JsonResponse(
+        data={'success': False, 'errors': [{'row': 0, 'message': 'No file uploaded'}]}, status=400
+      )
+    decoded_file = TextIOWrapper(uploaded_file.file, encoding='utf-8')
+    reader = DictReader(decoded_file)
+    insert_columns = list(mappings.keys())
+    rows_to_insert, errors = [], []
+    for row_number, source_row in enumerate(reader, start=1):
+      try:
+        insert_row = []
+        for target_column in insert_columns:
+          source_column = mappings[target_column]
+          value = source_row.get(source_column)
+          insert_row.append(value)
+        rows_to_insert.append(tuple(insert_row))
+      except Exception as exc:
+        errors.append({'row': row_number, 'message': str(exc)})
+    return JsonResponse(
+      data={'headers': 'xxx', 'preview_rows': 'yyy'},
       json_dumps_params={'indent': 2, 'ensure_ascii': False},
       content_type='application/json; charset=utf-8',
     )

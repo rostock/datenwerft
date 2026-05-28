@@ -1,16 +1,16 @@
 /**
- * @file asyncFunctions.js
+ * @file functions.js
  *
  * contains (helper) functions
  */
 
 /**
- * clears dropdown
+ * clears passed dropdown
  *
  * @function
  * @name clearDropdown
  *
- * @param {object} $dropdown - dropdown object
+ * @param {object} $dropdown - jQuery dropdown element
  */
 function clearDropdown($dropdown) {
   $dropdown.empty();
@@ -25,12 +25,12 @@ function clearDropdown($dropdown) {
 
 
 /**
- * disable form element
+ * disables passed form element
  *
  * @function
  * @name disableFormElement
  *
- * @param {object} $formElement - form element object
+ * @param {object} $formElement - jQuery form element
  */
 function disableFormElement($formElement) {
   $formElement.prop('disabled', true);
@@ -38,12 +38,12 @@ function disableFormElement($formElement) {
 
 
 /**
- * enable form element
+ * enables passed form element
  *
  * @function
  * @name enableFormElement
  *
- * @param {object} $formElement - form element object
+ * @param {object} $formElement - jQuery form element
  */
 function enableFormElement($formElement) {
   $formElement.prop('disabled', false);
@@ -51,12 +51,12 @@ function enableFormElement($formElement) {
 
 
 /**
- * populates dropdown
+ * populates passed dropdown with passed values
  *
  * @function
  * @name populateDropdown
  *
- * @param {object} $dropdown - dropdown object
+ * @param {object} $dropdown - jQuery dropdown element
  * @param {Array<string>} values - values
  */
 function populateDropdown($dropdown, values) {
@@ -84,7 +84,7 @@ function resetTableSelect() {
 
 
 /**
- * populates table select dropdown
+ * populates table select dropdown with passed table names
  *
  * @function
  * @name populateTableSelect
@@ -108,7 +108,7 @@ function clearColumnsTable() {
 
 
 /**
- * renders columns table
+ * renders columns table by means of passed column metadata
  *
  * @function
  * @name renderColumnsTable
@@ -160,12 +160,23 @@ function renderColumnsTable(columns) {
 
 
 /**
- * normalizes strings for auto-matching
+ * clears mapping table
+ *
+ * @function
+ * @name clearMappingTable
+ */
+function clearMappingTable() {
+  $('#mapping-table').empty();
+}
+
+
+/**
+ * normalizes passed string value for auto-matching
  *
  * @function
  * @name normalize
  *
- * @param {string} value
+ * @param {string} value - string value
  *
  * @returns {string}
  */
@@ -177,18 +188,190 @@ function normalize(value) {
 
 
 /**
- * clears mapping UI
+ * validates passed preview value against passed database type
  *
  * @function
- * @name clearMappingTable
+ * @name validatePreviewValue
+ *
+ * @param {string} dbType - database type
+ * @param {string} value - preview value
+ *
+ * @returns {string|null}
  */
-function clearMappingTable() {
-  $('#mapping-table').empty();
+function validatePreviewValue(dbType, value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ''
+  ) {
+    return null;
+  }
+  dbType = dbType.toLowerCase();
+
+  /*
+   * integer
+   */
+  if (
+    dbType.includes('integer') &&
+    !/^-?\d+$/.test(value)
+  ) {
+    return 'Datentyp Quellspalte passt nicht zu Datentyp Zielspalte';
+  }
+
+  /*
+   * numeric
+   */
+  if (
+    (
+      dbType.includes('numeric') ||
+      dbType.includes('double') ||
+      dbType.includes('real')
+    ) &&
+    isNaN(value)
+  ) {
+    return 'Datentyp Quellspalte passt nicht zu Datentyp Zielspalte';
+  }
+
+  /*
+   * boolean
+   */
+  if (dbType.includes('boolean')) {
+    const normalized = value.toLowerCase();
+    if (
+      ![
+        'true',
+        'false',
+        '1',
+        '0',
+        'yes',
+        'no'
+      ].includes(normalized)
+    ) {
+      return 'Datentyp Quellspalte passt nicht zu Datentyp Zielspalte';
+    }
+  }
+
+  return null;
 }
 
 
 /**
- * renders mapping UI
+ * validates mappings
+ *
+ * @function
+ * @name validateMappings
+ */
+function validateMappings() {
+  const usedHeaders = {};
+
+  $('.mapping-select').each(function () {
+    const $select = $(this);
+    const selectedHeader = $select.val();
+    const $row = $select.closest('tr');
+    const dbType = $row.find('.db-type').text();
+    const isRequired = $row.find('.db-required').text().trim() === 'ja';
+    const $validationCell = $row.find('.validation-cell');
+    $validationCell.empty();
+    $row.removeClass('table-danger table-warning');
+    console.log($row.find('.db-required').text());
+    console.log(isRequired);
+
+    /*
+     * required field validation
+     */
+    if (
+      isRequired &&
+      !selectedHeader
+    ) {
+      $validationCell.html(
+        '<div class="alert alert-danger" role="alert">' +
+          '<i class="fa-solid fa-circle-exclamation"></i>' +
+          ' Pflichtzielspalte nicht gemappt' +
+        '</div>'
+      );
+      $row.addClass('table-danger');
+      return;
+    }
+
+    /*
+     * duplicate mapping validation
+     */
+    if (selectedHeader) {
+      if (!usedHeaders[selectedHeader]) {
+        usedHeaders[selectedHeader] = [];
+      }
+      usedHeaders[selectedHeader].push($row);
+    }
+
+    /*
+     * simple type validation
+     */
+    if (
+      selectedHeader &&
+      currentPreviewRows.length
+    ) {
+      const value = currentPreviewRows[0][selectedHeader];
+      const typeWarning = validatePreviewValue(dbType, value);
+      if (typeWarning) {
+        $validationCell.html(
+          `<div class="alert alert-warning" role="alert">` +
+            `<i class="fa-solid fa-triangle-exclamation"></i>` +
+            ` ${typeWarning}` +
+          `</div>`
+        );
+        $row.addClass('table-warning');
+      } else {
+        $validationCell.html(
+          '<div class="alert alert-success" role="alert">' +
+            '<i class="fa-solid fa-circle-check"></i>' +
+            ' Mapping ok' +
+          '</div>'
+        );
+      }
+    }
+  });
+
+  /*
+   * duplicate detection
+   */
+  for (const header in usedHeaders) {
+    if (usedHeaders[header].length > 1) {
+      usedHeaders[header].forEach(function ($row) {
+        $row.find('.validation-cell').html(
+          '<div class="alert alert-warning" role="alert">' +
+            '<i class="fa-solid fa-triangle-exclamation"></i>' +
+            ' Quellspalte mehrfach ausgewählt' +
+          '</div>'
+        );
+        $row.addClass('table-warning');
+      });
+    }
+  }
+}
+
+
+/**
+ * finds matching header in uploaded file for passed database column
+ *
+ * @function
+ * @name autoMatchColumn
+ *
+ * @param {string} column - database column
+ *
+ * @returns {string|null}
+ */
+function autoMatchColumn(column) {
+  for (const header of currentCsvHeaders) {
+    if (normalize(header) === normalize(column)) {
+      return header;
+    }
+  }
+  return null;
+}
+
+
+/**
+ * renders mapping table
  *
  * @function
  * @name renderMappingTable
@@ -197,11 +380,11 @@ function renderMappingTable() {
   let tableStructure = `
     <thead>
       <tr>
-        <th>Spaltenname in Zieltabelle</th>
+        <th>Zielspalte</th>
         <th>Datentyp</th>
         <th>Pflicht?</th>
-        <th>Spaltenname in Quelldatei</th>
-        <th>Vorschau</th>
+        <th>Quellspalte</th>
+        <th>Datenvorschau</th>
         <th>Status</th>
       </tr>
     </thead>
@@ -210,7 +393,8 @@ function renderMappingTable() {
   `;
   $('#mapping-table').append(tableStructure);
   const $tbody = $('#mapping-table tbody');
-  $.each(currentColumns, function (index, col) {
+  $tbody.empty();
+  $.each(currentColumns, function(index, col) {
     let options = '<option value="">---------</option>';
     $.each(currentCsvHeaders, function (i, header) {
       const selected =
@@ -223,37 +407,40 @@ function renderMappingTable() {
         </option>
       `;
     });
+    const selectedHeader = autoMatchColumn(col.name);
     const previewValue =
-      currentPreviewRows.length
-        ? Object.values(currentPreviewRows[0])[0]
+      (
+        selectedHeader &&
+        currentPreviewRows.length
+      )
+        ? currentPreviewRows[0][selectedHeader] || ''
         : '';
     const row = `
-      <tr>
+      <tr data-db-column="${col.name}">
         <td class="${col.required ? 'required' : ''}">
           ${col.name}
         </td>
-        <td>
+        <td class="db-type">
           ${col.type}
         </td>
-        <td>
+        <td class="db-required">
           ${col.required ? 'ja' : 'nein'}
         </td>
         <td>
-          <select
-            class="form-select mapping-select"
-            data-db-column="${col.name}"
-          >
+          <select class="form-select mapping-select" data-db-column="${col.name}">
             ${options}
           </select>
         </td>
         <td class="preview-cell">
           ${previewValue}
         </td>
+        <td class="validation-cell">
+        </td>
       </tr>
     `;
     $tbody.append(row);
   });
-
+  validateMappings();
 }
 
 
@@ -278,6 +465,117 @@ function disableUpload() {
 function enableUpload() {
   enableFormElement($('#file-input'));
   enableFormElement($('#upload-file'));
+}
+
+
+/**
+ * updates preview cell for mapping row according to passed select element
+ *
+ * @function
+ * @name updatePreview
+ *
+ * @param {object} $select - jQuery select element
+ */
+function updatePreview($select) {
+  const selectedHeader = $select.val();
+  const $row = $select.closest('tr');
+  let previewValue = '';
+  if (selectedHeader && currentPreviewRows.length) {
+    previewValue = currentPreviewRows[0][selectedHeader] || '';
+  }
+  $row.find('.preview-cell').text(previewValue);
+}
+
+
+/**
+ * disables import button
+ *
+ * @function
+ * @name disableImport
+ */
+function disableImport() {
+  disableFormElement($('#import'));
+}
+
+
+/**
+ * enables import buttons
+ *
+ * @function
+ * @name enableImport
+ */
+function enableImport() {
+  enableFormElement($('#import'));
+}
+
+
+/**
+ * collects mapping configuration
+ *
+ * @function
+ * @name collectMappings
+ *
+ * @returns {object}
+ */
+function collectMappings() {
+  const mappings = {};
+  $('.mapping-select').each(function () {
+    const targetColumn = $(this).data('db-column');
+    const sourceColumn = $(this).val();
+    if (sourceColumn) {
+      mappings[targetColumn] = sourceColumn;
+    }
+  });
+  return mappings;
+}
+
+
+/**
+ * renders passed import result
+ *
+ * @function
+ * @name renderImportResult
+ *
+ * @param {object} result - import result
+ */
+function renderImportResult(result) {
+  const $result = $('#import-result');
+  if (!result) {
+    $result.html(
+      '<div class="alert alert-danger" role="alert">' +
+        '<i class="fa-solid fa-circle-exclamation"></i>' +
+        ' Import fehlgeschlagen' +
+      '</div>'
+    );
+    return;
+  }
+  if (result.success) {
+    $result.html(
+      `<div class="alert alert-success" role="alert">` +
+        `<i class="fa-solid fa-circle-check"></i>` +
+        ` ${result.inserted_rows} Zeile(n) erfolgreich importiert` +
+      `</div>`
+    );
+  } else {
+    let html =
+      '<div class="alert alert-danger" role="alert">' +
+        '<i class="fa-solid fa-circle-exclamation"></i>' +
+        ' Import fehlgeschlagen' +
+      '</div>'
+    ;
+    if (result.errors) {
+      html += '<ul>';
+      result.errors.forEach(function (error) {
+        html += `
+          <li>
+            ${error.message}
+          </li>
+        `;
+      });
+      html += '</ul>';
+    }
+    $result.html(html);
+  }
 }
 
 
@@ -319,7 +617,7 @@ function resetYearSelect() {
 
 
 /**
- * populates year select dropdown
+ * populates year select dropdown with passed years
  *
  * @function
  * @name populateYearSelect
@@ -343,7 +641,7 @@ function resetAreaSelect() {
 
 
 /**
- * populates area select dropdown
+ * populates area select dropdown with passed areas
  *
  * @function
  * @name populateAreaSelect
@@ -377,7 +675,7 @@ function resetElectionSelect() {
 
 
 /**
- * populates election select dropdown
+ * populates election select dropdown with passed elections
  *
  * @function
  * @name populateElectionSelect
@@ -401,12 +699,12 @@ function populateElectionSelect(elections) {
 
 
 /**
- * builds data export URL
+ * builds data export URL upon passed base URL
  *
  * @function
  * @name buildDataExportURL
  *
- * @param {string} baseURL
+ * @param {string} baseURL - base URL
  *
  * @returns {string}
  */

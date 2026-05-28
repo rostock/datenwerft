@@ -60,13 +60,13 @@ async function fetchColumns(schema, table) {
 
 
 /**
- * uploads CSV and fetches preview
+ * uploads passed CSV file and fetches preview
  *
  * @async
  * @function
  * @name fetchCsvPreview
  *
- * @param {File} file
+ * @param {File} file - CSV file
  *
  * @returns {Promise<object|null>}
  */
@@ -76,6 +76,45 @@ async function fetchCsvPreview(file) {
     formData.append('file', file);
     const response = await fetch(
       PREVIEW_CSV_URL,
+      {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': CSRF_TOKEN
+        }
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+
+/**
+ * imports passed file into passed table within passed database schema accoring to passed mapping
+ *
+ * @async
+ * @function
+ * @name executeImport
+ *
+ * @param {string} schema - name of database schema
+ * @param {string} table - name of database table
+ * @param {object} mappings - mapping configuration
+ * @param {File} file - file
+ *
+ * @returns {Promise<object|null>}
+ */
+async function executeImport(schema, table, mappings, file) {
+  try {
+    const formData = new FormData();
+    formData.append('schema', schema);
+    formData.append('table', table);
+    formData.append('mappings', JSON.stringify(mappings));
+    formData.append('file', file);
+    const response = await fetch(
+      IMPORT_URL,
       {
         method: 'POST',
         body: formData,

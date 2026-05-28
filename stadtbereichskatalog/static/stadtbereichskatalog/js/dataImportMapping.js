@@ -12,6 +12,7 @@ $(document).ready(function() {
     clearColumnsTable();
     clearMappingTable();
     disableUpload();
+    disableImport();
     if (!schema) {
       return;
     }
@@ -28,6 +29,7 @@ $(document).ready(function() {
     const table = $(this).val();
     clearColumnsTable();
     clearMappingTable();
+    disableImport();
     if (!schema || !table) {
       disableUpload();
       return;
@@ -38,10 +40,11 @@ $(document).ready(function() {
     }
     currentColumns = data.columns;
     renderColumnsTable(currentColumns);
+    enableUpload();
     if (currentCsvHeaders.length) {
       renderMappingTable();
+      enableImport();
     }
-    enableUpload();
   });
 
 
@@ -63,6 +66,24 @@ $(document).ready(function() {
     currentCsvHeaders = data.headers;
     currentPreviewRows = data.preview_rows;
     renderMappingTable();
+    enableImport();
   });
 
+
+  $('#import').on('click', async function() {
+    const schema = $('#schema-select').val();
+    const table = $('#table-select').val();
+    const mappings = collectMappings();
+    const fileInput = $('#file-input')[0];
+    const file = fileInput.files[0];
+    const result = await executeImport(schema, table, mappings, file);
+    renderImportResult(result);
+  });
+
+});
+
+
+$(document).on('change', '.mapping-select', function() {
+  updatePreview($(this));
+  validateMappings();
 });
