@@ -53,8 +53,8 @@ $(document).ready(function() {
     if (!fileInput.files.length) {
       toggleModal(
         $('#messages-modal'),
-        'Keine Quelldatei ausgewählt!',
-        'Bitte wählen Sie zunächst eine Quelldatei aus.'
+        '<i class="fa-solid fa-triangle-exclamation text-warning"></i> Quelldatei fehlt',
+        'Bitte wählen Sie zunächst eine Quelldatei für den Upload aus.'
       );
       return;
     }

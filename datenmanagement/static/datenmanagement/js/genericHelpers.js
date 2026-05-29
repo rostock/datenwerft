@@ -64,11 +64,11 @@ function interchangeRecursive(arr, polygon = false) {
  * @returns {Object} - Bootstrap modal with refreshd contents
  */
 function refreshModal(modal, title = '', body = '', addFooter = false) {
-  modal.find('.modal-title').text(title);
+  modal.find('.modal-title').html(title);
   if (modal.find('#loading-modal-body-text').length > 0)
     modal.find('#loading-modal-body-text').text(body);
   else
-    modal.find('.modal-body').text(body);
+    modal.find('.modal-body').html(body);
   if (addFooter === true) {
     modal.find('.spinner-border').remove();
     modal.find('.modal-body').after(

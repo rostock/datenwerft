@@ -84,11 +84,10 @@
       </table>
     </div>
     <div class="btn-group mt-3 mb-3" role="group" aria-label="Export">
-      <button type="button" class="btn btn-primary export-button" id="export-csv-standard" disabled><i class="fa-solid fa-{{ 'csv'|get_icon }}"></i> CSV (Standard-konform)</button>
-      <button type="button" class="btn btn-primary ms-1 export-button" id="export-csv-excel" disabled><i class="fa-solid fa-{{ 'csv'|get_icon }}"></i> CSV (Excel-freundlich)</button>
-      <button type="button" class="btn btn-primary ms-1 export-button" id="export-excel" disabled><i class="fa-solid fa-{{ 'excel'|get_icon }}"></i> Excel</button>
+      <button type="button" class="btn btn-secondary export-button" id="export-csv-standard" disabled><i class="fa-solid fa-{{ 'csv'|get_icon }}"></i> CSV (Standard-konform)</button>
+      <button type="button" class="btn btn-secondary ms-1 export-button" id="export-csv-excel" disabled><i class="fa-solid fa-{{ 'csv'|get_icon }}"></i> CSV (Excel-freundlich)</button>
+      <button type="button" class="btn btn-secondary ms-1 export-button" id="export-excel" disabled><i class="fa-solid fa-{{ 'excel'|get_icon }}"></i> Excel</button>
     </div>
-    {% include "stadtbereichskatalog/modal_messages.html" %}
     <script>
       const GET_DATABASE_TABLES_URL = "{% url app.name|add:':get_database_tables' %}";
       const GET_DISTINCT_YEARS_URL = "{% url app.name|add:':get_distinct_years' %}";

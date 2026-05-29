@@ -199,11 +199,7 @@ function normalize(value) {
  * @returns {string|null}
  */
 function validatePreviewValue(dbType, value) {
-  if (
-    value === null ||
-    value === undefined ||
-    value === ''
-  ) {
+  if (value === null || value === undefined || value === '') {
     return null;
   }
   dbType = dbType.toLowerCase();
@@ -211,44 +207,15 @@ function validatePreviewValue(dbType, value) {
   /*
    * integer
    */
-  if (
-    dbType.includes('integer') &&
-    !/^-?\d+$/.test(value)
-  ) {
+  if (dbType.includes('integer') && !/^-?\d+$/.test(value)) {
     return 'Datentyp Quellspalte passt nicht zu Datentyp Zielspalte';
   }
 
   /*
    * numeric
    */
-  if (
-    (
-      dbType.includes('numeric') ||
-      dbType.includes('double') ||
-      dbType.includes('real')
-    ) &&
-    isNaN(value)
-  ) {
+  if (dbType.includes('numeric') && isNaN(value)) {
     return 'Datentyp Quellspalte passt nicht zu Datentyp Zielspalte';
-  }
-
-  /*
-   * boolean
-   */
-  if (dbType.includes('boolean')) {
-    const normalized = value.toLowerCase();
-    if (
-      ![
-        'true',
-        'false',
-        '1',
-        '0',
-        'yes',
-        'no'
-      ].includes(normalized)
-    ) {
-      return 'Datentyp Quellspalte passt nicht zu Datentyp Zielspalte';
-    }
   }
 
   return null;
@@ -273,8 +240,6 @@ function validateMappings() {
     const $validationCell = $row.find('.validation-cell');
     $validationCell.empty();
     $row.removeClass('table-danger table-warning');
-    console.log($row.find('.db-required').text());
-    console.log(isRequired);
 
     /*
      * required field validation
@@ -304,7 +269,7 @@ function validateMappings() {
     }
 
     /*
-     * simple type validation
+     * (simple) type validation
      */
     if (
       selectedHeader &&
@@ -327,6 +292,7 @@ function validateMappings() {
             ' Mapping ok' +
           '</div>'
         );
+        $row.addClass('table-success');
       }
     }
   });
@@ -337,13 +303,16 @@ function validateMappings() {
   for (const header in usedHeaders) {
     if (usedHeaders[header].length > 1) {
       usedHeaders[header].forEach(function ($row) {
-        $row.find('.validation-cell').html(
-          '<div class="alert alert-warning" role="alert">' +
-            '<i class="fa-solid fa-triangle-exclamation"></i>' +
-            ' Quellspalte mehrfach ausgewählt' +
-          '</div>'
-        );
-        $row.addClass('table-warning');
+        // only if no other (i.e. more relevant) warnings are already present
+        if (!$row.hasClass('table-warning')) {
+          $row.find('.validation-cell').html(
+            '<div class="alert alert-warning" role="alert">' +
+              '<i class="fa-solid fa-triangle-exclamation"></i>' +
+              ' Quellspalte mehrfach ausgewählt' +
+            '</div>'
+          );
+          $row.addClass('table-warning');
+        }
       });
     }
   }
@@ -539,43 +508,37 @@ function collectMappings() {
  * @param {object} result - import result
  */
 function renderImportResult(result) {
-  const $result = $('#import-result');
-  if (!result) {
-    $result.html(
-      '<div class="alert alert-danger" role="alert">' +
-        '<i class="fa-solid fa-circle-exclamation"></i>' +
-        ' Import fehlgeschlagen' +
-      '</div>'
-    );
-    return;
-  }
-  if (result.success) {
-    $result.html(
-      `<div class="alert alert-success" role="alert">` +
-        `<i class="fa-solid fa-circle-check"></i>` +
-        ` ${result.inserted_rows} Zeile(n) erfolgreich importiert` +
-      `</div>`
-    );
+  let title, body;
+  if (result && result.success) {
+    title = '<i class="fa-solid fa-circle-check text-success"></i> Import erfolgreich';
+    body = `Es wurde(n) ${result.inserted_rows} Zeile(n) erfolgreich importiert.`;
   } else {
-    let html =
-      '<div class="alert alert-danger" role="alert">' +
-        '<i class="fa-solid fa-circle-exclamation"></i>' +
-        ' Import fehlgeschlagen' +
-      '</div>'
-    ;
+    title = '<i class="fa-solid fa-circle-exclamation text-danger"></i> Import fehlgeschlagen';
     if (result.errors) {
-      html += '<ul>';
-      result.errors.forEach(function (error) {
-        html += `
-          <li>
-            ${error.message}
-          </li>
-        `;
-      });
-      html += '</ul>';
+      if (result.errors.length > 1) {
+        body = 'Beim Importieren sind Fehler aufgetreten:';
+        body += '<br><br>';
+        result.errors.forEach(function (error) {
+          body += '<p>';
+          body += `Zeile ${error.row}:`;
+          body += '<br>';
+          body += `Zielspalte <span class="font-monospace">${error.target_column}</span>, `;
+          body += `Quellspalte <span class="font-monospace">${error.source_column}</span>, `;
+          body += `Datentyp Zielspalte <span class="font-monospace">${error.target_type}</span>, `;
+          body += `Fehlertyp <span class="font-monospace">${error.error_type}</span>, `;
+          body += `Fehlermeldung <span class="font-monospace">${error.message}</span>, `;
+          body += '</p>';
+        });
+      } else {
+        body = 'Beim Importieren ist ein Fehler aufgetreten:';
+        body += '<br><br>';
+        body += `<p class="font-monospace">${result.errors[0].message}</p>`;
+      }
+    } else {
+      body = 'Beim Importieren ist ein Fehler aufgetreten.';
     }
-    $result.html(html);
   }
+  toggleModal($('#messages-modal'), title, body);
 }
 
 

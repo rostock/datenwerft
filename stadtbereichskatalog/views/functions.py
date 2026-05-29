@@ -1,9 +1,12 @@
-from csv import QUOTE_MINIMAL, writer
+import csv
+from codecs import BOM_UTF8, iterdecode
+from decimal import Decimal
 
-from django.db import connections
+from django.db import connections, transaction
 from django.forms import Textarea
 from django.http import HttpResponse
 from openpyxl import Workbook
+from psycopg2.extras import execute_values
 from psycopg2.sql import SQL, Identifier
 
 from ..apps import StadtbereichskatalogConfig as appConfig
@@ -80,6 +83,57 @@ def assign_widget(field):
   return form_field
 
 
+def clean_headers(headers):
+  """
+  cleans headers
+
+  :param headers: headers
+  :return: cleaned headers
+  """
+  cleaned = []
+  for h in headers:
+    if h:
+      cleaned.append(h.replace('\ufeff', '').strip())
+  return cleaned
+
+
+def parse_decimal(value):
+  """
+  parses passed value into a decimal value
+
+  :param value: value to be parsed
+  :return: passed value, parsed into a decimal value
+  """
+  value = value.replace(',', '.')
+  return Decimal(value)
+
+
+# type conversion registry
+TYPE_CONVERTERS = {
+  'integer': int,
+  'numeric': parse_decimal,
+}
+
+
+def convert_value(value, pg_type):
+  """
+  converts passed value to passed PostgreSQL data type according to type conversion registry
+
+  :param value: value to be converted
+  :param pg_type: PostgreSQL data type
+  :return: passed value, converted according to type conversion registry
+  """
+  if value is None:
+    return None
+  value = value.strip()
+  if value == '':
+    return None
+  converter = TYPE_CONVERTERS.get(pg_type)
+  if converter:
+    return converter(value)
+  return value
+
+
 def data_to_csv(
   schema_name, table_name, year_filter=None, area_filter=None, election_filter=None, standard=True
 ):
@@ -115,11 +169,11 @@ def data_to_csv(
   if standard:
     # prepare standard CSV
     # important: lineterminator='\n' forces LF
-    csv_writer = writer(
+    csv_writer = csv.writer(
       response,
       delimiter=',',
       quotechar='"',
-      quoting=QUOTE_MINIMAL,
+      quoting=csv.QUOTE_MINIMAL,
       lineterminator='\n',
     )
   else:
@@ -127,11 +181,11 @@ def data_to_csv(
     # important: UTF-8 BOM
     response.write('\ufeff')
     # important: lineterminator='\r\n' forces CRLF
-    csv_writer = writer(
+    csv_writer = csv.writer(
       response,
       delimiter=';',
       quotechar='"',
-      quoting=QUOTE_MINIMAL,
+      quoting=csv.QUOTE_MINIMAL,
       lineterminator='\r\n',
     )
 
@@ -200,6 +254,42 @@ def data_to_excel(
   wb.save(response)
 
   return response
+
+
+def detect_dialect(file_obj):
+  """
+  detects and returns dialect of passed file
+
+  :param file_obj: nfile
+  :return: dialect of passed file
+  """
+  sample = file_obj.read(4096)
+  file_obj.seek(0)
+
+  # handle UTF-8 BOM
+  if sample.startswith(BOM_UTF8):
+    sample = sample[len(BOM_UTF8) :]
+  try:
+    dialect = csv.Sniffer().sniff(sample.decode('utf-8'), delimiters=';,')
+  except csv.Error:
+    # fallback to strict default
+    dialect = csv.excel
+    dialect.delimiter = ','
+
+  return dialect
+
+
+def get_csv_reader(file_obj):
+  """
+  gets unified CSV reader factory for passed file
+
+  :param file_obj: nfile
+  :return: unified CSV reader factory for of passed file as well as dialect of passed file
+  """
+  dialect = detect_dialect(file_obj)
+  decoded = iterdecode(file_obj, 'utf-8-sig')
+  reader = csv.DictReader(decoded, dialect=dialect)
+  return reader, dialect
 
 
 def get_database_columns(schema_name, table_name):
@@ -453,3 +543,56 @@ def get_model_objects(model, count=False):
   """
   objects = model.objects.all()
   return objects.count() if count else objects
+
+
+def import_data(schema_name, table_name, columns, rows):
+  """
+  imports passed rows into passed columns of passed table within passed database schema
+
+  :param schema_name: name of database schema
+  :param table_name: name of database table
+  :param columns: insert columns
+  :param rows: rows to insert
+  :return: dictionary with import results
+  """
+
+  quoted_columns = ', '.join(f'"{c}"' for c in columns)
+  sql = f'''
+    INSERT INTO "{schema_name}"."{table_name}"
+    ({quoted_columns})
+    VALUES %s
+  '''
+  try:
+    with transaction.atomic():
+      connection = connections['stadtbereichskatalog']
+      with connection.cursor() as cursor:
+        execute_values(cursor, sql, rows)
+    return {'success': True, 'inserted_rows': len(rows)}
+  except Exception as e:
+    return {'success': False, 'errors': [{'row': 0, 'message': str(e)}]}
+
+
+def make_error(
+  *, row_number, target_column, source_column, value, target_type, error_type='conversion', message
+):
+  """
+  assembles verbose data import error
+
+  :param row_number: row number
+  :param target_column: target column
+  :param source_column: source column
+  :param value: value
+  :param target_type: target type
+  :param error_type: error type
+  :param message: error message
+  :return: dictionary with verbose data import error
+  """
+  return {
+    'row': row_number,
+    'target_column': target_column,
+    'source_column': source_column,
+    'value': value,
+    'target_type': target_type,
+    'error_type': error_type,
+    'message': message,
+  }

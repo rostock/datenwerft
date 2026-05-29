@@ -83,8 +83,7 @@
         </tbody>
       </table>
     </div>
-    <button type="button" class="btn btn-primary mt-3" id="import" disabled><i class="fa-solid fa-{{ 'import'|get_icon }}"></i> Import</button>
-    <div class="mt-3 mb-3" id="import-result"></div>
+    <button type="button" class="btn btn-success mt-3 mb-3" id="import" disabled><i class="fa-solid fa-{{ 'import'|get_icon }}"></i> Import</button>
     {% include "stadtbereichskatalog/modal_messages.html" %}
     <script>
       const CSRF_TOKEN = '{{ csrf_token }}';

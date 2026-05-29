@@ -1,5 +1,3 @@
-from csv import DictReader
-from io import TextIOWrapper
 from json import loads
 
 from django.http import JsonResponse
@@ -18,14 +16,19 @@ from .base import (
 from .functions import (
   add_app_context_elements,
   add_permissions_context_elements,
+  clean_headers,
+  convert_value,
   data_to_csv,
   data_to_excel,
+  get_csv_reader,
   get_database_columns,
   get_database_schemas,
   get_database_tables,
   get_distinct_areas,
   get_distinct_elections,
   get_distinct_years,
+  import_data,
+  make_error,
 )
 
 #
@@ -356,7 +359,6 @@ def export_csv_standard(request):
     year = request.GET.get('year')
     area = request.GET.get('area')
     election = request.GET.get('election')
-
     return data_to_csv(schema, table, year, area, election, standard=True)
 
   return JsonResponse(
@@ -381,7 +383,6 @@ def export_csv_excel(request):
     year = request.GET.get('year')
     area = request.GET.get('area')
     election = request.GET.get('election')
-
     return data_to_csv(schema, table, year, area, election, standard=False)
 
   return JsonResponse(
@@ -406,7 +407,6 @@ def export_excel(request):
     year = request.GET.get('year')
     area = request.GET.get('area')
     election = request.GET.get('election')
-
     return data_to_excel(schema, table, year, area, election)
 
   return JsonResponse(
@@ -474,12 +474,14 @@ def preview_csv(request):
     uploaded_file = request.FILES.get('file')
     if not uploaded_file:
       return JsonResponse(data={'error': 'No file uploaded'}, status=400)
-    decoded_file = TextIOWrapper(uploaded_file.file, encoding='utf-8')
-    reader = DictReader(decoded_file)
+    reader, dialect = get_csv_reader(uploaded_file)
     rows = list(reader)
-    preview_rows = rows[:5]
     return JsonResponse(
-      data={'headers': reader.fieldnames, 'preview_rows': preview_rows},
+      data={
+        'delimiter': dialect.delimiter,
+        'headers': clean_headers(reader.fieldnames),
+        'preview_rows': rows[:5],
+      },
       json_dumps_params={'indent': 2, 'ensure_ascii': False},
       content_type='application/json; charset=utf-8',
     )
@@ -510,25 +512,56 @@ def execute_import(request):
       return JsonResponse(
         data={'success': False, 'errors': [{'row': 0, 'message': 'No file uploaded'}]}, status=400
       )
-    decoded_file = TextIOWrapper(uploaded_file.file, encoding='utf-8')
-    reader = DictReader(decoded_file)
+    reader, dialect = get_csv_reader(uploaded_file)
     insert_columns = list(mappings.keys())
+    columns = {item['name']: item for item in get_database_columns(schema, table)}
     rows_to_insert, errors = [], []
-    for row_number, source_row in enumerate(reader, start=1):
+    for row_number, source_row in enumerate(reader, start=2):
+      insert_row, row_errors = [], []
       try:
-        insert_row = []
         for target_column in insert_columns:
           source_column = mappings[target_column]
-          value = source_row.get(source_column)
-          insert_row.append(value)
+          pg_type = columns.get(target_column, {}).get('type')
+          raw_value = source_row.get(source_column)
+          # type conversion
+          try:
+            converted_value = convert_value(raw_value, pg_type)
+            insert_row.append(converted_value)
+          except Exception as e:
+            row_errors.append(
+              make_error(
+                row_number=row_number,
+                target_column=target_column,
+                source_column=source_column,
+                value=raw_value,
+                target_type=pg_type,
+                error_type='type_conversion',
+                message=str(e),
+              )
+            )
+            insert_row.append(None)
+        if row_errors:
+          errors.extend(row_errors)
+          continue
         rows_to_insert.append(tuple(insert_row))
-      except Exception as exc:
-        errors.append({'row': row_number, 'message': str(exc)})
-    return JsonResponse(
-      data={'headers': 'xxx', 'preview_rows': 'yyy'},
-      json_dumps_params={'indent': 2, 'ensure_ascii': False},
-      content_type='application/json; charset=utf-8',
-    )
+      except Exception as e:
+        errors.append(
+          make_error(
+            row_number=row_number,
+            target_column=None,
+            source_column=None,
+            value=None,
+            target_type=None,
+            error_type='row_processing',
+            message=str(e),
+          )
+        )
+    if errors:
+      return JsonResponse(data={'success': False, 'errors': errors}, status=400)
+    data_import = import_data(schema, table, insert_columns, rows_to_insert)
+    if data_import['success']:
+      return JsonResponse(data=data_import, status=200)
+    return JsonResponse(data=data_import, status=400)
 
   return JsonResponse(
     data={'has_necessary_permissions': False},
