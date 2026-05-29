@@ -16,11 +16,9 @@ from .base import (
 from .functions import (
   add_app_context_elements,
   add_permissions_context_elements,
-  clean_headers,
   convert_value,
   data_to_csv,
   data_to_excel,
-  get_csv_reader,
   get_database_columns,
   get_database_schemas,
   get_database_tables,
@@ -29,6 +27,7 @@ from .functions import (
   get_distinct_years,
   import_data,
   make_error,
+  read_tabular_file,
 )
 
 #
@@ -474,12 +473,10 @@ def preview_csv(request):
     uploaded_file = request.FILES.get('file')
     if not uploaded_file:
       return JsonResponse(data={'error': 'No file uploaded'}, status=400)
-    reader, dialect = get_csv_reader(uploaded_file)
-    rows = list(reader)
+    headers, rows = read_tabular_file(uploaded_file)
     return JsonResponse(
       data={
-        'delimiter': dialect.delimiter,
-        'headers': clean_headers(reader.fieldnames),
+        'headers': headers,
         'preview_rows': rows[:5],
       },
       json_dumps_params={'indent': 2, 'ensure_ascii': False},
@@ -512,11 +509,11 @@ def execute_import(request):
       return JsonResponse(
         data={'success': False, 'errors': [{'row': 0, 'message': 'No file uploaded'}]}, status=400
       )
-    reader, dialect = get_csv_reader(uploaded_file)
+    headers, rows = read_tabular_file(uploaded_file)
     insert_columns = list(mappings.keys())
     columns = {item['name']: item for item in get_database_columns(schema, table)}
     rows_to_insert, errors = [], []
-    for row_number, source_row in enumerate(reader, start=2):
+    for row_number, source_row in enumerate(rows, start=2):
       insert_row, row_errors = [], []
       try:
         for target_column in insert_columns:

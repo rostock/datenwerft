@@ -65,6 +65,7 @@ $(document).ready(function() {
     }
     currentCsvHeaders = data.headers;
     currentPreviewRows = data.preview_rows;
+    clearMappingTable();
     renderMappingTable();
     enableImport();
   });
