@@ -86,6 +86,13 @@
                             {% endfor %}
                           </fieldset>
                         {% endif %}
+                        {% if thumb_urls_3d_models_unreachable and field.name == "model_3d" %}
+                          <div class="alert alert-warning mt-2 mb-0" role="alert">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            Die 3D-Modell-Galerie konnte momentan nicht aus dem GitHub-Repository geladen werden.
+                            Sie können den Modellnamen vorübergehend manuell eintragen oder es später erneut versuchen.
+                          </div>
+                        {% endif %}
                       {% endif %}
                     </td>
                   {% endautoescape %}
@@ -127,12 +134,12 @@
                 }
 
                 /**
-                 * remove jpg file extensions and replace underscores
+                 * replace underscores in displayed model names
                  */
                 function manipulate3DModelNames() {
                   const labels = document.querySelectorAll(".model-option > label > p")
                   labels.forEach(label => {
-                    label.textContent = label.textContent.replace(/\.jpg$/, '').replace(/_/g, ' ');
+                    label.textContent = label.textContent.replace(/_/g, ' ');
                   });
                 }
 
@@ -151,19 +158,22 @@
                 }
 
                 /**
-                 * update the original Input Field of 3D Model Selection
+                 * update the original Input Field of 3D Model Selection;
+                 * enforce exclusive selection across the radio group
                  */
                 function toggleRadioButton(radioId, event) {
-                  event.preventDefault(); // Verhindert das Standard-Verhalten
+                  event.preventDefault();
                   const radioButton = document.getElementById(radioId);
                   const inputField = document.getElementById('id_model_3d');
+                  const wasChecked = radioButton.checked;
 
-                  if (radioButton.checked) {
-                    // Radio button was already checked, uncheck it and clear input field
-                    radioButton.checked = false;
+                  document.querySelectorAll('input[name="model-selection"]').forEach(function (r) {
+                    r.checked = false;
+                  });
+
+                  if (wasChecked) {
                     inputField.value = '';
                   } else {
-                    // Radio button was not checked, check it and set input field value
                     radioButton.checked = true;
                     inputField.value = radioButton.value;
                   }

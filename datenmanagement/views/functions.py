@@ -1,4 +1,5 @@
 from decimal import Decimal
+from hashlib import sha256
 from json import JSONEncoder
 from pathlib import Path
 from re import IGNORECASE, search, sub
@@ -7,6 +8,7 @@ from wsgiref.util import FileWrapper
 
 from django.apps import apps
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db.models.fields import (
   DateField,
@@ -332,12 +334,22 @@ def generate_restricted_objects_list(restricted_objects):
   return '<ul>' + object_list + '</ul>' if len(restricted_objects) > 1 else object_list
 
 
+GITHUB_FILES_CACHE_TTL = 3600
+GITHUB_FILES_STALE_TTL = 86400
+
+
 def get_github_files(
   github_folder_url: str,
   file_filters: list[str] | dict[str, list[str]] | None = None,
-) -> dict[str, str]:
+  strip_extension: bool = False,
+) -> dict[str, str] | None:
   r"""
   Extrahiert Download-Links für Dateien aus einem GitHub-Unterverzeichnis mit flexibler Filterung.
+
+  Ergebnisse werden für ``GITHUB_FILES_CACHE_TTL`` Sekunden gecacht;
+  zusätzlich wird ein Stale-Wert für ``GITHUB_FILES_STALE_TTL`` Sekunden vorgehalten,
+  der bei einem fehlgeschlagenen API-Call als Fallback zurückgegeben wird.
+
   :param github_folder_url: Github Repo URL to specific folder
   :param file_filters: filters for filenames
   :type file_filters: list[str] | dict[str, list[str]] | None
@@ -348,25 +360,11 @@ def get_github_files(
       - 'patterns': list[str] - list of regex-patterns
       - 'prefixes': list[str] - list of prefixes
       - 'suffixes': list[str] - list of suffixes (incl. filetypes)
-  Returns:
-    dict: Dictionary mit Dateinamen als Keys und Download-URLs als Values
-  Examples:
-    # Alle Dateien holen
-    files = get_github_files("https://github.com/user/repo/tree/main/folder")
-    # Nur Bilder holen
-    image_files = get_github_files(
-      "https://github.com/user/repo/tree/main/folder",
-      ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
-    )
-    # Komplexe Filterung
-    filtered_files = get_github_files(
-      "https://github.com/user/repo/tree/main/folder",
-      {
-        'patterns': [r'protokoll_\d{4}'],
-        'prefixes': ['rostock_'],
-        'suffixes': ['_final.pdf']
-      }
-    )
+  :param strip_extension: wenn True, Dateiendung im Result-Key entfernen
+    (z.B. ``Dinova.jpg`` → ``Dinova``)
+  :returns:
+    - ``dict[str, str]`` (Dateiname → Download-URL) bei Erfolg, auch leer.
+    - ``None`` bei Netzwerk-/HTTP-Fehler, sofern kein Stale-Wert verfügbar ist.
   """
   # Konvertiere normale GitHub-URL in API-URL
   parsed = urlparse(github_folder_url)
@@ -381,31 +379,34 @@ def get_github_files(
   # Erstelle API-URL
   api_url = f'https://api.github.com/repos/{owner}/{repo}/contents/{folder_path}?ref={branch}'
 
+  # Cache-Key aus Aufrufparametern ableiten
+  cache_key_payload = f'{api_url}|{file_filters!r}|{strip_extension}'
+  cache_key = f'gh_files:{sha256(cache_key_payload.encode()).hexdigest()}'
+  stale_key = f'{cache_key}:stale'
+
+  cached = cache.get(cache_key)
+  if cached is not None:
+    return cached
+
   def matches_filters(filename: str) -> bool:
     """Prüft, ob ein Dateiname die Filter-Kriterien erfüllt."""
-    # Wenn keine Filter definiert sind, geben wir alle Dateien zurück
     if file_filters is None:
       return True
 
-    # Wenn file_filters eine Liste ist, behandeln wir sie als Dateiendungen
     if isinstance(file_filters, list):
       return any(filename.lower().endswith(ext.lower()) for ext in file_filters)
 
-    # Komplexe Filterung mit Dictionary
     if isinstance(file_filters, dict):
-      # Prüfe Regex-Patterns
       if 'patterns' in file_filters:
         if not any(search(pattern, filename, IGNORECASE) for pattern in file_filters['patterns']):
           return False
 
-      # Prüfe Präfixe
       if 'prefixes' in file_filters:
         if not any(
           filename.lower().startswith(prefix.lower()) for prefix in file_filters['prefixes']
         ):
           return False
 
-      # Prüfe Suffixe
       if 'suffixes' in file_filters:
         if not any(
           filename.lower().endswith(suffix.lower()) for suffix in file_filters['suffixes']
@@ -415,28 +416,34 @@ def get_github_files(
       return True
     return False
 
-  try:
-    # API-Anfrage senden
-    response = get(url=api_url)
+  def make_key(filename: str) -> str:
+    if not strip_extension:
+      return filename
+    dot = filename.rfind('.')
+    return filename[:dot] if dot > 0 else filename
 
-    # handle response
+  try:
+    response = get(url=api_url, timeout=5.0)
+
     if response.status_code < 200 or response.status_code >= 300:
-      logger.error(f'Network error: {response.status_code} - {response.reason_phrase}')
-      return {}
+      logger.error(f'GitHub API error: {response.status_code} - {response.reason_phrase}')
+      stale = cache.get(stale_key)
+      return stale if stale is not None else None
 
     files = response.json()
-    print(files)
     file_links = {}
-
     for file in files:
       if file['type'] == 'file' and matches_filters(file['name']):
-        file_links[file['name']] = file['download_url']
+        file_links[make_key(file['name'])] = file['download_url']
 
+    cache.set(cache_key, file_links, GITHUB_FILES_CACHE_TTL)
+    cache.set(stale_key, file_links, GITHUB_FILES_STALE_TTL)
     return file_links
 
   except Exception as e:
-    print(f'Error retrieving data: {e}')
-    return {}
+    logger.error(f'Error retrieving data from GitHub: {e}')
+    stale = cache.get(stale_key)
+    return stale if stale is not None else None
 
 
 def get_model_objects(model, subset_id=None, count_only=False):
