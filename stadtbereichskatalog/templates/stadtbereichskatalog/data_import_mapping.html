@@ -56,7 +56,7 @@
               <label for="columns-table" class="required">Zielspalten</label>
             </td>
             <td class="cell-field">
-              <table id="columns-table">
+              <table class="table"  id="columns-table">
               </table>
             </td>
           </tr>
@@ -66,7 +66,7 @@
             </td>
             <td class="cell-field">
               <div class="input-group">
-                <input type="file" name="file" accept=".csv" class="form-control" id="file-input" aria-describedby="upload-file" aria-label="Upload" disabled>
+                <input type="file" name="file" accept=".csv,.xlsx" class="form-control" id="file-input" aria-describedby="upload-file" aria-label="Upload" disabled>
                 <button type="button" class="btn btn-primary" id="upload-file" disabled>Upload</button>
               </div>
             </td>
@@ -76,19 +76,21 @@
               <label for="mapping-table" class="required">Mapping</label>
             </td>
             <td class="cell-field">
-              <table id="mapping-table">
+              <table class="table" id="mapping-table">
               </table>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+    <button type="button" class="btn btn-success mt-3 mb-3" id="import" disabled><i class="fa-solid fa-{{ 'import'|get_icon }}"></i> Import</button>
     {% include "stadtbereichskatalog/modal_messages.html" %}
     <script>
+      const CSRF_TOKEN = '{{ csrf_token }}';
       const GET_DATABASE_TABLES_URL = "{% url app.name|add:':get_database_tables' %}";
       const GET_DATABASE_COLUMNS_URL = "{% url app.name|add:':get_database_columns' %}";
       const PREVIEW_CSV_URL = "{% url app.name|add:':preview_csv' %}";
-      const CSRF_TOKEN = '{{ csrf_token }}';
+      const IMPORT_URL = "{% url app.name|add:':import' %}";
       let currentColumns = [];
       let currentCsvHeaders = [];
       let currentPreviewRows = [];

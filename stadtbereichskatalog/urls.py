@@ -24,6 +24,7 @@ from .views import (
   distinct_areas,
   distinct_elections,
   distinct_years,
+  execute_import,
   export_csv_excel,
   export_csv_standard,
   export_excel,
@@ -200,5 +201,11 @@ urlpatterns = [
     route='preview-csv',
     view=login_required(preview_csv),
     name='preview_csv',
+  ),
+  # import file into table within database schema accoring to mapping
+  path(
+    route='import',
+    view=login_required(execute_import),
+    name='import',
   ),
 ]

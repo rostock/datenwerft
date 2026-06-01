@@ -12,3 +12,7 @@
 #mapping .cell-field {
   width: 80%;
 }
+
+#mapping-table .alert {
+  margin-bottom: 0;
+}

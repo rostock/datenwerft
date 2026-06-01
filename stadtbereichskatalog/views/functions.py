@@ -1,9 +1,12 @@
-from csv import QUOTE_MINIMAL, writer
+import csv
+from codecs import BOM_UTF8, iterdecode
+from decimal import Decimal
 
-from django.db import connections
+from django.db import connections, transaction
 from django.forms import Textarea
 from django.http import HttpResponse
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
+from psycopg2.extras import execute_values
 from psycopg2.sql import SQL, Identifier
 
 from ..apps import StadtbereichskatalogConfig as appConfig
@@ -80,6 +83,58 @@ def assign_widget(field):
   return form_field
 
 
+def clean_headers(headers):
+  """
+  cleans passed headers
+
+  :param headers: headers
+  :return: passed headers, cleaned
+  """
+  cleaned_headers = []
+  for header in headers:
+    if header:
+      cleaned_headers.append(header.replace('\ufeff', '').strip())
+  return cleaned_headers
+
+
+def parse_decimal(value):
+  """
+  parses passed value into a decimal value
+
+  :param value: value to be parsed
+  :return: passed value, parsed into a decimal value
+  """
+  value = value.replace(',', '.')
+  return Decimal(value)
+
+
+# type conversion registry
+TYPE_CONVERTERS = {
+  'integer': int,
+  'numeric': parse_decimal,
+}
+
+
+def convert_value(value, pg_type):
+  """
+  converts passed value to passed PostgreSQL data type according to type conversion registry
+
+  :param value: value to be converted
+  :param pg_type: PostgreSQL data type
+  :return: passed value, converted according to type conversion registry
+  """
+  if value in (None, ''):
+    return None
+  converter = TYPE_CONVERTERS.get(pg_type)
+  if not converter:
+    return value
+  try:
+    return converter(value)
+  except Exception:
+    # last-resort: only try string conversion if needed
+    return converter(str(value))
+
+
 def data_to_csv(
   schema_name, table_name, year_filter=None, area_filter=None, election_filter=None, standard=True
 ):
@@ -115,11 +170,11 @@ def data_to_csv(
   if standard:
     # prepare standard CSV
     # important: lineterminator='\n' forces LF
-    csv_writer = writer(
+    csv_writer = csv.writer(
       response,
       delimiter=',',
       quotechar='"',
-      quoting=QUOTE_MINIMAL,
+      quoting=csv.QUOTE_MINIMAL,
       lineterminator='\n',
     )
   else:
@@ -127,11 +182,11 @@ def data_to_csv(
     # important: UTF-8 BOM
     response.write('\ufeff')
     # important: lineterminator='\r\n' forces CRLF
-    csv_writer = writer(
+    csv_writer = csv.writer(
       response,
       delimiter=';',
       quotechar='"',
-      quoting=QUOTE_MINIMAL,
+      quoting=csv.QUOTE_MINIMAL,
       lineterminator='\r\n',
     )
 
@@ -200,6 +255,57 @@ def data_to_excel(
   wb.save(response)
 
   return response
+
+
+def detect_dialect(file_obj):
+  """
+  detects and returns dialect of passed file
+
+  :param file_obj: file
+  :return: dialect of passed file
+  """
+  sample = file_obj.read(4096)
+  file_obj.seek(0)
+
+  # handle UTF-8 BOM
+  if sample.startswith(BOM_UTF8):
+    sample = sample[len(BOM_UTF8) :]
+  try:
+    dialect = csv.Sniffer().sniff(sample.decode('utf-8'), delimiters=';,')
+  except csv.Error:
+    # fallback to strict default
+    dialect = csv.excel
+    dialect.delimiter = ','
+
+  return dialect
+
+
+def detect_file_type(file_obj):
+  """
+  detects and returns type of passed file
+
+  :param file_obj: file
+  :return type of passed file
+  """
+  name = file_obj.name.lower()
+  if name.endswith('.xlsx'):
+    return 'xlsx'
+  if name.endswith('.csv'):
+    return 'csv'
+  return 'unknown'
+
+
+def get_csv_reader(file_obj):
+  """
+  gets unified CSV reader factory for passed file
+
+  :param file_obj: file
+  :return: unified CSV reader factory for passed file as well as dialect of passed file
+  """
+  dialect = detect_dialect(file_obj)
+  decoded = iterdecode(file_obj, 'utf-8-sig')
+  reader = csv.DictReader(decoded, dialect=dialect)
+  return reader, dialect
 
 
 def get_database_columns(schema_name, table_name):
@@ -453,3 +559,120 @@ def get_model_objects(model, count=False):
   """
   objects = model.objects.all()
   return objects.count() if count else objects
+
+
+def import_data(schema_name, table_name, columns, rows):
+  """
+  imports passed rows into passed columns of passed table within passed database schema
+
+  :param schema_name: name of database schema
+  :param table_name: name of database table
+  :param columns: insert columns
+  :param rows: rows to insert
+  :return: results of import of passed rows
+  into passed columns of passed table within passed database schema
+  """
+
+  quoted_columns = ', '.join(f'"{c}"' for c in columns)
+  sql = f'''
+    INSERT INTO "{schema_name}"."{table_name}"
+    ({quoted_columns})
+    VALUES %s
+  '''
+  try:
+    with transaction.atomic():
+      connection = connections['stadtbereichskatalog']
+      with connection.cursor() as cursor:
+        execute_values(cursor, sql, rows)
+    return {'success': True, 'inserted_rows': len(rows)}
+  except Exception as e:
+    return {'success': False, 'errors': [{'row': 0, 'message': str(e)}]}
+
+
+def make_error(
+  *, row_number, target_column, source_column, value, target_type, error_type='conversion', message
+):
+  """
+  assembles verbose data import error
+
+  :param row_number: row number
+  :param target_column: target column
+  :param source_column: source column
+  :param value: value
+  :param target_type: target type
+  :param error_type: error type
+  :param message: error message
+  :return: assembled verbose data import error
+  """
+  return {
+    'row': row_number,
+    'target_column': target_column,
+    'source_column': source_column,
+    'value': value,
+    'target_type': target_type,
+    'error_type': error_type,
+    'message': message,
+  }
+
+
+def normalize_value(value):
+  """
+  normalizes passed value
+
+  :param value: value to be normalized
+  :return: passed value, normalized
+  """
+  if isinstance(value, float):
+    if value.is_integer():
+      return int(value)
+  if value is None:
+    return None
+  if isinstance(value, str):
+    value = value.strip()
+    return value if value != '' else None
+  # optional: normalize float that are actually integers
+  if isinstance(value, float):
+    if value.is_integer():
+      return int(value)
+  return value
+
+
+def read_xlsx(file_obj):
+  """
+  reads passed XLSX file
+
+  :param file_obj: XLSX file
+  :return: headers and data rows of passed XLSX file
+  """
+  wb = load_workbook(file_obj, data_only=True)
+  ws = wb.active
+  rows = list(ws.iter_rows(values_only=True))
+  headers = [str(h).strip() if h is not None else '' for h in rows[0]]
+  data_rows = rows[1:]
+  result = []
+  for row in data_rows:
+    row_dict = {}
+    for i, value in enumerate(row):
+      if i < len(headers):
+        row_dict[headers[i]] = normalize_value(value)
+    result.append(row_dict)
+  return headers, result
+
+
+def read_tabular_file(file_obj):
+  """
+  reads passed tabular file
+
+  :param file_obj: tabular file
+  :return: headers and data rows of passed tabular file
+  """
+  file_type = detect_file_type(file_obj)
+  file_obj.seek(0)
+  if file_type == 'xlsx':
+    return read_xlsx(file_obj)
+  if file_type == 'csv':
+    reader, dialect = get_csv_reader(file_obj)
+    rows = [{k: normalize_value(v) for k, v in row.items()} for row in reader]
+    headers = clean_headers(reader.fieldnames)
+    return headers, rows
+  raise ValueError('Unsupported file type')
