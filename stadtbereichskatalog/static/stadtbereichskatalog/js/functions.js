@@ -516,7 +516,7 @@ function renderImportResult(result) {
     title = '<i class="fa-solid fa-circle-exclamation text-danger"></i> Import fehlgeschlagen';
     if (result.errors) {
       if (result.errors.length > 1) {
-        body = 'Beim Importieren sind Fehler aufgetreten:';
+        body = 'Beim Parsen der Quelldatei sind Fehler aufgetreten:';
         body += '<br><br>';
         result.errors.forEach(function (error) {
           body += '<p>';
@@ -530,7 +530,7 @@ function renderImportResult(result) {
           body += '</p>';
         });
       } else {
-        body = 'Beim Importieren ist ein Fehler aufgetreten:';
+        body = 'Beim Importieren ist ein Datenbankfehler aufgetreten:';
         body += '<br><br>';
         body += `<p class="font-monospace">${result.errors[0].message}</p>`;
       }
@@ -678,4 +678,19 @@ function buildDataExportURL(baseURL) {
   const area = $('#area-select').val();
   const election = $('#election-select').val();
   return `${baseURL}?schema=${encodeURIComponent(schema)}&table=${encodeURIComponent(table)}&year=${encodeURIComponent(year)}&area=${encodeURIComponent(area)}&election=${encodeURIComponent(election)}`;
+}
+
+
+/**
+ * shows data export modal
+ *
+ * @function
+ * @name showDataExportModal
+ *
+ * @param {string} fileType - file type
+ */
+function showDataExportModal(fileType) {
+  let title = '<i class="fa-solid fa-circle-check text-success"></i> Export erfolgreich';
+  let body = `Im Hintergrund wurde eine ${fileType} erzeugt und direkt von Ihrem Browser heruntergeladen, sodass diese sich nunmehr im eingestellten Download-Ordner befindet.`;
+  toggleModal($('#messages-modal'), title, body);
 }

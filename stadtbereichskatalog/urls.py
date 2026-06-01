@@ -47,21 +47,21 @@ urlpatterns = [
   # composing table data out of instances of metadata model class:
   # Themenbereich
   path(
-    route='topic/tabledata',
+    route='metadata/topic/tabledata',
     view=login_required(TopicTableDataView.as_view()),
     name='topic_tabledata',
   ),
   # table page for instances of metadata model class:
   # Themenbereich
   path(
-    route='topic/table',
+    route='metadata/topic/table',
     view=login_required(TopicTableView.as_view()),
     name='topic_table',
   ),
   # form page for editing an instance of metadata model class:
   # Themenbereich
   path(
-    route='topic/edit/<pk>',
+    route='metadata/topic/edit/<pk>',
     view=login_required(
       TopicEditView.as_view(success_url=reverse_lazy(f'{app_name}:topic_table'))
     ),
@@ -70,21 +70,21 @@ urlpatterns = [
   # composing table data out of instances of metadata model class:
   # Kategorie
   path(
-    route='category/tabledata',
+    route='metadata/category/tabledata',
     view=login_required(CategoryTableDataView.as_view()),
     name='category_tabledata',
   ),
   # table page for instances of metadata model class:
   # Kategorie
   path(
-    route='category/table',
+    route='metadata/category/table',
     view=login_required(CategoryTableView.as_view()),
     name='category_table',
   ),
   # form page for editing an instance of metadata model class:
   # Kategorie
   path(
-    route='category/edit/<pk>',
+    route='metadata/category/edit/<pk>',
     view=login_required(
       CategoryEditView.as_view(success_url=reverse_lazy(f'{app_name}:category_table'))
     ),
@@ -93,21 +93,21 @@ urlpatterns = [
   # composing table data out of instances of metadata model class:
   # Quellenangabe
   path(
-    route='source/tabledata',
+    route='metadata/source/tabledata',
     view=login_required(SourceTableDataView.as_view()),
     name='source_tabledata',
   ),
   # table page for instances of metadata model class:
   # Quellenangabe
   path(
-    route='source/table',
+    route='metadata/source/table',
     view=login_required(SourceTableView.as_view()),
     name='source_table',
   ),
   # form page for editing an instance of metadata model class:
   # Quellenangabe
   path(
-    route='source/edit/<pk>',
+    route='metadata/source/edit/<pk>',
     view=login_required(
       SourceEditView.as_view(success_url=reverse_lazy(f'{app_name}:source_table'))
     ),
@@ -116,21 +116,21 @@ urlpatterns = [
   # composing table data out of instances of metadata model class:
   # Indikator
   path(
-    route='indicator/tabledata',
+    route='metadata/indicator/tabledata',
     view=login_required(IndicatorTableDataView.as_view()),
     name='indicator_tabledata',
   ),
   # table page for instances of metadata model class:
   # Indikator
   path(
-    route='indicator/table',
+    route='metadata/indicator/table',
     view=login_required(IndicatorTableView.as_view()),
     name='indicator_table',
   ),
   # form page for editing an instance of metadata model class:
   # Indikator
   path(
-    route='indicator/edit/<pk>',
+    route='metadata/indicator/edit/<pk>',
     view=login_required(
       IndicatorEditView.as_view(success_url=reverse_lazy(f'{app_name}:indicator_table'))
     ),
@@ -144,68 +144,68 @@ urlpatterns = [
   ),
   # JSON with all distinct years of table within database schema
   path(
-    route='get-distinct-years',
+    route='data/action/get-distinct-years',
     view=login_required(distinct_years),
     name='get_distinct_years',
   ),
   # JSON with all distinct areas of table within database schema
   path(
-    route='get-distinct-areas',
+    route='data/action/get-distinct-areas',
     view=login_required(distinct_areas),
     name='get_distinct_areas',
   ),
   # JSON with all distinct elections of table within database schema
   path(
-    route='get-distinct-elections',
+    route='data/action/get-distinct-elections',
     view=login_required(distinct_elections),
     name='get_distinct_elections',
   ),
   # CSV (standard) with data of table within database schema
   path(
-    route='export-csv-standard',
+    route='data/action/export-csv-standard',
     view=login_required(export_csv_standard),
     name='export_csv_standard',
   ),
   # CSV (Excel friendly) with data of table within database schema
   path(
-    route='export-csv-excel',
+    route='data/action/export-csv-excel',
     view=login_required(export_csv_excel),
     name='export_csv_excel',
   ),
   # XLSX with data of table within database schema
   path(
-    route='export-excel',
+    route='data/action/export-excel',
     view=login_required(export_excel),
     name='export_excel',
   ),
   # page for importing and mapping data
   path(
-    route='data/import/mapping',
+    route='data/import',
     view=login_required(data_import_mapping),
     name='data_import_mapping',
   ),
   # JSON with all tables of database schema
   path(
-    route='get-database-tables',
+    route='data/action/get-database-tables',
     view=login_required(database_tables),
     name='get_database_tables',
   ),
   # JSON with all columns of table within database schema
   path(
-    route='get-database-columns',
+    route='data/action/get-database-columns',
     view=login_required(database_columns),
     name='get_database_columns',
   ),
   # JSON with all headers and a preview of the first few rows of CSV file
   path(
-    route='preview-csv',
+    route='data/action/preview-csv',
     view=login_required(preview_csv),
     name='preview_csv',
   ),
   # import file into table within database schema accoring to mapping
   path(
-    route='import',
+    route='data/action/execute-import',
     view=login_required(execute_import),
-    name='import',
+    name='execute_import',
   ),
 ]

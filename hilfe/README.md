@@ -148,6 +148,8 @@ Hier finden Sie Hilfestellungen zum System zur Bearbeitung der Inhalte des *Stad
 
 #### [Export](stadtbereichskatalog/data/export.md)
 
+#### [Import](stadtbereichskatalog/data/import.md)
+
 ## *GDI.HRO Codelists*
 
 Hier finden Sie Hilfestellungen zum System zur Administration von Codelisten im Rahmen der GDI.HRO.

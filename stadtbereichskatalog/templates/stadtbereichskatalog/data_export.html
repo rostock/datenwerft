@@ -11,6 +11,7 @@
 
 {% block scripts %}
   {{ block.super }}
+  <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
   <script src="{% static 'stadtbereichskatalog/js/asyncFunctions.js' %}"></script>
   <script src="{% static 'stadtbereichskatalog/js/functions.js' %}"></script>
   <script src="{% static 'stadtbereichskatalog/js/dataExport.js' %}"></script>
@@ -88,6 +89,7 @@
       <button type="button" class="btn btn-secondary ms-1 export-button" id="export-csv-excel" disabled><i class="fa-solid fa-{{ 'csv'|get_icon }}"></i> CSV (Excel-freundlich)</button>
       <button type="button" class="btn btn-secondary ms-1 export-button" id="export-excel" disabled><i class="fa-solid fa-{{ 'excel'|get_icon }}"></i> Excel</button>
     </div>
+    {% include "stadtbereichskatalog/modal_messages.html" %}
     <script>
       const GET_DATABASE_TABLES_URL = "{% url app.name|add:':get_database_tables' %}";
       const GET_DISTINCT_YEARS_URL = "{% url app.name|add:':get_distinct_years' %}";
