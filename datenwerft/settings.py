@@ -370,7 +370,6 @@ STADTBEREICHSKATALOG_ICONS = {
   'import': 'file-import',
   'indicator': 'gauge',
   'info': 'circle-info',
-  'mapping': 'left-right',
   'metadata': 'tag',
   'ok': 'circle-check',
   'save': 'floppy-disk',

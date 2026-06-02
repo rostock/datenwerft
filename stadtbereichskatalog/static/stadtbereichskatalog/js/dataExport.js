@@ -71,16 +71,19 @@ $(document).ready(function() {
 
   $('#export-csv-standard').on('click', function() {
     window.location.href = buildDataExportURL(EXPORT_CSV_STANDARD_URL);
+    showDataExportModal('CSV-Datei (Standard-konform)');
   });
 
 
   $('#export-csv-excel').on('click', function() {
     window.location.href = buildDataExportURL(EXPORT_CSV_EXCEL_URL);
+    showDataExportModal('CSV-Datei (Excel-freundlich)');
   });
 
 
   $('#export-excel').on('click', function() {
     window.location.href = buildDataExportURL(EXPORT_EXCEL_URL);
+    showDataExportModal('Excel-Datei');
   });
 
 });

@@ -468,7 +468,7 @@ function disableImport() {
 
 
 /**
- * enables import buttons
+ * enables import button
  *
  * @function
  * @name enableImport
@@ -516,7 +516,7 @@ function renderImportResult(result) {
     title = '<i class="fa-solid fa-circle-exclamation text-danger"></i> Import fehlgeschlagen';
     if (result.errors) {
       if (result.errors.length > 1) {
-        body = 'Beim Importieren sind Fehler aufgetreten:';
+        body = 'Beim Einlesen der Quelldatei sind Fehler aufgetreten:';
         body += '<br><br>';
         result.errors.forEach(function (error) {
           body += '<p>';
@@ -530,7 +530,7 @@ function renderImportResult(result) {
           body += '</p>';
         });
       } else {
-        body = 'Beim Importieren ist ein Fehler aufgetreten:';
+        body = 'Beim Importieren ist ein Datenbankfehler aufgetreten:';
         body += '<br><br>';
         body += `<p class="font-monospace">${result.errors[0].message}</p>`;
       }
@@ -648,7 +648,7 @@ function resetElectionSelect() {
 function populateElectionSelect(elections) {
   const $electionSelect = $('#election-select');
   $.each(elections, function (index, election) {
-    let value = election.election + '___' + election.year;
+    let value = election.election + '__' + election.year;
     let text = election.name + ' ' + election.year;
     $electionSelect.append(
       $('<option>', {
@@ -678,4 +678,68 @@ function buildDataExportURL(baseURL) {
   const area = $('#area-select').val();
   const election = $('#election-select').val();
   return `${baseURL}?schema=${encodeURIComponent(schema)}&table=${encodeURIComponent(table)}&year=${encodeURIComponent(year)}&area=${encodeURIComponent(area)}&election=${encodeURIComponent(election)}`;
+}
+
+
+/**
+ * shows data export modal
+ *
+ * @function
+ * @name showDataExportModal
+ *
+ * @param {string} fileType - file type
+ */
+function showDataExportModal(fileType) {
+  let title = '<i class="fa-solid fa-circle-check text-success"></i> Export erfolgreich';
+  let body = `Im Hintergrund wurde eine ${fileType} erzeugt und direkt von Ihrem Browser heruntergeladen, sodass diese sich nunmehr im eingestellten Download-Ordner befindet.`;
+  toggleModal($('#messages-modal'), title, body);
+}
+
+
+/**
+ * disables deletion button
+ *
+ * @function
+ * @name disableDeletion
+ */
+function disableDeletion() {
+  disableFormElement($('#deletion'));
+}
+
+
+/**
+ * enables deletion button
+ *
+ * @function
+ * @name enableDeletion
+ */
+function enableDeletion() {
+  enableFormElement($('#deletion'));
+}
+
+
+/**
+ * renders passed deletion result
+ *
+ * @function
+ * @name renderDeletionResult
+ *
+ * @param {object} result - import result
+ */
+function renderDeletionResult(result) {
+  let title, body;
+  if (result && result.success) {
+    title = '<i class="fa-solid fa-circle-check text-success"></i> Löschung erfolgreich';
+    body = `Es wurde(n) ${result.deleted_rows} Zeile(n) erfolgreich gelöscht.`;
+  } else {
+    title = '<i class="fa-solid fa-circle-exclamation text-danger"></i> Löschung fehlgeschlagen';
+    if (result.errors) {
+      body = 'Beim Löschen ist ein Datenbankfehler aufgetreten:';
+      body += '<br><br>';
+      body += `<p class="font-monospace">${result.errors[0].message}</p>`;
+    } else {
+      body = 'Beim Löschen ist ein Fehler aufgetreten.';
+    }
+  }
+  toggleModal($('#messages-modal'), title, body);
 }

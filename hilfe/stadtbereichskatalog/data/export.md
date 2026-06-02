@@ -4,15 +4,15 @@ Auf dieser Seite haben Sie die Möglichkeit Daten zu **exportieren.**
 
 ## Ablauf
 
-1. **Quellschema auswählen:**
+1. **Schema auswählen:**
    In welcher Domäne befinden sich die zu exportierenden Inhalte (Faktendaten)?
    Entsprechend muss das passende Datenbankschema gewählt werden.
-2. **Quelltabelle auswählen:**
+2. **Tabelle auswählen:**
    Welche konkrete Quelle umfasst die zu exportierenden Inhalte (Faktendaten)?
    Entsprechend muss die passende Datenbanktabelle
    innerhalb des zuvor selektierten Datenbankschemas gewählt werden.
 3. bei Bedarf entsprechende **Filter setzen** – siehe dazu nachfolgenden Abschnitt
-4. passenden Export-**Button klicken:**
+4. auf passenden **Export-Button klicken:**
    - *CSV (Standard-konform):* Export in CSV-Datei, die vollständig konform ist zum offiziellen
      Standard [RFC 4180](https://www.rfc-editor.org/rfc/rfc4180)
      (UTF-8 ohne BOM, Unix-Zeilenenden, Komma als Trennzeichen)
@@ -24,7 +24,7 @@ Auf dieser Seite haben Sie die Möglichkeit Daten zu **exportieren.**
 
 ## Filter setzen
 
-Je nach gewähltem Quellschema und/oder gewählter Quelltabelle werden verschiedene Filter
+Je nach gewähltem Schema und/oder gewählter Tabelle werden verschiedene Filter
 aktiviert, die beliebig verwendet werden können – zum Beispiel ein Filter auf das Jahr
 oder den Stadtbereich.
 

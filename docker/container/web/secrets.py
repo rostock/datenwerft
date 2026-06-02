@@ -26,6 +26,13 @@ LOGIN_URL = '/datenwerft/accounts/login/'
 
 
 # Datenwerft.HRO:
+# reverse proxy settings
+
+# USE_X_FORWARDED_HOST = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+# Datenwerft.HRO:
 # logging configuration
 # log levels available: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
@@ -91,6 +98,14 @@ DATABASES = {
     'HOST': 'db',
     'PORT': '5432'
   },
+  'angebotsdb': {
+    'ENGINE': 'django.contrib.gis.db.backends.postgis',
+    'NAME': 'angebotsdb',
+    'USER': 'postgres',
+    'PASSWORD': 'postgres',
+    'HOST': 'db',
+    'PORT': '5432'
+  },
   'antragsmanagement': {
     'ENGINE': 'django.contrib.gis.db.backends.postgis',
     'NAME': 'antragsmanagement',
@@ -138,7 +153,15 @@ DATABASES = {
     'PASSWORD': 'postgres',
     'HOST': 'db',
     'PORT': '5432'
-  }
+  },
+  'stadtbereichskatalog': {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': 'stadtbereichskatalog',
+    'USER': 'postgres',
+    'PASSWORD': 'postgres',
+    'HOST': 'db',
+    'PORT': '5432'
+  },
 }
 POSTGIS_VERSION = (3, 5, 2)
 
@@ -176,6 +199,40 @@ AUTH_LDAP_USER_ATTR_MAP = {
   'last_name': 'sn',
   'email': 'mail'
 }
+AUTH_PASSWORD_VALIDATORS = [
+  {
+    'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+  },
+  {
+    'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    'OPTIONS': {'min_length': 12},
+  },
+  {
+    'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+  },
+  {
+    'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+  },
+]
+
+
+# Angebotsdatenbank app:
+# authentication
+
+ANGEBOTSDB_ADMIN_GROUP_NAME = 'angebotsdb_admins'
+ANGEBOTSDB_USERS_GROUP_NAME = 'angebotsdb_users'
+
+
+# Angebotsdatenbank app:
+# pygeoapi field configurations
+
+ANGEBOTSDB_PYGEOAPI = {
+  'gemeindeteile_rostock': {
+    'endpoint': 'https://geo.sv.rostock.de/service/ogcapi/collections/gemeindeteile/items',
+    'params': {'f': 'json', 'gemeinde_schluessel': '130030000000'},
+    'label_property': 'gemeindeteil_name',
+  },
+}
 
 
 # Antragsmanagement app:
@@ -200,25 +257,51 @@ BEMAS_USERS_GROUP_NAME = 'bemas_users'
 # data privacy
 
 BEMAS_STATUS_CHANGE_DEADLINE_DAYS = 365
+BEMAS_DATA_CONSIDERED_OLD_AFTER_DAYS = 30
 
 
 # d.3 app:
 # configuration
 
 D3_ENABLED = False
-D3_HOST = ''
-D3_REPOSITORY = ''
-D3_AKTEN_CATEGORY = ''
-D3_VORGANG_CATEGORY = ''
-D3_DATEI_CATEGORY = ''
-D3_VORGANGS_TITEL_ID = ''
+D3_HOST = 'https://d3.your-domain.tld'
+D3_REPOSITORY = '00000000-0000-0000-0000-000000000000'
+D3_AKTEN_CATEGORY = '00000000-0000-0000-0000-000000000000'
+D3_AKTEN_RUBRIK = 'AKTE'
+D3_VORGANG_CATEGORY = '00000000-0000-0000-0000-000000000000'
+D3_VORGANG_RUBRIK = 'VORGANG'
+D3_DATEI_CATEGORY = '00000000-0000-0000-0000-000000000000'
+D3_DATEI_RUBRIK = 'DATEI'
+D3_AKTEN_ZEICHEN_ID = '00000000-0000-0000-0000-000000000000'
+D3_VORGANGS_TITEL_ID = '00000000-0000-0000-0000-000000000000'
+D3_VORGANGS_ZEICHEN_ID = '00000000-0000-0000-0000-000000000000'
 D3_VORGANGS_TYP_ID = None
+
+
+# pygeoapi app:
+# authentication
+
+PYGEOAPI_GROUP_NAME = 'pygeoapi'
+
+
+# pygeoapi app:
+# configuration
+
+PYGEOAPI_HOST = 'http://pygeoapi.hro'
+PYGEOAPI_KEY = ''
+PYGEOAPI_RESOURCE = ''
 
 
 # FMM app:
 # authentication
 
 FMM_GROUP_NAME = 'fmm'
+
+
+# Stadtbereichskatalog app:
+# authentication
+
+STADTBEREICHSKATALOG_GROUP_NAME = 'stadtbereichskatalog'
 
 
 # GDI.HRO Codelists app:

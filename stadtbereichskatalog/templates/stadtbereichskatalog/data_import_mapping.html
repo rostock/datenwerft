@@ -2,7 +2,7 @@
 {% load stadtbereichskatalog_tags %}
 {% load static %}
 
-{% block title %}Daten – Mapping | {% endblock %}
+{% block title %}Daten – Import | {% endblock %}
 
 {% block style %}
   {{ block.super }}
@@ -20,7 +20,7 @@
 {% block content %}
   {% if is_stadtbereichskatalog_user %}
     <h2>
-      <i class="fa-solid fa-{{ 'mapping'|get_icon }}"></i> Mapping auf Datenbank
+      <i class="fa-solid fa-{{ 'import'|get_icon }}"></i> Datenimport
     </h2>
     <div class="d-grid mt-5 gap-2 d-md-block">
       <a class="btn btn-primary" role="button" href="{% url app.name|add:':index' %}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> Startseite</a>
@@ -90,7 +90,7 @@
       const GET_DATABASE_TABLES_URL = "{% url app.name|add:':get_database_tables' %}";
       const GET_DATABASE_COLUMNS_URL = "{% url app.name|add:':get_database_columns' %}";
       const PREVIEW_CSV_URL = "{% url app.name|add:':preview_csv' %}";
-      const IMPORT_URL = "{% url app.name|add:':import' %}";
+      const IMPORT_URL = "{% url app.name|add:':execute_import' %}";
       let currentColumns = [];
       let currentCsvHeaders = [];
       let currentPreviewRows = [];
