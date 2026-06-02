@@ -11,21 +11,25 @@ Auf dieser Seite haben Sie die Möglichkeit Daten zu **importieren.**
    In welches konkrete Ziel sollen die Inhalte (Faktendaten) importiert werden?
    Entsprechend muss die passende Datenbanktabelle
    innerhalb des zuvor selektierten Datenbankschemas gewählt werden.
-3. Übersicht über die **Zielspalten** – siehe dazu nachfolgenden Abschnitt
-4. passenden Export-**Button klicken:**
-   - *CSV (Standard-konform):* Export in CSV-Datei, die vollständig konform ist zum offiziellen
+   **Hinweis:** Sobald eine Zieltabelle ausgewählt wurde, erscheint deren Struktur
+   (das heißt deren Spalten mit Angabe des jeweiligen Datentyps usw.) automatisch
+   darunter im Bereich *Zielspalten.*
+3. **Quelldatei auswählen** – folgende Dateitypen werden akzeptiert:
+   - CSV-Datei, die vollständig konform ist zum offiziellen
      Standard [RFC 4180](https://www.rfc-editor.org/rfc/rfc4180)
      (UTF-8 ohne BOM, Unix-Zeilenenden, Komma als Trennzeichen)
-   - *CSV (Excel-freundlich):* Export in CSV-Datei, die sich direkt in *Microsoft Excel*
+   - CSV-Datei, die sich direkt in *Microsoft Excel*
      öffnen lässt (UTF-8 mit BOM, Windows-Zeilenenden, Semikolon als Trennzeichen)
-   - *Excel:* Export in XLSX-Datei für *Microsoft Excel*
-5. Es wird nun im Hintergrund eine Datei erzeugt und direkt von Ihrem Browser heruntergeladen,
-   sodass diese sich nunmehr im eingestellten Download-Ordner befindet.
-
-## Filter setzen
-
-Je nach gewähltem Quellschema und/oder gewählter Quelltabelle werden verschiedene Filter
-aktiviert, die beliebig verwendet werden können – zum Beispiel ein Filter auf das Jahr
-oder den Stadtbereich.
-
-**Hinweis:** Sind mehrere Filter gesetzt, so wirken diese additiv (wie „UND“).
+   - XLSX-Datei für *Microsoft Excel*
+4. auf Button ***Upload* klicken,** um ausgewählte Quelldatei hochzuladen
+5. **Mapping durchführen:**
+   Durch den Upload der ausgewählten Quelldatei wurde im Hintergrund bereits eine Analyse 
+   der Quellspalten durchgeführt und ein entsprechendes Mapping auf die Zielspalten
+   voreingestellt. Dieses muss nun **geprüft und bei Bedarf angepasst** werden. Die Färbung
+   der Zeilen in der Mappingtabelle sowie die Angaben in der Spalte *Status* der Mappingtabelle
+   geben dazu entsprechende Hinweise.
+6. Sobald das Mapping passt, müssen Sie auf den Button ***Import* klicken,** um den Datenimport
+   durchzuführen. Es erscheint daraufhin ein Dialog, der entweder über den Erfolg oder über
+   den Misserfolg des Datenimports berichtet – in letzterem Fall werden dann die Fehlermeldungen
+   aufgelistet, die entweder beim Einlesen der Quelldatei oder aber beim Import in die Datenbank
+   aufgetreten sind.

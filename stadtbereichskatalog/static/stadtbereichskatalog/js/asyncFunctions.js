@@ -93,7 +93,7 @@ async function fetchCsvPreview(file) {
 
 
 /**
- * imports passed file into passed table within passed database schema accoring to passed mapping
+ * executes import of passed file into passed table within passed database schema accoring to passed mapping
  *
  * @async
  * @function
@@ -205,6 +205,45 @@ async function fetchElections(schema, table) {
       `${GET_DISTINCT_ELECTIONS_URL}?schema=${encodeURIComponent(schema)}&table=${encodeURIComponent(table)}`,
       {
         method: 'GET'
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+
+/**
+ * executes deletion of data from passed table within passed database schema accoring to passed filters
+ *
+ * @async
+ * @function
+ * @name executeDeletion
+ *
+ * @param {string} schema - name of database schema
+ * @param {string} table - name of database table
+ * @param {string} year - year filter
+ * @param {string} election - election filter
+ *
+ * @returns {Promise<object|null>}
+ */
+async function executeDeletion(schema, table, year, election) {
+  try {
+    const formData = new FormData();
+    formData.append('schema', schema);
+    formData.append('table', table);
+    formData.append('year', year);
+    formData.append('election', election);
+    const response = await fetch(
+      DELETION_URL,
+      {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': CSRF_TOKEN
+        }
       }
     );
     return await response.json();

@@ -164,7 +164,14 @@ def data_to_csv(
   )
 
   # set CSV name and prepare as file attachment
-  filename = f'{schema_name}__{table_name}.csv'
+  filename = f'{schema_name}__{table_name}'
+  if year_filter:
+    filename += f'__{year_filter}'
+  if area_filter:
+    filename += f'__{area_filter}'
+  if election_filter:
+    filename += f'__{election_filter}'
+  filename += '.csv'
   response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
   if standard:
@@ -255,6 +262,51 @@ def data_to_excel(
   wb.save(response)
 
   return response
+
+
+def delete_data(schema_name, table_name, year_filter=None, election_filter=None):
+  """
+  deletes data from passed table within passed database schema according to passed filters
+
+  :param schema_name: name of database schema
+  :param table_name: name of database table
+  :param year_filter: optional year filter
+  :param election_filter: optional election filter
+  :return: results of deletion of data
+  from passed table within passed database schema according to passed filters
+  """
+
+  # dynamic filters
+  conditions, params = [], []
+  if year_filter:
+    conditions.append('jahr = %s')
+    params.append(int(year_filter))
+  if election_filter:
+    election = election_filter.split('__')
+    election_election, election_year = election[0], election[1]
+    conditions.append('wahlart_id = %s')
+    params.append(election_election)
+    conditions.append('wahljahr = %s')
+    params.append(int(election_year))
+  where_sql = ''
+  if conditions:
+    where_sql = ' AND '.join(conditions)
+
+  # build query
+  query = SQL("""
+      DELETE FROM {}.{}
+  """).format(Identifier(schema_name), Identifier(table_name))
+  if where_sql:
+    query += SQL(' WHERE ') + SQL(where_sql)
+
+  # execute query
+  try:
+    connection = connections['stadtbereichskatalog']
+    with connection.cursor() as cursor:
+      cursor.execute(query, params)
+    return {'success': True, 'deleted_rows': cursor.rowcount}
+  except Exception as e:
+    return {'success': False, 'errors': [{'row': 0, 'message': str(e)}]}
 
 
 def detect_dialect(file_obj):
@@ -406,31 +458,6 @@ def get_database_tables(schema_name):
     return [row[0] for row in cursor.fetchall()]
 
 
-def get_distinct_years(schema_name, table_name):
-  """
-  gets all distinct years of passed table within passed database schema and returns them
-
-  :param schema_name: name of database schema
-  :param table_name: name of database table
-  :return: all distinct years of passed table within passed database schema
-  """
-  connection = connections['stadtbereichskatalog']
-  column = 'wahljahr' if schema_name == 'wahlen' else 'jahr'
-  with connection.cursor() as cursor:
-    cursor.execute(  # correct
-      SQL(
-        """
-      SELECT DISTINCT {}
-       FROM {}.{}
-        ORDER BY {} DESC
-    """
-      ).format(
-        Identifier(column), Identifier(schema_name), Identifier(table_name), Identifier(column)
-      )
-    )
-    return [row[0] for row in cursor.fetchall()]
-
-
 def get_distinct_areas(schema_name, table_name):
   """
   gets all distinct areas of passed table within passed database schema and returns them
@@ -498,11 +525,37 @@ def get_distinct_elections(schema_name, table_name):
     return result
 
 
+def get_distinct_years(schema_name, table_name):
+  """
+  gets all distinct years of passed table within passed database schema and returns them
+
+  :param schema_name: name of database schema
+  :param table_name: name of database table
+  :return: all distinct years of passed table within passed database schema
+  """
+  connection = connections['stadtbereichskatalog']
+  column = 'wahljahr' if schema_name == 'wahlen' else 'jahr'
+  with connection.cursor() as cursor:
+    cursor.execute(  # correct
+      SQL(
+        """
+      SELECT DISTINCT {}
+       FROM {}.{}
+        ORDER BY {} DESC
+    """
+      ).format(
+        Identifier(column), Identifier(schema_name), Identifier(table_name), Identifier(column)
+      )
+    )
+    return [row[0] for row in cursor.fetchall()]
+
+
 def get_export_data(
   schema_name, table_name, year_filter=None, area_filter=None, election_filter=None
 ):
   """
-  gets data of passed table within passed database schema and returns them
+  gets data of passed table within passed database schema according to passed filters
+  and returns them
 
   :param schema_name: name of database schema
   :param table_name: name of database table
@@ -521,7 +574,7 @@ def get_export_data(
     conditions.append('stadtbereich = %s')
     params.append(area_filter)
   if election_filter:
-    election = election_filter.split('___')
+    election = election_filter.split('__')
     election_election, election_year = election[0], election[1]
     conditions.append('wahlart_id = %s')
     params.append(election_election)

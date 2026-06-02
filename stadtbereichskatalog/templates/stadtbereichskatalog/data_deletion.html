@@ -2,7 +2,7 @@
 {% load stadtbereichskatalog_tags %}
 {% load static %}
 
-{% block title %}Daten – Export | {% endblock %}
+{% block title %}Daten – Löschung | {% endblock %}
 
 {% block style %}
   {{ block.super }}
@@ -14,13 +14,13 @@
   <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
   <script src="{% static 'stadtbereichskatalog/js/asyncFunctions.js' %}"></script>
   <script src="{% static 'stadtbereichskatalog/js/functions.js' %}"></script>
-  <script src="{% static 'stadtbereichskatalog/js/dataExport.js' %}"></script>
+  <script src="{% static 'stadtbereichskatalog/js/dataDeletion.js' %}"></script>
 {% endblock %}
 
 {% block content %}
   {% if is_stadtbereichskatalog_user %}
     <h2>
-      <i class="fa-solid fa-{{ 'export'|get_icon }}"></i> Datenexport
+      <i class="fa-solid fa-{{ 'delete'|get_icon }}"></i> Datenlöschung
     </h2>
     <div class="d-grid mt-5 gap-2 d-md-block">
       <a class="btn btn-primary" role="button" href="{% url app.name|add:':index' %}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> Startseite</a>
@@ -63,16 +63,6 @@
           </tr>
           <tr>
             <td class="cell-label">
-              <label for="area-select">Filter auf Stadtbereich</label>
-            </td>
-            <td class="cell-field">
-              <select name="area" class="form-select" id="area-select" disabled>
-                <option value="">---------</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td class="cell-label">
               <label for="election-select">Filter auf Wahl</label>
             </td>
             <td class="cell-field">
@@ -84,20 +74,14 @@
         </tbody>
       </table>
     </div>
-    <div class="btn-group mt-3 mb-3" role="group" aria-label="Export">
-      <button type="button" class="btn btn-secondary export-button" id="export-csv-standard" disabled><i class="fa-solid fa-{{ 'csv'|get_icon }}"></i> CSV (Standard-konform)</button>
-      <button type="button" class="btn btn-secondary ms-1 export-button" id="export-csv-excel" disabled><i class="fa-solid fa-{{ 'csv'|get_icon }}"></i> CSV (Excel-freundlich)</button>
-      <button type="button" class="btn btn-secondary ms-1 export-button" id="export-excel" disabled><i class="fa-solid fa-{{ 'excel'|get_icon }}"></i> Excel</button>
-    </div>
+    <button type="button" class="btn btn-danger mt-3 mb-3" id="deletion" disabled><i class="fa-solid fa-{{ 'delete'|get_icon }}"></i> löschen</button>
     {% include "stadtbereichskatalog/modal_messages.html" %}
     <script>
+      const CSRF_TOKEN = '{{ csrf_token }}';
       const GET_DATABASE_TABLES_URL = "{% url app.name|add:':get_database_tables' %}";
-      const GET_DISTINCT_AREAS_URL = "{% url app.name|add:':get_distinct_areas' %}";
       const GET_DISTINCT_ELECTIONS_URL = "{% url app.name|add:':get_distinct_elections' %}";
       const GET_DISTINCT_YEARS_URL = "{% url app.name|add:':get_distinct_years' %}";
-      const EXPORT_CSV_EXCEL_URL = "{% url app.name|add:':export_csv_excel' %}";
-      const EXPORT_CSV_STANDARD_URL = "{% url app.name|add:':export_csv_standard' %}";
-      const EXPORT_EXCEL_URL = "{% url app.name|add:':export_excel' %}";
+      const DELETION_URL = "{% url app.name|add:':execute_deletion' %}";
     </script>
   {% else %}
     {% include "stadtbereichskatalog/notice_no-permissions.html" %}
