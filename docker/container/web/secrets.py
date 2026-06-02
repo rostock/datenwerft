@@ -275,15 +275,6 @@ ADDRESS_SEARCH_KEY = '00000000000000000000000000000000'  # this key is valid!
 REVERSE_SEARCH_RADIUS = 200  # m
 
 
-# Toolbox app:
-# OWS proxy
-
-OWS_PROXY_PROXIES = {
-  'http': 'http://1.2.3.4:8080',
-  'https': 'http://1.2.3.4:8090'
-}
-
-
 # Datenmanagement app:
 # FME Server
 
