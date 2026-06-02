@@ -1,7 +1,7 @@
 /**
  * @file dataImportMapping.js
  *
- * handles database schema and table selection as well as table structure inspection
+ * handles data mapping and import
  */
 
 $(document).ready(function() {
@@ -53,7 +53,7 @@ $(document).ready(function() {
     if (!fileInput.files.length) {
       toggleModal(
         $('#messages-modal'),
-        '<i class="fa-solid fa-triangle-exclamation text-warning"></i> Quelldatei fehlt',
+        `<i class="fa-solid ${ICON_WARNING} text-warning"></i> Quelldatei fehlt`,
         'Bitte wählen Sie zunächst eine Quelldatei für den Upload aus.'
       );
       return;

@@ -82,6 +82,8 @@
       const GET_DISTINCT_ELECTIONS_URL = "{% url app.name|add:':get_distinct_elections' %}";
       const GET_DISTINCT_YEARS_URL = "{% url app.name|add:':get_distinct_years' %}";
       const DELETION_URL = "{% url app.name|add:':execute_deletion' %}";
+      const ICON_ERROR = "fa-{{ 'error'|get_icon }}";
+      const ICON_SUCCESS = "fa-{{ 'success'|get_icon }}";
     </script>
   {% else %}
     {% include "stadtbereichskatalog/notice_no-permissions.html" %}

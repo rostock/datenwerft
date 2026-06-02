@@ -251,6 +251,28 @@ def data_deletion(request):
   )
 
 
+def data_editing(request):
+  """
+  creates and returns view for page for editing data
+
+  :param request: request object
+  :return: view for page for editing data
+  """
+
+  # add global app related context elements
+  context = add_app_context_elements({})
+  # add permissions related context elements
+  context = add_permissions_context_elements(context, request.user)
+  # add to context: schemas
+  schemas = get_database_schemas()
+  context['schemas'] = schemas
+  return render(
+    request,
+    template_name='stadtbereichskatalog/data_editing.html',
+    context=context,
+  )
+
+
 def data_export(request):
   """
   creates and returns view for page for exporting data
@@ -301,6 +323,29 @@ def database_columns(request):
 
   :param request: request object
   :return: JSON with all columns of passed table within passed database schema
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    schema = request.GET.get('schema')
+    table = request.GET.get('table')
+    columns = get_database_columns(schema, table)
+    return JsonResponse(
+      data={'columns': columns},
+      json_dumps_params={'indent': 2, 'ensure_ascii': False},
+      content_type='application/json; charset=utf-8',
+    )
+
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
+
+
+def database_data(request):
+  """
+  creates and returns JSON with all data of passed table within passed database schema
+
+  :param request: request object
+  :return: JSON with all data of passed table within passed database schema
   """
 
   if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):

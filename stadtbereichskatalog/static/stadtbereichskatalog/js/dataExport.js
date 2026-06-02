@@ -1,7 +1,7 @@
 /**
  * @file dataExport.js
  *
- * handles database schema and table selection as well as export data filtering
+ * handles data filtering and export
  */
 
 $(document).ready(function() {

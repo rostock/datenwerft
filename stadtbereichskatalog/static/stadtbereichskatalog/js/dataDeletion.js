@@ -1,7 +1,7 @@
 /**
  * @file dataDeletion.js
  *
- * handles database schema and table selection as well as data deletion
+ * handles data deletion
  */
 
 $(document).ready(function() {

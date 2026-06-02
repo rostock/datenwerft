@@ -362,6 +362,7 @@ STADTBEREICHSKATALOG_ICONS = {
   'cancel': 'hand',
   'csv': 'file-csv',
   'data': 'chart-simple',
+  'data_loading': 'database',
   'delete': 'trash-can',
   'edit': 'pen-to-square',
   'error': 'circle-exclamation',
@@ -371,10 +372,11 @@ STADTBEREICHSKATALOG_ICONS = {
   'indicator': 'gauge',
   'info': 'circle-info',
   'metadata': 'tag',
-  'ok': 'circle-check',
   'save': 'floppy-disk',
   'source': 'book',
+  'success': 'circle-check',
   'topic': 'folder',
+  'upload': 'upload',
   'warning': 'triangle-exclamation',
 }
 

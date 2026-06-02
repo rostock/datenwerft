@@ -250,7 +250,7 @@ function validateMappings() {
     ) {
       $validationCell.html(
         '<div class="alert alert-danger" role="alert">' +
-          '<i class="fa-solid fa-circle-exclamation"></i>' +
+          `<i class="fa-solid ${ICON_ERROR}"></i>` +
           ' Pflichtzielspalte nicht gemappt' +
         '</div>'
       );
@@ -280,7 +280,7 @@ function validateMappings() {
       if (typeWarning) {
         $validationCell.html(
           `<div class="alert alert-warning" role="alert">` +
-            `<i class="fa-solid fa-triangle-exclamation"></i>` +
+            `<i class="fa-solid ${ICON_WARNING}"></i>` +
             ` ${typeWarning}` +
           `</div>`
         );
@@ -288,7 +288,7 @@ function validateMappings() {
       } else {
         $validationCell.html(
           '<div class="alert alert-success" role="alert">' +
-            '<i class="fa-solid fa-circle-check"></i>' +
+            `<i class="fa-solid ${ICON_SUCCESS}"></i>` +
             ' Mapping ok' +
           '</div>'
         );
@@ -307,7 +307,7 @@ function validateMappings() {
         if (!$row.hasClass('table-warning')) {
           $row.find('.validation-cell').html(
             '<div class="alert alert-warning" role="alert">' +
-              '<i class="fa-solid fa-triangle-exclamation"></i>' +
+              `<i class="fa-solid ${ICON_WARNING}"></i>` +
               ' Quellspalte mehrfach ausgewählt' +
             '</div>'
           );
@@ -510,10 +510,10 @@ function collectMappings() {
 function renderImportResult(result) {
   let title, body;
   if (result && result.success) {
-    title = '<i class="fa-solid fa-circle-check text-success"></i> Import erfolgreich';
+    title = `<i class="fa-solid ${ICON_SUCCESS} text-success"></i> Import erfolgreich`;
     body = `Es wurde(n) ${result.inserted_rows} Zeile(n) erfolgreich importiert.`;
   } else {
-    title = '<i class="fa-solid fa-circle-exclamation text-danger"></i> Import fehlgeschlagen';
+    title = `<i class="fa-solid ${ICON_ERROR} text-danger"></i> Import fehlgeschlagen`;
     if (result.errors) {
       if (result.errors.length > 1) {
         body = 'Beim Einlesen der Quelldatei sind Fehler aufgetreten:';
@@ -690,7 +690,7 @@ function buildDataExportURL(baseURL) {
  * @param {string} fileType - file type
  */
 function showDataExportModal(fileType) {
-  let title = '<i class="fa-solid fa-circle-check text-success"></i> Export erfolgreich';
+  let title = `<i class="fa-solid ${ICON_SUCCESS} text-success"></i> Export erfolgreich`;
   let body = `Im Hintergrund wurde eine ${fileType} erzeugt und direkt von Ihrem Browser heruntergeladen, sodass diese sich nunmehr im eingestellten Download-Ordner befindet.`;
   toggleModal($('#messages-modal'), title, body);
 }
@@ -729,10 +729,10 @@ function enableDeletion() {
 function renderDeletionResult(result) {
   let title, body;
   if (result && result.success) {
-    title = '<i class="fa-solid fa-circle-check text-success"></i> Löschung erfolgreich';
+    title = `<i class="fa-solid ${ICON_SUCCESS} text-success"></i> Löschung erfolgreich`;
     body = `Es wurde(n) ${result.deleted_rows} Zeile(n) erfolgreich gelöscht.`;
   } else {
-    title = '<i class="fa-solid fa-circle-exclamation text-danger"></i> Löschung fehlgeschlagen';
+    title = `<i class="fa-solid ${ICON_ERROR} text-danger"></i> Löschung fehlgeschlagen`;
     if (result.errors) {
       body = 'Beim Löschen ist ein Datenbankfehler aufgetreten:';
       body += '<br><br>';
@@ -742,4 +742,26 @@ function renderDeletionResult(result) {
     }
   }
   toggleModal($('#messages-modal'), title, body);
+}
+
+
+/**
+ * disables data loading button
+ *
+ * @function
+ * @name disableDataLoading
+ */
+function disableDataLoading() {
+  disableFormElement($('#data-loading'));
+}
+
+
+/**
+ * enables data loading button
+ *
+ * @function
+ * @name enableDataLoading
+ */
+function enableDataLoading() {
+  enableFormElement($('#data-loading'));
 }

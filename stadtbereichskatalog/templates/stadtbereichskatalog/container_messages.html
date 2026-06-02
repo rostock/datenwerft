@@ -12,7 +12,7 @@
     </div>
   {% elif message.tags and message.tags == 'success' %}
     <div class="alert alert-success" role="alert">
-      <i class="fa-solid fa-{{ 'ok'|get_icon }}"></i>
+      <i class="fa-solid fa-{{ 'success'|get_icon }}"></i>
       {{ message|safe }}
     </div>
   {% endif %}

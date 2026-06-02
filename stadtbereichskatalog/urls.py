@@ -18,9 +18,11 @@ from .views import (
   TopicTableDataView,
   TopicTableView,
   data_deletion,
+  data_editing,
   data_export,
   data_import_mapping,
   database_columns,
+  database_data,
   database_tables,
   distinct_areas,
   distinct_elections,
@@ -156,11 +158,23 @@ urlpatterns = [
     view=login_required(data_deletion),
     name='data_deletion',
   ),
+  # page for editing data
+  path(
+    route='data/editing',
+    view=login_required(data_editing),
+    name='data_editing',
+  ),
   # JSON with all columns of table within database schema
   path(
     route='data/action/get-database-columns',
     view=login_required(database_columns),
     name='get_database_columns',
+  ),
+  # JSON with all data of table within database schema
+  path(
+    route='data/action/get-database-data',
+    view=login_required(database_data),
+    name='get_database_data',
   ),
   # JSON with all tables of database schema
   path(
