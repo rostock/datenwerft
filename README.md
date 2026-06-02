@@ -241,6 +241,9 @@ WSGIApplicationGroup  %{GLOBAL}
 </Directory>
 ```
 
+> [!NOTE]
+> Sofern für ausgehende Verbindungen (zum Beispiel für den OWS-Proxy der App _Toolbox_, der externe WMS-/WFS-Dienste serverseitig abruft) ein Proxy-Server genutzt werden muss, erfolgt die Konfiguration über die Umgebungsvariablen `HTTP_PROXY` und `HTTPS_PROXY` (sowie ggf. `NO_PROXY`). Diese müssen dem _Apache HTTP Server_ bzw. dem WSGI-Prozess zur Verfügung stehen. Läuft der _Apache HTTP Server_ unter einem eigenen Nutzer (zum Beispiel `wwwrun`), werden Proxy-Variablen aus der Login-Umgebung **nicht** automatisch geerbt — sie müssen daher explizit in der Service-Datei des _Apache HTTP Servers_ (z.B. via `Environment=`) gesetzt werden.
+
 ## UML-Klassendiagramme
 
 Für die Visualisierung der nachfolgend verlinkten UML-Klassendiagramme kann zum Beispiel [dieses Online-Tool](https://plantuml-editor.kkeisuke.com) genutzt werden.

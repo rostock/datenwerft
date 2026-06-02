@@ -7,7 +7,7 @@
 }
 
 .grid-item {
-  background-color: lightgoldenrodyellow;
+  background-color: transparent;
   place-self: stretch stretch;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;

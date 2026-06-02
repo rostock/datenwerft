@@ -118,14 +118,7 @@ class OWSProxyView(View):
       pattern=r'(http[s]?):\/([a-z0-9])', repl=r'\g<1>://\g<2>', string=self.destination_url
     )
     try:
-      if (
-        settings.OWS_PROXY_PROXIES
-        and 'http' in settings.OWS_PROXY_PROXIES
-        and 'https' in settings.OWS_PROXY_PROXIES
-      ):
-        response = requests.get(url, proxies=settings.OWS_PROXY_PROXIES, timeout=60)
-      else:
-        response = requests.get(url, timeout=60)
+      response = requests.get(url, timeout=60)
       return HttpResponse(response, content_type=response.headers['content-type'])
     except Exception:
       return HttpResponseServerError()
