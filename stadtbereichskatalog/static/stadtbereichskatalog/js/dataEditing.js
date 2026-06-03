@@ -10,7 +10,7 @@ $(document).ready(function() {
     const schema = $(this).val();
     resetTableSelect();
     disableDataLoading();
-    clearColumnsTable();
+    clearEditingTable();
     if (!schema) {
       return;
     }
@@ -25,18 +25,63 @@ $(document).ready(function() {
   $('#table-select').on('change', async function() {
     const schema = $('#schema-select').val();
     const table = $(this).val();
-    clearColumnsTable();
+    clearEditingTable();
     if (!schema || !table) {
       disableDataLoading();
       return;
     }
-    const data = await fetchColumns(schema, table);
-    if (!data || !data.columns) {
-      return;
-    }
-    currentColumns = data.columns;
-    renderColumnsTable(currentColumns);
     enableDataLoading();
   });
 
+
+  $('#load-data').on('click', async function() {
+    const schema = $('#schema-select').val();
+    const table = $('#table-select').val();
+    if (!schema || !table) {
+      return;
+    }
+    const columnsData = await fetchColumns(schema, table);
+    if (!columnsData || !columnsData.columns) {
+      return;
+    }
+    $.each(columnsData.columns, function(index, column) {
+      if (column.primary_key) {
+        primaryKeyColumns.push(column.name);
+      }
+    });
+    const rowsData = await fetchData(schema, table, primaryKeyColumns);
+    if (!rowsData || !rowsData.rows) {
+      return;
+    }
+    renderEditingTable(columnsData.columns, rowsData.rows);
+  });
+
+});
+
+
+$(document).on('input change', '.edit-cell', function() {
+  const $row = $(this).closest('tr');
+  updateRowHighlight($row);
+  updateRowButtonState($row);
+});
+
+
+$(document).on('click', '.update-row', async function () {
+  const schema = $('#schema-select').val();
+  const table = $('#table-select').val();
+  const $row = $(this).closest('tr');
+  const pk = $row.data('pk');
+  const changes = detectRowChanges($row);
+  if (Object.keys(changes).length === 0) {
+    return;
+  }
+  const result = await executeData(schema, table, pk, changes);
+  if (result.success) {
+    // update baseline
+    const original = $row.data('original');
+    Object.assign(original, changes);
+    updateRowHighlight($row);
+    updateRowButtonState($row);
+  }
+  renderupdateResult(result);
 });

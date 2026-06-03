@@ -51,29 +51,26 @@
               </select>
             </td>
           </tr>
-          <tr>
-            <td class="cell-label">
-              <button type="button" class="btn btn-warning mt-3 mb-3" id="data-loading" disabled><i class="fa-solid fa-{{ 'data_loading'|get_icon }}"></i> Daten laden</button>
-            </td>
-            <td class="cell-field">
-            </td>
-          </tr>
-          <tr>
-            <td class="cell-label">
-            </td>
-            <td class="cell-field">
-              <table class="table" id="editing-table">
-              </table>
-            </td>
-          </tr>
         </tbody>
+      </table>
+    </div>
+    <button type="button" class="btn btn-warning mt-3" id="load-data" disabled><i class="fa-solid fa-{{ 'data_loading'|get_icon }}"></i> Daten laden</button>
+    <div class="mt-4 mb-3 flex-container-column">
+      <table class="table table-sm table-striped" id="editing-table">
       </table>
     </div>
     {% include "stadtbereichskatalog/modal_messages.html" %}
     <script>
       const CSRF_TOKEN = '{{ csrf_token }}';
+      const GET_DATABASE_COLUMNS_URL = "{% url app.name|add:':get_database_columns' %}";
       const GET_DATABASE_DATA_URL = "{% url app.name|add:':get_database_data' %}";
       const GET_DATABASE_TABLES_URL = "{% url app.name|add:':get_database_tables' %}";
+      const ICON_ERROR = "fa-{{ 'error'|get_icon }}";
+      const ICON_SAVE = "fa-{{ 'save'|get_icon }}";
+      const ICON_SUCCESS = "fa-{{ 'success'|get_icon }}";
+      const UPDATE_URL = "{% url app.name|add:':execute_update' %}"
+      let columnMetadata = {};
+      let primaryKeyColumns = [];
     </script>
   {% else %}
     {% include "stadtbereichskatalog/notice_no-permissions.html" %}

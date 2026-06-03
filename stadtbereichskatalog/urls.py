@@ -29,6 +29,7 @@ from .views import (
   distinct_years,
   execute_deletion,
   execute_import,
+  execute_update,
   export_csv_excel,
   export_csv_standard,
   export_excel,
@@ -211,6 +212,13 @@ urlpatterns = [
     route='data/action/execute-import',
     view=login_required(execute_import),
     name='execute_import',
+  ),
+  # executes update of data of row with primary key of table within database schema
+  # accoring to changes
+  path(
+    route='data/action/execute-update',
+    view=login_required(execute_update),
+    name='execute_update',
   ),
   # CSV (Excel friendly) with data of table within database schema
   path(

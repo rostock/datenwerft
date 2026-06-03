@@ -21,6 +21,7 @@ from .functions import (
   data_to_excel,
   delete_data,
   get_database_columns,
+  get_database_data,
   get_database_schemas,
   get_database_tables,
   get_distinct_areas,
@@ -29,6 +30,7 @@ from .functions import (
   import_data,
   make_error,
   read_tabular_file,
+  update_data,
 )
 
 #
@@ -351,9 +353,10 @@ def database_data(request):
   if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
     schema = request.GET.get('schema')
     table = request.GET.get('table')
-    columns = get_database_columns(schema, table)
+    order_by = request.GET.get('order-by')
+    rows = get_database_data(schema, table, order_by)
     return JsonResponse(
-      data={'columns': columns},
+      data={'rows': rows},
       json_dumps_params={'indent': 2, 'ensure_ascii': False},
       content_type='application/json; charset=utf-8',
     )
@@ -454,6 +457,38 @@ def distinct_years(request):
   )
 
 
+def execute_deletion(request):
+  """
+  executes deletion of data from passed table within passed database schema
+  accoring to passed filters
+
+  :param request: request object
+  :return: JSON with import result
+  """
+
+  if request.user.is_superuser or is_stadtbereichskatalog_user(request.user):
+    if request.method != 'POST':
+      return JsonResponse(
+        data={'success': False, 'errors': [{'row': 0, 'message': 'POST required'}]}, status=400
+      )
+    schema = request.POST.get('schema')
+    table = request.POST.get('table')
+    year = request.POST.get('year')
+    election = request.POST.get('election')
+    if not year and not election:
+      return JsonResponse(
+        data={'success': False, 'errors': [{'row': 0, 'message': 'No filters set'}]}, status=400
+      )
+    deletion_process = delete_data(schema, table, year, election)
+    if deletion_process['success']:
+      return JsonResponse(data=deletion_process, status=200)
+    return JsonResponse(data=deletion_process, status=400)
+
+  return JsonResponse(
+    data={'has_necessary_permissions': False},
+  )
+
+
 def execute_import(request):
   """
   executes import of passed file into passed table within passed database schema
@@ -532,10 +567,10 @@ def execute_import(request):
   )
 
 
-def execute_deletion(request):
+def execute_update(request):
   """
-  executes deletion of data from passed table within passed database schema
-  accoring to passed filters
+  executes update of data of row with passed primary key of passed table
+  within passed database schema based on passed changes
 
   :param request: request object
   :return: JSON with import result
@@ -546,18 +581,24 @@ def execute_deletion(request):
       return JsonResponse(
         data={'success': False, 'errors': [{'row': 0, 'message': 'POST required'}]}, status=400
       )
-    schema = request.POST.get('schema')
-    table = request.POST.get('table')
-    year = request.POST.get('year')
-    election = request.POST.get('election')
-    if not year and not election:
+    payload = loads(request.body)
+    schema = payload.get('schema')
+    table = payload.get('table')
+    pk = payload['pk']
+    changes = payload['changes']
+    if not pk:
       return JsonResponse(
-        data={'success': False, 'errors': [{'row': 0, 'message': 'No filters set'}]}, status=400
+        data={'success': False, 'errors': [{'row': 0, 'message': 'No primary key set'}]},
+        status=400,
       )
-    deletion_process = delete_data(schema, table, year, election)
-    if deletion_process['success']:
-      return JsonResponse(data=deletion_process, status=200)
-    return JsonResponse(data=deletion_process, status=400)
+    if not changes:
+      return JsonResponse(
+        data={'success': False, 'errors': [{'row': 0, 'message': 'No changes set'}]}, status=400
+      )
+    update_process = update_data(schema, table, pk, changes)
+    if update_process['success']:
+      return JsonResponse(data=update_process, status=200)
+    return JsonResponse(data=update_process, status=400)
 
   return JsonResponse(
     data={'has_necessary_permissions': False},

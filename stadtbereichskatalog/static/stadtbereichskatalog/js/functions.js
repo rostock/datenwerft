@@ -125,7 +125,7 @@ function renderColumnsTable(columns) {
         <th>Flags</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="table-group-divider">
     </tbody>
   `;
   $('#columns-table').append(tableStructure);
@@ -357,7 +357,7 @@ function renderMappingTable() {
         <th>Status</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="table-group-divider">
     </tbody>
   `;
   $('#mapping-table').append(tableStructure);
@@ -724,7 +724,7 @@ function enableDeletion() {
  * @function
  * @name renderDeletionResult
  *
- * @param {object} result - import result
+ * @param {object} result - deletion result
  */
 function renderDeletionResult(result) {
   let title, body;
@@ -752,7 +752,7 @@ function renderDeletionResult(result) {
  * @name disableDataLoading
  */
 function disableDataLoading() {
-  disableFormElement($('#data-loading'));
+  disableFormElement($('#load-data'));
 }
 
 
@@ -763,5 +763,217 @@ function disableDataLoading() {
  * @name enableDataLoading
  */
 function enableDataLoading() {
-  enableFormElement($('#data-loading'));
+  enableFormElement($('#load-data'));
+}
+
+
+/**
+ * clears data editing table
+ *
+ * @function
+ * @name clearEditingTable
+ */
+function clearEditingTable() {
+  $('#editing-table').empty();
+}
+
+
+/**
+ * extracts primary key of passed row accordings to passed column metadata and returns it
+ *
+ * @function
+ * @name extractPrimaryKey
+ *
+ * @param {Array<object>} columns - column metadata
+ * @param {Array<object>} row - row data
+ *
+ * @returns {object}
+ */
+function extractPrimaryKey(columns, row) {
+  const pk = {};
+  primaryKeyColumns.forEach(function(columnName) {
+    pk[columnName] = row[columnName];
+  });
+  return pk;
+}
+
+
+/**
+ * renders data editing table by means of passed column metadata and passed data
+ *
+ * @function
+ * @name renderEditingTable
+ *
+ * @param {Array<object>} columns - column metadata
+ * @param {Array<object>} rows - rows data
+ */
+function renderEditingTable(columns, rows) {
+  /*
+   * basic table structure
+   */
+  let tableStructure = `
+    <thead>
+      <tr>
+      </tr>
+    </thead>
+    <tbody class="table-group-divider">
+    </tbody>
+  `;
+  $('#editing-table').append(tableStructure);
+
+  /*
+   * columns header row
+   */
+  const $columnsHeader = $('#editing-table thead tr');
+  columnMetadata = {};
+  $.each(columns, function (index, column) {
+    const columnHeader = `
+      <th>
+        ${column.name}
+      </th>
+    `;
+    $columnsHeader.append(columnHeader);
+    columnMetadata[column.name] = column;
+  });
+  $columnsHeader.append('<th><em>Redaktion</em></th>');
+
+  /*
+   * data rows
+   */
+  const $columnsBody = $('#editing-table tbody');
+  $.each(rows, function (index, row) {
+    const primaryKey = extractPrimaryKey(columns, row);
+    const $dataRow = $('<tr>')
+      .data('pk', primaryKey)
+      .data('original', row);
+    $.each(row, function (key, value) {
+      let inputType, dataCell;
+      if (columnMetadata[key].type === 'integer' || columnMetadata[key].type === 'numeric') {
+        inputType = 'number';
+      } else {
+        inputType = 'text';
+      }
+      if (columnMetadata[key].primary_key) {
+        dataCell = `
+          <td>
+            ${value}
+          </td>
+        `;
+      } else {
+        dataCell = `
+          <td>
+            <input type="${inputType}" class="form-control edit-cell" data-column="${key}" value="${value ?? ''}">
+          </td>
+        `;
+      }
+      $dataRow.append(dataCell);
+    });
+    const updateRowButtonCell = `
+      <td>
+        <button type="button" class="btn btn-sm btn-warning update-row" disabled><i class="fa-solid ${ICON_SAVE}"></i></button>
+      </td>
+    `;
+    $dataRow.append(updateRowButtonCell);
+    $columnsBody.append($dataRow);
+  });
+}
+
+
+/**
+ * detects changes in table rows and returns them
+ *
+ * @function
+ * @name detectRowChanges
+ *
+ * @param {object} $row - jQuery table row element
+ *
+ * @returns {object}
+ */
+function detectRowChanges($row) {
+  const original = $row.data('original');
+  const changes = {};
+  $row.find('.edit-cell').each(function () {
+    const $input = $(this);
+    const column = $input.data('column');
+    let newValue = $input.val();
+    const oldValue = original[column];
+    if (String(newValue) !== String(oldValue)) {
+      changes[column] = newValue;
+    }
+  });
+  return changes;
+}
+
+
+/**
+ * updates highlighting of table cells
+ *
+ * @function
+ * @name updateRowHighlight
+ *
+ * @param {object} $row - jQuery table row element
+ *
+ * @returns {object}
+ */
+function updateRowHighlight($row) {
+  const original = $row.data('original');
+  $row.find('.edit-cell').each(function () {
+    const $input = $(this);
+    const column = $input.data('column');
+    let newValue = $input.val();
+    const oldValue = original[column];
+    if (String(newValue) !== String(oldValue)) {
+      $input.addClass('bg-warning');
+    } else {
+      $input.removeClass('bg-warning');
+    }
+  });
+}
+
+
+/**
+ * updates state of row update button
+ *
+ * @function
+ * @name updateRowButtonState
+ *
+ * @param {object} $row - jQuery table row element
+ *
+ * @returns {object}
+ */
+function updateRowButtonState($row) {
+  const changes = detectRowChanges($row);
+  const $updateRowButton = $row.find('.update-row');
+  if (Object.keys(changes).length > 0) {
+    enableFormElement($updateRowButton);
+  } else {
+    disableFormElement($updateRowButton);
+  }
+}
+
+
+/**
+ * renders passed update result
+ *
+ * @function
+ * @name renderupdateResult
+ *
+ * @param {object} result - update result
+ */
+function renderupdateResult(result) {
+  let title, body;
+  if (result && result.success) {
+    title = `<i class="fa-solid ${ICON_SUCCESS} text-success"></i> Aktualisierung erfolgreich`;
+    body = `Es wurde(n) ${result.updated_rows} Zeile(n) erfolgreich aktualisiert.`;
+  } else {
+    title = `<i class="fa-solid ${ICON_ERROR} text-danger"></i> Aktualisierung fehlgeschlagen`;
+    if (result.errors) {
+      body = 'Beim Aktualisieren ist ein Datenbankfehler aufgetreten:';
+      body += '<br><br>';
+      body += `<p class="font-monospace">${result.errors[0].message}</p>`;
+    } else {
+      body = 'Beim Aktualisieren ist ein Fehler aufgetreten.';
+    }
+  }
+  toggleModal($('#messages-modal'), title, body);
 }
