@@ -78,10 +78,10 @@ async function fetchCsvPreview(file) {
       PREVIEW_CSV_URL,
       {
         method: 'POST',
-        body: formData,
         headers: {
           'X-CSRFToken': CSRF_TOKEN
-        }
+        },
+        body: formData
       }
     );
     return await response.json();
@@ -117,10 +117,10 @@ async function executeImport(schema, table, mappings, file) {
       IMPORT_URL,
       {
         method: 'POST',
-        body: formData,
         headers: {
           'X-CSRFToken': CSRF_TOKEN
-        }
+        },
+        body: formData
       }
     );
     return await response.json();
@@ -240,10 +240,80 @@ async function executeDeletion(schema, table, year, election) {
       DELETION_URL,
       {
         method: 'POST',
-        body: formData,
         headers: {
           'X-CSRFToken': CSRF_TOKEN
-        }
+        },
+        body: formData
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+
+/**
+ * fetches all data of passed table within passed database schema
+ *
+ * @async
+ * @function
+ * @name fetchData
+ *
+ * @param {string} schema - name of database schema
+ * @param {string} table - name of database table
+ * @param {Array<string>} orderBy - name(s) of column(s) to order by
+ *
+ * @returns {Promise<object|null>}
+ */
+async function fetchData(schema, table, orderBy) {
+  try {
+    const response = await fetch(
+      `${GET_DATABASE_DATA_URL}?schema=${encodeURIComponent(schema)}&table=${encodeURIComponent(table)}&order-by=${encodeURIComponent(orderBy)}`,
+      {
+        method: 'GET'
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+
+/**
+ * executes update of data of row with passed primary key of passed table
+ * within passed database schema based on passed changes
+ *
+ * @async
+ * @function
+ * @name executeData
+ *
+ * @param {string} schema - name of database schema
+ * @param {string} table - name of database table
+ * @param {string} pk - primary key
+ * @param {object} changes - changes
+ *
+ * @returns {Promise<object|null>}
+ */
+async function executeData(schema, table, pk, changes) {
+  try {
+    const response = await fetch(
+      UPDATE_URL,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': CSRF_TOKEN
+        },
+        body: JSON.stringify({
+          schema: schema,
+          table: table,
+          pk: pk,
+          changes: changes
+        })
       }
     );
     return await response.json();

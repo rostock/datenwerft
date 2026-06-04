@@ -5,12 +5,16 @@
   padding: 0.5rem;
 }
 
-#mapping .cell-label {
-  width: 20%;
+.container-fluid {
+  max-width: 2000px;
 }
 
 #mapping .cell-field {
   width: 80%;
+}
+
+#mapping .cell-label {
+  width: 20%;
 }
 
 #mapping-table .alert {

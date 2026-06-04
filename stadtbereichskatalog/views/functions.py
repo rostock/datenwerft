@@ -276,7 +276,7 @@ def delete_data(schema_name, table_name, year_filter=None, election_filter=None)
   from passed table within passed database schema according to passed filters
   """
 
-  # dynamic filters
+  # dynamic where clause
   conditions, params = [], []
   if year_filter:
     conditions.append('jahr = %s')
@@ -415,6 +415,35 @@ def get_database_columns(schema_name, table_name):
         }
       )
     return result
+
+
+def get_database_data(schema_name, table_name, order_by=None):
+  """
+  gets all data of passed table within passed database schema and returns them
+
+  :param schema_name: name of database schema
+  :param table_name: name of database table
+  :param order_by: name(s) of column(s) to order by
+  :return: all data of passed table within passed database schema
+  """
+
+  # build query
+  query = SQL("""
+      SELECT *
+      FROM {}.{}
+  """).format(Identifier(schema_name), Identifier(table_name))
+  if order_by:
+    query += SQL(' ORDER BY ') + SQL(order_by)
+
+  # execute query
+  connection = connections['stadtbereichskatalog']
+  with connection.cursor() as cursor:
+    cursor.execute(query)
+    columns = [col[0] for col in cursor.description]
+    rows = []
+    for record in cursor.fetchall():
+      rows.append(dict(zip(columns, record)))
+    return rows
 
 
 def get_database_schemas():
@@ -565,7 +594,7 @@ def get_export_data(
   :return: data of passed table within passed database schema
   """
 
-  # dynamic filters
+  # dynamic where clause
   conditions, params = [], []
   if year_filter:
     conditions.append('jahr = %s')
@@ -729,3 +758,50 @@ def read_tabular_file(file_obj):
     headers = clean_headers(reader.fieldnames)
     return headers, rows
   raise ValueError('Unsupported file type')
+
+
+def update_data(schema_name, table_name, pk, changes):
+  """
+  updates data of row with passed primary key of passed table within passed database schema
+  based on passed changes
+
+  :param schema_name: name of database schema
+  :param table_name: name of database table
+  :param pk: primary key
+  :param changes: changes
+  :return: results of updating data of row with passed primary key of passed table
+  within passed database schema based on passed changes
+  """
+
+  # dynamic set clause
+  set_parts, set_values = [], []
+  for column, value in changes.items():
+    set_parts.append(f'"{column}" = %s')
+    set_values.append(value)
+  set_clause = ', '.join(set_parts)
+
+  # dynamic where clause
+  where_parts, where_values = [], []
+  print(pk)
+  for column, value in pk.items():
+    where_parts.append(f'"{column}" = %s')
+    where_values.append(value)
+  where_clause = ' AND '.join(where_parts)
+
+  # build query
+  query = SQL("""
+      UPDATE {}.{}
+  """).format(Identifier(schema_name), Identifier(table_name))
+  query += SQL(' SET ') + SQL(set_clause)
+  query += SQL(' WHERE ') + SQL(where_clause)
+  values = set_values + where_values
+
+  # execute query
+  try:
+    with transaction.atomic():
+      connection = connections['stadtbereichskatalog']
+      with connection.cursor() as cursor:
+        cursor.execute(query, values)
+    return {'success': True, 'updated_rows': cursor.rowcount}
+  except Exception as e:
+    return {'success': False, 'errors': [{'row': 0, 'message': str(e)}]}

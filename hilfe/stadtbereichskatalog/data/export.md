@@ -19,8 +19,8 @@ Auf dieser Seite haben Sie die Möglichkeit Daten zu **exportieren.**
    - *CSV (Excel-freundlich):* Export in CSV-Datei, die sich direkt in *Microsoft Excel*
      öffnen lässt (UTF-8 mit BOM, Windows-Zeilenenden, Semikolon als Trennzeichen)
    - *Excel:* Export in XLSX-Datei für *Microsoft Excel*
-5. Es wird nun im Hintergrund eine Datei erzeugt und direkt von Ihrem Browser heruntergeladen,
-   sodass diese sich nunmehr im eingestellten Download-Ordner befindet.
+5. Es wird nun im Hintergrund eine Datei erzeugt und direkt von Ihrem Browser **heruntergeladen,**
+   sodass diese sich nunmehr im eingestellten **Download-Ordner** befindet.
 
 ## Filter setzen
 

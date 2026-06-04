@@ -2,7 +2,7 @@
 {% load stadtbereichskatalog_tags %}
 {% load static %}
 
-{% block title %}Daten – Import | {% endblock %}
+{% block title %}Daten – Bearbeitung | {% endblock %}
 
 {% block style %}
   {{ block.super }}
@@ -14,13 +14,13 @@
   <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
   <script src="{% static 'stadtbereichskatalog/js/asyncFunctions.js' %}"></script>
   <script src="{% static 'stadtbereichskatalog/js/functions.js' %}"></script>
-  <script src="{% static 'stadtbereichskatalog/js/dataImportMapping.js' %}"></script>
+  <script src="{% static 'stadtbereichskatalog/js/dataEditing.js' %}"></script>
 {% endblock %}
 
 {% block content %}
   {% if is_stadtbereichskatalog_user %}
     <h2>
-      <i class="fa-solid fa-{{ 'import'|get_icon }}"></i> Datenimport
+      <i class="fa-solid fa-{{ 'edit'|get_icon }}"></i> Datenbearbeitung
     </h2>
     <div class="d-grid mt-5 gap-2 d-md-block">
       <a class="btn btn-primary" role="button" href="{% url app.name|add:':index' %}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> Startseite</a>
@@ -30,7 +30,7 @@
         <tbody>
           <tr>
             <td class="cell-label">
-              <label for="schema-select" class="required">Zielschema</label>
+              <label for="schema-select" class="required">Schema</label>
             </td>
             <td class="cell-field">
               <select name="schema" class="form-select" id="schema-select">
@@ -43,7 +43,7 @@
           </tr>
           <tr>
             <td class="cell-label">
-              <label for="table-select" class="required">Zieltabelle</label>
+              <label for="table-select" class="required">Tabelle</label>
             </td>
             <td class="cell-field">
               <select name="table" class="form-select" id="table-select" disabled>
@@ -51,52 +51,27 @@
               </select>
             </td>
           </tr>
-          <tr>
-            <td class="cell-label">
-              <label for="columns-table" class="required">Zielspalten</label>
-            </td>
-            <td class="cell-field">
-              <table class="table"  id="columns-table">
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td class="cell-label">
-              <label for="file-input" class="required">Quelldatei</label>
-            </td>
-            <td class="cell-field">
-              <div class="input-group">
-                <input type="file" name="file" accept=".csv,.xlsx" class="form-control" id="file-input" aria-describedby="upload-file" aria-label="Upload" disabled>
-                <button type="button" class="btn btn-primary" id="upload-file" disabled><i class="fa-solid fa-{{ 'upload'|get_icon }}"></i> Upload</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td class="cell-label">
-              <label for="mapping-table" class="required">Mapping</label>
-            </td>
-            <td class="cell-field">
-              <table class="table" id="mapping-table">
-              </table>
-            </td>
-          </tr>
         </tbody>
       </table>
     </div>
-    <button type="button" class="btn btn-success mt-3 mb-3" id="import" disabled><i class="fa-solid fa-{{ 'import'|get_icon }}"></i> Import</button>
+    <button type="button" class="btn btn-warning mt-3" id="load-data" disabled><i class="fa-solid fa-{{ 'data_loading'|get_icon }}"></i> Daten laden</button>
+    <div class="mt-4 mb-3 flex-container-column">
+      <table class="table table-sm table-striped" id="editing-table">
+      </table>
+    </div>
     {% include "stadtbereichskatalog/modal_messages.html" %}
     <script>
       const CSRF_TOKEN = '{{ csrf_token }}';
       const GET_DATABASE_COLUMNS_URL = "{% url app.name|add:':get_database_columns' %}";
+      const GET_DATABASE_DATA_URL = "{% url app.name|add:':get_database_data' %}";
       const GET_DATABASE_TABLES_URL = "{% url app.name|add:':get_database_tables' %}";
-      const IMPORT_URL = "{% url app.name|add:':execute_import' %}";
-      const PREVIEW_CSV_URL = "{% url app.name|add:':preview_csv' %}";
       const ICON_ERROR = "fa-{{ 'error'|get_icon }}";
+      const ICON_LOADING = "fa-{{ 'loading'|get_icon }}";
+      const ICON_SAVE = "fa-{{ 'save'|get_icon }}";
       const ICON_SUCCESS = "fa-{{ 'success'|get_icon }}";
-      const ICON_WARNING = "fa-{{ 'warning'|get_icon }}";
-      let currentColumns = [];
-      let currentCsvHeaders = [];
-      let currentPreviewRows = [];
+      const UPDATE_URL = "{% url app.name|add:':execute_update' %}"
+      let columnMetadata = {};
+      let primaryKeyColumns = [];
     </script>
   {% else %}
     {% include "stadtbereichskatalog/notice_no-permissions.html" %}

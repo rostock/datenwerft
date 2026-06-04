@@ -125,7 +125,7 @@ function renderColumnsTable(columns) {
         <th>Flags</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="table-group-divider">
     </tbody>
   `;
   $('#columns-table').append(tableStructure);
@@ -250,7 +250,7 @@ function validateMappings() {
     ) {
       $validationCell.html(
         '<div class="alert alert-danger" role="alert">' +
-          '<i class="fa-solid fa-circle-exclamation"></i>' +
+          `<i class="fa-solid ${ICON_ERROR}"></i>` +
           ' Pflichtzielspalte nicht gemappt' +
         '</div>'
       );
@@ -280,7 +280,7 @@ function validateMappings() {
       if (typeWarning) {
         $validationCell.html(
           `<div class="alert alert-warning" role="alert">` +
-            `<i class="fa-solid fa-triangle-exclamation"></i>` +
+            `<i class="fa-solid ${ICON_WARNING}"></i>` +
             ` ${typeWarning}` +
           `</div>`
         );
@@ -288,7 +288,7 @@ function validateMappings() {
       } else {
         $validationCell.html(
           '<div class="alert alert-success" role="alert">' +
-            '<i class="fa-solid fa-circle-check"></i>' +
+            `<i class="fa-solid ${ICON_SUCCESS}"></i>` +
             ' Mapping ok' +
           '</div>'
         );
@@ -307,7 +307,7 @@ function validateMappings() {
         if (!$row.hasClass('table-warning')) {
           $row.find('.validation-cell').html(
             '<div class="alert alert-warning" role="alert">' +
-              '<i class="fa-solid fa-triangle-exclamation"></i>' +
+              `<i class="fa-solid ${ICON_WARNING}"></i>` +
               ' Quellspalte mehrfach ausgewählt' +
             '</div>'
           );
@@ -357,7 +357,7 @@ function renderMappingTable() {
         <th>Status</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="table-group-divider">
     </tbody>
   `;
   $('#mapping-table').append(tableStructure);
@@ -510,10 +510,10 @@ function collectMappings() {
 function renderImportResult(result) {
   let title, body;
   if (result && result.success) {
-    title = '<i class="fa-solid fa-circle-check text-success"></i> Import erfolgreich';
+    title = `<i class="fa-solid ${ICON_SUCCESS} text-success"></i> Import erfolgreich`;
     body = `Es wurde(n) ${result.inserted_rows} Zeile(n) erfolgreich importiert.`;
   } else {
-    title = '<i class="fa-solid fa-circle-exclamation text-danger"></i> Import fehlgeschlagen';
+    title = `<i class="fa-solid ${ICON_ERROR} text-danger"></i> Import fehlgeschlagen`;
     if (result.errors) {
       if (result.errors.length > 1) {
         body = 'Beim Einlesen der Quelldatei sind Fehler aufgetreten:';
@@ -690,7 +690,7 @@ function buildDataExportURL(baseURL) {
  * @param {string} fileType - file type
  */
 function showDataExportModal(fileType) {
-  let title = '<i class="fa-solid fa-circle-check text-success"></i> Export erfolgreich';
+  let title = `<i class="fa-solid ${ICON_SUCCESS} text-success"></i> Export erfolgreich`;
   let body = `Im Hintergrund wurde eine ${fileType} erzeugt und direkt von Ihrem Browser heruntergeladen, sodass diese sich nunmehr im eingestellten Download-Ordner befindet.`;
   toggleModal($('#messages-modal'), title, body);
 }
@@ -724,21 +724,261 @@ function enableDeletion() {
  * @function
  * @name renderDeletionResult
  *
- * @param {object} result - import result
+ * @param {object} result - deletion result
  */
 function renderDeletionResult(result) {
   let title, body;
   if (result && result.success) {
-    title = '<i class="fa-solid fa-circle-check text-success"></i> Löschung erfolgreich';
+    title = `<i class="fa-solid ${ICON_SUCCESS} text-success"></i> Löschung erfolgreich`;
     body = `Es wurde(n) ${result.deleted_rows} Zeile(n) erfolgreich gelöscht.`;
   } else {
-    title = '<i class="fa-solid fa-circle-exclamation text-danger"></i> Löschung fehlgeschlagen';
+    title = `<i class="fa-solid ${ICON_ERROR} text-danger"></i> Löschung fehlgeschlagen`;
     if (result.errors) {
       body = 'Beim Löschen ist ein Datenbankfehler aufgetreten:';
       body += '<br><br>';
       body += `<p class="font-monospace">${result.errors[0].message}</p>`;
     } else {
       body = 'Beim Löschen ist ein Fehler aufgetreten.';
+    }
+  }
+  toggleModal($('#messages-modal'), title, body);
+}
+
+
+/**
+ * disables data loading button
+ *
+ * @function
+ * @name disableDataLoading
+ */
+function disableDataLoading() {
+  disableFormElement($('#load-data'));
+}
+
+
+/**
+ * enables data loading button
+ *
+ * @function
+ * @name enableDataLoading
+ */
+function enableDataLoading() {
+  enableFormElement($('#load-data'));
+}
+
+
+/**
+ * clears data editing table
+ *
+ * @function
+ * @name clearEditingTable
+ */
+function clearEditingTable() {
+  $('#editing-table').empty();
+}
+
+
+/**
+ * extracts primary key of passed row accordings to passed column metadata and returns it
+ *
+ * @function
+ * @name extractPrimaryKey
+ *
+ * @param {Array<object>} columns - column metadata
+ * @param {Array<object>} row - row data
+ *
+ * @returns {object}
+ */
+function extractPrimaryKey(columns, row) {
+  const pk = {};
+  primaryKeyColumns.forEach(function(columnName) {
+    pk[columnName] = row[columnName];
+  });
+  return pk;
+}
+
+
+/**
+ * renders data editing table by means of passed column metadata and passed data
+ *
+ * @function
+ * @name renderEditingTable
+ *
+ * @param {Array<object>} columns - column metadata
+ * @param {Array<object>} rows - rows data
+ */
+function renderEditingTable(columns, rows) {
+  /*
+   * basic table structure
+   */
+  let tableStructure = `
+    <thead>
+      <tr>
+      </tr>
+    </thead>
+    <tbody class="table-group-divider">
+    </tbody>
+  `;
+  $('#editing-table').append(tableStructure);
+
+  /*
+   * columns header row
+   */
+  const $columnsHeader = $('#editing-table thead tr');
+  columnMetadata = {};
+  $.each(columns, function (index, column) {
+    const columnHeader = `
+      <th>
+        ${column.name}
+      </th>
+    `;
+    $columnsHeader.append(columnHeader);
+    columnMetadata[column.name] = column;
+  });
+  $columnsHeader.append('<th><em>Redaktion</em></th>');
+
+  /*
+   * data rows
+   */
+  const $columnsBody = $('#editing-table tbody');
+  const rowsHtml = [];
+  $.each(rows, function (index, row) {
+    const primaryKey = extractPrimaryKey(columns, row);
+    let rowHtml = '<tr>';
+    $.each(row, function (key, value) {
+      let inputType, cellHtml;
+      if (columnMetadata[key].type === 'integer' || columnMetadata[key].type === 'numeric') {
+        inputType = 'number';
+      } else {
+        inputType = 'text';
+      }
+      if (columnMetadata[key].primary_key) {
+        cellHtml = `
+          <td>
+            ${value}
+          </td>
+        `;
+      } else {
+        cellHtml = `
+          <td>
+            <input type="${inputType}" class="form-control edit-cell" data-column="${key}" value="${value ?? ''}">
+          </td>
+        `;
+      }
+      rowHtml += cellHtml;
+    });
+    const updateRowButtonCellHtml = `
+      <td>
+        <button type="button" class="btn btn-sm btn-warning update-row" disabled><i class="fa-solid ${ICON_SAVE}"></i></button>
+      </td>
+    `;
+    rowHtml += updateRowButtonCellHtml;
+    rowHtml += '</tr>';
+    rowsHtml.push(rowHtml);
+  });
+  $columnsBody.html(rowsHtml.join(''));
+  $('#editing-table tbody tr').each(function(index) {
+    $(this)
+      .attr('data-pk', JSON.stringify(extractPrimaryKey(columns, rows[index])))
+      .attr('data-original', JSON.stringify(rows[index]));
+  });
+}
+
+
+/**
+ * detects changes in table rows and returns them
+ *
+ * @function
+ * @name detectRowChanges
+ *
+ * @param {object} $row - jQuery table row element
+ *
+ * @returns {object}
+ */
+function detectRowChanges($row) {
+  const original = JSON.parse($row.attr('data-original'));
+  const changes = {};
+  $row.find('.edit-cell').each(function () {
+    const $input = $(this);
+    const column = $input.data('column');
+    let newValue = $input.val();
+    const oldValue = original[column];
+    if (String(newValue) !== String(oldValue)) {
+      changes[column] = newValue;
+    }
+  });
+  return changes;
+}
+
+
+/**
+ * updates highlighting of table cells
+ *
+ * @function
+ * @name updateRowHighlight
+ *
+ * @param {object} $row - jQuery table row element
+ *
+ * @returns {object}
+ */
+function updateRowHighlight($row) {
+  const original = JSON.parse($row.attr('data-original'));
+  $row.find('.edit-cell').each(function () {
+    const $input = $(this);
+    const column = $input.data('column');
+    let newValue = $input.val();
+    const oldValue = original[column];
+    if (String(newValue) !== String(oldValue)) {
+      $input.addClass('bg-warning');
+    } else {
+      $input.removeClass('bg-warning');
+    }
+  });
+}
+
+
+/**
+ * updates state of row update button
+ *
+ * @function
+ * @name updateRowButtonState
+ *
+ * @param {object} $row - jQuery table row element
+ *
+ * @returns {object}
+ */
+function updateRowButtonState($row) {
+  const changes = detectRowChanges($row);
+  const $updateRowButton = $row.find('.update-row');
+  if (Object.keys(changes).length > 0) {
+    enableFormElement($updateRowButton);
+  } else {
+    disableFormElement($updateRowButton);
+  }
+}
+
+
+/**
+ * renders passed update result
+ *
+ * @function
+ * @name renderupdateResult
+ *
+ * @param {object} result - update result
+ */
+function renderupdateResult(result) {
+  let title, body;
+  if (result && result.success) {
+    title = `<i class="fa-solid ${ICON_SUCCESS} text-success"></i> Aktualisierung erfolgreich`;
+    body = `Es wurde(n) ${result.updated_rows} Zeile(n) erfolgreich aktualisiert.`;
+  } else {
+    title = `<i class="fa-solid ${ICON_ERROR} text-danger"></i> Aktualisierung fehlgeschlagen`;
+    if (result.errors) {
+      body = 'Beim Aktualisieren ist ein Datenbankfehler aufgetreten:';
+      body += '<br><br>';
+      body += `<p class="font-monospace">${result.errors[0].message}</p>`;
+    } else {
+      body = 'Beim Aktualisieren ist ein Fehler aufgetreten.';
     }
   }
   toggleModal($('#messages-modal'), title, body);

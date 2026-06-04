@@ -28,7 +28,7 @@
           <div class="d-grid gap-2 col-6 mx-auto">
             <a class="btn btn-lg btn-secondary fs-5" role="button" href="{% url app.name|add:':data_export' %}"><i class="fa-solid fa-{{ 'export'|get_icon }}"></i> Export</a>
             <a class="btn btn-lg btn-success fs-5" role="button" href="{% url app.name|add:':data_import_mapping' %}"><i class="fa-solid fa-{{ 'import'|get_icon }}"></i> Import</a>
-            <a class="btn btn-lg btn-warning fs-5" role="button" href="#"><i class="fa-solid fa-{{ 'edit'|get_icon }}"></i> Bearbeitung</a>
+            <a class="btn btn-lg btn-warning fs-5" role="button" href="{% url app.name|add:':data_editing' %}"><i class="fa-solid fa-{{ 'edit'|get_icon }}"></i> Bearbeitung</a>
             <a class="btn btn-lg btn-danger fs-5" role="button" href="{% url app.name|add:':data_deletion' %}"><i class="fa-solid fa-{{ 'delete'|get_icon }}"></i> Löschung</a>
           </div>
         </div>
