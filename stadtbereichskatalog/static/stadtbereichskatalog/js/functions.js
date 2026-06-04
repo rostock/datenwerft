@@ -841,40 +841,46 @@ function renderEditingTable(columns, rows) {
    * data rows
    */
   const $columnsBody = $('#editing-table tbody');
+  const rowsHtml = [];
   $.each(rows, function (index, row) {
     const primaryKey = extractPrimaryKey(columns, row);
-    const $dataRow = $('<tr>')
-      .data('pk', primaryKey)
-      .data('original', row);
+    let rowHtml = '<tr>';
     $.each(row, function (key, value) {
-      let inputType, dataCell;
+      let inputType, cellHtml;
       if (columnMetadata[key].type === 'integer' || columnMetadata[key].type === 'numeric') {
         inputType = 'number';
       } else {
         inputType = 'text';
       }
       if (columnMetadata[key].primary_key) {
-        dataCell = `
+        cellHtml = `
           <td>
             ${value}
           </td>
         `;
       } else {
-        dataCell = `
+        cellHtml = `
           <td>
             <input type="${inputType}" class="form-control edit-cell" data-column="${key}" value="${value ?? ''}">
           </td>
         `;
       }
-      $dataRow.append(dataCell);
+      rowHtml += cellHtml;
     });
-    const updateRowButtonCell = `
+    const updateRowButtonCellHtml = `
       <td>
         <button type="button" class="btn btn-sm btn-warning update-row" disabled><i class="fa-solid ${ICON_SAVE}"></i></button>
       </td>
     `;
-    $dataRow.append(updateRowButtonCell);
-    $columnsBody.append($dataRow);
+    rowHtml += updateRowButtonCellHtml;
+    rowHtml += '</tr>';
+    rowsHtml.push(rowHtml);
+  });
+  $columnsBody.html(rowsHtml.join(''));
+  $('#editing-table tbody tr').each(function(index) {
+    $(this)
+      .attr('data-pk', JSON.stringify(extractPrimaryKey(columns, rows[index])))
+      .attr('data-original', JSON.stringify(rows[index]));
   });
 }
 
@@ -890,7 +896,7 @@ function renderEditingTable(columns, rows) {
  * @returns {object}
  */
 function detectRowChanges($row) {
-  const original = $row.data('original');
+  const original = JSON.parse($row.attr('data-original'));
   const changes = {};
   $row.find('.edit-cell').each(function () {
     const $input = $(this);
@@ -916,7 +922,7 @@ function detectRowChanges($row) {
  * @returns {object}
  */
 function updateRowHighlight($row) {
-  const original = $row.data('original');
+  const original = JSON.parse($row.attr('data-original'));
   $row.find('.edit-cell').each(function () {
     const $input = $(this);
     const column = $input.data('column');

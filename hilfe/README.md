@@ -150,6 +150,8 @@ Hier finden Sie Hilfestellungen zum System zur Bearbeitung der Inhalte des *Stad
 
 #### [Import](stadtbereichskatalog/data/import.md)
 
+#### [Bearbeitung](stadtbereichskatalog/data/editing.md)
+
 #### [Löschung](stadtbereichskatalog/data/deletion.md)
 
 ## *GDI.HRO Codelists*

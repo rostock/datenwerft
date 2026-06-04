@@ -371,6 +371,7 @@ STADTBEREICHSKATALOG_ICONS = {
   'import': 'file-import',
   'indicator': 'gauge',
   'info': 'circle-info',
+  'loading': 'hourglass',
   'metadata': 'tag',
   'save': 'floppy-disk',
   'source': 'book',

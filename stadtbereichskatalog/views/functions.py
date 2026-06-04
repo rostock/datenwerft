@@ -782,6 +782,7 @@ def update_data(schema_name, table_name, pk, changes):
 
   # dynamic where clause
   where_parts, where_values = [], []
+  print(pk)
   for column, value in pk.items():
     where_parts.append(f'"{column}" = %s')
     where_values.append(value)

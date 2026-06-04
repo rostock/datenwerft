@@ -37,6 +37,7 @@ $(document).ready(function() {
   $('#load-data').on('click', async function() {
     const schema = $('#schema-select').val();
     const table = $('#table-select').val();
+    clearEditingTable();
     if (!schema || !table) {
       return;
     }
@@ -44,6 +45,7 @@ $(document).ready(function() {
     if (!columnsData || !columnsData.columns) {
       return;
     }
+    primaryKeyColumns = [];
     $.each(columnsData.columns, function(index, column) {
       if (column.primary_key) {
         primaryKeyColumns.push(column.name);
@@ -70,16 +72,16 @@ $(document).on('click', '.update-row', async function () {
   const schema = $('#schema-select').val();
   const table = $('#table-select').val();
   const $row = $(this).closest('tr');
-  const pk = $row.data('pk');
+  const pk = JSON.parse($row.attr('data-pk'));
   const changes = detectRowChanges($row);
   if (Object.keys(changes).length === 0) {
     return;
   }
   const result = await executeData(schema, table, pk, changes);
   if (result.success) {
-    // update baseline
-    const original = $row.data('original');
+    const original = JSON.parse($row.attr('data-original'));
     Object.assign(original, changes);
+    $row.attr('data-original', JSON.stringify(original));
     updateRowHighlight($row);
     updateRowButtonState($row);
   }
