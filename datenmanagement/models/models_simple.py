@@ -3991,12 +3991,6 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
     null=True,
     validators=standard_validators,
   )
-  ladekarten = ChoiceArrayField(
-    CharField(verbose_name='Ladekarten', max_length=255, choices=()),
-    verbose_name='Ladekarten',
-    blank=True,
-    null=True,
-  )
   kosten = CharField(
     verbose_name='Kosten', max_length=255, blank=True, null=True, validators=standard_validators
   )
@@ -4017,7 +4011,6 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
 
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Ladestationen für Elektrofahrzeuge in der Hanse- und Universitätsstadt Rostock'
-    choices_models_for_choices_fields = {'ladekarten': 'Ladekarten_Ladestationen_Elektrofahrzeuge'}
     address_type = 'Adresse'
     address_mandatory = True
     geometry_type = 'Point'
@@ -4030,7 +4023,6 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
       'verbund': 'Verbund',
       'betriebsart': 'Betriebsart',
       'anzahl_ladepunkte': 'Anzahl an Ladepunkten',
-      'ladekarten': 'Ladekarten',
     }
     list_fields_with_foreign_key = {
       'adresse': 'adresse',
@@ -4072,7 +4064,6 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
       'verbund': 'Verbund',
       'betriebsart': 'Betriebsart',
       'anzahl_ladepunkte': 'Anzahl an Ladepunkten',
-      'ladekarten': 'Ladekarten',
     }
     map_filter_fields_as_list = ['betreiber', 'verbund', 'betriebsart']
 

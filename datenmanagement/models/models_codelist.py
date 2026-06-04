@@ -1859,32 +1859,6 @@ class Labore_Baugrunduntersuchungen(Codelist):
     return self.bezeichnung
 
 
-class Ladekarten_Ladestationen_Elektrofahrzeuge(Codelist):
-  """
-  Ladekarten für Ladestationen für Elektrofahrzeuge
-  """
-
-  ladekarte = CharField(
-    verbose_name='Ladekarte',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten"."ladekarten_ladestationen_elektrofahrzeuge'
-    ordering = ['ladekarte']
-    verbose_name = 'Ladekarte für eine Ladestation für Elektrofahrzeuge'
-    verbose_name_plural = 'Ladekarten für Ladestationen für Elektrofahrzeuge'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Ladekarten für Ladestationen für Elektrofahrzeuge'
-    list_fields = {'ladekarte': 'Ladekarte'}
-
-  def __str__(self):
-    return self.ladekarte
-
-
 class Leerungszeiten(Codelist):
   """
   Leerungszeiten

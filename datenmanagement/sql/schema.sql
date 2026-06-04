@@ -1283,18 +1283,6 @@ CREATE TABLE codelisten.labore_baugrunduntersuchungen (
 
 
 --
--- Name: ladekarten_ladestationen_elektrofahrzeuge; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.ladekarten_ladestationen_elektrofahrzeuge (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    ladekarte character varying(255) NOT NULL
-);
-
-
---
 -- Name: leerungszeiten; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -3942,7 +3930,6 @@ CREATE TABLE fachdaten_adressbezug.ladestationen_elektrofahrzeuge_hro (
     betriebsart uuid NOT NULL,
     anzahl_ladepunkte smallint,
     arten_ladepunkte character varying(255),
-    ladekarten character varying(255)[],
     kosten character varying(255),
     zeiten character varying(255),
     website character varying(255),
@@ -5835,22 +5822,6 @@ ALTER TABLE ONLY codelisten.kategorien_strassen
 
 ALTER TABLE ONLY codelisten.labore_baugrunduntersuchungen
     ADD CONSTRAINT labore_baugrunduntersuchungen_pk PRIMARY KEY (uuid);
-
-
---
--- Name: ladekarten_ladestationen_elektrofahrzeuge ladekarten_ladestationen_elektrofahrzeuge_ladekarte_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.ladekarten_ladestationen_elektrofahrzeuge
-    ADD CONSTRAINT ladekarten_ladestationen_elektrofahrzeuge_ladekarte_unique UNIQUE (ladekarte);
-
-
---
--- Name: ladekarten_ladestationen_elektrofahrzeuge ladekarten_ladestationen_elektrofahrzeuge_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.ladekarten_ladestationen_elektrofahrzeuge
-    ADD CONSTRAINT ladekarten_ladestationen_elektrofahrzeuge_pk PRIMARY KEY (uuid);
 
 
 --
