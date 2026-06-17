@@ -722,7 +722,7 @@
                   let file = e.target.files[0];
                   let formData = new FormData();
                   formData.append(mode, file);
-                  // remove Leaflet-Geoman draw layer from map (if a file has already been uploaded)
+                  // remove current layer from map
                   currMap.pm.getGeomanLayers().forEach((layer) => {
                     if (!layer.toGeoJSON().properties.foreignkey) {
                       layer.remove();
@@ -752,19 +752,18 @@
                           $('#id_startzeitpunkt').val(data.features[0].properties.startzeitpunkt.slice(0, 19));
                           $('#id_endzeitpunkt').val(data.features[0].properties.endzeitpunkt.slice(0, 19));
                         }
-                        // create layer
-                        let geometry = new L.geoJSON(data, {
+                        // create GeoJSON layer group from GeoJSON data
+                        const geojsonLayer = new L.geoJSON(data, {
                           color: 'red'
                         });
-                        // add created layer and all sublayers to Leaflet-Geoman draw layer
-                        geometry._changeGeom = true;
-                        geometry.eachLayer((layer) => {
+                        // register layers of GeoJSON layer group with Leaflet-Geoman
+                        geojsonLayer.eachLayer((layer) => {
                           layer._drawnByGeoman = true;
                         });
-                        // add Leaflet-Geoman draw layer to map
-                        geometry.addTo(currMap);
-                        // set map extent to bounding box of Leaflet-Geoman draw layer
-                        setMapExtentByLeafletBounds(geometry.getBounds());
+                        // add GeoJSON layer group to map
+                        geojsonLayer.addTo(currMap);
+                        // set map extent to bounding box of GeoJSON layer group
+                        setMapExtentByLeafletBounds(geojsonLayer.getBounds());
                       }
                       toggleModal($('#loading-modal'));
                     }

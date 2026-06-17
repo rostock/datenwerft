@@ -248,7 +248,13 @@ function setFinalGeometry() {
   // the map geometry part (only if there is a map at all, though)
   if (typeof currMap !== 'undefined') {
     let jsonGeometrie;
-    if (currMap.pm.getGeomanDrawLayers().length < 1) {
+    let geomanDrawLayers = currMap.pm.getGeomanDrawLayers();
+    currMap.pm.getGeomanLayers().forEach(function (layer) {
+      if (typeof layer.pm._parentLayerGroup !== 'undefined' && Object.values(layer.pm._parentLayerGroup)[0]._drawnByGeoman === true) {
+        geomanDrawLayers.push(layer);
+      }
+    });
+    if (geomanDrawLayers.length < 1) {
       let coordinates = [];
       if (window.geometryType === 'Point')
         coordinates = [0, 0];
@@ -262,7 +268,7 @@ function setFinalGeometry() {
       if (window.geometryType === 'MultiPolygon' || window.geometryType === 'MultiPoint' || window.geometryType === 'MultiLineString') {
         let coordinates = [];
         let temp;
-        currMap.pm.getGeomanDrawLayers().forEach(function (layer) {
+        geomanDrawLayers.forEach(function (layer) {
           temp = layer.toGeoJSON().geometry;
           if (temp.type.search('Multi') > -1) {
             for (let i = 0; i < temp.coordinates.length; i++) {
@@ -277,7 +283,7 @@ function setFinalGeometry() {
           'coordinates': coordinates,
         };
       } else {
-        jsonGeometrie = currMap.pm.getGeomanDrawLayers()[0].toGeoJSON().geometry;
+        jsonGeometrie = geomanDrawLayers[0].toGeoJSON().geometry;
       }
     }
     $('#id_geometrie').val(JSON.stringify(jsonGeometrie));
