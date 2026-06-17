@@ -8,7 +8,7 @@
     "leaflet.locatecontrol": "^0.85.1",
     "leaflet.markercluster": "^1.5.3",
     "leaflet.nontiledlayer": "^1.0.9",
-    "martinez-polygon-clipping": "^0.8.1",
+    "martinez-polygon-clipping": "0.7.4",
     "proj4": "^2.20.9",
     "proj4leaflet": "^1.0.2",
     "select2": "^4.1.0",
