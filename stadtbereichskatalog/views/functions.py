@@ -205,7 +205,13 @@ def data_to_csv(
   csv_writer.writerow(columns)
 
   # add data rows to CSV
-  csv_writer.writerows(rows)
+  if standard:
+    csv_writer.writerows(rows)
+  else:
+    # Excel-ify values for Excel friendly CSV
+    csv_writer.writerows(
+      [[excel_value(value) for value in row] for row in rows]
+    )
 
   return response
 
@@ -345,6 +351,18 @@ def detect_file_type(file_obj):
   if name.endswith('.csv'):
     return 'csv'
   return 'unknown'
+
+
+def excel_value(value):
+  """
+  Excel-ifies passed value and returns it
+
+  :param value: original value
+  :return Excel-ified version of passed value
+  """
+  if isinstance(value, Decimal):
+    return str(value).replace('.', ',')
+  return value
 
 
 def get_csv_reader(file_obj):
