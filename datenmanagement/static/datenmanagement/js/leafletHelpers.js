@@ -412,19 +412,21 @@ L.Map.prototype.updateMap = function(layerControl, isWFS = false) {
       let zoomDifference = minZoom - this.getZoom() + 1;
       zoomDifference += zoomDifference === 1 ? ' Stufe' : ' Stufen';
       if (isWFS === true && window.showWFSZoomModal === true) {
-        toggleModal(
+        setModal(
           $('#error-modal'),
           'Sichtbarkeit zusätzlicher WFS-Feature-Types',
           'Sie müssen zunächst ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen WFS-Feature-Types wieder sichtbar werden!'
         );
+        $('#error-modal').modal('show');
         window.showWFSZoomModal = false;
       }
       if (isWFS === false && window.showDataThemesZoomModal === true) {
-        toggleModal(
+        setModal(
           $('#error-modal'),
           'Sichtbarkeit zusätzlicher Datenthemen',
           'Sie müssen zunächst ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen Datenthemen wieder sichtbar werden!'
         );
+        $('#error-modal').modal('show');
         window.showDataThemesZoomModal = false;
       }
       this.eachLayer((layer) => {

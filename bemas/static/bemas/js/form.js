@@ -62,12 +62,14 @@ function adoptReverseSearchResult(geoJson) {
       return false;
     }
   });
-  if (erfolg === false)
-    toggleModal(
+  if (erfolg === false) {
+    setModal(
       $('#error-modal'),
       'Keine automatische Zuordnung einer Adresse möglich!',
       'Bitte setzen Sie den Marker in der Karte ' + window.reverseSearchRadius + ' m oder dichter an die nächste Adresse heran.'
     );
+    $('#error-modal').modal('show');
+  }
 }
 
 /**

@@ -43,12 +43,13 @@ async function fetchGeoJsonFeatureCollection(heavyLoad = false, limit = 0, offse
     if (heavyLoad) {
       url += '?limit=' + limit + '&offset=' + offset;
     }
-    toggleModal(
+    setModal(
       $('#loading-modal'),
       'Laden der Kartendaten',
       'Die Kartendaten werden (nach-)geladen.' + (heavyLoad ? ' Dies kann einen Moment dauern, da es sich insgesamt um eine sehr große Datenmenge handelt.' : ''),
-      heavyLoad ? '#loading-modal-map-data' : null
+      heavyLoad ? '#loading-modal-map-data' : ''
     );
+    $('#loading-modal').modal('show');
     const response = await fetch(url, {
       method: 'GET'
     });
@@ -56,11 +57,14 @@ async function fetchGeoJsonFeatureCollection(heavyLoad = false, limit = 0, offse
     if (heavyLoad) {
       window.count += data.features.length;
       $('#loading-modal-map-data-count').text(window.count);
-      if (window.count === window.border)
-        $('#loading-modal-close').click();
+      if (window.count === window.border) {
+        setTimeout(() => {
+          $('#loading-modal').modal('hide');
+        }, 1000);
+      }
     } else {
-      setTimeout(function () {
-        $('#loading-modal-close').click();
+      setTimeout(() => {
+        $('#loading-modal').modal('hide');
       }, 1000);
     }
     return data;

@@ -239,11 +239,12 @@
                         } else if (window.showDataThemesZoomModal === true) {
                           let zoomDifference = map._minLayerZoomForDataThemes - map.getZoom() + 1;
                           zoomDifference += zoomDifference === 1 ? ' Stufe' : ' Stufen';
-                          toggleModal(
+                          setModal(
                             $('#error-modal'),
                             'Sichtbarkeit zusätzlicher Datenthemen',
                             'Sie müssen zunächst ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen Datenthemen sichtbar werden!'
                           );
+                          $('#error-modal').modal('show');
                           window.showDataThemesZoomModal = false;
                         }
                       });
@@ -307,11 +308,12 @@
                       } else if (window.showWFSZoomModal === true) {
                         let zoomDifference = map._minLayerZoomForWFSFeaturetypes - map.getZoom() + 1;
                         zoomDifference += zoomDifference === 1 ? ' Stufe' : ' Stufen';
-                        toggleModal(
+                        setModal(
                           $('#error-modal'),
                           'Sichtbarkeit zusätzlicher WFS-Feature-Types',
                           'Sie müssen zunächst ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen WFS-Feature-Types sichtbar werden!'
                         );
+                        $('#error-modal').modal('show');
                         window.showWFSZoomModal = false;
                       }
                     });
@@ -714,11 +716,12 @@
                   modeName = 'GPX';
                 {% endif %}
                 $('#id_' + mode).change(function (e) {
-                  toggleModal(
+                  setModal(
                     $('#loading-modal'),
                     'Auswerten der ' + modeName + '-Datei',
                     'Die ' + modeName + '-Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen Moment dauern.'
                   );
+                  $('#loading-modal').modal('show');
                   let file = e.target.files[0];
                   let formData = new FormData();
                   formData.append(mode, file);
@@ -765,7 +768,6 @@
                         // set map extent to bounding box of GeoJSON layer group
                         setMapExtentByLeafletBounds(geojsonLayer.getBounds());
                       }
-                      toggleModal($('#loading-modal'));
                     }
                   ).catch(
                     (error) => {
@@ -776,6 +778,12 @@
                         true
                       );
                       console.error(error);
+                    }
+                  ).finally(
+                    () => {
+                      setTimeout(() => {
+                        $('#loading-modal').modal('hide');
+                      }, 1000);
                     }
                   );
                 });
@@ -810,11 +818,12 @@
                   ).catch(
                     (error) => {
                       console.error(error);
-                      toggleModal(
+                      setModal(
                         $('#error-modal'),
                         'Fehler bei Zuweisung einer Postleitzahl',
                         'Es ist ein Fehler bei der automatischen Zuweisung einer Postleitzahl aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.'
                       );
+                      $('#error-modal').modal('show');
                     }
                   );
                 });

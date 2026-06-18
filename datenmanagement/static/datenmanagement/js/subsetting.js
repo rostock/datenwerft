@@ -35,17 +35,19 @@ function subsetting(keys, subsetURL, modelName, modelPrimaryKeyField, successURL
     .catch(
       (error) => {
         console.error(error);
-        toggleModal(
+        setModal(
           $('#error-modal'),
           errorModalTitle,
           errorText ? errorText : 'Bei der Übernahme der aktuellen Filtermenge ist ein Serverfehler aufgetreten.'
         );
+        $('#error-modal').modal('show');
       }
     );
   } else
-    toggleModal(
+    setModal(
       $('#error-modal'),
       errorModalTitle,
       'Die aktuelle Filtermenge ist leer.'
     );
+    $('#error-modal').modal('show');
 }
