@@ -82,19 +82,18 @@ function refreshModal(modal, title = '', body = '', addFooter = false) {
 
 /**
  * @function
- * @name toggleModal
+ * @name setModal
  *
- * toggles visibility of passed Bootstrap modal
+ * sets title, body, and additional content of passed Bootstrap modal
  *
  * @param {Object} modal - Bootstrap modal
  * @param {string} [title=''] - titel of the Bootstrap modal
  * @param {string} [body=''] - body of the Bootstrap modal
- * @param {string} [customLoadingContent=null] - additional content for loading view
+ * @param {string} [customLoadingContent=''] - additional content for loading view
  */
-function toggleModal(modal, title = '', body = '', customLoadingContent = '') {
+function setModal(modal, title = '', body = '', customLoadingContent = '') {
   if (title || body)
     refreshModal(modal, title, body);
   if (customLoadingContent)
     modal.find(customLoadingContent).prop('hidden', false);
-  modal.modal('toggle');
 }

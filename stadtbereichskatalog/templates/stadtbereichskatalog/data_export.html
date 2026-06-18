@@ -98,6 +98,7 @@
       const EXPORT_CSV_EXCEL_URL = "{% url app.name|add:':export_csv_excel' %}";
       const EXPORT_CSV_STANDARD_URL = "{% url app.name|add:':export_csv_standard' %}";
       const EXPORT_EXCEL_URL = "{% url app.name|add:':export_excel' %}";
+      const ICON_SUCCESS = "fa-{{ 'success'|get_icon }}";
     </script>
   {% else %}
     {% include "stadtbereichskatalog/notice_no-permissions.html" %}

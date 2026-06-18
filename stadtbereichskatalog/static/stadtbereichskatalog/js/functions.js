@@ -538,7 +538,8 @@ function renderImportResult(result) {
       body = 'Beim Importieren ist ein Fehler aufgetreten.';
     }
   }
-  toggleModal($('#messages-modal'), title, body);
+  setModal($('#messages-modal'), title, body);
+  $('#messages-modal').modal('show');
 }
 
 
@@ -692,7 +693,8 @@ function buildDataExportURL(baseURL) {
 function showDataExportModal(fileType) {
   let title = `<i class="fa-solid ${ICON_SUCCESS} text-success"></i> Export erfolgreich`;
   let body = `Im Hintergrund wurde eine ${fileType} erzeugt und direkt von Ihrem Browser heruntergeladen, sodass diese sich nunmehr im eingestellten Download-Ordner befindet.`;
-  toggleModal($('#messages-modal'), title, body);
+  setModal($('#messages-modal'), title, body);
+  $('#messages-modal').modal('show');
 }
 
 
@@ -741,7 +743,8 @@ function renderDeletionResult(result) {
       body = 'Beim Löschen ist ein Fehler aufgetreten.';
     }
   }
-  toggleModal($('#messages-modal'), title, body);
+  setModal($('#messages-modal'), title, body);
+  $('#messages-modal').modal('show');
 }
 
 
@@ -981,5 +984,6 @@ function renderupdateResult(result) {
       body = 'Beim Aktualisieren ist ein Fehler aufgetreten.';
     }
   }
-  toggleModal($('#messages-modal'), title, body);
+  setModal($('#messages-modal'), title, body);
+  $('#messages-modal').modal('show');
 }

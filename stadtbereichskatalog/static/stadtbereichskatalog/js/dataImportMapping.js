@@ -51,11 +51,12 @@ $(document).ready(function() {
   $('#upload-file').on('click', async function() {
     const fileInput = $('#file-input')[0];
     if (!fileInput.files.length) {
-      toggleModal(
+      setModal(
         $('#messages-modal'),
         `<i class="fa-solid ${ICON_WARNING} text-warning"></i> Quelldatei fehlt`,
         'Bitte wählen Sie zunächst eine Quelldatei für den Upload aus.'
       );
+      $('#messages-modal').modal('show');
       return;
     }
     const file = fileInput.files[0];

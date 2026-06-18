@@ -56,14 +56,19 @@ function createFilterObject(name, type, value) {
  */
 async function fetchGeoJsonFeatureCollection(url, lastCall=false) {
   try {
-    if (lastCall === false || lastCall === null)
-      toggleModal($('#loading-modal'), 'Laden der Kartendaten', 'Die Kartendaten werden (nach-)geladen.');
+    if (lastCall === false || lastCall === null) {
+      setModal($('#loading-modal'), 'Laden der Kartendaten', 'Die Kartendaten werden (nach-)geladen.');
+      $('#loading-modal').modal('show');
+    }
     const response = await fetch(url, {
       method: 'GET'
     });
     const data = await response.json();
-    if (lastCall === true || lastCall === null)
-      toggleModal($('#loading-modal'));
+    if (lastCall === true || lastCall === null) {
+      setTimeout(() => {
+        $('#loading-modal').modal('hide');
+      }, 1000);
+    }
     return data;
   } catch (error) {
     console.error(error);

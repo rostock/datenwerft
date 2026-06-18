@@ -185,8 +185,9 @@
             // if selected action is assigning a specific value to a specific field of all selected rows (= records)...
             if ($('#action-select').val().startsWith('assign-selected-')) {
               // get name of corresponding modal and open it
-              let modalName = $('#action-select').val().replace('assign-selected-', '');
-              toggleModal($('#action-assign-' + modalName + '-modal'));
+              const modalName = $('#action-select').val().replace('assign-selected-', '');
+              setModal($('#action-assign-' + modalName + '-modal'));
+              $('#action-assign-' + modalName + '-modal').modal('show');
               // execute the assignment action on clicking the "OK" button in the assignment action modal...
               $('#action-assign-' + modalName + '-modal-ok').on('click', function() {
                 let field = $('#action-assign-' + modalName + '-modal-input-field');
@@ -199,7 +200,7 @@
                     jQuery.get(url + '?field=' + field.attr('name') + '&value=' + field.val());
                   });
                   // close corresponding modal
-                  toggleModal($('#action-assign-' + modalName + '-modal'));
+                  $('#action-assign-' + modalName + '-modal').modal('hide');
                   // wait briefly and reload the table so that row (= record) changes become visible
                   reloadDataTable(table);
                 // otherwise, show hint on required form data
@@ -210,7 +211,8 @@
             // if selected action is deleting all selected rows (= records)...
             } else if ($('#action-select').val() === 'delete-selected') {
               // open corresponding modal
-              toggleModal($('#action-delete-modal'));
+              setModal($('#action-delete-modal'));
+              $('#action-delete-modal').modal('show');
               // execute the deletion action on clicking the "OK" button in the deletion action modal...
               $('#action-delete-modal-ok').on('click', function() {
                 // go through all selected rows (= records)...
@@ -219,7 +221,7 @@
                   jQuery.get('{{ url_model_deleteimmediately_placeholder }}'.replace(/worschdsupp/, $(this).val().toString()));
                 });
                 // close corresponding modal
-                toggleModal($('#action-delete-modal'));
+                $('#action-delete-modal').modal('hide');
                 // wait briefly and reload the table so that deleted rows (= records) disappear
                 reloadDataTable(table);
               });
@@ -270,8 +272,9 @@
             });
             fetchPdf('{% url "toolbox:renderpdf" %}', '{{ csrf_token }}', '{{ request.get_host }}');
           }
-          else
-            toggleModal($('#confirm-export-modal'));
+          else {
+            $('#confirm-export-modal').modal('show');
+          }
         });
 
         // select or unselect all rows (= records)
@@ -305,7 +308,7 @@
           $('#action-select option[value="delete-selected"]').text('ausgewählte Datensätze löschen');
           $('#action-delete-modal-title').text('Ausgewählte Datensätze löschen?');
           $('#action-delete-modal-body').html('');
-          $('#action-delete-modal-body').append('<p>Sie haben ' + actionCheckboxes.length + ' ' + 'Datensätze ausgewählt. Sollen diese wirklich gelöscht werden?</p>');
+          $('#action-delete-modal-body').append('<p>Sie haben ' + actionCheckboxes.length + ' Datensätze ausgewählt. Sollen diese wirklich gelöscht werden?</p>');
         }
       });
     </script>

@@ -66,12 +66,14 @@ function adoptReverseSearchResult(geoJson, addressType) {
       return false;
     }
   });
-  if (erfolg === false)
-    toggleModal(
+  if (erfolg === false) {
+    setModal(
       $('#error-modal'),
       'Keine automatische Zuordnung ' + (addressType === 'Gemeindeteil' ? 'eines ' : 'einer ') + addressType + (addressType === 'Gemeindeteil' ? 's' : '') + ' möglich!',
       'Bitte setzen Sie den Marker bzw. zeichnen Sie die Linie oder Fläche in der Karte ' + window.reverseSearchRadius + ' m oder dichter an ' + (addressType === 'Gemeindeteil' ? 'den nächsten ' : 'die nächste ') + addressType +  ' heran.'
     );
+    $('#error-modal').modal('show');
+  }
 }
 
 /**
