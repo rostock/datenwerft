@@ -1,33 +1,36 @@
-# compiled data and cache
+# Python
 __pycache__/
 *.py[cod]
 
-# Django
-db.sqlite3
-
-# Datenwerft.HRO
-datenwerft/secrets.py
-toolbox/mkpdf/tmp_*
-static
-logs/*
-!logs/.gitkeep
-uploads/*
-!uploads/.gitkeep
-
-# Node.js
-*package-lock*
-node_modules
-
-# Editors
+# editors
 .vscode/
 .idea/
 .zed/
 
-# Virtual Environments
+# virtual environments
 venv/
 .venv/
 
-# docker
-docker-compose.override.yml
+# environment variables
+.env
+.env.*
 
-uv.lock
+# Docker
+/docker-compose.override.yml
+
+# Node.js
+/node_modules/
+
+# Django
+/db.sqlite3
+/static/
+
+# Datenwerft.HRO
+/datenwerft/secrets.py
+/toolbox/mkpdf/tmp_*
+
+# runtime data
+/logs/*
+!/logs/.gitkeep
+/uploads/*
+!/uploads/.gitkeep
