@@ -17,9 +17,10 @@ Auf dieser Seite haben Sie die Möglichkeit Daten zu **importieren.**
 3. **Quelldatei auswählen** – folgende Dateitypen werden akzeptiert:
    - CSV-Datei, die vollständig konform ist zum offiziellen
      Standard [RFC 4180](https://www.rfc-editor.org/rfc/rfc4180)
-     (UTF-8 ohne BOM, Unix-Zeilenenden, Komma als Trennzeichen)
+     (UTF-8 ohne BOM, Unix-Zeilenenden, Komma als Datentrennzeichen, Punkt als Dezimaltrennzeichen)
    - CSV-Datei, die sich direkt in *Microsoft Excel*
-     öffnen lässt (UTF-8 mit BOM, Windows-Zeilenenden, Semikolon als Trennzeichen)
+     öffnen lässt (UTF-8 mit BOM, Windows-Zeilenenden, Semikolon als Datentrennzeichen
+     Komma als Dezimaltrennzeichen)
    - XLSX-Datei für *Microsoft Excel*
 4. auf Button ***Upload* klicken,** um ausgewählte Quelldatei hochzuladen
 5. **Mapping durchführen:**

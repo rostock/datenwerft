@@ -214,7 +214,7 @@ function validatePreviewValue(dbType, value) {
   /*
    * numeric
    */
-  if (dbType.includes('numeric') && isNaN(value)) {
+  if (dbType.includes('numeric') && isNaN(value.replace(',', '.'))) {
     return 'Datentyp Quellspalte passt nicht zu Datentyp Zielspalte';
   }
 
