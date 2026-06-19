@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.forms import ChoiceField, ModelChoiceField, ModelForm, Select
+from django.forms import CharField, ModelChoiceField, ModelForm, Select
 from django.utils.translation import gettext_lazy as _
 
 from gdihrometadata.models import Service, ServiceType
@@ -21,29 +21,34 @@ class CollectionForm(ModelForm):
     label=_('Service-Metadatensatz aus GDI.HRO Metadata'),
   )
 
-  schema_select = ChoiceField(
+  schema_select = CharField(
     label=_('Auswahlmöglichkeit für Schema'),
     required=False,
+    widget=Select(),
   )
 
-  table_select = ChoiceField(
+  table_select = CharField(
     label=_('Auswahlmöglichkeit für Tabelle/View'),
     required=False,
+    widget=Select(),
   )
 
-  id_field_select = ChoiceField(
+  id_field_select = CharField(
     label=_('Auswahlmöglichkeit für ID-Attribut'),
     required=False,
+    widget=Select(),
   )
 
-  title_field_select = ChoiceField(
+  title_field_select = CharField(
     label=_('Auswahlmöglichkeit für Attribut mit (möglichst eindeutiger) Bezeichnung'),
     required=False,
+    widget=Select(),
   )
 
-  geom_field_select = ChoiceField(
+  geom_field_select = CharField(
     label=_('Auswahlmöglichkeit für Geometrie-Attribut'),
     required=False,
+    widget=Select(),
   )
 
   def __init__(self, *args, **kwargs):

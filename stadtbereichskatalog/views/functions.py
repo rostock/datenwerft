@@ -209,9 +209,7 @@ def data_to_csv(
     csv_writer.writerows(rows)
   else:
     # Excel-ify values for Excel friendly CSV
-    csv_writer.writerows(
-      [[excel_value(value) for value in row] for row in rows]
-    )
+    csv_writer.writerows([[excel_value(value) for value in row] for row in rows])
 
   return response
 
@@ -282,37 +280,44 @@ def delete_data(schema_name, table_name, year_filter=None, election_filter=None)
   from passed table within passed database schema according to passed filters
   """
 
-  # dynamic where clause
-  conditions, params = [], []
-  if year_filter:
-    conditions.append('jahr = %s')
-    params.append(int(year_filter))
-  if election_filter:
-    election = election_filter.split('__')
-    election_election, election_year = election[0], election[1]
-    conditions.append('wahlart_id = %s')
-    params.append(election_election)
-    conditions.append('wahljahr = %s')
-    params.append(int(election_year))
-  where_sql = ''
-  if conditions:
-    where_sql = ' AND '.join(conditions)
+  # perform whitelist check
+  if whitelist_check(schema_name, table_name):
+    # dynamic where clause
+    conditions, params = [], []
+    if year_filter:
+      conditions.append('jahr = %s')
+      params.append(int(year_filter))
+    if election_filter:
+      election = election_filter.split('__')
+      election_election, election_year = election[0], election[1]
+      conditions.append('wahlart_id = %s')
+      params.append(election_election)
+      conditions.append('wahljahr = %s')
+      params.append(int(election_year))
+    where_sql = ''
+    if conditions:
+      where_sql = ' AND '.join(conditions)
 
-  # build query
-  query = SQL("""
-      DELETE FROM {}.{}
-  """).format(Identifier(schema_name), Identifier(table_name))
-  if where_sql:
-    query += SQL(' WHERE ') + SQL(where_sql)
+    # build query
+    query = SQL("""
+        DELETE FROM {}.{}
+    """).format(Identifier(schema_name), Identifier(table_name))
+    if where_sql:
+      query += SQL(' WHERE ') + SQL(where_sql)
 
-  # execute query
-  try:
-    connection = connections['stadtbereichskatalog']
-    with connection.cursor() as cursor:
-      cursor.execute(query, params)
-    return {'success': True, 'deleted_rows': cursor.rowcount}
-  except Exception as e:
-    return {'success': False, 'errors': [{'row': 0, 'message': str(e)}]}
+    # execute query
+    try:
+      connection = connections['stadtbereichskatalog']
+      with connection.cursor() as cursor:
+        cursor.execute(query, params)
+      return {'success': True, 'deleted_rows': cursor.rowcount}
+    except Exception as e:
+      return {'success': False, 'errors': [{'row': 0, 'message': str(e)}]}
+
+  return {
+    'success': False,
+    'errors': [{'row': 0, 'message': 'Schema, table, and/or column(s) not allowed'}],
+  }
 
 
 def detect_dialect(file_obj):
@@ -673,20 +678,36 @@ def import_data(schema_name, table_name, columns, rows):
   into passed columns of passed table within passed database schema
   """
 
-  quoted_columns = ', '.join(f'"{c}"' for c in columns)
-  sql = f'''
-    INSERT INTO "{schema_name}"."{table_name}"
-    ({quoted_columns})
-    VALUES %s
-  '''
-  try:
-    with transaction.atomic():
-      connection = connections['stadtbereichskatalog']
-      with connection.cursor() as cursor:
-        execute_values(cursor, sql, rows)
-    return {'success': True, 'inserted_rows': len(rows)}
-  except Exception as e:
-    return {'success': False, 'errors': [{'row': 0, 'message': str(e)}]}
+  # perform whitelist check
+  if whitelist_check(schema_name, table_name, columns):
+    # dynamic columns
+    quoted_columns = [Identifier(col) for col in columns]
+
+    # build query
+    query = SQL("""
+        INSERT INTO {}.{}
+        ({})
+        VALUES %s
+    """).format(
+      Identifier(schema_name),
+      Identifier(table_name),
+      SQL(', ').join(quoted_columns),
+    )
+
+    try:
+      with transaction.atomic():
+        connection = connections['stadtbereichskatalog']
+        with connection.cursor() as cursor:
+          query_string = query.as_string(connection.connection)
+          execute_values(cursor, query_string, rows)
+      return {'success': True, 'inserted_rows': len(rows)}
+    except Exception as e:
+      return {'success': False, 'errors': [{'row': 0, 'message': str(e)}]}
+
+  return {
+    'success': False,
+    'errors': [{'row': 0, 'message': 'Schema, table, and/or column(s) not allowed'}],
+  }
 
 
 def make_error(
@@ -791,35 +812,77 @@ def update_data(schema_name, table_name, pk, changes):
   within passed database schema based on passed changes
   """
 
-  # dynamic set clause
-  set_parts, set_values = [], []
+  # perform whitelist check
+  columns = []
   for column, value in changes.items():
-    set_parts.append(f'"{column}" = %s')
-    set_values.append(value)
-  set_clause = ', '.join(set_parts)
+    columns.append(column)
+  if whitelist_check(schema_name, table_name, columns):
+    # dynamic set clause
+    set_parts, set_values = [], []
+    for column, value in changes.items():
+      set_parts.append(f'"{column}" = %s')
+      set_values.append(value)
+    set_clause = ', '.join(set_parts)
 
-  # dynamic where clause
-  where_parts, where_values = [], []
-  print(pk)
-  for column, value in pk.items():
-    where_parts.append(f'"{column}" = %s')
-    where_values.append(value)
-  where_clause = ' AND '.join(where_parts)
+    # dynamic where clause
+    where_parts, where_values = [], []
+    for column, value in pk.items():
+      where_parts.append(f'"{column}" = %s')
+      where_values.append(value)
+    where_clause = ' AND '.join(where_parts)
 
-  # build query
-  query = SQL("""
-      UPDATE {}.{}
-  """).format(Identifier(schema_name), Identifier(table_name))
-  query += SQL(' SET ') + SQL(set_clause)
-  query += SQL(' WHERE ') + SQL(where_clause)
-  values = set_values + where_values
+    # build query
+    query = SQL("""
+        UPDATE {}.{}
+    """).format(Identifier(schema_name), Identifier(table_name))
+    query += SQL(' SET ') + SQL(set_clause)
+    query += SQL(' WHERE ') + SQL(where_clause)
+    values = set_values + where_values
 
-  # execute query
-  try:
-    with transaction.atomic():
-      connection = connections['stadtbereichskatalog']
-      with connection.cursor() as cursor:
-        cursor.execute(query, values)
-    return {'success': True, 'updated_rows': cursor.rowcount}
-  except Exception as e:
-    return {'success': False, 'errors': [{'row': 0, 'message': str(e)}]}
+    # execute query
+    try:
+      with transaction.atomic():
+        connection = connections['stadtbereichskatalog']
+        with connection.cursor() as cursor:
+          cursor.execute(query, values)
+      return {'success': True, 'updated_rows': cursor.rowcount}
+    except Exception as e:
+      return {'success': False, 'errors': [{'row': 0, 'message': str(e)}]}
+
+  return {
+    'success': False,
+    'errors': [{'row': 0, 'message': 'Schema, table, and/or column(s) not allowed'}],
+  }
+
+
+def whitelist_check(schema_name, table_name=None, columns=None):
+  """
+  performs a whitelist check on passed database schema, passed database table,
+  and/or passed database columns and returns result
+
+  :param schema_name: name of database schema
+  :param table_name: name of database table
+  :param columns: names of database columns
+  :return: result of whitelist check on passed database schema, passed database table,
+  and/or passed database columns
+  """
+
+  allowed_schemas = get_database_schemas()
+  if schema_name in allowed_schemas:
+    if table_name:
+      allowed_tables = get_database_tables(schema_name)
+      if table_name in allowed_tables:
+        if columns:
+          _cols = get_database_columns(schema_name, table_name)
+          allowed_columns = [_col.get('name') for _col in _cols if 'name' in _col]
+          if set(columns).issubset(allowed_columns):
+            return True
+          else:
+            return False
+        else:
+          return True
+      else:
+        return False
+    else:
+      return True
+  return False
