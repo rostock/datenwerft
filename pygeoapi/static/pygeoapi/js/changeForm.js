@@ -87,6 +87,14 @@ $(document).ready(function() {
     resetFieldSelects();
   }
 
+  $('#id_geom_field_select').on('change', function() {
+    const geomField = $(this).val();
+    if (!geomField) {
+      return;
+    }
+    $('#id_geom_field').val(geomField);
+  });
+
 });
 
 
