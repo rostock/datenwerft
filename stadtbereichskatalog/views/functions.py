@@ -209,9 +209,7 @@ def data_to_csv(
     csv_writer.writerows(rows)
   else:
     # Excel-ify values for Excel friendly CSV
-    csv_writer.writerows(
-      [[excel_value(value) for value in row] for row in rows]
-    )
+    csv_writer.writerows([[excel_value(value) for value in row] for row in rows])
 
   return response
 
@@ -673,17 +671,26 @@ def import_data(schema_name, table_name, columns, rows):
   into passed columns of passed table within passed database schema
   """
 
-  quoted_columns = ', '.join(f'"{c}"' for c in columns)
-  sql = f'''
-    INSERT INTO "{schema_name}"."{table_name}"
-    ({quoted_columns})
-    VALUES %s
-  '''
+  # dynamic columns
+  quoted_columns = [Identifier(col) for col in columns]
+
+  # build query
+  query = SQL("""
+      INSERT INTO {}.{}
+      ({})
+      VALUES %s
+  """).format(
+    Identifier(schema_name),
+    Identifier(table_name),
+    SQL(', ').join(quoted_columns),
+  )
+
   try:
     with transaction.atomic():
       connection = connections['stadtbereichskatalog']
       with connection.cursor() as cursor:
-        execute_values(cursor, sql, rows)
+        query_string = query.as_string(connection.connection)
+        execute_values(cursor, query_string, rows)
     return {'success': True, 'inserted_rows': len(rows)}
   except Exception as e:
     return {'success': False, 'errors': [{'row': 0, 'message': str(e)}]}

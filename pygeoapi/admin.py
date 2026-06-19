@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.forms import CharField, ChoiceField, ModelChoiceField, ModelForm, Select
+from django.forms import CharField, ModelChoiceField, ModelForm, Select
 from django.utils.translation import gettext_lazy as _
 
 from gdihrometadata.models import Service, ServiceType
