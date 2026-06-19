@@ -1,5 +1,6 @@
 import ipaddress
 import random
+from django.conf import settings
 
 
 def get_client_ip(request):
@@ -10,12 +11,21 @@ def get_client_ip(request):
   :param request: client request
   :return: client IP address
   """
+  ip = request.META.get('REMOTE_ADDR')
+
+  if not ip:
+    return None
+
+  # request did not come through a trusted proxy,
+  # so ignore X-Forwarded-For completely
+  if not ip_in_array(ip, settings.AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES):
+    return ip
+
   x_forwarded_for = request.headers.get('X-Forwarded-For')
-  if x_forwarded_for:
-    ip = x_forwarded_for.split(',')[0]
-  else:
-    ip = request.META.get('REMOTE_ADDR')
-  return ip
+  if not x_forwarded_for:
+    return ip
+
+  return x_forwarded_for.split(',')[0].strip()
 
 
 def validate_ip(ip_string):
