@@ -1,5 +1,6 @@
 import ipaddress
 import random
+
 from django.conf import settings
 
 
@@ -18,7 +19,9 @@ def get_client_ip(request):
 
   # request did not come through a trusted proxy,
   # so ignore X-Forwarded-For completely
-  if not ip_in_array(ip, settings.AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES):
+  if not hasattr(settings, 'AUTH_TRUSTED_PROXIES') or not ip_in_array(
+    ip, settings.AUTH_TRUSTED_PROXIES
+  ):
     return ip
 
   x_forwarded_for = request.headers.get('X-Forwarded-For')
