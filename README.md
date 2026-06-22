@@ -107,7 +107,7 @@ cp rq-worker.service /etc/systemd/system/rq-worker.service
 1. JavaScript-Module via _npm_ installieren:
 
 ```bash
-npm install
+npm ci
 ```
 
 2. Anwendung initialisieren:
