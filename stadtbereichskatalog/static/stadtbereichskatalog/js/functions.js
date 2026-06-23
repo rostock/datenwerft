@@ -214,8 +214,11 @@ function validatePreviewValue(dbType, value) {
   /*
    * numeric
    */
-  if (dbType.includes('numeric') && isNaN(value.replace(',', '.'))) {
-    return 'Datentyp Quellspalte passt nicht zu Datentyp Zielspalte';
+  if (dbType.includes('numeric')) {
+    const numericPattern = /^[+-]?\d+(?:[.,]\d+)?$/;
+    if (!numericPattern.test(String(value).trim())) {
+      return 'Datentyp Quellspalte passt nicht zu Datentyp Zielspalte';
+    }
   }
 
   return null;
@@ -889,6 +892,51 @@ function renderEditingTable(columns, rows) {
 
 
 /**
+ * normalizes passed value before comparing it with another value
+ *
+ * @function
+ * @name normalizeForComparison
+ *
+ * @param {*} value - value to be normalized for comparison
+ *
+ * @returns {*}
+ */
+function normalizeForComparison(value) {
+  // (1) unify NULL-ish values first
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  // (2) normalize strings
+  if (typeof value === 'string') {
+    value = value.trim();
+    if (value === '') {
+      return null;
+    }
+
+    // try numeric conversion
+    if (!isNaN(value)) {
+      return Number(value);
+    }
+
+    return value;
+  }
+
+  // (3) already numeric
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  // (4) booleans stay stable
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  return value;
+}
+
+
+/**
  * detects changes in table rows and returns them
  *
  * @function
@@ -904,9 +952,12 @@ function detectRowChanges($row) {
   $row.find('.edit-cell').each(function () {
     const $input = $(this);
     const column = $input.data('column');
-    let newValue = $input.val();
-    const oldValue = original[column];
-    if (String(newValue) !== String(oldValue)) {
+    let newValue = normalizeForComparison($input.val());
+    if (newValue === '') {
+      newValue = null;
+    }
+    const oldValue = normalizeForComparison(original[column]);
+    if (newValue !== oldValue) {
       changes[column] = newValue;
     }
   });
@@ -929,9 +980,12 @@ function updateRowHighlight($row) {
   $row.find('.edit-cell').each(function () {
     const $input = $(this);
     const column = $input.data('column');
-    let newValue = $input.val();
-    const oldValue = original[column];
-    if (String(newValue) !== String(oldValue)) {
+    let newValue = normalizeForComparison($input.val());
+    if (newValue === '') {
+      newValue = null;
+    }
+    const oldValue = normalizeForComparison(original[column]);
+    if (newValue !== oldValue) {
       $input.addClass('bg-warning');
     } else {
       $input.removeClass('bg-warning');
