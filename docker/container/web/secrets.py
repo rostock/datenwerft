@@ -9,9 +9,9 @@ BASE_DIR_CUSTOM = Path(__file__).resolve().parent.parent
 # Datenwerft.HRO:
 # global application definition
 
-DEBUG = True
-INSTANCE_STATUS = 'DEVEL'
-SECRET_KEY = 'abcdefghijklmnopqrstuvwxyz0123456789-#(!$&%abcdefg'
+DEBUG = False
+INSTANCE_STATUS = 'PRODUCTION'
+SECRET_KEY = None
 ALLOWED_HOSTS = [
   'datenwerft.hro.localhost',
   'localhost',
@@ -21,15 +21,15 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
   'http://datenwerft.hro.localhost'
 ]
-LOGIN_REDIRECT_URL = '/datenwerft/'
-LOGIN_URL = '/datenwerft/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/accounts/login/'
 
 
 # Datenwerft.HRO:
 # reverse proxy settings
 
-# USE_X_FORWARDED_HOST = True
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Datenwerft.HRO:
@@ -163,7 +163,7 @@ DATABASES = {
     'PORT': '5432'
   },
 }
-POSTGIS_VERSION = (3, 5, 2)
+POSTGIS_VERSION = (3, 6, 2)
 
 
 # Accounts app:
@@ -174,7 +174,7 @@ AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES = [
   '172.16.0.0/12',
   '192.168.0.0/16'
 ]
-AUTH_LDAP_EXTENSION_ACCESS_TOKEN_LIFETIME = 300
+AUTH_LDAP_EXTENSION_ACCESS_TOKEN_LIFETIME = 1800
 AUTH_LDAP_GLOBAL_OPTIONS = {
   ldap.OPT_X_TLS_REQUIRE_CERT: ldap.OPT_X_TLS_NEVER
 }
@@ -256,7 +256,7 @@ BEMAS_USERS_GROUP_NAME = 'bemas_users'
 # BEMAS app:
 # data privacy
 
-BEMAS_STATUS_CHANGE_DEADLINE_DAYS = 365
+BEMAS_STATUS_CHANGE_DEADLINE_DAYS = 730
 BEMAS_DATA_CONSIDERED_OLD_AFTER_DAYS = 30
 
 
@@ -333,19 +333,19 @@ STATIC_ROOT = BASE_DIR_CUSTOM / 'static'
 # Datenwerft.HRO:
 # upload files
 
-MEDIA_URL = '/datenwerft/uploads/'
+MEDIA_URL = '/uploads/'
 MEDIA_ROOT = BASE_DIR_CUSTOM / 'uploads'
-PC_MEDIA_URL = '/datenwerft/uploads/punktwolken'
+PC_MEDIA_URL = '/uploads/punktwolken'
 PC_MEDIA_ROOT = BASE_DIR_CUSTOM / 'uploads/punktwolken'
 
 
 # Datenmanagement app:
 # upload files
 
-PDF_PATH_PREFIX_PUBLIC = 'public/pdf/'
-PDF_PATH_PREFIX_PRIVATE = 'private/pdf/'
-PHOTO_PATH_PREFIX_PUBLIC = 'public/photos/'
-PHOTO_PATH_PREFIX_PRIVATE = 'private/photos/'
+PDF_PATH_PREFIX_PUBLIC = ''
+PDF_PATH_PREFIX_PRIVATE = ''
+PHOTO_PATH_PREFIX_PUBLIC = ''
+PHOTO_PATH_PREFIX_PRIVATE = ''
 PC_PATH_PREFIX_PUBLIC = ''
 PC_PATH_PREFIX_PRIVATE = ''
 
@@ -390,20 +390,3 @@ RQ_QUEUES = {
     'DEFAULT_TIMEOUT': 360,
   }
 }
-
-
-# Datenwerft.HRO:
-# relevant only for development environments under Microsoft Windows
-
-# GDAL_LIBRARY_PATH = ''
-"""
-example:
-
-GDAL_LIBRARY_PATH = 'C:\\Program Files\\QGIS 3.28.2\\bin\\gdal306.dll'
-"""
-# GEOS_LIBRARY_PATH = ''
-"""
-example:
-
-GEOS_LIBRARY_PATH = 'C:\\Program Files\\QGIS 3.28.2\\bin\\geos_c.dll'
-"""
