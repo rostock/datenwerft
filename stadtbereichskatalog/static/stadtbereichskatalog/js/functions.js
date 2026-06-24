@@ -849,7 +849,6 @@ function renderEditingTable(columns, rows) {
   const $columnsBody = $('#editing-table tbody');
   const rowsHtml = [];
   $.each(rows, function (index, row) {
-    const primaryKey = extractPrimaryKey(columns, row);
     let rowHtml = '<tr>';
     $.each(row, function (key, value) {
       let inputType, cellHtml;
@@ -937,6 +936,36 @@ function normalizeForComparison(value) {
 
 
 /**
+ * iterates over editable cells of a row
+ *
+ * @function
+ * @name forEachEditableCell
+ *
+ * @param {object} $row - jQuery table row element
+ * @param {function} callback - callback function
+ */
+function forEachEditableCell($row, callback) {
+  const original = JSON.parse($row.attr('data-original'));
+  $row.find('.edit-cell').each(function () {
+    const $input = $(this);
+    const column = $input.data('column');
+    let newValue = normalizeForComparison($input.val());
+    if (newValue === '') {
+      newValue = null;
+    }
+    const oldValue = normalizeForComparison(original[column]);
+    callback({
+      $input,
+      column,
+      oldValue,
+      newValue,
+      changed: newValue !== oldValue
+    });
+  });
+}
+
+
+/**
  * detects changes in table rows and returns them
  *
  * @function
@@ -947,18 +976,10 @@ function normalizeForComparison(value) {
  * @returns {object}
  */
 function detectRowChanges($row) {
-  const original = JSON.parse($row.attr('data-original'));
   const changes = {};
-  $row.find('.edit-cell').each(function () {
-    const $input = $(this);
-    const column = $input.data('column');
-    let newValue = normalizeForComparison($input.val());
-    if (newValue === '') {
-      newValue = null;
-    }
-    const oldValue = normalizeForComparison(original[column]);
-    if (newValue !== oldValue) {
-      changes[column] = newValue;
+  forEachEditableCell($row, function(cell) {
+    if (cell.changed) {
+      changes[cell.column] = cell.newValue;
     }
   });
   return changes;
@@ -976,19 +997,11 @@ function detectRowChanges($row) {
  * @returns {object}
  */
 function updateRowHighlight($row) {
-  const original = JSON.parse($row.attr('data-original'));
-  $row.find('.edit-cell').each(function () {
-    const $input = $(this);
-    const column = $input.data('column');
-    let newValue = normalizeForComparison($input.val());
-    if (newValue === '') {
-      newValue = null;
-    }
-    const oldValue = normalizeForComparison(original[column]);
-    if (newValue !== oldValue) {
-      $input.addClass('bg-warning');
+  forEachEditableCell($row, function(cell) {
+    if (cell.changed) {
+      cell.$input.addClass('bg-warning');
     } else {
-      $input.removeClass('bg-warning');
+      cell.$input.removeClass('bg-warning');
     }
   });
 }
