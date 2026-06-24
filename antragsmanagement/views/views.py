@@ -1179,6 +1179,38 @@ class CleanupEventRequestUpdateView(RequestMixin, ObjectUpdateView):
   success_message = 'Antragsdaten erfolgreich aktualisiert!'
   request_workflow = {'steps': 5, 'current_step': 1}
 
+  def get_queryset(self):
+    """
+    checks whether access to current object is permitted
+    in order to prevent unauthorized manipulation of (other) objects
+    via injecting different primary keys
+
+    :return: queryset
+    """
+    requested_object_pk = self.kwargs.get('pk')
+    if self.request.user.is_authenticated:
+      current_requester_pk = get_corresponding_requester(
+        user=self.request.user, request=None, only_primary_key=True
+      )
+    else:
+      current_requester_pk = get_corresponding_requester(
+        user=None, request=self.request, only_primary_key=True
+      )
+    return self.model.objects.filter(pk=requested_object_pk, requester_id=current_requester_pk)
+
+  def get_object(self, queryset=None):
+    """
+    fetches object from queryset or leads to a 404
+    (leading to a 404 instead of raising an exception or leading to a 403
+    in order to avoid revealing that another object exists at all)
+
+    :return: object or 404
+    """
+    try:
+      return super().get_object(queryset)
+    except Http404:
+      raise Http404()
+
   def get_context_data(self, **kwargs):
     """
     returns a dictionary with all context elements for this view
@@ -1399,6 +1431,40 @@ class CleanupEventEventUpdateView(CleanupEventEventMixin, ObjectUpdateView):
 
   success_message = 'Antragsdaten erfolgreich aktualisiert!'
 
+  def get_queryset(self):
+    """
+    checks whether access to current object is permitted
+    in order to prevent unauthorized manipulation of (other) objects
+    via injecting different primary keys
+
+    :return: queryset
+    """
+    requested_object_pk = self.kwargs.get('pk')
+    if self.request.user.is_authenticated:
+      current_requester_pk = get_corresponding_requester(
+        user=self.request.user, request=None, only_primary_key=True
+      )
+    else:
+      current_requester_pk = get_corresponding_requester(
+        user=None, request=self.request, only_primary_key=True
+      )
+    return self.model.objects.filter(
+      pk=requested_object_pk, cleanupevent_request__requester__id=current_requester_pk
+    )
+
+  def get_object(self, queryset=None):
+    """
+    fetches object from queryset or leads to a 404
+    (leading to a 404 instead of raising an exception or leading to a 403
+    in order to avoid revealing that another object exists at all)
+
+    :return: object or 404
+    """
+    try:
+      return super().get_object(queryset)
+    except Http404:
+      raise Http404()
+
   def get_initial(self):
     """
     conditionally sets initial field values for this view
@@ -1561,6 +1627,40 @@ class CleanupEventVenueUpdateView(CleanupEventVenueMixin, ObjectUpdateView):
 
   success_message = 'Antragsdaten erfolgreich aktualisiert!'
 
+  def get_queryset(self):
+    """
+    checks whether access to current object is permitted
+    in order to prevent unauthorized manipulation of (other) objects
+    via injecting different primary keys
+
+    :return: queryset
+    """
+    requested_object_pk = self.kwargs.get('pk')
+    if self.request.user.is_authenticated:
+      current_requester_pk = get_corresponding_requester(
+        user=self.request.user, request=None, only_primary_key=True
+      )
+    else:
+      current_requester_pk = get_corresponding_requester(
+        user=None, request=self.request, only_primary_key=True
+      )
+    return self.model.objects.filter(
+      pk=requested_object_pk, cleanupevent_request__requester__id=current_requester_pk
+    )
+
+  def get_object(self, queryset=None):
+    """
+    fetches object from queryset or leads to a 404
+    (leading to a 404 instead of raising an exception or leading to a 403
+    in order to avoid revealing that another object exists at all)
+
+    :return: object or 404
+    """
+    try:
+      return super().get_object(queryset)
+    except Http404:
+      raise Http404()
+
   def get_success_url(self):
     """
     defines the URL called in case of successful request
@@ -1706,6 +1806,40 @@ class CleanupEventDetailsUpdateView(CleanupEventDetailsMixin, ObjectUpdateView):
   """
 
   success_message = 'Antragsdaten erfolgreich aktualisiert!'
+
+  def get_queryset(self):
+    """
+    checks whether access to current object is permitted
+    in order to prevent unauthorized manipulation of (other) objects
+    via injecting different primary keys
+
+    :return: queryset
+    """
+    requested_object_pk = self.kwargs.get('pk')
+    if self.request.user.is_authenticated:
+      current_requester_pk = get_corresponding_requester(
+        user=self.request.user, request=None, only_primary_key=True
+      )
+    else:
+      current_requester_pk = get_corresponding_requester(
+        user=None, request=self.request, only_primary_key=True
+      )
+    return self.model.objects.filter(
+      pk=requested_object_pk, cleanupevent_request__requester__id=current_requester_pk
+    )
+
+  def get_object(self, queryset=None):
+    """
+    fetches object from queryset or leads to a 404
+    (leading to a 404 instead of raising an exception or leading to a 403
+    in order to avoid revealing that another object exists at all)
+
+    :return: object or 404
+    """
+    try:
+      return super().get_object(queryset)
+    except Http404:
+      raise Http404()
 
   def get_success_url(self):
     """
