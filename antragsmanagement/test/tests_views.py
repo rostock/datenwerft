@@ -1690,9 +1690,9 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=False,
       view_name='cleanupeventrequest_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
@@ -1703,7 +1703,7 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=False,
       view_name='cleanupeventrequest_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
       string=None,
     )
@@ -1716,9 +1716,9 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=True,
       antragsmanagement_admin=False,
       view_name='cleanupeventrequest_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
@@ -1729,9 +1729,9 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=True,
       view_name='cleanupeventrequest_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='keine Rechte',
     )
 
   def test_post_create_success(self):
@@ -1762,7 +1762,7 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
       count=1,
       status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='alert',
       session_variables=None,
     )
 
@@ -2074,9 +2074,9 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=False,
       view_name='cleanupeventevent_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
@@ -2087,9 +2087,9 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=False,
       view_name='cleanupeventevent_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='Antrag erstellen',
     )
 
   def test_get_authority_permissions(self):
@@ -2100,9 +2100,9 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=True,
       antragsmanagement_admin=False,
       view_name='cleanupeventevent_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
@@ -2113,9 +2113,9 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=True,
       view_name='cleanupeventevent_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -2130,7 +2130,7 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       view_name='cleanupeventevent_update',
       object_filter=self.attributes_values_view_update_valid,
       count=1,
-      status_code=404,
+      status_code=302,
       content_type='text/html; charset=utf-8',
       string=None,
       session_variables=None,
@@ -2148,9 +2148,9 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       view_name='cleanupeventevent_update',
       object_filter=self.attributes_values_view_update_invalid,
       count=1,
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='alert',
       session_variables=None,
     )
 
@@ -2463,9 +2463,9 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=False,
       view_name='cleanupeventvenue_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
@@ -2476,9 +2476,9 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=False,
       view_name='cleanupeventvenue_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='Antrag erstellen',
     )
 
   def test_get_authority_permissions(self):
@@ -2489,9 +2489,9 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=True,
       antragsmanagement_admin=False,
       view_name='cleanupeventvenue_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
@@ -2502,9 +2502,9 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=True,
       view_name='cleanupeventvenue_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='keine Rechte',
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -2519,7 +2519,7 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       view_name='cleanupeventvenue_update',
       object_filter=self.attributes_values_view_update_valid,
       count=1,
-      status_code=404,
+      status_code=302,
       content_type='text/html; charset=utf-8',
       string=None,
       session_variables=None,
@@ -2537,9 +2537,9 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       view_name='cleanupeventvenue_update',
       object_filter=self.attributes_values_view_update_invalid,
       count=1,
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='alert',
       session_variables=None,
     )
 
@@ -2858,9 +2858,9 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=False,
       view_name='cleanupeventdetails_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='keine Rechte',
     )
 
   def test_get_requester_permissions(self):
@@ -2871,9 +2871,9 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=False,
       view_name='cleanupeventdetails_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='Antrag erstellen',
     )
 
   def test_get_authority_permissions(self):
@@ -2884,9 +2884,9 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=True,
       antragsmanagement_admin=False,
       view_name='cleanupeventdetails_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='keine Rechte',
     )
 
   def test_get_admin_permissions(self):
@@ -2897,9 +2897,9 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=True,
       view_name='cleanupeventdetails_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='keine Rechte',
     )
 
   def test_post_create_success(self):
@@ -2912,7 +2912,7 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
       view_name='cleanupeventdetails_update',
       object_filter=self.attributes_values_view_update_valid,
       count=1,
-      status_code=404,
+      status_code=302,
       content_type='text/html; charset=utf-8',
       string=None,
       session_variables=None,
@@ -2928,9 +2928,9 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
       view_name='cleanupeventdetails_update',
       object_filter=self.attributes_values_view_update_invalid,
       count=1,
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='alert',
       session_variables=None,
     )
 
@@ -4348,7 +4348,7 @@ class CleanupEventRequestUpdateAnonymousViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=False,
       view_name='anonymous_cleanupeventrequest_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
       string=None,
     )
@@ -4379,9 +4379,9 @@ class CleanupEventRequestUpdateAnonymousViewTest(DefaultFormViewTestCase):
       view_name='anonymous_cleanupeventrequest_update',
       object_filter=self.attributes_values_view_update_invalid,
       count=1,
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='alert',
       session_variables=None,
     )
 
@@ -4502,9 +4502,9 @@ class CleanupEventEventUpdateAnonymousViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=False,
       view_name='anonymous_cleanupeventevent_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='Antrag erstellen',
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -4519,7 +4519,7 @@ class CleanupEventEventUpdateAnonymousViewTest(DefaultFormViewTestCase):
       view_name='anonymous_cleanupeventevent_update',
       object_filter=self.attributes_values_view_update_valid,
       count=1,
-      status_code=404,
+      status_code=302,
       content_type='text/html; charset=utf-8',
       string=None,
       session_variables=None,
@@ -4537,9 +4537,9 @@ class CleanupEventEventUpdateAnonymousViewTest(DefaultFormViewTestCase):
       view_name='anonymous_cleanupeventevent_update',
       object_filter=self.attributes_values_view_update_invalid,
       count=1,
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='alert',
       session_variables=None,
     )
 
@@ -4656,9 +4656,9 @@ class CleanupEventVenueUpdateAnonymousViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=False,
       view_name='anonymous_cleanupeventvenue_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='Antrag erstellen',
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -4673,7 +4673,7 @@ class CleanupEventVenueUpdateAnonymousViewTest(DefaultFormViewTestCase):
       view_name='anonymous_cleanupeventvenue_update',
       object_filter=self.attributes_values_view_update_valid,
       count=1,
-      status_code=404,
+      status_code=302,
       content_type='text/html; charset=utf-8',
       string=None,
       session_variables=None,
@@ -4691,9 +4691,9 @@ class CleanupEventVenueUpdateAnonymousViewTest(DefaultFormViewTestCase):
       view_name='anonymous_cleanupeventvenue_update',
       object_filter=self.attributes_values_view_update_invalid,
       count=1,
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='alert',
       session_variables=None,
     )
 
@@ -4818,9 +4818,9 @@ class CleanupEventDetailsUpdateAnonymousViewTest(DefaultFormViewTestCase):
       antragsmanagement_authority=False,
       antragsmanagement_admin=False,
       view_name='anonymous_cleanupeventdetails_update',
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='Antrag erstellen',
     )
 
   def test_post_create_success(self):
@@ -4833,7 +4833,7 @@ class CleanupEventDetailsUpdateAnonymousViewTest(DefaultFormViewTestCase):
       view_name='anonymous_cleanupeventdetails_update',
       object_filter=self.attributes_values_view_update_valid,
       count=1,
-      status_code=404,
+      status_code=302,
       content_type='text/html; charset=utf-8',
       string=None,
       session_variables=None,
@@ -4849,9 +4849,9 @@ class CleanupEventDetailsUpdateAnonymousViewTest(DefaultFormViewTestCase):
       view_name='anonymous_cleanupeventdetails_update',
       object_filter=self.attributes_values_view_update_invalid,
       count=1,
-      status_code=404,
+      status_code=200,
       content_type='text/html; charset=utf-8',
-      string=None,
+      string='alert',
       session_variables=None,
     )
 

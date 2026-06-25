@@ -250,6 +250,16 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
       login(
         self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin
       )
+    # for update mode:
+    if update_mode:
+      # connect (all) requester object(s) with test user
+      if log_in:
+        Requester.objects.update(user_id=self.test_user.pk)
+      # set corresponding requester in session
+      elif Requester.objects.count() > 0:
+        session = self.client.session
+        session['corresponding_requester'] = Requester.objects.only('pk').last().pk
+        session.save()
     # for update mode: get primary key of last object
     last_pk = self.model.objects.only('pk').last().pk
     # set URL
@@ -308,6 +318,16 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
       login(
         self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin
       )
+    # for update mode:
+    if update_mode:
+      # connect (all) requester object(s) with test user
+      if log_in:
+        Requester.objects.update(user_id=self.test_user.pk)
+      # set corresponding requester in session
+      elif Requester.objects.count() > 0:
+        session = self.client.session
+        session['corresponding_requester'] = Requester.objects.only('pk').last().pk
+        session.save()
     # in case of request: connect test user to its requester object
     if issubclass(self.model, Request):
       requester = Requester.objects.last()
