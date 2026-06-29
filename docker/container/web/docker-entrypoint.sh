@@ -11,8 +11,20 @@ source .venv/bin/activate
 
 if [ ! -f datenwerft/secrets.py ]; then
   cp docker/container/web/secrets.py datenwerft/secrets.py
-  _SECRET_KEY=$(python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())")
-  sed -i "s/SECRET_KEY = None/SECRET_KEY = '$_SECRET_KEY'/" datenwerft/secrets.py
+  python <<'EOF'
+from pathlib import Path
+from django.core.management.utils import get_random_secret_key
+
+path = Path("datenwerft/secrets.py")
+
+content = path.read_text(encoding="utf-8")
+content = content.replace(
+    "SECRET_KEY = None",
+    f"SECRET_KEY = {get_random_secret_key()!r}"
+)
+
+path.write_text(content, encoding="utf-8")
+EOF
   chown $USER_ID:$GROUP_ID datenwerft/secrets.py
 fi
 
