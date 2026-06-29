@@ -17,7 +17,7 @@ def get_client_ip(request):
   if not ip:
     return None
 
-  # request did not come through a trusted proxy,
+  # request did not come through a trusted reverse proxy,
   # so ignore X-Forwarded-For completely
   if not hasattr(settings, 'AUTH_TRUSTED_PROXIES') or not ip_in_array(
     ip, settings.AUTH_TRUSTED_PROXIES
@@ -28,7 +28,12 @@ def get_client_ip(request):
   if not x_forwarded_for:
     return ip
 
-  return x_forwarded_for.split(',')[0].strip()
+  # X-Forwarded-For is overwritten by the trusted reverse proxy using
+  # RequestHeader set X-Forwarded-For "%{REMOTE_ADDR}s".
+  # Therefore, the application never processes client-supplied X-Forwarded-For values,
+  # and spoofing via this header is not possible.
+  parts = [p.strip() for p in x_forwarded_for.split(',') if p.strip()]
+  return parts[-1] if parts else None
 
 
 def validate_ip(ip_string):
