@@ -251,7 +251,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
         self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin
       )
     # for update mode:
-    if update_mode:
+    if update_mode and status_code != 404:
       # connect (all) requester object(s) with test user
       if log_in:
         Requester.objects.update(user_id=self.test_user.pk)
