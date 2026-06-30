@@ -1695,7 +1695,7 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
       string='keine Rechte',
     )
 
-  def test_get_requester_permissions(self):
+  def test_get_requester_permissions_with_permissions_on_this_object(self):
     self.generic_form_view_get_test(
       update_mode=True,
       log_in=True,
@@ -1704,6 +1704,19 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False,
       view_name='cleanupeventrequest_update',
       status_code=200,
+      content_type='text/html; charset=utf-8',
+      string=None,
+    )
+
+  def test_get_requester_permissions_without_permissions_on_this_object(self):
+    self.generic_form_view_get_test(
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_update',
+      status_code=404,
       content_type='text/html; charset=utf-8',
       string=None,
     )
@@ -2079,7 +2092,7 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       string='keine Rechte',
     )
 
-  def test_get_requester_permissions(self):
+  def test_get_requester_permissions_with_permissions_on_this_object(self):
     self.generic_form_view_get_test(
       update_mode=True,
       log_in=True,
@@ -2090,6 +2103,19 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='Antrag erstellen',
+    )
+
+  def test_get_requester_permissions_without_permissions_on_this_object(self):
+    self.generic_form_view_get_test(
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventevent_update',
+      status_code=404,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_authority_permissions(self):
@@ -2468,7 +2494,7 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       string='keine Rechte',
     )
 
-  def test_get_requester_permissions(self):
+  def test_get_requester_permissions_with_permissions_on_this_object(self):
     self.generic_form_view_get_test(
       update_mode=True,
       log_in=True,
@@ -2479,6 +2505,19 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='Antrag erstellen',
+    )
+
+  def test_get_requester_permissions_without_permissions_on_this_object(self):
+    self.generic_form_view_get_test(
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventvenue_update',
+      status_code=404,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_authority_permissions(self):
@@ -2863,7 +2902,7 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
       string='keine Rechte',
     )
 
-  def test_get_requester_permissions(self):
+  def test_get_requester_permissions_with_permissions_on_this_object(self):
     self.generic_form_view_get_test(
       update_mode=True,
       log_in=True,
@@ -2874,6 +2913,19 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='Antrag erstellen',
+    )
+
+  def test_get_requester_permissions_without_permissions_on_this_object(self):
+    self.generic_form_view_get_test(
+      update_mode=True,
+      log_in=True,
+      antragsmanagement_requester=True,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='cleanupeventdetails_update',
+      status_code=404,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_get_authority_permissions(self):
@@ -4340,7 +4392,7 @@ class CleanupEventRequestUpdateAnonymousViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_anonymous(self):
+  def test_get_anonymous_with_permissions_on_this_object(self):
     self.generic_form_view_get_test(
       update_mode=True,
       log_in=False,
@@ -4349,6 +4401,19 @@ class CleanupEventRequestUpdateAnonymousViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False,
       view_name='anonymous_cleanupeventrequest_update',
       status_code=200,
+      content_type='text/html; charset=utf-8',
+      string=None,
+    )
+
+  def test_get_anonymous_without_permissions_on_this_object(self):
+    self.generic_form_view_get_test(
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventrequest_update',
+      status_code=404,
       content_type='text/html; charset=utf-8',
       string=None,
     )
@@ -4494,7 +4559,7 @@ class CleanupEventEventUpdateAnonymousViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_anonymous(self):
+  def test_get_anonymous_with_permissions_on_this_object(self):
     self.generic_form_view_get_test(
       update_mode=True,
       log_in=False,
@@ -4505,6 +4570,19 @@ class CleanupEventEventUpdateAnonymousViewTest(DefaultFormViewTestCase):
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='Antrag erstellen',
+    )
+
+  def test_get_anonymous_without_permissions_on_this_object(self):
+    self.generic_form_view_get_test(
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventevent_update',
+      status_code=404,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
@@ -4648,7 +4726,7 @@ class CleanupEventVenueUpdateAnonymousViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_anonymous(self):
+  def test_get_anonymous_with_permissions_on_this_object(self):
     self.generic_form_view_get_test(
       update_mode=True,
       log_in=False,
@@ -4659,6 +4737,19 @@ class CleanupEventVenueUpdateAnonymousViewTest(DefaultFormViewTestCase):
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='Antrag erstellen',
+    )
+
+  def test_get_anonymous_without_permissions_on_this_object(self):
+    self.generic_form_view_get_test(
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventvenue_update',
+      status_code=404,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
@@ -4810,7 +4901,7 @@ class CleanupEventDetailsUpdateAnonymousViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_anonymous(self):
+  def test_get_anonymous_with_permissions_on_this_object(self):
     self.generic_form_view_get_test(
       update_mode=True,
       log_in=False,
@@ -4821,6 +4912,19 @@ class CleanupEventDetailsUpdateAnonymousViewTest(DefaultFormViewTestCase):
       status_code=200,
       content_type='text/html; charset=utf-8',
       string='Antrag erstellen',
+    )
+
+  def test_get_anonymous_without_permissions_on_this_object(self):
+    self.generic_form_view_get_test(
+      update_mode=True,
+      log_in=False,
+      antragsmanagement_requester=False,
+      antragsmanagement_authority=False,
+      antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventdetails_update',
+      status_code=404,
+      content_type='text/html; charset=utf-8',
+      string=None,
     )
 
   def test_post_create_success(self):
