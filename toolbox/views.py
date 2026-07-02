@@ -1,6 +1,7 @@
 from json import dumps, loads
 from os.path import join as joinpath
 from re import sub
+from urllib.parse import urlparse
 
 import requests
 from django.conf import settings
@@ -10,6 +11,7 @@ from django.db.utils import IntegrityError
 from django.http import (
   FileResponse,
   HttpResponse,
+  HttpResponseForbidden,
   HttpResponseNotAllowed,
   HttpResponseServerError,
   JsonResponse,
@@ -114,14 +116,20 @@ class OWSProxyView(View):
     :param kwargs:
     :return: HTTP response with proxied OWS
     """
-    url = sub(
-      pattern=r'(http[s]?):\/([a-z0-9])', repl=r'\g<1>://\g<2>', string=self.destination_url
-    )
-    try:
-      response = requests.get(url, timeout=60)
-      return HttpResponse(response, content_type=response.headers['content-type'])
-    except Exception:
-      return HttpResponseServerError()
+    destination_url = self.destination_url
+    destination_host = urlparse(destination_url).hostname
+    if (
+      hasattr(settings, 'OWS_PROXY_ALLOWED_HOSTS')
+      and destination_host in settings.OWS_PROXY_ALLOWED_HOSTS
+    ):
+      url = sub(pattern=r'(http[s]?):\/([a-z0-9])', repl=r'\g<1>://\g<2>', string=destination_url)
+      try:
+        response = requests.get(url, timeout=60)
+        return HttpResponse(response, content_type=response.headers['content-type'])
+      except Exception:
+        return HttpResponseServerError()
+    else:
+      return HttpResponseForbidden()
 
 
 class AddressSearchView(View):

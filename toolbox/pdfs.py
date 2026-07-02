@@ -95,8 +95,21 @@ def render(data, templatefiledescriptor, outfilename='tmp_', pdfdir=joinpath('to
 
 
 def prep4latex(string):
-  for esc in settings.PDF_ESCAPE:
-    string = string.replace(esc[0], esc[1])
+  replacements = {
+    '\\': r'\textbackslash{}',
+    '&': r'\&',
+    '%': r'\%',
+    '$': r'\$',
+    '#': r'\#',
+    '_': r'\_',
+    '{': r'\{',
+    '}': r'\}',
+    '~': r'\textasciitilde{}',
+    '^': r'\textasciicircum{}',
+  }
+  # replace backslash first, all other chars thereafter
+  for char, repl in replacements.items():
+    string = string.replace(char, repl)
   return string
 
 
