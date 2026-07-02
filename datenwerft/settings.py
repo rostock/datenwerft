@@ -385,7 +385,6 @@ STADTBEREICHSKATALOG_ICONS = {
 # Toolbox app:
 # PDF export
 
-PDF_ESCAPE = [('&', r'\&'), (chr(8211), '--')]
 PDF_JINJASTRINGS = {
   'block_start': r'\JINJA{',
   'block_end': '}',
