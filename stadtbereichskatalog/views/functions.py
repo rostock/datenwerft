@@ -644,6 +644,28 @@ def get_export_data(
     )
     params.append(int(election_year))
 
+  # dynamic sorting
+  order_by = []
+  _cols = get_database_columns(schema_name, table_name)
+  column_names = [_col.get('name') for _col in _cols if 'name' in _col]
+  if 'stadtbereich' in column_names:
+    order_by.append(
+      SQL('{}').format(Identifier('stadtbereich'))
+    )
+  if 'jahr' in column_names:
+    order_by.append(
+      SQL('{}').format(Identifier('jahr'))
+    )
+  else:
+    if 'wahlart_id' in column_names:
+      order_by.append(
+        SQL('{}').format(Identifier('wahlart_id'))
+      )
+    if 'wahljahr' in column_names:
+      order_by.append(
+        SQL('{}').format(Identifier('wahljahr'))
+      )
+
   # build query
   query = SQL("""
       SELECT *
@@ -652,6 +674,9 @@ def get_export_data(
   if conditions:
     query += SQL(' WHERE ')
     query += SQL(' AND ').join(conditions)
+  if order_by:
+    query += SQL(' ORDER BY ')
+    query += SQL(', ').join(order_by)
 
   # execute query
   connection = connections['stadtbereichskatalog']
