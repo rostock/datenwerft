@@ -282,23 +282,16 @@ def delete_data(schema_name, table_name, year_filter=None, election_filter=None)
 
   # perform whitelist check
   if whitelist_check(schema_name, table_name):
-
     # dynamic where clause
     conditions, params = [], []
     if year_filter:
-      conditions.append(
-        SQL('{} = %s').format(Identifier('jahr'))
-      )
+      conditions.append(SQL('{} = %s').format(Identifier('jahr')))
       params.append(int(year_filter))
     if election_filter:
       election_election, election_year = election_filter.split('__')
-      conditions.append(
-        SQL('{} = %s').format(Identifier('wahlart_id'))
-      )
+      conditions.append(SQL('{} = %s').format(Identifier('wahlart_id')))
       params.append(election_election)
-      conditions.append(
-        SQL('{} = %s').format(Identifier('wahljahr'))
-      )
+      conditions.append(SQL('{} = %s').format(Identifier('wahljahr')))
       params.append(int(election_year))
 
     # build query
@@ -624,24 +617,16 @@ def get_export_data(
   # dynamic where clause
   conditions, params = [], []
   if year_filter:
-    conditions.append(
-      SQL('{} = %s').format(Identifier('jahr'))
-    )
+    conditions.append(SQL('{} = %s').format(Identifier('jahr')))
     params.append(int(year_filter))
   if area_filter:
-    conditions.append(
-      SQL('{} = %s').format(Identifier('stadtbereich'))
-    )
+    conditions.append(SQL('{} = %s').format(Identifier('stadtbereich')))
     params.append(area_filter)
   if election_filter:
     election_election, election_year = election_filter.split('__')
-    conditions.append(
-      SQL('{} = %s').format(Identifier('wahlart_id'))
-    )
+    conditions.append(SQL('{} = %s').format(Identifier('wahlart_id')))
     params.append(election_election)
-    conditions.append(
-      SQL('{} = %s').format(Identifier('wahljahr'))
-    )
+    conditions.append(SQL('{} = %s').format(Identifier('wahljahr')))
     params.append(int(election_year))
 
   # build query
@@ -689,7 +674,6 @@ def import_data(schema_name, table_name, columns, rows):
 
   # perform whitelist check
   if whitelist_check(schema_name, table_name, columns):
-
     # dynamic columns
     quoted_columns = [Identifier(col) for col in columns]
 
@@ -825,22 +809,15 @@ def update_data(schema_name, table_name, pk, changes):
   # perform whitelist check
   columns = list(changes.keys()) + list(pk.keys())
   if whitelist_check(schema_name, table_name, columns):
-
     # dynamic set clause
-    set_parts = [
-      SQL('{} = %s').format(Identifier(column))
-      for column in changes
-    ]
+    set_parts = [SQL('{} = %s').format(Identifier(column)) for column in changes]
     set_clause = SQL(', ').join(set_parts)
     set_values = []
     for column, value in changes.items():
       set_values.append(value)
 
     # dynamic where clause
-    where_parts = [
-      SQL('{} = %s').format(Identifier(column))
-      for column in pk
-    ]
+    where_parts = [SQL('{} = %s').format(Identifier(column)) for column in pk]
     where_clause = SQL(' AND ').join(where_parts)
     where_values = []
     for column, value in pk.items():
