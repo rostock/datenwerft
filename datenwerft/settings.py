@@ -275,7 +275,7 @@ ANTRAGSMANAGEMENT_LINKS = {
     'sondernutzung_oeffentlicher_gruenflaechen_beantragen/310812'
   ),
   'geodata_portal': (
-    'https://www.geoport-hro.de/muellsammelaktionen?poi[point]={x},{y}&poi[scale]=2133'
+    'https://www.geoport-hro.de/?state=[[0,[{x},{y}],2485.85,0,-90,0],"OpenlayersMap",["public"],[["muellsammelaktionen",1,"799;hro.muellsammelaktionen.zurueckgewiesen.flaechen,hro.muellsammelaktionen.zurueckgewiesen.treffpunkte,hro.muellsammelaktionen.zurueckgewiesen.muellablageplaetze,hro.muellsammelaktionen.zurueckgewiesen.containerstandorte,hro.muellsammelaktionen.genehmigt.flaechen,hro.muellsammelaktionen.genehmigt.treffpunkte,hro.muellsammelaktionen.genehmigt.muellablageplaetze,hro.muellsammelaktionen.genehmigt.containerstandorte,hro.muellsammelaktionen.in_bearbeitung.flaechen,hro.muellsammelaktionen.in_bearbeitung.treffpunkte,hro.muellsammelaktionen.in_bearbeitung.muellablageplaetze,hro.muellsammelaktionen.in_bearbeitung.containerstandorte,hro.muellsammelaktionen.neu.flaechen,hro.muellsammelaktionen.neu.treffpunkte,hro.muellsammelaktionen.neu.muellablageplaetze,hro.muellsammelaktionen.neu.containerstandorte,,,,,,,,,,,,,,,"]],[["@gdmhro/metadata-viewer",{{"prop":"*"}}]],0,[]]'
   ),
 }
 
