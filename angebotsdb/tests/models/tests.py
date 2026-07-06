@@ -5,7 +5,6 @@ from angebotsdb.models.base import (
   OrgUnitServicePermission,
   Provider,
   ReviewTask,
-  Tag,
   TargetGroup,
   Topic,
   UserProfile,
@@ -36,31 +35,6 @@ class TopicModelTest(ModelTestCase):
   """
 
   model = Topic
-  attributes_values_db_initial = {'name': VALID_STRING_A}
-  attributes_values_db_updated = {'name': VALID_STRING_B}
-
-  def setUp(self):
-    self.init()
-
-  def test_create(self):
-    self.generic_create_test()
-
-  def test_update(self):
-    self.generic_update_test()
-
-  def test_delete(self):
-    self.generic_delete_test()
-
-  def test_string_representation(self):
-    self.generic_string_representation_test(VALID_STRING_A)
-
-
-class TagModelTest(ModelTestCase):
-  """
-  Testklasse für das Modell Tag.
-  """
-
-  model = Tag
   attributes_values_db_initial = {'name': VALID_STRING_A}
   attributes_values_db_updated = {'name': VALID_STRING_B}
 

@@ -195,29 +195,6 @@ class TargetGroup(Base):
     return self.name
 
 
-class Tag(Base):
-  """
-  Schlagworte
-  """
-
-  # Logical Attributes
-  icon = 'fa-solid fa-tag'
-  icon_plural = 'fa-solid fa-tags'
-  dashboard_mode = None
-
-  # Database fields
-  name = CharField(max_length=100, verbose_name='Bezeichnung', unique=True)
-
-  class Meta:
-    db_table = 'tag'
-    verbose_name = 'Schlagwort'
-    verbose_name_plural = 'Schlagworte'
-    ordering = ['name']
-
-  def __str__(self):
-    return self.name
-
-
 class OrgUnit(Base):
   """
   Organizational Unit (OE) for grouping users of the local administration.

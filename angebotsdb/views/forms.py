@@ -15,7 +15,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from ..constants_vars import ADMIN_GROUP, USERS_GROUP
 from ..fields import PyGeoAPIMultipleChoiceField, get_pygeoapi_config
-from ..models.base import Law, Provider, ReviewTask, Tag, TargetGroup, Topic, UserProfile
+from ..models.base import Law, Provider, ReviewTask, TargetGroup, Topic, UserProfile
 from ..models.services import Service, ServiceImage
 from ..utils import (
   authorized_to_edit,
@@ -328,18 +328,6 @@ class GenericCreateView(CreateView):
           field_order = ['user_id'] + [f for f in self.fields if f != 'user_id']
           self.order_fields(field_order)
 
-        if 'tags' in self.fields:
-          current_field = self.fields['tags']
-          self.fields['tags'] = CreatableMultipleChoiceField(
-            model=Tag,
-            queryset=Tag.objects.all(),
-            label=current_field.label,
-            required=current_field.required,
-            widget=widgets.SelectMultiple(
-              attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
-            ),
-          )
-
         if 'target_group' in self.fields:
           current_field = self.fields['target_group']
           self.fields['target_group'] = CreatableMultipleChoiceField(
@@ -576,18 +564,6 @@ class GenericUpdateView(UpdateView):
 
       def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        if 'tags' in self.fields:
-          current_field = self.fields['tags']
-          self.fields['tags'] = CreatableMultipleChoiceField(
-            model=Tag,
-            queryset=Tag.objects.all(),
-            label=current_field.label,
-            required=current_field.required,
-            widget=widgets.SelectMultiple(
-              attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
-            ),
-          )
 
         if 'target_group' in self.fields:
           current_field = self.fields['target_group']

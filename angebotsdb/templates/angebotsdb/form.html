@@ -207,11 +207,6 @@
                         <span class="input-group-text">€</span>
                         {{ field }}
                       </div>
-                    {% elif field.name == 'tags' %}
-                      <div class="input-group flex-nowrap">
-                        <span class="input-group-text">#</span>
-                        {{ field }}
-                      </div>
                     {% elif field.name == 'logo' %}
                       {% if form.instance.logo %}
                         {% if user_can_save and not readonly %}

@@ -16,7 +16,7 @@ from django.db.models import (
   URLField,
 )
 
-from .base import Base, Law, Provider, Tag, TargetGroup, Topic
+from .base import Base, Law, Provider, TargetGroup, Topic
 
 SERVICE_STATUS_CHOICES = [
   ('draft', 'Entwurf'),
@@ -35,8 +35,7 @@ class Service(Base):
   list_fields = {
     'name': 'Name',
     'status': 'Status',
-    'host': 'Anbieter',
-    'tags': 'Schlagworte',
+    'host': 'Träger',
     'updated_at': 'Zuletzt aktualisiert',
   }
 
@@ -51,12 +50,6 @@ class Service(Base):
   target_group = ManyToManyField(
     to=TargetGroup,
     verbose_name='Zielgruppe(n)',
-    blank=True,
-    related_name='%(class)s',
-  )
-  tags = ManyToManyField(
-    to=Tag,
-    verbose_name='Schlagworte',
     blank=True,
     related_name='%(class)s',
   )
@@ -79,7 +72,7 @@ class Service(Base):
     help_text='z.B. Mo Di Mi 7:30 - 15:00 Uhr, Do 8:00 - 13:00 Uhr',
   )
   email = EmailField(max_length=255, verbose_name='E-Mail')
-  host = ForeignKey(to=Provider, verbose_name='Anbieter', on_delete=CASCADE)
+  host = ForeignKey(to=Provider, verbose_name='Träger', on_delete=CASCADE)
   legal_basis = ManyToManyField(
     to=Law,
     verbose_name='Gesetzliche Grundlage',

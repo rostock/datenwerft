@@ -1,4 +1,4 @@
-from angebotsdb.models.base import Law, OrgUnit, Provider, Tag, TargetGroup, Topic
+from angebotsdb.models.base import Law, OrgUnit, Provider, TargetGroup, Topic
 
 from ..abstract import FormViewTestCase, ViewTestCase
 from ..constant_vars import (
@@ -420,63 +420,6 @@ class OrgUnitDeleteViewTest(FormViewTestCase):
   def test_post_ajax_delete_as_admin(self):
     self.generic_ajax_delete_test(
       login_as_admin, 'orgunit_delete', {'pk': self.test_object.pk}, True
-    )
-
-
-# ---------------------------------------------------------------------------
-# Tag
-# ---------------------------------------------------------------------------
-
-
-class TagListViewTest(ViewTestCase):
-  """
-  Testklasse für die Listen-Ansicht von Tag.
-  """
-
-  def setUp(self):
-    self.init()
-
-  def test_get_as_admin(self):
-    self.generic_get_test(login_as_admin, 'tag_list', None, 200, HTML, 'Schlagwort')
-
-
-class TagCreateViewTest(ViewTestCase):
-  """
-  Testklasse für die Erstell-Ansicht von Tag.
-  """
-
-  def setUp(self):
-    self.init()
-
-  def test_get_as_admin(self):
-    self.generic_get_test(login_as_admin, 'tag_create', None, 200, HTML, 'Schlagwort')
-
-  def test_get_no_role_403(self):
-    self.generic_get_test(login_no_role, 'tag_create', None, 403, HTML, '')
-
-  def test_post_success(self):
-    self.generic_post_test(login_as_admin, 'tag_create', None, {'name': VALID_STRING_A}, 302)
-
-
-class TagUpdateViewTest(FormViewTestCase):
-  """
-  Testklasse für die Bearbeitungs-Ansicht von Tag.
-  """
-
-  model = Tag
-  attributes_values_db_initial = {'name': VALID_STRING_A}
-
-  def setUp(self):
-    self.init()
-
-  def test_get_as_admin(self):
-    self.generic_get_test(
-      login_as_admin, 'tag_update', {'pk': self.test_object.pk}, 200, HTML, VALID_STRING_A
-    )
-
-  def test_post_success(self):
-    self.generic_post_test(
-      login_as_admin, 'tag_update', {'pk': self.test_object.pk}, {'name': VALID_STRING_B}, 302
     )
 
 
