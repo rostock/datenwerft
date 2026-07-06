@@ -3,10 +3,11 @@ from json import loads
 
 from django.apps import apps
 from django.http import JsonResponse
+from django.template.defaultfilters import date as date_filter
 from django.urls import reverse
 from django.views import View
 
-from ..models.services import ChildrenAndYouthService, Service
+from ..models.services import Service
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,43 @@ def get_model_objects(model, count_only=False):
     return qs
 
 
+def resolve_list_field_value(obj, field_name):
+  """
+  resolves a ``list_fields`` key to a display string, mirroring the list view
+  table rendering (``list.html`` / the ``get_attribute`` template filter) so that
+  the map pop-up shows the same values as the list table
+
+  :param obj: object
+  :param field_name: ``list_fields`` key (field name, ``__str__`` or special key)
+  :return: display string or None for empty values
+  """
+  if field_name == '__str__':
+    return str(obj)
+
+  # choice fields (e.g. status) -> human-readable display value
+  display_method = f'get_{field_name}_display'
+  try:
+    field = obj._meta.get_field(field_name)
+  except Exception:
+    field = None
+  if field is not None and getattr(field, 'choices', None) and hasattr(obj, display_method):
+    return getattr(obj, display_method)()
+
+  value = getattr(obj, field_name, None)
+  if value in (None, ''):
+    return None
+
+  # date fields -> same format as the list table ({{ ...|date:"d.m.Y H:i" }})
+  if field_name in ('created_at', 'updated_at'):
+    return date_filter(value, 'd.m.Y H:i')
+
+  # ManyToMany / reverse FK -> comma-separated list of items
+  if field is not None and (field.many_to_many or field.one_to_many):
+    return ', '.join(str(item) for item in value.all())
+
+  return str(value)
+
+
 def create_geojson_feature(curr_object):
   """
   creates a GeoJSON feature based on passed object and returns it
@@ -79,37 +117,14 @@ def create_geojson_feature(curr_object):
     },
   }
 
-  # add properties for map pop-up to GeoJSON feature
-  for field in curr_object.__class__._meta.concrete_fields:
-    if getattr(curr_object, field.name) and field.name in (
-      'id',
-      'created_at',
-      'updated_at',
-      'name',
-      'description',
-      'email',
-      'host',
-      'topic',
-      'target_group',
-    ):
-      value = getattr(curr_object, field.name)
-      if hasattr(value, '__iter__') and not isinstance(value, str):
-        # Handle ManyToMany fields
-        geojson_feature['properties'][field.verbose_name] = ', '.join(
-          str(item) for item in value.all()
-        )
-      elif hasattr(value, '__str__'):
-        geojson_feature['properties'][field.verbose_name] = str(value)
-      else:
-        geojson_feature['properties'][field.verbose_name] = value
-
-  # Handle specific fields for different service types
-  if isinstance(curr_object, ChildrenAndYouthService):
-    for field in ['setting', 'phone', 'costs', 'application_needed']:
-      if getattr(curr_object, field):
-        geojson_feature['properties'][
-          getattr(curr_object.__class__._meta.get_field(field), 'verbose_name', field)
-        ] = str(getattr(curr_object, field))
+  # add properties for map pop-up to GeoJSON feature:
+  # exactly the fields shown in the list view (list_fields), so that the pop-up
+  # and the list table stay in sync (labels = list_fields column headers)
+  list_fields = getattr(curr_object, 'list_fields', {})
+  for field_name, label in list_fields.items():
+    value = resolve_list_field_value(curr_object, field_name)
+    if value:
+      geojson_feature['properties'][label] = value
 
   return geojson_feature
 
