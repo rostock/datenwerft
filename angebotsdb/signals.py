@@ -1,7 +1,8 @@
-from django.db.models.signals import post_delete, pre_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
-from .models.base import Provider
+from .emails import send_inbox_message_notification
+from .models.base import InboxMessage, Provider
 from .models.services import ServiceImage
 
 
@@ -22,6 +23,18 @@ def delete_old_logo_on_change(sender, instance, **kwargs):
 def delete_logo_on_provider_delete(sender, instance, **kwargs):
   if instance.logo:
     instance.logo.delete(save=False)
+
+
+@receiver(post_save, sender=InboxMessage)
+def send_email_on_inbox_message_created(sender, instance, created, **kwargs):
+  """
+  Versendet bei Erstellung einer InboxMessage eine Benachrichtigungs-E-Mail an die
+  betroffenen Nutzer. Über das Instanz-Attribut ``_skip_email`` unterdrückbar
+  (z.B. für Reparatur-Commands).
+  """
+  if not created or getattr(instance, '_skip_email', False):
+    return
+  send_inbox_message_notification(instance)
 
 
 @receiver(post_delete, sender=ServiceImage)

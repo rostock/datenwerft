@@ -1,4 +1,7 @@
-from angebotsdb.models.base import Law, OrgUnit, Provider, TargetGroup, Topic
+from django.test import override_settings
+from django.urls import reverse
+
+from angebotsdb.models.base import Law, OrgUnit, Provider, TargetGroup, Topic, UserProfile
 
 from ..abstract import FormViewTestCase, ViewTestCase
 from ..constant_vars import (
@@ -484,3 +487,40 @@ class TargetGroupUpdateViewTest(FormViewTestCase):
       {'name': VALID_STRING_B},
       302,
     )
+
+
+# ---------------------------------------------------------------------------
+# UserProfile
+# ---------------------------------------------------------------------------
+
+
+class UserProfileFormViewTest(FormViewTestCase):
+  """
+  Testklasse für die Erstell- und Bearbeitungs-Ansicht von UserProfile.
+  """
+
+  model = UserProfile
+  # Testobjekt erst in setUp anlegen, da es eine real existierende User-ID benötigt
+  create_test_object_in_classmethod = False
+
+  def setUp(self):
+    self.init()
+    self.test_object = UserProfile.objects.create(user_id=self.admin_user.id)
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  def test_create_form_excludes_receive_email_notifications(self):
+    # receive_email_notifications stellt der Nutzer selbst über die Einstellungsseite ein
+    login_as_admin(self)
+    response = self.client.get(reverse('angebotsdb:userprofile_create'))
+    self.assertEqual(response.status_code, 200)
+    self.assertNotIn('receive_email_notifications', response.context['form'].fields)
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  def test_update_form_excludes_receive_email_notifications(self):
+    # receive_email_notifications stellt der Nutzer selbst über die Einstellungsseite ein
+    login_as_admin(self)
+    response = self.client.get(
+      reverse('angebotsdb:userprofile_update', kwargs={'pk': self.test_object.pk})
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertNotIn('receive_email_notifications', response.context['form'].fields)

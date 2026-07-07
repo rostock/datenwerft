@@ -273,8 +273,9 @@ class GenericCreateView(CreateView):
     # Meta-Klasse dynamisch erstellen, um fields/exclude-Konflikt zu vermeiden.
     # Django erlaubt NICHT fields='__all__' und exclude gleichzeitig in Meta.
     if used_model == UserProfile:
-      # user_id wird manuell als ChoiceField in __init__ hinzugefügt
-      _meta_attrs = {'model': used_model, 'exclude': ['user_id']}
+      # user_id wird manuell als ChoiceField in __init__ hinzugefügt;
+      # receive_email_notifications stellt der Nutzer selbst über die Einstellungsseite ein
+      _meta_attrs = {'model': used_model, 'exclude': ['user_id', 'receive_email_notifications']}
     elif is_service_model:
       # host- und status-Feld werden automatisch verwaltet → aus dem Formular ausschließen
       _meta_attrs = {
@@ -555,6 +556,9 @@ class GenericUpdateView(UpdateView):
       }
     elif used_model is Provider:
       _meta_attrs = {'model': used_model, 'exclude': ['geometry']}
+    elif used_model is UserProfile:
+      # receive_email_notifications stellt der Nutzer selbst über die Einstellungsseite ein
+      _meta_attrs = {'model': used_model, 'exclude': ['receive_email_notifications']}
     else:
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)

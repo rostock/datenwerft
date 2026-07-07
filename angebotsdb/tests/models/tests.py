@@ -1,3 +1,6 @@
+from django.core import mail
+from django.urls import reverse
+
 from angebotsdb.models.base import (
   InboxMessage,
   Law,
@@ -15,7 +18,7 @@ from angebotsdb.models.services import (
   WoftGService,
 )
 
-from ..abstract import ModelTestCase
+from ..abstract import DefaultTestCase, ModelTestCase
 from ..constant_vars import (
   VALID_DATE_A,
   VALID_POINT_DB,
@@ -478,3 +481,157 @@ class InboxMessageModelTest(ModelTestCase):
 
   def test_string_representation(self):
     self.assertIn(VALID_STRING_A, str(self.test_object))
+
+
+class InboxMessageEmailTest(DefaultTestCase):
+  """
+  Testklasse für den E-Mail-Versand bei Erstellung von InboxMessages
+  (post_save-Signal + angebotsdb.emails).
+  """
+
+  @classmethod
+  def setUpTestData(cls):
+    cls.org_unit = OrgUnit.objects.create(name=VALID_STRING_A)
+    cls.provider = Provider.objects.create(name=VALID_STRING_B, email='traeger@example.org')
+    cls.review_task = ReviewTask.objects.create(
+      service_type='childrenandyouthservice',
+      service_id=1,
+      assigned_org_unit=cls.org_unit,
+      created_by_user_id=999,
+      task_status='pending',
+    )
+
+  def setUp(self):
+    self.init()
+    self.reviewer_user.email = 'reviewer@example.org'
+    self.reviewer_user.save(update_fields=['email'])
+    self.provider_user.email = 'einrichtung@example.org'
+    self.provider_user.save(update_fields=['email'])
+
+  def create_review_request(self):
+    return InboxMessage.objects.create(
+      message_type='review_request',
+      review_task=self.review_task,
+      target_org_unit=self.org_unit,
+    )
+
+  def create_revision_request(self):
+    return InboxMessage.objects.create(
+      message_type='revision_request',
+      review_task=self.review_task,
+      target_provider=self.provider,
+    )
+
+  def test_review_request_sends_mail_to_org_unit_users(self):
+    UserProfile.objects.create(
+      user_id=self.reviewer_user.id,
+      organisational_unit=self.org_unit,
+      receive_email_notifications=True,
+    )
+    self.create_review_request()
+    self.assertEqual(len(mail.outbox), 1)
+    self.assertEqual(mail.outbox[0].to, ['reviewer@example.org'])
+    self.assertIn('Prüfauftrag', mail.outbox[0].subject)
+    # kein Service mit ID 1 vorhanden → Fallback aus service_type und service_id
+    self.assertIn('childrenandyouthservice (ID 1)', mail.outbox[0].subject)
+
+  def test_revision_request_sends_mail_to_provider_users_only(self):
+    UserProfile.objects.create(
+      user_id=self.provider_user.id,
+      provider=self.provider,
+      receive_email_notifications=True,
+    )
+    self.create_revision_request()
+    self.assertEqual(len(mail.outbox), 1)
+    self.assertEqual(mail.outbox[0].to, ['einrichtung@example.org'])
+    self.assertIn('Überarbeitung', mail.outbox[0].subject)
+    # das E-Mail-Feld des Trägers selbst erhält keine Mail
+    self.assertNotIn('traeger@example.org', mail.outbox[0].to)
+
+  def test_no_opt_in_no_mail(self):
+    UserProfile.objects.create(
+      user_id=self.reviewer_user.id,
+      organisational_unit=self.org_unit,
+    )
+    self.create_review_request()
+    self.assertEqual(len(mail.outbox), 0)
+
+  def test_user_without_email_no_mail(self):
+    self.reviewer_user.email = ''
+    self.reviewer_user.save(update_fields=['email'])
+    UserProfile.objects.create(
+      user_id=self.reviewer_user.id,
+      organisational_unit=self.org_unit,
+      receive_email_notifications=True,
+    )
+    self.create_review_request()
+    self.assertEqual(len(mail.outbox), 0)
+
+  def test_inactive_user_no_mail(self):
+    self.reviewer_user.is_active = False
+    self.reviewer_user.save(update_fields=['is_active'])
+    UserProfile.objects.create(
+      user_id=self.reviewer_user.id,
+      organisational_unit=self.org_unit,
+      receive_email_notifications=True,
+    )
+    self.create_review_request()
+    self.assertEqual(len(mail.outbox), 0)
+
+  def test_no_profiles_no_mail(self):
+    self.create_review_request()
+    self.assertEqual(len(mail.outbox), 0)
+
+  def test_skip_email_flag_suppresses_mail(self):
+    UserProfile.objects.create(
+      user_id=self.reviewer_user.id,
+      organisational_unit=self.org_unit,
+      receive_email_notifications=True,
+    )
+    message = InboxMessage(
+      message_type='review_request',
+      review_task=self.review_task,
+      target_org_unit=self.org_unit,
+    )
+    message._skip_email = True
+    message.save()
+    self.assertEqual(len(mail.outbox), 0)
+
+  def test_update_sends_no_mail(self):
+    UserProfile.objects.create(
+      user_id=self.reviewer_user.id,
+      organisational_unit=self.org_unit,
+      receive_email_notifications=True,
+    )
+    message = self.create_review_request()
+    mail.outbox.clear()
+    message.is_read = True
+    message.save()
+    self.assertEqual(len(mail.outbox), 0)
+
+  def test_inbox_link_in_body(self):
+    UserProfile.objects.create(
+      user_id=self.reviewer_user.id,
+      organisational_unit=self.org_unit,
+      receive_email_notifications=True,
+    )
+    message = InboxMessage(
+      message_type='review_request',
+      review_task=self.review_task,
+      target_org_unit=self.org_unit,
+    )
+    # Basis-URL wird an den View-Erstellungsstellen aus dem Request abgeleitet
+    message._base_url = 'http://testserver'
+    message.save()
+    self.assertEqual(len(mail.outbox), 1)
+    self.assertIn(f'http://testserver{reverse("angebotsdb:inbox_list")}', mail.outbox[0].body)
+
+  def test_no_link_without_base_url(self):
+    UserProfile.objects.create(
+      user_id=self.reviewer_user.id,
+      organisational_unit=self.org_unit,
+      receive_email_notifications=True,
+    )
+    self.create_review_request()
+    self.assertEqual(len(mail.outbox), 1)
+    self.assertNotIn('http', mail.outbox[0].body)

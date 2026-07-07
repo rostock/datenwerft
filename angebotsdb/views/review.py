@@ -263,12 +263,16 @@ class SubmitForReviewView(View):
       approved_snapshot=approved_snapshot,
     )
 
+    base_url = f'{request.scheme}://{request.get_host()}'
     for permission in responsible_org_units:
-      InboxMessage.objects.create(
+      message = InboxMessage(
         message_type='review_request',
         review_task=review_task,
         target_org_unit=permission.organisational_unit,
       )
+      # Basis-URL für den Inbox-Link in der Benachrichtigungs-E-Mail (siehe emails.py)
+      message._base_url = base_url
+      message.save()
 
     logger.info(
       'ReviewTask #%s erstellt für service_type=%s service_id=%s (%s OrgUnit(s))',
@@ -385,13 +389,13 @@ class ReviewServiceView(View):
         return HttpResponseBadRequest('Zurückweisung erfordert mindestens einen Kommentar.')
       review_task.comments = comments
       review_task.save(update_fields=['comments'])
-      self._reject(review_task, service, request.user.id)
+      self._reject(review_task, service, request.user.id, f'{request.scheme}://{request.get_host()}')
 
     else:
       # Nur Kommentare speichern (Zwischenspeichern ohne Aktion)
       review_task.comments = comments
       review_task.save(update_fields=['comments'])
-      return redirect('angbotsdb:review_service', task_id=task_id)
+      return redirect('angebotsdb:review_service', task_id=task_id)
 
     return redirect('angebotsdb:inbox_list')
 
@@ -475,13 +479,15 @@ class ReviewServiceView(View):
       review_task.service_id,
     )
 
-  def _reject(self, review_task: ReviewTask, service, user_id: int):
+  def _reject(self, review_task: ReviewTask, service, user_id: int, base_url: str = ''):
     """
     Weist den Service zurück:
     - Service-Status → 'revision_needed'
     - ReviewTask-Status → 'rejected'
     - Alle InboxMessages dieses Tasks (OrgUnit-Seite) als erledigt markieren
     - Neue InboxMessage → Provider des Service
+
+    :param base_url: Basis-URL für den Inbox-Link in der Benachrichtigungs-E-Mail
     """
     service.status = 'revision_needed'
     service.save(update_fields=['status'])
@@ -497,11 +503,13 @@ class ReviewServiceView(View):
     ).update(is_resolved=True)
 
     # Neue Nachricht an den Provider
-    InboxMessage.objects.create(
+    message = InboxMessage(
       message_type='revision_request',
       review_task=review_task,
       target_provider=service.host,
     )
+    message._base_url = base_url
+    message.save()
 
     logger.info(
       'ReviewTask #%s abgelehnt – service_type=%s service_id=%s provider=%s',

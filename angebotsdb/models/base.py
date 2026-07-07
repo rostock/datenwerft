@@ -349,6 +349,12 @@ class UserProfile(Model):
     verbose_name='Organisationseinheit',
     help_text='OE für Verwaltungsnutzer',
   )
+  receive_email_notifications = BooleanField(
+    default=False,
+    verbose_name='E-Mail-Benachrichtigungen',
+    help_text='Bei neuen Nachrichten im Posteingang der Angebotsdatenbank per E-Mail '
+    'benachrichtigen',
+  )
   created_at = DateTimeField(
     verbose_name='Erstellung',
     auto_now_add=True,
