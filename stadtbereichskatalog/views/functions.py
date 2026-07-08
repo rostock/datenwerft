@@ -634,22 +634,14 @@ def get_export_data(
   _cols = get_database_columns(schema_name, table_name)
   column_names = [_col.get('name') for _col in _cols if 'name' in _col]
   if 'stadtbereich' in column_names:
-    order_by.append(
-      SQL('{}').format(Identifier('stadtbereich'))
-    )
+    order_by.append(SQL('{}').format(Identifier('stadtbereich')))
   if 'jahr' in column_names:
-    order_by.append(
-      SQL('{}').format(Identifier('jahr'))
-    )
+    order_by.append(SQL('{}').format(Identifier('jahr')))
   else:
     if 'wahlart_id' in column_names:
-      order_by.append(
-        SQL('{}').format(Identifier('wahlart_id'))
-      )
+      order_by.append(SQL('{}').format(Identifier('wahlart_id')))
     if 'wahljahr' in column_names:
-      order_by.append(
-        SQL('{}').format(Identifier('wahljahr'))
-      )
+      order_by.append(SQL('{}').format(Identifier('wahljahr')))
 
   # build query
   query = SQL("""
