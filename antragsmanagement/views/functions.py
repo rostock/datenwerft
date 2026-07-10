@@ -34,7 +34,7 @@ from antragsmanagement.utils import (
   is_antragsmanagement_user,
 )
 from bemas.utils import generate_user_string
-from toolbox.utils import format_date_datetime, is_geometry_field, transform_geometry
+from toolbox.utils import format_date_datetime, is_geometry_field
 
 
 def add_model_context_elements(context, model):
@@ -251,7 +251,6 @@ def get_cleanupeventrequest_anonymous_api_feature(request_pk):
     request_geojson_serialized = loads(serialize('geojson', [request]))
     # get coordinates and build link
     geometry = getattr(request, CleanupEventVenue.BaseMeta.geometry_field)
-    geometry = transform_geometry(geometry=GEOSGeometry(geometry), target_srid=25833)
     link = settings.ANTRAGSMANAGEMENT_LINKS['geodata_portal'].format(x=geometry.x, y=geometry.y)
     # define GeoJSON feature:
     # get geometry from GeoJSON-serialized target object,
