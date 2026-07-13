@@ -101,6 +101,11 @@
   color: #333;
 }
 
+/* fixed color so the type subtitle stays readable on the white popup in dark mode */
+.leaflet-popup-content .map-popup .map-popup-type {
+  color: #6c757d;
+}
+
 .leaflet-popup-content .map-popup {
   font-size: 0.9rem;
 }

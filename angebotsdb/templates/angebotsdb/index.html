@@ -260,18 +260,19 @@
                 // Build popup content
                 let popupContent = '<div class="map-popup">';
 
-                if (feature.properties._title) {
-                  popupContent += '<h6>' + feature.properties._title + '</h6>';
-                }
-
+                // Heading: name of the offer; below, smaller: the offer type
                 if (feature.properties._tooltip) {
-                  popupContent += '<strong>' + feature.properties._tooltip + '</strong><br>';
+                  popupContent += '<h6 class="mb-0">' + feature.properties._tooltip + '</h6>';
                 }
 
-                // Add additional properties
+                if (feature.properties._title) {
+                  popupContent += '<small class="map-popup-type d-block mb-1">' + feature.properties._title + '</small>';
+                }
+
+                // Add additional properties (skip the name, already shown as heading)
                 const skipProps = ['_model', '_pk', '_tooltip', '_title', '_link_detail', '_link_delete'];
                 for (const [key, value] of Object.entries(feature.properties)) {
-                  if (!skipProps.includes(key) && value) {
+                  if (!skipProps.includes(key) && value && value !== feature.properties._tooltip) {
                     popupContent += '<small><strong>' + key + ':</strong> ' + value + '</small><br>';
                   }
                 }

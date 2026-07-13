@@ -1,4 +1,4 @@
-from django.contrib.auth.views import LogoutView, PasswordChangeDoneView
+from django.contrib.auth.views import LogoutView
 from django.urls import path
 from django.views.generic import TemplateView
 from rest_framework import routers
@@ -7,9 +7,9 @@ from .views import (
   ContentTypeViewSet,
   ExternalLoginView,
   GroupViewSet,
-  LocalUserPasswordChangeView,
   PermissionViewSet,
   PreLoginView,
+  UserSettingsView,
   UserViewSet,
 )
 
@@ -38,13 +38,8 @@ urlpatterns = [
   ),
   path(route='test', view=TemplateView.as_view(template_name='accounts/test.html'), name='test'),
   path(
-    route='password-change/',
-    view=LocalUserPasswordChangeView.as_view(),
-    name='password_change',
-  ),
-  path(
-    route='password-change/done/',
-    view=PasswordChangeDoneView.as_view(template_name='accounts/password_change_done.html'),
-    name='password_change_done',
+    route='settings/',
+    view=UserSettingsView.as_view(),
+    name='settings',
   ),
 ]

@@ -1,4 +1,7 @@
-from angebotsdb.models.base import Law, OrgUnit, Provider, Tag, TargetGroup, Topic
+from django.test import override_settings
+from django.urls import reverse
+
+from angebotsdb.models.base import Law, OrgUnit, Provider, TargetGroup, Topic, UserProfile
 
 from ..abstract import FormViewTestCase, ViewTestCase
 from ..constant_vars import (
@@ -424,63 +427,6 @@ class OrgUnitDeleteViewTest(FormViewTestCase):
 
 
 # ---------------------------------------------------------------------------
-# Tag
-# ---------------------------------------------------------------------------
-
-
-class TagListViewTest(ViewTestCase):
-  """
-  Testklasse für die Listen-Ansicht von Tag.
-  """
-
-  def setUp(self):
-    self.init()
-
-  def test_get_as_admin(self):
-    self.generic_get_test(login_as_admin, 'tag_list', None, 200, HTML, 'Schlagwort')
-
-
-class TagCreateViewTest(ViewTestCase):
-  """
-  Testklasse für die Erstell-Ansicht von Tag.
-  """
-
-  def setUp(self):
-    self.init()
-
-  def test_get_as_admin(self):
-    self.generic_get_test(login_as_admin, 'tag_create', None, 200, HTML, 'Schlagwort')
-
-  def test_get_no_role_403(self):
-    self.generic_get_test(login_no_role, 'tag_create', None, 403, HTML, '')
-
-  def test_post_success(self):
-    self.generic_post_test(login_as_admin, 'tag_create', None, {'name': VALID_STRING_A}, 302)
-
-
-class TagUpdateViewTest(FormViewTestCase):
-  """
-  Testklasse für die Bearbeitungs-Ansicht von Tag.
-  """
-
-  model = Tag
-  attributes_values_db_initial = {'name': VALID_STRING_A}
-
-  def setUp(self):
-    self.init()
-
-  def test_get_as_admin(self):
-    self.generic_get_test(
-      login_as_admin, 'tag_update', {'pk': self.test_object.pk}, 200, HTML, VALID_STRING_A
-    )
-
-  def test_post_success(self):
-    self.generic_post_test(
-      login_as_admin, 'tag_update', {'pk': self.test_object.pk}, {'name': VALID_STRING_B}, 302
-    )
-
-
-# ---------------------------------------------------------------------------
 # TargetGroup
 # ---------------------------------------------------------------------------
 
@@ -541,3 +487,40 @@ class TargetGroupUpdateViewTest(FormViewTestCase):
       {'name': VALID_STRING_B},
       302,
     )
+
+
+# ---------------------------------------------------------------------------
+# UserProfile
+# ---------------------------------------------------------------------------
+
+
+class UserProfileFormViewTest(FormViewTestCase):
+  """
+  Testklasse für die Erstell- und Bearbeitungs-Ansicht von UserProfile.
+  """
+
+  model = UserProfile
+  # Testobjekt erst in setUp anlegen, da es eine real existierende User-ID benötigt
+  create_test_object_in_classmethod = False
+
+  def setUp(self):
+    self.init()
+    self.test_object = UserProfile.objects.create(user_id=self.admin_user.id)
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  def test_create_form_excludes_receive_email_notifications(self):
+    # receive_email_notifications stellt der Nutzer selbst über die Einstellungsseite ein
+    login_as_admin(self)
+    response = self.client.get(reverse('angebotsdb:userprofile_create'))
+    self.assertEqual(response.status_code, 200)
+    self.assertNotIn('receive_email_notifications', response.context['form'].fields)
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  def test_update_form_excludes_receive_email_notifications(self):
+    # receive_email_notifications stellt der Nutzer selbst über die Einstellungsseite ein
+    login_as_admin(self)
+    response = self.client.get(
+      reverse('angebotsdb:userprofile_update', kwargs={'pk': self.test_object.pk})
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertNotIn('receive_email_notifications', response.context['form'].fields)

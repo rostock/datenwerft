@@ -15,7 +15,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from ..constants_vars import ADMIN_GROUP, USERS_GROUP
 from ..fields import PyGeoAPIMultipleChoiceField, get_pygeoapi_config
-from ..models.base import Law, Provider, ReviewTask, Tag, TargetGroup, Topic, UserProfile
+from ..models.base import Law, Provider, ReviewTask, TargetGroup, Topic, UserProfile
 from ..models.services import Service, ServiceImage
 from ..utils import (
   authorized_to_edit,
@@ -273,8 +273,9 @@ class GenericCreateView(CreateView):
     # Meta-Klasse dynamisch erstellen, um fields/exclude-Konflikt zu vermeiden.
     # Django erlaubt NICHT fields='__all__' und exclude gleichzeitig in Meta.
     if used_model == UserProfile:
-      # user_id wird manuell als ChoiceField in __init__ hinzugefügt
-      _meta_attrs = {'model': used_model, 'exclude': ['user_id']}
+      # user_id wird manuell als ChoiceField in __init__ hinzugefügt;
+      # receive_email_notifications stellt der Nutzer selbst über die Einstellungsseite ein
+      _meta_attrs = {'model': used_model, 'exclude': ['user_id', 'receive_email_notifications']}
     elif is_service_model:
       # host- und status-Feld werden automatisch verwaltet → aus dem Formular ausschließen
       _meta_attrs = {
@@ -327,18 +328,6 @@ class GenericCreateView(CreateView):
           # user_id als erstes Feld anzeigen
           field_order = ['user_id'] + [f for f in self.fields if f != 'user_id']
           self.order_fields(field_order)
-
-        if 'tags' in self.fields:
-          current_field = self.fields['tags']
-          self.fields['tags'] = CreatableMultipleChoiceField(
-            model=Tag,
-            queryset=Tag.objects.all(),
-            label=current_field.label,
-            required=current_field.required,
-            widget=widgets.SelectMultiple(
-              attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
-            ),
-          )
 
         if 'target_group' in self.fields:
           current_field = self.fields['target_group']
@@ -567,6 +556,9 @@ class GenericUpdateView(UpdateView):
       }
     elif used_model is Provider:
       _meta_attrs = {'model': used_model, 'exclude': ['geometry']}
+    elif used_model is UserProfile:
+      # receive_email_notifications stellt der Nutzer selbst über die Einstellungsseite ein
+      _meta_attrs = {'model': used_model, 'exclude': ['receive_email_notifications']}
     else:
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
@@ -576,18 +568,6 @@ class GenericUpdateView(UpdateView):
 
       def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        if 'tags' in self.fields:
-          current_field = self.fields['tags']
-          self.fields['tags'] = CreatableMultipleChoiceField(
-            model=Tag,
-            queryset=Tag.objects.all(),
-            label=current_field.label,
-            required=current_field.required,
-            widget=widgets.SelectMultiple(
-              attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
-            ),
-          )
 
         if 'target_group' in self.fields:
           current_field = self.fields['target_group']

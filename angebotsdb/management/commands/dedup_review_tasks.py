@@ -101,11 +101,15 @@ def _process_groups(groups, dry_run, stdout, style):
       if perm.organisational_unit_id not in existing_org_units:
         stdout.write(f'  → Erstelle InboxMessage für OrgUnit #{perm.organisational_unit_id}')
         if not dry_run:
-          InboxMessage.objects.create(
+          # Reparatur-Backfill: keine E-Mail auslösen, die Nutzer wurden bereits
+          # über den ursprünglichen (duplizierten) Task benachrichtigt
+          msg = InboxMessage(
             message_type='review_request',
             review_task=canonical,
             target_org_unit=perm.organisational_unit,
           )
+          msg._skip_email = True
+          msg.save()
 
     # assigned_org_unit des kanonischen Tasks auf erste Berechtigung setzen
     first_perm = permissions.first()
