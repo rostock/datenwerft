@@ -68,8 +68,9 @@ dateisuffix_message = 'Es dürfen ausschließlich Kleinbuchstaben verwendet werd
 doppelleerzeichen_regex = r'^(?!.*  ).*$'
 doppelleerzeichen_message = 'Texte dürfen keine doppelten Leerzeichen enthalten.'
 email_message = (
-  'E-Mail-Adressen müssen syntaktisch korrekt sein und daher folgendes Format '
-  'aufweisen (Beispiele): abc@def.xyz oder 1cba_mno.asff@xy.a23c.zy'
+  'Die Angabe einer E-Mail-Adresse muss syntaktisch korrekt sein '
+  'und daher folgendes Format aufweisen (Beispiele): '
+  'abd@beispiel.de oder vorname.nachname@abc.org'
 )
 gravis_regex = r'^(?!.*`).*$'
 gravis_message = (
@@ -102,15 +103,15 @@ postleitzahl_message = (
 )
 rufnummer_regex = r'^\+(1 )?([0-9]{1,3}) [1-9][0-9]{1,5} [0-9]{1,13}$'
 rufnummer_message = (
-  'Die Schreibweise von Telefonnummern muss '
+  'Die Schreibweise einer Telefonnummer muss '
   'der Empfehlung E.123 der Internationalen Fernmeldeunion entsprechen '
   'und daher folgendes Format aufweisen (Beispiel): '
   '+49 381 3816256'
 )
 url_message = (
-  'Die Adressen von Websites müssen syntaktisch korrekt sein '
+  'Die Angabe einer Website muss syntaktisch korrekt sein '
   'und daher folgendes Format aufweisen (Beispiel): '
-  'http[s]://abc-123.098_zyx.xyz-567/def/abc'
+  'https://www.beispiel.de/abc'
 )
 wasserbuch_blatt_regex = r'^[0-9]+$'
 wasserbuch_blatt_message = (
