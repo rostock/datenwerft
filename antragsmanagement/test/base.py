@@ -10,7 +10,16 @@ from .constants_vars import DATABASES, PASSWORD, USERNAME
 from .functions import login
 
 
-@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+@override_settings(
+  MAILERS={
+    'default': {
+      'BACKEND': 'django.core.mail.backends.locmem.EmailBackend',
+      'OPTIONS': {
+        'host': 'localhost',
+      },
+    },
+  }
+)
 class DefaultTestCase(TestCase):
   """
   abstract test class

@@ -9,4 +9,8 @@ class AngebotsDBConfig(AppConfig):
   datenwerft_app = True
 
   def ready(self):
+    from django.db.models import fields
+
     from . import signals  # noqa: F401
+
+    fields.BLANK_CHOICE_LABEL = '----------'

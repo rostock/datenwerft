@@ -6,3 +6,8 @@ class FmmConfig(AppConfig):
   verbose_name = 'FMM'
   description = 'Flächenmanagementsystem'
   datenwerft_app = True
+
+  def ready(self):
+    from django.db.models import fields
+
+    fields.BLANK_CHOICE_LABEL = '----------'

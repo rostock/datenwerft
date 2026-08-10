@@ -6,3 +6,8 @@ class AntragsmanagementConfig(AppConfig):
   verbose_name = 'Antragsmanagement'
   description = 'System zum Management von Anträgen'
   datenwerft_app = True
+
+  def ready(self):
+    from django.db.models import fields
+
+    fields.BLANK_CHOICE_LABEL = '----------'
