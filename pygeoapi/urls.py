@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
@@ -16,17 +17,17 @@ api_urlpatterns = router.urls
 urlpatterns = [
   path(
     route='get-database-schemas',
-    view=database_schemas,
+    view=login_required(database_schemas),
     name='get_database_schemas',
   ),
   path(
     route='get-database-tables',
-    view=database_tables,
+    view=login_required(database_tables),
     name='get_database_tables',
   ),
   path(
     route='get-database-columns',
-    view=database_columns,
+    view=login_required(database_columns),
     name='get_database_columns',
   ),
 ]
