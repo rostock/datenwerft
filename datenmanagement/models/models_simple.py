@@ -1440,7 +1440,10 @@ class Denksteine(SimpleModel):
     verbose_name=' erstes Verlegejahr', min_value=2002, max_value=get_current_year()
   )
   website = CharField(
-    verbose_name='Website', max_length=255, validators=[URLValidator(message=url_message)]
+    verbose_name='Website',
+    max_length=255,
+    default='https://max-samuel-haus.de/',
+    validators=[URLValidator(message=url_message)],
   )
   geometrie = point_field
 
