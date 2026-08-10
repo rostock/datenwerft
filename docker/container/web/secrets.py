@@ -320,7 +320,14 @@ GDIHROMETADATA_GROUP_NAME = 'gdihrometadata'
 # email
 
 DEFAULT_FROM_EMAIL = 'webmaster@localhost'
-EMAIL_HOST = 'smtp'
+MAILERS = {
+  'default': {
+    'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+      'OPTIONS': {
+        'host': 'smtp',
+    },
+  },
+}
 
 
 # Datenwerft.HRO:

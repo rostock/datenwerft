@@ -100,7 +100,6 @@ def send_inbox_message_notification(message) -> None:
       message='\n'.join(body_lines),
       from_email=settings.DEFAULT_FROM_EMAIL,
       recipient_list=recipients,
-      fail_silently=False,
     )
   except Exception:
     logger.exception('E-Mail-Versand für InboxMessage #%s fehlgeschlagen', message.pk)
