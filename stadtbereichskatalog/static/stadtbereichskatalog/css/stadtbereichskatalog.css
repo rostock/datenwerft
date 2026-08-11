@@ -29,6 +29,6 @@ input::-webkit-inner-spin-button {
 }
 
 /* no spinners on numeric HTML inputs in Firefox */
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
