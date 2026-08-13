@@ -171,6 +171,7 @@ class AssetsetModelTest(DefaultModelTestCase):
       'last_update': date(2023, 2, 1),
       'name': 'initial-assetset',
       'title': 'InitialAssetset',
+      'public': False,
       'update_frequency': test_frequency,
       'legal': test_legal,
       'type': test_asset_type,
@@ -237,6 +238,7 @@ class DatasetModelTest(DefaultModelTestCase):
       'last_update': date(2023, 2, 1),
       'name': 'initial-dataset',
       'title': 'InitialDataset',
+      'public': True,
       'link': 'https://example.org/dataset/test',
       'update_frequency': test_frequency,
       'legal': test_legal,
@@ -301,6 +303,7 @@ class ServiceModelTest(DefaultModelTestCase):
     cls.attributes_values_db_initial = {
       'name': 'initial-service',
       'title': 'InitialService',
+      'public': False,
       'link': 'https://example.org/service/test',
       'legal': test_legal,
       'type': ServiceType.WMS,
@@ -404,6 +407,7 @@ class AppModelTest(DefaultModelTestCase):
     cls.attributes_values_db_initial = {
       'name': 'initial-app',
       'title': 'InitialApp',
+      'public': True,
       'link': 'https://example.org/app/test',
       'legal': test_legal,
     }

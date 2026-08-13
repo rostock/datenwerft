@@ -570,6 +570,7 @@ class AssetsetAdmin(admin.ModelAdmin):
     'modified',
     'name',
     'title',
+    'public',
     'creation',
     'last_update',
     'update_frequency',
@@ -577,6 +578,7 @@ class AssetsetAdmin(admin.ModelAdmin):
     'type',
   )
   list_filter = (
+    'public',
     'update_frequency',
     'legal',
     'type',
@@ -596,7 +598,17 @@ class AssetsetAdmin(admin.ModelAdmin):
   fieldsets = [
     (
       'Allgemeine Informationen',
-      {'fields': ['name', 'title', 'description', 'external', 'publishers', 'maintainers']},
+      {
+        'fields': [
+          'name',
+          'title',
+          'description',
+          'public',
+          'external',
+          'publishers',
+          'maintainers',
+        ]
+      },
     ),
     ('Aktualität', {'fields': ['creation', 'last_update', 'update_frequency']}),
     ('Rechtliche Informationen', {'fields': ['legal']}),
@@ -613,6 +625,7 @@ class DatasetAdmin(admin.ModelAdmin):
     'modified',
     'name',
     'title',
+    'public',
     'link',
     'creation',
     'last_update',
@@ -622,6 +635,7 @@ class DatasetAdmin(admin.ModelAdmin):
     'data_type',
   )
   list_filter = (
+    'public',
     'update_frequency',
     'legal',
     'inspire_theme',
@@ -648,6 +662,7 @@ class DatasetAdmin(admin.ModelAdmin):
           'name',
           'title',
           'description',
+          'public',
           'link',
           'external',
           'tags',
@@ -700,12 +715,14 @@ class ServiceAdmin(admin.ModelAdmin):
     'modified',
     'name',
     'title',
+    'public',
     'link',
     'legal',
     'type',
     'inspire_theme',
   )
   list_filter = (
+    'public',
     'legal',
     'type',
     'inspire_theme',
@@ -737,6 +754,7 @@ class ServiceAdmin(admin.ModelAdmin):
           'name',
           'title',
           'description',
+          'public',
           'link',
           'external',
           'tags',
@@ -822,10 +840,14 @@ class AppAdmin(admin.ModelAdmin):
     'modified',
     'name',
     'title',
+    'public',
     'link',
     'legal',
   )
-  list_filter = ('legal',)
+  list_filter = (
+    'public',
+    'legal',
+  )
   search_fields = (
     'id',
     'uuid',
@@ -855,6 +877,7 @@ class AppAdmin(admin.ModelAdmin):
           'name',
           'title',
           'description',
+          'public',
           'link',
           'external',
           'tags',
