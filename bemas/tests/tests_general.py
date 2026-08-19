@@ -1,10 +1,11 @@
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from bemas.models import Complaint, Organization, Originator, Sector, Status, TypeOfImmission
 from toolbox.models import Subsets
 
 from .base import DefaultViewTestCase
-from .constants_vars import VALID_POINT_DB
+from .constants_vars import USERNAME, VALID_POINT_DB
 
 #
 # general views

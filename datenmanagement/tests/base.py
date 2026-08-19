@@ -138,9 +138,10 @@ class DefaultModelTestCase(DefaultTestCase):
       Permission.objects.get(codename='delete_' + model._meta.model_name)
     )
     # log test user in
-    self.client.login(username=USERNAME, password=PASSWORD)
+    # (i.e. simulate the effect of the test user logging into the site
+    # sind the details of how the test user logged in aren't important here)
+    self.client.force_login(self.test_user)
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_view_test(self, model, view_name, url_params, status_code, content_type, string):
     """
     tests a view via GET
@@ -174,7 +175,6 @@ class DefaultModelTestCase(DefaultTestCase):
     else:
       self.assertIn(string, str(response.content))
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_add_update_view_test(
     self,
@@ -273,7 +273,6 @@ class DefaultModelTestCase(DefaultTestCase):
         # for example in models that only have mandatory attributes!
         self.assertGreaterEqual(model.objects.filter(**object_filter).count(), object_count)
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_delete_view_test(self, immediately, model, object_filter, status_code, content_type):
     """
@@ -317,7 +316,6 @@ class DefaultModelTestCase(DefaultTestCase):
     # no more test objects left?
     self.assertEqual(model.objects.filter(**object_filter).count(), 0)
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_assign_view_test(
     self,
     model,
@@ -485,7 +483,9 @@ class GISFiletoGeoJSONTestCase(DefaultTestCase):
     :param string: specific string that should be contained in response
     """
     # log test user in
-    self.client.login(username=USERNAME, password=PASSWORD)
+    # (i.e. simulate the effect of the test user logging into the site
+    # sind the details of how the test user logged in aren't important here)
+    self.client.force_login(self.test_user)
     # try POSTing the view
     with open(file, 'rb') as file_data:
       response = self.client.post(

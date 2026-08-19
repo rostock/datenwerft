@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from bemas.models import Codelist, LogEntry
 
-from .constants_vars import DATABASES, PASSWORD, TABLEDATA_VIEW_PARAMS, USERNAME
+from .constants_vars import DATABASES, USERNAME, TABLEDATA_VIEW_PARAMS
 from .functions import clean_object_filter, get_object, login
 
 
@@ -21,7 +21,6 @@ class DefaultTestCase(TestCase):
   def init(self):
     self.test_bemas_admin_group = Group.objects.create(name=settings.BEMAS_ADMIN_GROUP_NAME)
     self.test_bemas_user_group = Group.objects.create(name=settings.BEMAS_USERS_GROUP_NAME)
-    self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
 
 
 class DefaultModelTestCase(DefaultTestCase):
@@ -37,6 +36,7 @@ class DefaultModelTestCase(DefaultTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     if cls.create_test_object_in_classmethod:
       cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
 
@@ -99,7 +99,6 @@ class DefaultModelTestCase(DefaultTestCase):
     self.test_object.delete()
     self.assertEqual(self.model.objects.all().count(), self.count)
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_crud_view_test(
     self,
@@ -247,9 +246,9 @@ class DefaultViewTestCase(DefaultTestCase):
   """
 
   def init(self):
+    self.test_user = User.objects.create_user(username=USERNAME)
     super().init()
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_view_test(
     self, bemas_user, bemas_admin, view_name, view_args, status_code, content_type, string
   ):
