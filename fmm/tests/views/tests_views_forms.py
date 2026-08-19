@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User
+
 from fmm.models import (
   Fmf,
   PaketUmwelt,
@@ -5,6 +7,7 @@ from fmm.models import (
 
 from ..abstract import FormViewTestCase, ViewTestCase
 from ..constants_vars import (
+  USERNAME,
   VALID_POLYGON_DB_A,
   VALID_POLYGON_DB_B,
   VALID_POLYGON_VIEW_A,
@@ -179,6 +182,7 @@ class PaketUmweltCreateViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user: User = User.objects.create_user(username=USERNAME)
     test_fmf = Fmf.objects.create(
       bezeichnung=VALID_STRING_A,
       geometrie=VALID_POLYGON_DB_A,
@@ -244,6 +248,7 @@ class PaketUmweltUpdateViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user: User = User.objects.create_user(username=USERNAME)
     test_fmf_a = Fmf.objects.create(
       bezeichnung=VALID_STRING_A,
       geometrie=VALID_POLYGON_DB_A,
@@ -318,6 +323,7 @@ class PaketUmweltDeleteViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user: User = User.objects.create_user(username=USERNAME)
     test_fmf = Fmf.objects.create(
       bezeichnung=VALID_STRING_A,
       geometrie=VALID_POLYGON_DB_A,

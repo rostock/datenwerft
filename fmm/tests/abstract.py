@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from fmm.constants_vars import GROUP
 
-from .constants_vars import DATABASES, PASSWORD, USERNAME
+from .constants_vars import DATABASES, USERNAME
 from .functions import get_object, login
 
 
@@ -21,7 +21,6 @@ class DefaultTestCase(TestCase):
     permissions = Permission.objects.filter(content_type__app_label='fmm')
     for permission in permissions:
       self.test_group.permissions.add(permission)
-    self.test_user: User = User.objects.create_user(username=USERNAME, password=PASSWORD)
 
 
 class ModelTestCase(DefaultTestCase):
@@ -37,6 +36,7 @@ class ModelTestCase(DefaultTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user: User = User.objects.create_user(username=USERNAME)
     if cls.create_test_object_in_classmethod:
       cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
 
@@ -115,9 +115,9 @@ class ViewTestCase(DefaultTestCase):
   """
 
   def init(self):
+    self.test_user = User.objects.create_user(username=USERNAME)
     super().init()
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_get_test(self, assign_permissions, view_name, status_code, content_type, string):
     """
     tests a view via GET
@@ -142,7 +142,6 @@ class ViewTestCase(DefaultTestCase):
     # specific string contained in response?
     self.assertIn(string, str(response.content))
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_post_test(self, assign_permissions, view_name, form_data, status_code):
     """
@@ -172,7 +171,6 @@ class FormViewTestCase(ModelTestCase):
   def init(self):
     super().init()
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_form_get_test(
     self, assign_permissions, view_name, view_args, status_code, content_type, string
   ):
@@ -203,7 +201,6 @@ class FormViewTestCase(ModelTestCase):
     # specific string contained in response?
     self.assertIn(string, str(response.content))
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_form_post_test(
     self, assign_permissions, view_name, view_args, form_data, status_code
