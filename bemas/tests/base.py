@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from bemas.models import Codelist, LogEntry
 
-from .constants_vars import DATABASES, USERNAME, TABLEDATA_VIEW_PARAMS
+from .constants_vars import DATABASES, TABLEDATA_VIEW_PARAMS, USERNAME
 from .functions import clean_object_filter, get_object, login
 
 
