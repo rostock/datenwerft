@@ -1,9 +1,12 @@
+from django.contrib.auth.models import User
+
 from gdihrocodelists.models import (
   Codelist,
   CodelistValue,
 )
 
 from .abstract import DefaultApiTestCase
+from .constants_vars import USERNAME
 
 
 class CodelistApiTest(DefaultApiTestCase):
@@ -73,6 +76,7 @@ class CodelistValueApiTest(DefaultApiTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user: User = User.objects.create_user(username=USERNAME)
     test_codelist = Codelist.objects.create(name='test', title='TestCodelist')
     cls.attributes_values = {
       'codelist': test_codelist,
@@ -135,6 +139,7 @@ class GetByUuidTest(DefaultApiTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user: User = User.objects.create_user(username=USERNAME)
     test_codelist = Codelist.objects.create(name='test', title='TestCodelist')
     cls.attributes_values = {
       'codelist': test_codelist,
@@ -217,6 +222,7 @@ class GetCodelistValueByCodelistAndUuidTest(DefaultApiTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user: User = User.objects.create_user(username=USERNAME)
     test_codelist = Codelist.objects.create(name='test', title='TestCodelist')
     cls.attributes_values = {
       'codelist': test_codelist,
@@ -343,6 +349,7 @@ class GetCodelistValuesByCodelistTest(DefaultApiTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user: User = User.objects.create_user(username=USERNAME)
     test_codelist = Codelist.objects.create(name='test', title='TestCodelist')
     cls.attributes_values = {
       'codelist': test_codelist,

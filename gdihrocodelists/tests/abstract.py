@@ -1,10 +1,10 @@
 from django.contrib.auth.models import Group, Permission, User
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 
 from gdihrocodelists.constants_vars import GROUP
 
-from .constants_vars import DATABASES, PASSWORD, USERNAME
+from .constants_vars import DATABASES, USERNAME
 
 
 def get_object(model, object_filter):
@@ -25,7 +25,7 @@ def login(test):
 
   :param test: current test case
   """
-  test.client.login(username=USERNAME, password=PASSWORD)
+  test.client.force_login(test.test_user)
 
 
 class DefaultTestCase(TestCase):
@@ -41,7 +41,6 @@ class DefaultTestCase(TestCase):
     permissions = Permission.objects.filter(content_type__app_label='gdihrocodelists')
     for permission in permissions:
       self.test_group.permissions.add(permission)
-    self.test_user: User = User.objects.create_user(username=USERNAME, password=PASSWORD)
     # add test user to test group
     self.test_user.is_staff = True
     self.test_user.groups.add(self.test_group)
@@ -61,6 +60,7 @@ class DefaultModelTestCase(DefaultTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user: User = User.objects.create_user(username=USERNAME)
     if cls.create_test_object_in_classmethod:
       cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
 
@@ -139,9 +139,9 @@ class DefaultViewTestCase(DefaultTestCase):
   """
 
   def init(self):
+    self.test_user: User = User.objects.create_user(username=USERNAME)
     super().init()
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_view_test(self, view_name, status_code, content_type):
     """
     tests a view via GET
@@ -175,13 +175,13 @@ class DefaultApiTestCase(DefaultTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user: User = User.objects.create_user(username=USERNAME)
     if cls.create_test_object_in_classmethod:
       cls.test_object = cls.model.objects.create(**cls.attributes_values)
 
   def init(self):
     super().init()
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_api_test(self, log_in, view_name, view_args, status_code, content_type, string):
     """
     tests authorized API access via GET
