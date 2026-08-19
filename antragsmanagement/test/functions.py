@@ -6,8 +6,6 @@ from antragsmanagement.models import (
 )
 
 from .constants_vars import (
-  PASSWORD,
-  USERNAME,
   VALID_EMAIL,
   VALID_FIRST_NAME,
   VALID_LAST_NAME,
@@ -60,4 +58,4 @@ def login(
     test.test_antragsmanagement_authority_group.user_set.add(test.test_user)
   if antragsmanagement_admin:
     test.test_antragsmanagement_admin_group.user_set.add(test.test_user)
-  test.client.login(username=USERNAME, password=PASSWORD)
+  test.client.force_login(test.test_user)

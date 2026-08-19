@@ -1,6 +1,7 @@
 from datetime import timedelta
 from unittest.mock import patch
 
+from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 
 from antragsmanagement.models import (
@@ -22,6 +23,7 @@ from antragsmanagement.models import (
 
 from .base import DefaultAnonymousViewTestCase, DefaultFormViewTestCase, DefaultViewTestCase
 from .constants_vars import (
+  USERNAME,
   VALID_DATE,
   VALID_EMAIL,
   VALID_FIRST_NAME,
@@ -1527,6 +1529,7 @@ class CleanupEventRequestCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     status1 = CodelistRequestStatus.get_status_processed()
     status2 = CodelistRequestStatus.get_status_new()
     requester = Requester.objects.create(
@@ -1653,6 +1656,7 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     status1 = CodelistRequestStatus.get_status_processed()
     status2 = CodelistRequestStatus.get_status_new()
     requester = Requester.objects.create(
@@ -1792,6 +1796,7 @@ class CleanupEventRequestAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     status1 = CodelistRequestStatus.get_status_processed()
     status2 = CodelistRequestStatus.get_status_new()
     requester = Requester.objects.create(
@@ -1918,6 +1923,7 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -2049,6 +2055,7 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -2193,6 +2200,7 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -2324,6 +2332,7 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -2453,6 +2462,7 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -2595,6 +2605,7 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -2724,6 +2735,7 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
@@ -2855,6 +2867,7 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
@@ -2999,6 +3012,7 @@ class CleanupEventDetailsAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
@@ -3206,6 +3220,7 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -3339,6 +3354,7 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -3473,6 +3489,7 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -3606,6 +3623,7 @@ class CleanupEventContainerDeleteViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -3712,6 +3730,7 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -3842,6 +3861,7 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -3971,6 +3991,7 @@ class CleanupEventDumpDeleteViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -4300,6 +4321,7 @@ class CleanupEventRequestCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     status1 = CodelistRequestStatus.get_status_processed()
     status2 = CodelistRequestStatus.get_status_new()
     requester = Requester.objects.create(
@@ -4375,6 +4397,7 @@ class CleanupEventRequestUpdateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     status1 = CodelistRequestStatus.get_status_processed()
     status2 = CodelistRequestStatus.get_status_new()
     requester = Requester.objects.create(
@@ -4463,6 +4486,7 @@ class CleanupEventEventCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -4542,6 +4566,7 @@ class CleanupEventEventUpdateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -4634,6 +4659,7 @@ class CleanupEventVenueCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -4711,6 +4737,7 @@ class CleanupEventVenueUpdateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -4801,6 +4828,7 @@ class CleanupEventDetailsCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
@@ -4880,6 +4908,7 @@ class CleanupEventDetailsUpdateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
@@ -4996,6 +5025,7 @@ class CleanupEventContainerCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -5172,6 +5202,7 @@ class CleanupEventRequestCommentCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request = create_cleanupevent_request(False)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request,

@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 
 from antragsmanagement.models import (
@@ -21,6 +22,7 @@ from antragsmanagement.models import (
 
 from .base import DefaultModelTestCase
 from .constants_vars import (
+  USERNAME,
   VALID_DATE,
   VALID_EMAIL,
   VALID_FIRST_NAME,
@@ -133,6 +135,7 @@ class CleanupEventRequestTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     status1 = CodelistRequestStatus.get_status_new()
     status2 = CodelistRequestStatus.get_status_in_process()
     requester = Requester.objects.create(
@@ -170,6 +173,7 @@ class CleanupEventEventTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request = create_cleanupevent_request(False)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request,
@@ -203,6 +207,7 @@ class CleanupEventVenueTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -235,6 +240,7 @@ class CleanupEventDetailsTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
     equipment = CleanupEventCodelistEquipment.objects.first()
@@ -272,6 +278,7 @@ class CleanupEventContainerTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -306,6 +313,7 @@ class CleanupEventDumpTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
@@ -338,6 +346,7 @@ class CleanupEventRequestCommentTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cleanupevent_request = create_cleanupevent_request(False)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request,
