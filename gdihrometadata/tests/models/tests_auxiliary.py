@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+from django.contrib.auth.models import User
+
 from gdihrometadata.models import (
   Access,
   Contact,
@@ -17,6 +19,7 @@ from gdihrometadata.models import (
 )
 
 from ..abstract import DefaultModelTestCase
+from ..constants_vars import USERNAME
 
 
 class CrsSetModelTest(DefaultModelTestCase):
@@ -30,6 +33,7 @@ class CrsSetModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cls.attributes_values_db_initial = {
       'title': 'InitialCrsSet',
     }
@@ -67,6 +71,7 @@ class DataTypeModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_format = Format.objects.create(code='https://example.org/format/test', title='TestFormat')
     test_mime_type = MimeType.objects.create(
       code='https://example.org/mimetype/test', title='TestMimeType'
@@ -108,6 +113,7 @@ class LegalModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_access = Access.objects.create(code='https://example.org/access/test', title='TestAccess')
     test_license = License.objects.create(
       code='https://example.org/license/test', title='TestLicense'
@@ -150,6 +156,7 @@ class SpatialReferenceModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_political_geocoding_level = PoliticalGeocodingLevel.objects.create(
       code='https://example.org/politicalgecodinglevel/test', title='TestPoliticalGeocodingLevel'
     )
@@ -235,6 +242,7 @@ class ContactModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_organization = Organization.objects.create(
       name='test-organization', title='TestOrganization'
     )
