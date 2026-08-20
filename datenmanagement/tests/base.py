@@ -12,7 +12,6 @@ from datenmanagement.views import DataAddView, DataChangeView, DataDeleteView
 from .constants_vars import (
   DATABASES,
   INVALID_STRING,
-  PASSWORD,
   USERNAME,
   VALID_LINE_DB,
   VALID_LINE_VIEW,
@@ -28,7 +27,7 @@ class DefaultTestCase(TestCase):
   databases = DATABASES
 
   def init(self):
-    self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
+    pass
 
 
 class DefaultModelTestCase(DefaultTestCase):
@@ -45,6 +44,7 @@ class DefaultModelTestCase(DefaultTestCase):
   @classmethod
   def setUpTestData(cls):
     load_sql_schema()
+    cls.test_user = User.objects.create_user(username=USERNAME)
     if cls.create_test_object_in_classmethod:
       cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     if cls.test_object and cls.create_test_subset_in_classmethod:
@@ -468,6 +468,7 @@ class GISFiletoGeoJSONTestCase(DefaultTestCase):
   @classmethod
   def setUpTestData(cls):
     load_sql_schema()
+    cls.test_user = User.objects.create_user(username=USERNAME)
 
   def init(self):
     super().init()

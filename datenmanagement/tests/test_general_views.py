@@ -1,7 +1,14 @@
+from django.contrib.auth.models import User
 from django.urls import reverse
 
 from .base import DefaultTestCase, GISFiletoGeoJSONTestCase
-from .constants_vars import *
+from .constants_vars import (
+  INVALID_GEOJSON_FILE,
+  INVALID_GPX_FILE,
+  USERNAME,
+  VALID_GEOJSON_FILE,
+  VALID_GPX_FILE,
+)
 
 #
 # general views
@@ -14,6 +21,7 @@ class IndexViewTest(DefaultTestCase):
   """
 
   def setUp(self):
+    self.test_user = User.objects.create_user(username=USERNAME)
     self.init()
 
   def generic_view_test(self, login, status_code, string=''):
