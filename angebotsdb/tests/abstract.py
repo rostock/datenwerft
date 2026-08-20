@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from angebotsdb.constants_vars import ADMIN_GROUP, USERS_GROUP
 
-from .constant_vars import DATABASES, PASSWORD, USERNAME, USERNAME_PROVIDER, USERNAME_REVIEWER
+from .constant_vars import DATABASES, USERNAME, USERNAME_PROVIDER, USERNAME_REVIEWER
 from .functions import get_object
 
 
@@ -40,9 +40,6 @@ class DefaultTestCase(TestCase):
     permissions = Permission.objects.filter(content_type__app_label='angebotsdb')
     for perm in permissions:
       self.admin_group.permissions.add(perm)
-    self.admin_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
-    self.provider_user = User.objects.create_user(username=USERNAME_PROVIDER, password=PASSWORD)
-    self.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER, password=PASSWORD)
 
 
 class ModelTestCase(DefaultTestCase):
@@ -59,6 +56,9 @@ class ModelTestCase(DefaultTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     if cls.create_test_object_in_classmethod:
       cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
 
@@ -116,10 +116,15 @@ class ViewTestCase(DefaultTestCase):
   Abstrakte Testklasse für View-Tests.
   """
 
+  @classmethod
+  def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
+
   def init(self):
     super().init()
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_get_test(self, login_fn, view_name, view_args, status_code, content_type, string):
     """
     Testet eine View via GET.
@@ -141,7 +146,6 @@ class ViewTestCase(DefaultTestCase):
     self.assertEqual(response['content-type'].lower(), content_type)
     self.assertIn(string, response.content.decode('utf-8'))
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_post_test(self, login_fn, view_name, view_args, form_data, status_code):
     """
@@ -161,7 +165,6 @@ class ViewTestCase(DefaultTestCase):
     response = self.client.post(url, form_data)
     self.assertEqual(response.status_code, status_code)
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_ajax_delete_test(self, login_fn, view_name, view_args, expected_success):
     """
     Testet den AJAX-Lösch-Endpoint via POST mit X-Requested-With-Header.

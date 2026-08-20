@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from django.test import override_settings
+from django.contrib.auth.models import User
 from django.urls import reverse
 
 from angebotsdb.models.base import Law, Provider, Topic
@@ -8,8 +8,9 @@ from angebotsdb.models.services import ChildrenAndYouthService, FamilyService, W
 
 from ..abstract import FormViewTestCase, MockResponse, ViewTestCase
 from ..constant_vars import (
-  PASSWORD,
+  USERNAME,
   USERNAME_PROVIDER,
+  USERNAME_REVIEWER,
   VALID_DATE_A,
   VALID_GEOJSON_4326,
   VALID_POINT_DB,
@@ -76,6 +77,9 @@ class ChildrenAndYouthServiceCreateViewTest(ViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
@@ -110,14 +114,13 @@ class ChildrenAndYouthServiceCreateViewTest(ViewTestCase):
       login_as_admin, 'childrenandyouthservice_create', None, self._valid_form_data(), 200
     )
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_no_provider_profile_form_error(self, mock_get):
     """
     Nutzer in users_group ohne UserProfile → form_valid schlägt fehl → 200.
     """
     self.users_group.user_set.add(self.provider_user)
-    self.client.login(username=USERNAME_PROVIDER, password=PASSWORD)
+    self.client.force_login(self.provider_user)
     response = self.client.post(
       reverse('angebotsdb:childrenandyouthservice_create'),
       self._valid_form_data(),
@@ -139,6 +142,9 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
@@ -301,7 +307,6 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     self.assertEqual(draft.status, 'draft')
     self.assertEqual(draft.host, self.test_provider)
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_published_with_existing_draft_redirects(self, mock_get):
     """GET auf published-Service mit existierender Draft-Copy → Redirect zur Draft-URL."""
@@ -333,7 +338,6 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     expected_url = reverse('angebotsdb:childrenandyouthservice_update', kwargs={'pk': draft.pk})
     self.assertEqual(response.url, expected_url)
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_other_provider_returns_403(self, mock_get):
     """Provider darf Service eines fremden Providers nicht speichern (PermissionDenied)."""
@@ -361,6 +365,9 @@ class ChildrenAndYouthServiceDetailViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
@@ -413,6 +420,9 @@ class ChildrenAndYouthServiceDeleteViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
@@ -478,6 +488,9 @@ class FamilyServiceCreateViewTest(ViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
@@ -515,6 +528,9 @@ class FamilyServiceUpdateViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
@@ -597,6 +613,9 @@ class FamilyServiceDetailViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
@@ -644,6 +663,9 @@ class FamilyServiceDeleteViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
@@ -705,6 +727,9 @@ class WoftGServiceCreateViewTest(ViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
@@ -743,6 +768,9 @@ class WoftGServiceUpdateViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
@@ -826,6 +854,9 @@ class WoftGServiceDetailViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
@@ -874,6 +905,9 @@ class WoftGServiceDeleteViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')

@@ -5,7 +5,6 @@ from django.contrib.gis.geos import Point
 DATABASES = {'default', 'angebotsdb'}
 
 USERNAME = 'worschdsupp'
-PASSWORD = 'worschdsupp42'
 USERNAME_PROVIDER = 'provider_user'
 USERNAME_REVIEWER = 'reviewer_user'
 USERNAME_NO_ROLE = 'norole_user'

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.core import mail
 from django.urls import reverse
 
@@ -20,6 +21,8 @@ from angebotsdb.models.services import (
 
 from ..abstract import DefaultTestCase, ModelTestCase
 from ..constant_vars import (
+  USERNAME_PROVIDER,
+  USERNAME_REVIEWER,
   VALID_DATE_A,
   VALID_POINT_DB,
   VALID_STRING_A,
@@ -491,6 +494,8 @@ class InboxMessageEmailTest(DefaultTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.org_unit = OrgUnit.objects.create(name=VALID_STRING_A)
     cls.provider = Provider.objects.create(name=VALID_STRING_B, email='traeger@example.org')
     cls.review_task = ReviewTask.objects.create(

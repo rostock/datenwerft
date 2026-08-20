@@ -1,7 +1,5 @@
 from angebotsdb.models.base import UserProfile
 
-from .constant_vars import PASSWORD, USERNAME, USERNAME_PROVIDER, USERNAME_REVIEWER
-
 
 def get_object(model, object_filter):
   """
@@ -21,7 +19,7 @@ def login_as_admin(test):
   :param test: Testinstanz
   """
   test.admin_group.user_set.add(test.admin_user)
-  test.client.login(username=USERNAME, password=PASSWORD)
+  test.client.force_login(test.admin_user)
 
 
 def login_as_provider(test):
@@ -38,7 +36,7 @@ def login_as_provider(test):
     user_id=test.provider_user.id,
     provider=test.test_provider,
   )
-  test.client.login(username=USERNAME_PROVIDER, password=PASSWORD)
+  test.client.force_login(test.provider_user)
 
 
 def login_as_reviewer(test):
@@ -55,7 +53,7 @@ def login_as_reviewer(test):
     user_id=test.reviewer_user.id,
     organisational_unit=test.test_org_unit,
   )
-  test.client.login(username=USERNAME_REVIEWER, password=PASSWORD)
+  test.client.force_login(test.reviewer_user)
 
 
 def login_no_role(test):
@@ -64,4 +62,4 @@ def login_no_role(test):
 
   :param test: Testinstanz
   """
-  test.client.login(username=USERNAME_PROVIDER, password=PASSWORD)
+  test.client.force_login(test.provider_user)

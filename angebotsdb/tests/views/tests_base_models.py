@@ -1,10 +1,13 @@
-from django.test import override_settings
+from django.contrib.auth.models import User
 from django.urls import reverse
 
 from angebotsdb.models.base import Law, OrgUnit, Provider, TargetGroup, Topic, UserProfile
 
 from ..abstract import FormViewTestCase, ViewTestCase
 from ..constant_vars import (
+  USERNAME,
+  USERNAME_PROVIDER,
+  USERNAME_REVIEWER,
   VALID_GEOJSON_4326,
   VALID_POINT_DB,
   VALID_STRING_A,
@@ -272,6 +275,9 @@ class ProviderUpdateViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_object = Provider.objects.create(
       name=VALID_STRING_A,
       street='Teststraße 1',
@@ -507,7 +513,6 @@ class UserProfileFormViewTest(FormViewTestCase):
     self.init()
     self.test_object = UserProfile.objects.create(user_id=self.admin_user.id)
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_create_form_excludes_receive_email_notifications(self):
     # receive_email_notifications stellt der Nutzer selbst über die Einstellungsseite ein
     login_as_admin(self)
@@ -515,7 +520,6 @@ class UserProfileFormViewTest(FormViewTestCase):
     self.assertEqual(response.status_code, 200)
     self.assertNotIn('receive_email_notifications', response.context['form'].fields)
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_update_form_excludes_receive_email_notifications(self):
     # receive_email_notifications stellt der Nutzer selbst über die Einstellungsseite ein
     login_as_admin(self)
