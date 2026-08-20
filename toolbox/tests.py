@@ -9,7 +9,6 @@ from django.urls import reverse
 from .models import Subsets
 
 USERNAME = 'worschdsupp'
-PASSWORD = 'worschdsupp42'
 INVALID_API_KEY = 'worschdsupp'
 
 
@@ -28,7 +27,7 @@ class SubsetsTestCase(TestCase):
   PK_VALUES = '["42", "3e029807-86de-4ac0-aea3-9cd1c6db45a3", "worschdsupp23"]'
 
   def init(self):
-    self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
+    self.test_user = User.objects.create_user(username=USERNAME)
     self.content_types = list(ContentType.objects.all())
     self.random_content_type = choice(self.content_types)
     self.subset = Subsets.objects.create(
@@ -71,9 +70,8 @@ class SubsetsTest(SubsetsTestCase):
     self.subset.delete()
     self.assertEqual(Subsets.objects.all().count(), 0)
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_view_add_success(self):
-    self.client.login(username=USERNAME, password=PASSWORD)
+    self.client.force_login(self.test_user)
     # try to create object via POSTing its attributes
     response = self.client.post(
       reverse('toolbox:subset_add'),
@@ -93,9 +91,8 @@ class SubsetsTest(SubsetsTestCase):
     # ID of created object contained in response is numerical?
     self.assertIsInstance(int(response_dict['id']), int)
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_view_add_error(self):
-    self.client.login(username=USERNAME, password=PASSWORD)
+    self.client.force_login(self.test_user)
     # try to create object via POSTing its attributes
     # but forcing an error by omitting the obligatory attribute ``pk_field``
     response = self.client.post(
@@ -122,7 +119,7 @@ class OWSProxyTestCase(TestCase):
   OWS_URL_PATH_INVALID = 'https://geo.sv.rostock.de/geodienste/worschdsupp/wms'
 
   def init(self):
-    self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
+    self.test_user = User.objects.create_user(username=USERNAME)
 
 
 class OWSProxyTest(OWSProxyTestCase):
@@ -142,7 +139,7 @@ class OWSProxyTest(OWSProxyTestCase):
     :param content_type: expected content type of response
     :param string: specific string that should be contained in response
     """
-    self.client.login(username=USERNAME, password=PASSWORD)
+    self.client.force_login(self.test_user)
     # try GETting an OWS via proxy
     response = self.client.get(reverse('toolbox:owsproxy') + url_path)
     # GET successful?
@@ -153,11 +150,9 @@ class OWSProxyTest(OWSProxyTestCase):
       # specific string contained in response?
       self.assertIn(string, str(response.content))
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_ows_proxy_view_success(self):
     self.generic_view_test(self.OWS_URL_PATH_VALID, 'image/png')
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_ows_proxy_view_error(self):
     self.generic_view_test(self.OWS_URL_PATH_INVALID, 'text/html', 'nicht vorhanden')
 
@@ -173,7 +168,7 @@ class SearchesTestCase(TestCase):
   CONTAINED_STRING_ERROR = 'API key is invalid'
 
   def init(self):
-    self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
+    self.test_user = User.objects.create_user(username=USERNAME)
 
   def generic_view_test(self, url, params, string):
     """
@@ -184,7 +179,7 @@ class SearchesTestCase(TestCase):
     :param params: URL parameters
     :param string: specific string that should be contained in response
     """
-    self.client.login(username=USERNAME, password=PASSWORD)
+    self.client.force_login(self.test_user)
     # try GETting a search result
     response = self.client.get(reverse(url), params)
     # if test is run using an invalid API key
@@ -210,27 +205,23 @@ class SearchesTest(SearchesTestCase):
   def setUp(self):
     self.init()
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_address_search_view_success(self):
     self.generic_view_test(
       'toolbox:addresssearch', self.ADDRESS_SEARCH_PARAMS, self.CONTAINED_STRING_SUCCESS
     )
 
   @override_settings(ADDRESS_SEARCH_KEY=INVALID_API_KEY)
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_address_search_view_error(self):
     self.generic_view_test(
       'toolbox:addresssearch', self.ADDRESS_SEARCH_PARAMS, self.CONTAINED_STRING_ERROR
     )
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_reverse_search_view_success(self):
     self.generic_view_test(
       'toolbox:reversesearch', self.REVERSE_SEARCH_PARAMS, self.CONTAINED_STRING_SUCCESS
     )
 
   @override_settings(ADDRESS_SEARCH_KEY=INVALID_API_KEY)
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_reverse_search_view_error(self):
     self.generic_view_test(
       'toolbox:reversesearch', self.REVERSE_SEARCH_PARAMS, self.CONTAINED_STRING_ERROR

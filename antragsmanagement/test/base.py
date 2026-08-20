@@ -6,7 +6,7 @@ from antragsmanagement.constants_vars import ADMINS, AUTHORITIES, REQUESTERS
 from antragsmanagement.models import Codelist, Request, Requester
 from bemas.tests.functions import clean_object_filter, get_object
 
-from .constants_vars import DATABASES, PASSWORD, USERNAME
+from .constants_vars import DATABASES, USERNAME
 from .functions import login
 
 
@@ -31,7 +31,6 @@ class DefaultTestCase(TestCase):
     self.test_antragsmanagement_requester_group = Group.objects.create(name=REQUESTERS)
     self.test_antragsmanagement_authority_group = Group.objects.create(name=AUTHORITIES[0])
     self.test_antragsmanagement_admin_group = Group.objects.create(name=ADMINS)
-    self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
 
 
 class DefaultModelTestCase(DefaultTestCase):
@@ -47,6 +46,7 @@ class DefaultModelTestCase(DefaultTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     if cls.create_test_object_in_classmethod:
       cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
@@ -134,9 +134,9 @@ class DefaultViewTestCase(DefaultTestCase):
   """
 
   def init(self):
+    self.test_user = User.objects.create_user(username=USERNAME)
     super().init()
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_view_test(
     self,
     log_in,
@@ -227,7 +227,6 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
   def init(self):
     super().init()
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_form_view_get_test(
     self,
     log_in,
@@ -288,7 +287,6 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     if string:
       self.assertIn(string, str(response.content))
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_form_view_post_test(
     self,

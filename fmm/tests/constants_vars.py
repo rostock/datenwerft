@@ -6,7 +6,6 @@ from django.contrib.gis.geos import (
 DATABASES = {'default', 'fmm'}
 
 USERNAME = 'worschdsupp'
-PASSWORD = 'worschdsupp42'
 
 VALID_POLYGON_DB_A = Polygon(
   LinearRing(

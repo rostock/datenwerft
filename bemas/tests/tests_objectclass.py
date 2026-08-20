@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from bemas.models import (
@@ -18,6 +19,7 @@ from .base import DefaultManyToManyTestCase, DefaultModelTestCase, DefaultViewTe
 from .constants_vars import (
   INVALID_STRING,
   TABLEDATA_VIEW_PARAMS,
+  USERNAME,
   VALID_DATE,
   VALID_POINT_DB,
   VALID_POINT_VIEW,
@@ -290,6 +292,7 @@ class ContactModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     organization = Organization.objects.create(name='iJjKAb2P')
     person = Person.objects.create(last_name='9pKAIF5E')
     cls.attributes_values_db_initial = {'organization': organization, 'person': person}
@@ -415,6 +418,7 @@ class OriginatorModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     sector = Sector.objects.first()
     organization1 = Organization.objects.create(name='OqEGVai4')
     organization2 = Organization.objects.create(name='PFqzwRF9')
@@ -630,6 +634,7 @@ class ComplaintModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     status1 = Status.get_default_status()
     status2 = Status.get_closed_status()
     type_of_immission = TypeOfImmission.objects.first()
@@ -951,6 +956,7 @@ class EventModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     sector = Sector.objects.first()
     organization = Organization.objects.create(name='szWLszDf')
     originator = Originator.objects.create(

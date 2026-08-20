@@ -1,11 +1,11 @@
 from django.contrib.auth.models import Group, Permission, User
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 
 from stadtbereichskatalog.constants_vars import GROUP
 
 from ..apps import StadtbereichskatalogConfig as appConfig
-from .constants_vars import DATABASES, PASSWORD, USERNAME
+from .constants_vars import DATABASES, USERNAME
 from .functions import login
 
 
@@ -22,7 +22,6 @@ class DefaultTestCase(TestCase):
     permissions = Permission.objects.filter(content_type__app_label=appConfig.name)
     for permission in permissions:
       self.test_group.permissions.add(permission)
-    self.test_user: User = User.objects.create_user(username=USERNAME, password=PASSWORD)
 
 
 class ViewTestCase(DefaultTestCase):
@@ -31,9 +30,9 @@ class ViewTestCase(DefaultTestCase):
   """
 
   def init(self):
+    self.test_user: User = User.objects.create_user(username=USERNAME)
     super().init()
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_get_test(self, assign_permissions, view_name, status_code, content_type, string):
     """
     tests a view via GET

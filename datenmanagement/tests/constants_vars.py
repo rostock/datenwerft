@@ -22,7 +22,6 @@ TEST_VCP_API_URL = ''
 DATABASES = {'default', 'datenmanagement'}
 
 USERNAME = 'worschdsupp'
-PASSWORD = 'worschdsupp42'
 
 # definitions of valid and invalid files
 VALID_GEOJSON_FILE = TEST_DIR / 'data' / 'geojson_valid.json'

@@ -6,7 +6,6 @@ from django.utils import timezone
 DATABASES = {'default', 'antragsmanagement'}
 
 USERNAME = 'worschdsupp'
-PASSWORD = 'worschdsupp42'
 
 VALID_DATE = date.today()
 VALID_DATETIME = timezone.now()

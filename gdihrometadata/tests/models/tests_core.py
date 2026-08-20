@@ -1,5 +1,7 @@
 from datetime import date
 
+from django.contrib.auth.models import User
+
 from gdihrometadata.models.auxiliary import (
   Contact,
   DataType,
@@ -31,6 +33,7 @@ from gdihrometadata.models.enums import (
 )
 
 from ..abstract import DefaultModelTestCase
+from ..constants_vars import USERNAME
 
 
 class SourceModelTest(DefaultModelTestCase):
@@ -44,6 +47,7 @@ class SourceModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_frequency = Frequency.objects.create(
       code='https://example.org/frequency/test', title='TestFrequency'
     )
@@ -99,6 +103,7 @@ class RepositoryModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_frequency = Frequency.objects.create(
       code='https://example.org/frequency/test', title='TestFrequency'
     )
@@ -155,6 +160,7 @@ class AssetsetModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_frequency = Frequency.objects.create(
       code='https://example.org/frequency/test', title='TestFrequency'
     )
@@ -224,6 +230,7 @@ class DatasetModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_frequency = Frequency.objects.create(
       code='https://example.org/frequency/test', title='TestFrequency'
     )
@@ -289,6 +296,7 @@ class ServiceModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_access = Access.objects.create(code='https://example.org/access/test', title='TestAccess')
     test_license = License.objects.create(
       code='https://example.org/license/test', title='TestLicense'
@@ -357,6 +365,7 @@ class TopicModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     cls.attributes_values_db_initial = {
       'name': 'initial-topic',
       'title': 'InitialTopic',
@@ -399,6 +408,7 @@ class AppModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_access = Access.objects.create(code='https://example.org/access/test', title='TestAccess')
     test_license = License.objects.create(
       code='https://example.org/license/test', title='TestLicense'
