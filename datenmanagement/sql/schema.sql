@@ -2,9 +2,6 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.8
--- Dumped by pg_dump version 17.8
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -116,7 +113,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -3721,7 +3718,8 @@ CREATE TABLE fachdaten_adressbezug.erdwaermesonden_hro (
     hinweis character varying(255),
     geometrie public.geometry(Point,25833) NOT NULL,
     d3_link character varying(255),
-    bohrprofil boolean
+    bohrprofil boolean,
+    bohrprofil_link character varying(255)
 );
 
 
