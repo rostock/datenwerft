@@ -142,9 +142,9 @@ class ServiceImage(Base):
     return f'Bild #{self.pk} für {self.service_type} #{self.service_id}'
 
 
-class ChildrenAndYouthService(Service):
+class ChildrenYouthAndFamilyService(Service):
   """
-  Angebot für Kinder und Jugendliche
+  Angebot für Kinder, Jugendliche und Familien
   """
 
   # Logic Attributes
@@ -176,42 +176,8 @@ class ChildrenAndYouthService(Service):
   )
 
   class Meta:
-    verbose_name = 'Angebot für Kinder und Jugendliche'
-    verbose_name_plural = 'Angebote für Kinder und Jugendliche'
-
-
-class FamilyService(Service):
-  """
-  Angebot für Familien
-  """
-
-  # Logic Attributes
-  icon = 'fa-solid fa-hand-holding-heart'
-  dashboard_mode = 'tile'
-  dashboard_color = 'primary'
-  dashboard_admin_only = False
-  PYGEOAPI_FIELDS = {
-    'catchment_area_urls': 'gemeindeteile_rostock',
-  }
-
-  # Database Fields
-  setting = TextField(verbose_name='Beratungssetting')
-  application_needed = BooleanField(verbose_name='Antrag erforderlich?')
-  phone = CharField(max_length=255, verbose_name='Telefonnummer')
-  costs = FloatField(verbose_name='Kosten in Euro')
-  catchment_area_urls = JSONField(
-    verbose_name='Einzugsgebiet',
-    default=list,
-    blank=True,
-    help_text=(
-      'Liste von PyGeoAPI-Endpunkt-URIs. Für jeden Stadtteil im Einzugsgebiet '
-      'wird die entsprechende Endpunkt-URI gespeichert.'
-    ),
-  )
-
-  class Meta:
-    verbose_name = 'Angebot für Familien'
-    verbose_name_plural = 'Angebote für Familien'
+    verbose_name = 'Angebot für Kinder, Jugendliche und Familien'
+    verbose_name_plural = 'Angebote für Kinder, Jugendliche und Familien'
 
 
 class WoftGService(Service):

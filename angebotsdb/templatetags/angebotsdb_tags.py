@@ -91,7 +91,8 @@ def get_attribute(obj, attr):
   Für CharField-Felder mit choices wird automatisch get_FOO_display() verwendet,
   damit der lesbare Anzeigename statt des rohen DB-Wertes zurückgegeben wird.
   Hintergrund: z.B. OrgUnitServicePermission.service_type speichert den lowercase
-  Model-Namen ('childrenandyouthservice'), soll aber den verbose_name_plural anzeigen.
+  Model-Namen ('childrenyouthandfamilyservice'), soll aber den verbose_name_plural
+  anzeigen.
   Django's get_FOO_display() löst das generisch für alle Choice-Felder auf.
   """
   try:

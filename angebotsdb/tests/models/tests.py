@@ -14,8 +14,7 @@ from angebotsdb.models.base import (
   UserProfile,
 )
 from angebotsdb.models.services import (
-  ChildrenAndYouthService,
-  FamilyService,
+  ChildrenYouthAndFamilyService,
   WoftGService,
 )
 
@@ -178,9 +177,9 @@ class OrgUnitServicePermissionModelTest(ModelTestCase):
     org_unit = OrgUnit.objects.create(name=VALID_STRING_A)
     cls.test_object = cls.model.objects.create(
       organisational_unit=org_unit,
-      service_type='childrenandyouthservice',
+      service_type='childrenyouthandfamilyservice',
     )
-    cls.attributes_values_db_updated = {'service_type': 'familyservice'}
+    cls.attributes_values_db_updated = {'service_type': 'woftgservice'}
 
   def setUp(self):
     self.init()
@@ -190,10 +189,10 @@ class OrgUnitServicePermissionModelTest(ModelTestCase):
     self.assertEqual(self.model.objects.count(), 1)
 
   def test_update(self):
-    self.test_object.service_type = 'familyservice'
+    self.test_object.service_type = 'woftgservice'
     self.test_object.save()
     self.test_object.refresh_from_db()
-    self.assertEqual(self.test_object.service_type, 'familyservice')
+    self.assertEqual(self.test_object.service_type, 'woftgservice')
 
   def test_delete(self):
     self.test_object.delete()
@@ -244,12 +243,12 @@ class UserProfileModelTest(ModelTestCase):
 # ---------------------------------------------------------------------------
 
 
-class ChildrenAndYouthServiceModelTest(ModelTestCase):
+class ChildrenYouthAndFamilyServiceModelTest(ModelTestCase):
   """
-  Testklasse für das Modell ChildrenAndYouthService.
+  Testklasse für das Modell ChildrenYouthAndFamilyService.
   """
 
-  model = ChildrenAndYouthService
+  model = ChildrenYouthAndFamilyService
   create_test_object_in_classmethod = False
 
   @classmethod
@@ -257,7 +256,7 @@ class ChildrenAndYouthServiceModelTest(ModelTestCase):
     provider = Provider.objects.create(name=VALID_STRING_A)
     topic = Topic.objects.create(name=VALID_STRING_A)
     law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
-    cls.test_object = ChildrenAndYouthService.objects.create(
+    cls.test_object = ChildrenYouthAndFamilyService.objects.create(
       name=VALID_STRING_A,
       description='Testbeschreibung',
       street='Teststraße 1',
@@ -269,56 +268,6 @@ class ChildrenAndYouthServiceModelTest(ModelTestCase):
       application_needed=False,
       phone='0381 123456',
       costs=0.0,
-      geometry=VALID_POINT_DB,
-    )
-    cls.test_object.topic.set([topic])
-    cls.test_object.legal_basis.set([law])
-    cls.attributes_values_db_updated = {'name': VALID_STRING_B}
-
-  def setUp(self):
-    self.init()
-
-  def test_create(self):
-    self.assertIsNotNone(self.test_object.pk)
-    self.assertEqual(self.model.objects.count(), 1)
-
-  def test_update(self):
-    self.generic_update_test()
-
-  def test_delete(self):
-    self.test_object.delete()
-    self.assertEqual(self.model.objects.count(), 0)
-
-  def test_string_representation(self):
-    self.generic_string_representation_test(VALID_STRING_A)
-
-
-class FamilyServiceModelTest(ModelTestCase):
-  """
-  Testklasse für das Modell FamilyService.
-  """
-
-  model = FamilyService
-  create_test_object_in_classmethod = False
-
-  @classmethod
-  def setUpTestData(cls):
-    provider = Provider.objects.create(name=VALID_STRING_A)
-    topic = Topic.objects.create(name=VALID_STRING_A)
-    law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
-    cls.test_object = FamilyService.objects.create(
-      name=VALID_STRING_A,
-      description='Testbeschreibung',
-      street='Teststraße 1',
-      zip=VALID_ZIP,
-      city='Rostock',
-      email='test@test.de',
-      host=provider,
-      expiry_date=VALID_DATE_A,
-      application_needed=False,
-      phone='0381 123456',
-      costs=0.0,
-      setting='Gruppenberatung',
       geometry=VALID_POINT_DB,
     )
     cls.test_object.topic.set([topic])
@@ -411,7 +360,7 @@ class ReviewTaskModelTest(ModelTestCase):
   def setUpTestData(cls):
     org_unit = OrgUnit.objects.create(name=VALID_STRING_A)
     cls.test_object = ReviewTask.objects.create(
-      service_type='childrenandyouthservice',
+      service_type='childrenyouthandfamilyservice',
       service_id=1,
       assigned_org_unit=org_unit,
       created_by_user_id=999,
@@ -437,7 +386,7 @@ class ReviewTaskModelTest(ModelTestCase):
     self.assertEqual(self.model.objects.count(), 0)
 
   def test_string_representation(self):
-    self.assertIn('childrenandyouthservice', str(self.test_object))
+    self.assertIn('childrenyouthandfamilyservice', str(self.test_object))
     self.assertIn(str(self.test_object.pk), str(self.test_object))
 
 
@@ -453,7 +402,7 @@ class InboxMessageModelTest(ModelTestCase):
   def setUpTestData(cls):
     org_unit = OrgUnit.objects.create(name=VALID_STRING_A)
     review_task = ReviewTask.objects.create(
-      service_type='childrenandyouthservice',
+      service_type='childrenyouthandfamilyservice',
       service_id=1,
       assigned_org_unit=org_unit,
       created_by_user_id=999,
@@ -499,7 +448,7 @@ class InboxMessageEmailTest(DefaultTestCase):
     cls.org_unit = OrgUnit.objects.create(name=VALID_STRING_A)
     cls.provider = Provider.objects.create(name=VALID_STRING_B, email='traeger@example.org')
     cls.review_task = ReviewTask.objects.create(
-      service_type='childrenandyouthservice',
+      service_type='childrenyouthandfamilyservice',
       service_id=1,
       assigned_org_unit=cls.org_unit,
       created_by_user_id=999,
@@ -538,7 +487,7 @@ class InboxMessageEmailTest(DefaultTestCase):
     self.assertEqual(mail.outbox[0].to, ['reviewer@example.org'])
     self.assertIn('Prüfauftrag', mail.outbox[0].subject)
     # kein Service mit ID 1 vorhanden → Fallback aus service_type und service_id
-    self.assertIn('childrenandyouthservice (ID 1)', mail.outbox[0].subject)
+    self.assertIn('childrenyouthandfamilyservice (ID 1)', mail.outbox[0].subject)
 
   def test_revision_request_sends_mail_to_provider_users_only(self):
     UserProfile.objects.create(

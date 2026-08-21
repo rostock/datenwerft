@@ -9,7 +9,7 @@ from angebotsdb.models.base import (
   ReviewTask,
   Topic,
 )
-from angebotsdb.models.services import ChildrenAndYouthService
+from angebotsdb.models.services import ChildrenYouthAndFamilyService
 
 from ..abstract import FormViewTestCase
 from ..constant_vars import (
@@ -28,15 +28,15 @@ HTML = 'text/html; charset=utf-8'
 
 def _create_service_with_deps(provider, topic, law, status='draft'):
   """
-  Erstellt einen ChildrenAndYouthService mit allen Pflichtfeldern.
+  Erstellt einen ChildrenYouthAndFamilyService mit allen Pflichtfeldern.
 
   :param provider: Provider-Instanz
   :param topic: Topic-Instanz
   :param law: Law-Instanz
   :param status: Initialstatus des Service
-  :return: ChildrenAndYouthService-Instanz
+  :return: ChildrenYouthAndFamilyService-Instanz
   """
-  service = ChildrenAndYouthService.objects.create(
+  service = ChildrenYouthAndFamilyService.objects.create(
     name=VALID_STRING_A,
     description='Testbeschreibung',
     street='Teststraße 1',
@@ -66,7 +66,7 @@ class SubmitForReviewViewTest(FormViewTestCase):
   Testklasse für SubmitForReviewView (POST only).
   """
 
-  model = ChildrenAndYouthService
+  model = ChildrenYouthAndFamilyService
   create_test_object_in_classmethod = False
 
   @classmethod
@@ -80,7 +80,7 @@ class SubmitForReviewViewTest(FormViewTestCase):
     law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
     OrgUnitServicePermission.objects.create(
       organisational_unit=cls.test_org_unit,
-      service_type='childrenandyouthservice',
+      service_type='childrenyouthandfamilyservice',
     )
     cls.test_object = _create_service_with_deps(cls.test_provider, topic, law, status='draft')
 
@@ -89,7 +89,7 @@ class SubmitForReviewViewTest(FormViewTestCase):
 
   def _view_args(self):
     return {
-      'service_type': 'childrenandyouthservice',
+      'service_type': 'childrenyouthandfamilyservice',
       'service_id': self.test_object.pk,
     }
 
@@ -100,7 +100,7 @@ class SubmitForReviewViewTest(FormViewTestCase):
     self.assertEqual(self.test_object.status, 'in_review')
     self.assertEqual(
       ReviewTask.objects.filter(
-        service_type='childrenandyouthservice',
+        service_type='childrenyouthandfamilyservice',
         service_id=self.test_object.pk,
         task_status='pending',
       ).count(),
@@ -143,7 +143,7 @@ class ReviewServiceViewTest(FormViewTestCase):
   Testklasse für ReviewServiceView (GET + POST).
   """
 
-  model = ChildrenAndYouthService
+  model = ChildrenYouthAndFamilyService
   create_test_object_in_classmethod = False
 
   @classmethod
@@ -157,11 +157,11 @@ class ReviewServiceViewTest(FormViewTestCase):
     law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
     OrgUnitServicePermission.objects.create(
       organisational_unit=cls.test_org_unit,
-      service_type='childrenandyouthservice',
+      service_type='childrenyouthandfamilyservice',
     )
     cls.test_object = _create_service_with_deps(cls.test_provider, topic, law, status='in_review')
     cls.test_review_task = ReviewTask.objects.create(
-      service_type='childrenandyouthservice',
+      service_type='childrenyouthandfamilyservice',
       service_id=cls.test_object.pk,
       assigned_org_unit=cls.test_org_unit,
       created_by_user_id=999,

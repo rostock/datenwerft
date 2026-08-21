@@ -24,7 +24,7 @@ def get_service_type_choices():
   returns them as a choices list.
 
   :return: list of tuples (lowercase_model_name, verbose_name_plural),
-  e.g. [('childrenandyouthservice', 'Angebote für Kinder und Jugendliche'), ...]
+  e.g. [('childrenyouthandfamilyservice', 'Angebote für Kinder, Jugendliche und Familien'), ...]
   """
   # avoid circular imports
   from .services import Service
