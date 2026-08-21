@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from angebotsdb.models.base import Law, Provider, Topic
-from angebotsdb.models.services import ChildrenAndYouthService, FamilyService, WoftGService
+from angebotsdb.models.services import ChildrenYouthAndFamilyService, WoftGService
 
 from ..abstract import FormViewTestCase, MockResponse, ViewTestCase
 from ..constant_vars import (
@@ -52,13 +52,13 @@ def _base_service_form_data(topic_pk, law_pk):
 
 
 # ---------------------------------------------------------------------------
-# ChildrenAndYouthService
+# ChildrenYouthAndFamilyService
 # ---------------------------------------------------------------------------
 
 
-class ChildrenAndYouthServiceListViewTest(ViewTestCase):
+class ChildrenYouthAndFamilyServiceListViewTest(ViewTestCase):
   """
-  Testklasse für die Listen-Ansicht von ChildrenAndYouthService.
+  Testklasse für die Listen-Ansicht von ChildrenYouthAndFamilyService.
   """
 
   def setUp(self):
@@ -66,13 +66,13 @@ class ChildrenAndYouthServiceListViewTest(ViewTestCase):
 
   def test_get_as_admin(self):
     self.generic_get_test(
-      login_as_admin, 'childrenandyouthservice_list', None, 200, HTML, 'Kinder'
+      login_as_admin, 'childrenyouthandfamilyservice_list', None, 200, HTML, 'Kinder'
     )
 
 
-class ChildrenAndYouthServiceCreateViewTest(ViewTestCase):
+class ChildrenYouthAndFamilyServiceCreateViewTest(ViewTestCase):
   """
-  Testklasse für die Erstell-Ansicht von ChildrenAndYouthService.
+  Testklasse für die Erstell-Ansicht von ChildrenYouthAndFamilyService.
   """
 
   @classmethod
@@ -93,17 +93,19 @@ class ChildrenAndYouthServiceCreateViewTest(ViewTestCase):
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_as_provider_200(self, mock_get):
     self.generic_get_test(
-      login_as_provider, 'childrenandyouthservice_create', None, 200, HTML, 'Angebot'
+      login_as_provider, 'childrenyouthandfamilyservice_create', None, 200, HTML, 'Angebot'
     )
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
-    self.generic_get_test(login_no_role, 'childrenandyouthservice_create', None, 403, HTML, '')
+    self.generic_get_test(
+      login_no_role, 'childrenyouthandfamilyservice_create', None, 403, HTML, ''
+    )
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_success_as_provider(self, mock_get):
     self.generic_post_test(
-      login_as_provider, 'childrenandyouthservice_create', None, self._valid_form_data(), 302
+      login_as_provider, 'childrenyouthandfamilyservice_create', None, self._valid_form_data(), 302
     )
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
@@ -111,7 +113,7 @@ class ChildrenAndYouthServiceCreateViewTest(ViewTestCase):
     # Admin hat kein UserProfile.provider → form_valid schlägt fehl → 200
     # Admins können Services nicht direkt anlegen (kein Träger)
     self.generic_post_test(
-      login_as_admin, 'childrenandyouthservice_create', None, self._valid_form_data(), 200
+      login_as_admin, 'childrenyouthandfamilyservice_create', None, self._valid_form_data(), 200
     )
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
@@ -122,22 +124,24 @@ class ChildrenAndYouthServiceCreateViewTest(ViewTestCase):
     self.users_group.user_set.add(self.provider_user)
     self.client.force_login(self.provider_user)
     response = self.client.post(
-      reverse('angebotsdb:childrenandyouthservice_create'),
+      reverse('angebotsdb:childrenyouthandfamilyservice_create'),
       self._valid_form_data(),
     )
     self.assertEqual(response.status_code, 200)
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_error_missing_fields(self, mock_get):
-    self.generic_post_test(login_as_provider, 'childrenandyouthservice_create', None, {}, 200)
+    self.generic_post_test(
+      login_as_provider, 'childrenyouthandfamilyservice_create', None, {}, 200
+    )
 
 
-class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
+class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
   """
-  Testklasse für die Bearbeitungs-Ansicht von ChildrenAndYouthService.
+  Testklasse für die Bearbeitungs-Ansicht von ChildrenYouthAndFamilyService.
   """
 
-  model = ChildrenAndYouthService
+  model = ChildrenYouthAndFamilyService
   create_test_object_in_classmethod = False
 
   @classmethod
@@ -148,7 +152,7 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
-    service = ChildrenAndYouthService.objects.create(
+    service = ChildrenYouthAndFamilyService.objects.create(
       name=VALID_STRING_A,
       description='Testbeschreibung',
       street='Teststraße 1',
@@ -180,7 +184,7 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     """Provider-Nutzer als Besitzer des Service → Formular wird angezeigt."""
     self.generic_get_test(
       login_as_provider,
-      'childrenandyouthservice_update',
+      'childrenyouthandfamilyservice_update',
       {'pk': self.test_object.pk},
       200,
       HTML,
@@ -190,7 +194,12 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
     self.generic_get_test(
-      login_no_role, 'childrenandyouthservice_update', {'pk': self.test_object.pk}, 403, HTML, ''
+      login_no_role,
+      'childrenyouthandfamilyservice_update',
+      {'pk': self.test_object.pk},
+      403,
+      HTML,
+      '',
     )
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
@@ -199,7 +208,12 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     self.test_object.status = 'in_review'
     self.test_object.save(update_fields=['status'])
     self.generic_get_test(
-      login_as_admin, 'childrenandyouthservice_update', {'pk': self.test_object.pk}, 200, HTML, ''
+      login_as_admin,
+      'childrenyouthandfamilyservice_update',
+      {'pk': self.test_object.pk},
+      200,
+      HTML,
+      '',
     )
     # Status zurücksetzen für nachfolgende Tests
     self.test_object.status = 'draft'
@@ -210,7 +224,7 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     """POST mit gültigen Daten auf draft-Service: Redirect 302 + DB-Werte aktualisiert."""
     self.generic_post_test(
       login_as_provider,
-      'childrenandyouthservice_update',
+      'childrenyouthandfamilyservice_update',
       {'pk': self.test_object.pk},
       self._valid_form_data(),
       302,
@@ -222,7 +236,11 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_error_missing_required_fields(self, mock_get):
     self.generic_post_test(
-      login_as_provider, 'childrenandyouthservice_update', {'pk': self.test_object.pk}, {}, 200
+      login_as_provider,
+      'childrenyouthandfamilyservice_update',
+      {'pk': self.test_object.pk},
+      {},
+      200,
     )
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
@@ -232,7 +250,7 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     self.test_object.save(update_fields=['status'])
     self.generic_get_test(
       login_as_provider,
-      'childrenandyouthservice_update',
+      'childrenyouthandfamilyservice_update',
       {'pk': self.test_object.pk},
       200,
       HTML,
@@ -253,7 +271,7 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
 
     self.generic_post_test(
       login_as_provider,
-      'childrenandyouthservice_update',
+      'childrenyouthandfamilyservice_update',
       {'pk': self.test_object.pk},
       self._valid_form_data(),
       302,
@@ -271,7 +289,7 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     self.test_object.save(update_fields=['status'])
     self.generic_post_test(
       login_as_provider,
-      'childrenandyouthservice_update',
+      'childrenyouthandfamilyservice_update',
       {'pk': self.test_object.pk},
       self._valid_form_data(),
       403,
@@ -288,7 +306,7 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
 
     self.generic_post_test(
       login_as_provider,
-      'childrenandyouthservice_update',
+      'childrenyouthandfamilyservice_update',
       {'pk': self.test_object.pk},
       self._valid_form_data(),
       302,
@@ -300,7 +318,7 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     self.assertEqual(self.test_object.status, 'published')
 
     # Genau eine Draft-Copy mit den neuen Daten existiert
-    drafts = ChildrenAndYouthService.objects.filter(published_version=self.test_object)
+    drafts = ChildrenYouthAndFamilyService.objects.filter(published_version=self.test_object)
     self.assertEqual(drafts.count(), 1)
     draft = drafts.first()
     self.assertEqual(draft.name, VALID_STRING_B)
@@ -312,7 +330,7 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     """GET auf published-Service mit existierender Draft-Copy → Redirect zur Draft-URL."""
     self.test_object.status = 'published'
     self.test_object.save(update_fields=['status'])
-    draft = ChildrenAndYouthService.objects.create(
+    draft = ChildrenYouthAndFamilyService.objects.create(
       name='Draft-Kopie',
       description='Testbeschreibung',
       street='Teststraße 1',
@@ -332,10 +350,14 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     draft.legal_basis.set([self.test_law])
 
     login_as_provider(self)
-    url = reverse('angebotsdb:childrenandyouthservice_update', kwargs={'pk': self.test_object.pk})
+    url = reverse(
+      'angebotsdb:childrenyouthandfamilyservice_update', kwargs={'pk': self.test_object.pk}
+    )
     response = self.client.get(url)
     self.assertEqual(response.status_code, 302)
-    expected_url = reverse('angebotsdb:childrenandyouthservice_update', kwargs={'pk': draft.pk})
+    expected_url = reverse(
+      'angebotsdb:childrenyouthandfamilyservice_update', kwargs={'pk': draft.pk}
+    )
     self.assertEqual(response.url, expected_url)
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
@@ -346,7 +368,9 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     self.test_object.save(update_fields=['host'])
 
     login_as_provider(self)
-    url = reverse('angebotsdb:childrenandyouthservice_update', kwargs={'pk': self.test_object.pk})
+    url = reverse(
+      'angebotsdb:childrenyouthandfamilyservice_update', kwargs={'pk': self.test_object.pk}
+    )
     response = self.client.post(url, self._valid_form_data())
     self.assertEqual(response.status_code, 403)
 
@@ -355,12 +379,12 @@ class ChildrenAndYouthServiceUpdateViewTest(FormViewTestCase):
     self.assertEqual(self.test_object.name, VALID_STRING_A)
 
 
-class ChildrenAndYouthServiceDetailViewTest(FormViewTestCase):
+class ChildrenYouthAndFamilyServiceDetailViewTest(FormViewTestCase):
   """
-  Testklasse für die Detailansicht (readonly) von ChildrenAndYouthService.
+  Testklasse für die Detailansicht (readonly) von ChildrenYouthAndFamilyService.
   """
 
-  model = ChildrenAndYouthService
+  model = ChildrenYouthAndFamilyService
   create_test_object_in_classmethod = False
 
   @classmethod
@@ -371,7 +395,7 @@ class ChildrenAndYouthServiceDetailViewTest(FormViewTestCase):
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
-    service = ChildrenAndYouthService.objects.create(
+    service = ChildrenYouthAndFamilyService.objects.create(
       name=VALID_STRING_A,
       description='Testbeschreibung',
       street='Teststraße 1',
@@ -396,7 +420,7 @@ class ChildrenAndYouthServiceDetailViewTest(FormViewTestCase):
   def test_get_as_admin(self, mock_get):
     self.generic_get_test(
       login_as_admin,
-      'childrenandyouthservice_detail',
+      'childrenyouthandfamilyservice_detail',
       {'pk': self.test_object.pk},
       200,
       HTML,
@@ -406,16 +430,21 @@ class ChildrenAndYouthServiceDetailViewTest(FormViewTestCase):
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
     self.generic_get_test(
-      login_no_role, 'childrenandyouthservice_detail', {'pk': self.test_object.pk}, 403, HTML, ''
+      login_no_role,
+      'childrenyouthandfamilyservice_detail',
+      {'pk': self.test_object.pk},
+      403,
+      HTML,
+      '',
     )
 
 
-class ChildrenAndYouthServiceDeleteViewTest(FormViewTestCase):
+class ChildrenYouthAndFamilyServiceDeleteViewTest(FormViewTestCase):
   """
-  Testklasse für die Lösch-Ansicht von ChildrenAndYouthService.
+  Testklasse für die Lösch-Ansicht von ChildrenYouthAndFamilyService.
   """
 
-  model = ChildrenAndYouthService
+  model = ChildrenYouthAndFamilyService
   create_test_object_in_classmethod = False
 
   @classmethod
@@ -426,7 +455,7 @@ class ChildrenAndYouthServiceDeleteViewTest(FormViewTestCase):
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
-    service = ChildrenAndYouthService.objects.create(
+    service = ChildrenYouthAndFamilyService.objects.create(
       name=VALID_STRING_A,
       description='Testbeschreibung',
       street='Teststraße 1',
@@ -450,256 +479,26 @@ class ChildrenAndYouthServiceDeleteViewTest(FormViewTestCase):
 
   def test_get_no_role_403(self):
     self.generic_get_test(
-      login_no_role, 'childrenandyouthservice_delete', {'pk': self.test_object.pk}, 403, HTML, ''
+      login_no_role,
+      'childrenyouthandfamilyservice_delete',
+      {'pk': self.test_object.pk},
+      403,
+      HTML,
+      '',
     )
 
   def test_post_ajax_delete_as_provider(self):
     self.generic_ajax_delete_test(
-      login_as_provider, 'childrenandyouthservice_delete', {'pk': self.test_object.pk}, True
+      login_as_provider, 'childrenyouthandfamilyservice_delete', {'pk': self.test_object.pk}, True
     )
 
   def test_post_delete_as_provider(self):
     self.generic_post_test(
-      login_as_provider, 'childrenandyouthservice_delete', {'pk': self.test_object.pk}, {}, 302
-    )
-
-
-# ---------------------------------------------------------------------------
-# FamilyService
-# ---------------------------------------------------------------------------
-
-
-class FamilyServiceListViewTest(ViewTestCase):
-  """
-  Testklasse für die Listen-Ansicht von FamilyService.
-  """
-
-  def setUp(self):
-    self.init()
-
-  def test_get_as_admin(self):
-    self.generic_get_test(login_as_admin, 'familyservice_list', None, 200, HTML, 'Familie')
-
-
-class FamilyServiceCreateViewTest(ViewTestCase):
-  """
-  Testklasse für die Erstell-Ansicht von FamilyService.
-  """
-
-  @classmethod
-  def setUpTestData(cls):
-    cls.admin_user = User.objects.create_user(username=USERNAME)
-    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
-    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
-    cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
-    cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
-    cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
-
-  def setUp(self):
-    self.init()
-
-  def _valid_form_data(self):
-    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk)
-    data['setting'] = 'Gruppenberatung'
-    return data
-
-  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
-  def test_get_as_provider_200(self, mock_get):
-    self.generic_get_test(login_as_provider, 'familyservice_create', None, 200, HTML, 'Angebot')
-
-  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
-  def test_get_no_role_403(self, mock_get):
-    self.generic_get_test(login_no_role, 'familyservice_create', None, 403, HTML, '')
-
-  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
-  def test_post_success_as_provider(self, mock_get):
-    self.generic_post_test(
-      login_as_provider, 'familyservice_create', None, self._valid_form_data(), 302
-    )
-
-
-class FamilyServiceUpdateViewTest(FormViewTestCase):
-  """
-  Testklasse für die Bearbeitungs-Ansicht von FamilyService.
-  """
-
-  model = FamilyService
-  create_test_object_in_classmethod = False
-
-  @classmethod
-  def setUpTestData(cls):
-    cls.admin_user = User.objects.create_user(username=USERNAME)
-    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
-    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
-    cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
-    cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
-    cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
-    service = FamilyService.objects.create(
-      name=VALID_STRING_A,
-      description='Testbeschreibung',
-      street='Teststraße 1',
-      zip=VALID_ZIP,
-      city='Rostock',
-      email='test@test.de',
-      host=cls.test_provider,
-      expiry_date=VALID_DATE_A,
-      application_needed=False,
-      phone='0381 123456',
-      costs=0.0,
-      setting='Gruppenberatung',
-      geometry=VALID_POINT_DB,
-      status='draft',
-    )
-    service.topic.set([cls.test_topic])
-    service.legal_basis.set([cls.test_law])
-    cls.test_object = service
-
-  def setUp(self):
-    self.init()
-
-  def _valid_form_data(self):
-    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk)
-    data['name'] = VALID_STRING_B
-    data['setting'] = 'Gruppenberatung'
-    return data
-
-  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
-  def test_get_as_provider_200(self, mock_get):
-    self.generic_get_test(
       login_as_provider,
-      'familyservice_update',
+      'childrenyouthandfamilyservice_delete',
       {'pk': self.test_object.pk},
-      200,
-      HTML,
-      VALID_STRING_A,
-    )
-
-  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
-  def test_post_success_as_provider(self, mock_get):
-    self.generic_post_test(
-      login_as_provider,
-      'familyservice_update',
-      {'pk': self.test_object.pk},
-      self._valid_form_data(),
+      {},
       302,
-    )
-    self.test_object.refresh_from_db()
-    self.assertEqual(self.test_object.name, VALID_STRING_B)
-
-  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
-  def test_post_revision_needed_saves_changes(self, mock_get):
-    """Regressionstest: revision_needed-Save aktualisiert die DB."""
-    self.test_object.status = 'revision_needed'
-    self.test_object.save()
-    self.generic_post_test(
-      login_as_provider,
-      'familyservice_update',
-      {'pk': self.test_object.pk},
-      self._valid_form_data(),
-      302,
-    )
-    self.test_object.refresh_from_db()
-    self.assertEqual(self.test_object.name, VALID_STRING_B)
-    self.assertEqual(self.test_object.status, 'revision_needed')
-
-
-class FamilyServiceDetailViewTest(FormViewTestCase):
-  """
-  Testklasse für die Detailansicht (readonly) von FamilyService.
-  """
-
-  model = FamilyService
-  create_test_object_in_classmethod = False
-
-  @classmethod
-  def setUpTestData(cls):
-    cls.admin_user = User.objects.create_user(username=USERNAME)
-    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
-    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
-    cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
-    cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
-    cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
-    service = FamilyService.objects.create(
-      name=VALID_STRING_A,
-      description='Testbeschreibung',
-      street='Teststraße 1',
-      zip=VALID_ZIP,
-      city='Rostock',
-      email='test@test.de',
-      host=cls.test_provider,
-      expiry_date=VALID_DATE_A,
-      application_needed=False,
-      phone='0381 123456',
-      costs=0.0,
-      setting='Gruppenberatung',
-      geometry=VALID_POINT_DB,
-    )
-    service.topic.set([cls.test_topic])
-    service.legal_basis.set([cls.test_law])
-    cls.test_object = service
-
-  def setUp(self):
-    self.init()
-
-  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
-  def test_get_as_admin(self, mock_get):
-    self.generic_get_test(
-      login_as_admin,
-      'familyservice_detail',
-      {'pk': self.test_object.pk},
-      200,
-      HTML,
-      VALID_STRING_A,
-    )
-
-
-class FamilyServiceDeleteViewTest(FormViewTestCase):
-  """
-  Testklasse für die Lösch-Ansicht von FamilyService.
-  """
-
-  model = FamilyService
-  create_test_object_in_classmethod = False
-
-  @classmethod
-  def setUpTestData(cls):
-    cls.admin_user = User.objects.create_user(username=USERNAME)
-    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
-    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
-    cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
-    cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
-    cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
-    service = FamilyService.objects.create(
-      name=VALID_STRING_A,
-      description='Testbeschreibung',
-      street='Teststraße 1',
-      zip=VALID_ZIP,
-      city='Rostock',
-      email='test@test.de',
-      host=cls.test_provider,
-      expiry_date=VALID_DATE_A,
-      application_needed=False,
-      phone='0381 123456',
-      costs=0.0,
-      setting='Gruppenberatung',
-      geometry=VALID_POINT_DB,
-      status='draft',
-    )
-    service.topic.set([cls.test_topic])
-    service.legal_basis.set([cls.test_law])
-    cls.test_object = service
-
-  def setUp(self):
-    self.init()
-
-  def test_post_ajax_delete_as_provider(self):
-    self.generic_ajax_delete_test(
-      login_as_provider, 'familyservice_delete', {'pk': self.test_object.pk}, True
-    )
-
-  def test_post_delete_as_provider(self):
-    self.generic_post_test(
-      login_as_provider, 'familyservice_delete', {'pk': self.test_object.pk}, {}, 302
     )
 
 

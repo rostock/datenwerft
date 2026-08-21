@@ -47,15 +47,6 @@ Table target_group {
   Note: 'Zielgruppen (z. B. Jugendliche, Eltern)'
 }
 
-Table tag {
-  id integer [pk, increment]
-  name varchar(100) [not null, unique, note: 'Bezeichnung']
-  created_at datetime [not null]
-  updated_at datetime [not null]
-
-  Note: 'Freie Schlagworte'
-}
-
 // ----- Benutzerverwaltung --------------------------------------------
 
 Table angebotsdb_organisational_unit {
@@ -95,7 +86,7 @@ Table user_profile {
 
 // ----- Service (abstrakte Basis → konkrete Typen) --------------------
 
-Table angebotsdb_childrenandyouthservice {
+Table angebotsdb_childrenyouthandfamilyservice {
   id integer [pk, increment]
   name varchar(255) [not null]
   description text [not null]
@@ -109,7 +100,7 @@ Table angebotsdb_childrenandyouthservice {
   info_url varchar(500)
   status varchar(20) [not null, default: 'draft', note: 'draft | in_review | revision_needed | published']
   host_id integer [not null, ref: > host.id]
-  published_version_id integer [null, ref: > angebotsdb_childrenandyouthservice.id]
+  published_version_id integer [null, ref: > angebotsdb_childrenyouthandfamilyservice.id]
   setting text
   application_needed boolean [not null]
   phone varchar(255) [not null]
@@ -118,33 +109,7 @@ Table angebotsdb_childrenandyouthservice {
   created_at datetime [not null]
   updated_at datetime [not null]
 
-  Note: 'Angebote für Kinder und Jugendliche'
-}
-
-Table angebotsdb_familyservice {
-  id integer [pk, increment]
-  name varchar(255) [not null]
-  description text [not null]
-  geometry point [not null, note: 'SRID 25833']
-  street varchar(150) [not null]
-  zip integer [not null]
-  city varchar(100) [not null]
-  email varchar(255) [not null]
-  contact_hours text
-  expiry_date date [not null]
-  info_url varchar(500)
-  status varchar(20) [not null, default: 'draft', note: 'draft | in_review | revision_needed | published']
-  host_id integer [not null, ref: > host.id]
-  published_version_id integer [null, ref: > angebotsdb_familyservice.id]
-  setting text [not null]
-  application_needed boolean [not null]
-  phone varchar(255) [not null]
-  costs float [not null]
-  catchment_area_urls json [note: 'PyGeoAPI-URIs']
-  created_at datetime [not null]
-  updated_at datetime [not null]
-
-  Note: 'Angebote für Familien'
+  Note: 'Angebote für Kinder, Jugendliche und Familien'
 }
 
 Table angebotsdb_woftgservice {
@@ -175,75 +140,30 @@ Table angebotsdb_woftgservice {
 
 // ----- M2M-Zwischentabellen (Service ↔ Stammdaten) -------------------
 
-Table angebotsdb_childrenandyouthservice_topic {
-  childrenandyouthservice_id integer [ref: > angebotsdb_childrenandyouthservice.id]
+Table angebotsdb_childrenyouthandfamilyservice_topic {
+  childrenyouthandfamilyservice_id integer [ref: > angebotsdb_childrenyouthandfamilyservice.id]
   topic_id integer [ref: > topic.id]
 
   indexes {
-    (childrenandyouthservice_id, topic_id) [pk]
+    (childrenyouthandfamilyservice_id, topic_id) [pk]
   }
 }
 
-Table angebotsdb_childrenandyouthservice_target_group {
-  childrenandyouthservice_id integer [ref: > angebotsdb_childrenandyouthservice.id]
+Table angebotsdb_childrenyouthandfamilyservice_target_group {
+  childrenyouthandfamilyservice_id integer [ref: > angebotsdb_childrenyouthandfamilyservice.id]
   target_group_id integer [ref: > target_group.id]
 
   indexes {
-    (childrenandyouthservice_id, target_group_id) [pk]
+    (childrenyouthandfamilyservice_id, target_group_id) [pk]
   }
 }
 
-Table angebotsdb_childrenandyouthservice_tags {
-  childrenandyouthservice_id integer [ref: > angebotsdb_childrenandyouthservice.id]
-  tag_id integer [ref: > tag.id]
-
-  indexes {
-    (childrenandyouthservice_id, tag_id) [pk]
-  }
-}
-
-Table angebotsdb_childrenandyouthservice_legal_basis {
-  childrenandyouthservice_id integer [ref: > angebotsdb_childrenandyouthservice.id]
+Table angebotsdb_childrenyouthandfamilyservice_legal_basis {
+  childrenyouthandfamilyservice_id integer [ref: > angebotsdb_childrenyouthandfamilyservice.id]
   law_id integer [ref: > law.id]
 
   indexes {
-    (childrenandyouthservice_id, law_id) [pk]
-  }
-}
-
-Table angebotsdb_familyservice_topic {
-  familyservice_id integer [ref: > angebotsdb_familyservice.id]
-  topic_id integer [ref: > topic.id]
-
-  indexes {
-    (familyservice_id, topic_id) [pk]
-  }
-}
-
-Table angebotsdb_familyservice_target_group {
-  familyservice_id integer [ref: > angebotsdb_familyservice.id]
-  target_group_id integer [ref: > target_group.id]
-
-  indexes {
-    (familyservice_id, target_group_id) [pk]
-  }
-}
-
-Table angebotsdb_familyservice_tags {
-  familyservice_id integer [ref: > angebotsdb_familyservice.id]
-  tag_id integer [ref: > tag.id]
-
-  indexes {
-    (familyservice_id, tag_id) [pk]
-  }
-}
-
-Table angebotsdb_familyservice_legal_basis {
-  familyservice_id integer [ref: > angebotsdb_familyservice.id]
-  law_id integer [ref: > law.id]
-
-  indexes {
-    (familyservice_id, law_id) [pk]
+    (childrenyouthandfamilyservice_id, law_id) [pk]
   }
 }
 
@@ -262,15 +182,6 @@ Table angebotsdb_woftgservice_target_group {
 
   indexes {
     (woftgservice_id, target_group_id) [pk]
-  }
-}
-
-Table angebotsdb_woftgservice_tags {
-  woftgservice_id integer [ref: > angebotsdb_woftgservice.id]
-  tag_id integer [ref: > tag.id]
-
-  indexes {
-    (woftgservice_id, tag_id) [pk]
   }
 }
 

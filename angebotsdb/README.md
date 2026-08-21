@@ -21,11 +21,10 @@ städtische Portale und Kartenanwendungen eingebunden werden.
 Alle Angebotstypen erben von der abstrakten Basisklasse `Service` und teilen sich gemeinsame
 Felder wie Name, Beschreibung, Adresse, Geometrie (Punkt), Kategorien, Zielgruppen und Status.
 
-| Modell                     | Beschreibung                        | Besondere Felder                               |
-| -------------------------- | ----------------------------------- | ---------------------------------------------- |
-| `ChildrenAndYouthService`  | Angebote für Kinder und Jugendliche | Einzugsgebiet (PyGeoAPI), Kosten, Setting      |
-| `FamilyService`            | Angebote für Familien               | Einzugsgebiet (PyGeoAPI), Kosten, Setting      |
-| `WoftGService`             | Angebote im Rahmen des WoftG        | Kosten, Setting, barrierefreier Zugang (Bool.) |
+| Modell                          | Beschreibung                                  | Besondere Felder                               |
+| ------------------------------- | --------------------------------------------- | ---------------------------------------------- |
+| `ChildrenYouthAndFamilyService` | Angebote für Kinder, Jugendliche und Familien | Einzugsgebiet (PyGeoAPI), Kosten, Setting      |
+| `WoftGService`                  | Angebote im Rahmen des WoftG                  | Kosten, Setting, barrierefreier Zugang (Bool.) |
 
 Neue Angebotstypen können durch Ableitung von `Service` ergänzt werden – die generischen
 CRUD-Views, die URL-Registrierung und der Redaktionsprozess greifen automatisch.

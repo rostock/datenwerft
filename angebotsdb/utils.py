@@ -104,7 +104,7 @@ def get_service_instance(service_type: str, service_id: int):
   Service-Instanz auf. Gibt None zurück wenn das Modell nicht gefunden wird
   oder das Objekt nicht existiert.
 
-  :param service_type: lowercase Modellname, z.B. 'childrenandyouthservice'
+  :param service_type: lowercase Modellname, z.B. 'childrenyouthandfamilyservice'
   :param service_id: Primärschlüssel des Service-Objekts
   :return: Service-Instanz oder None
   """
