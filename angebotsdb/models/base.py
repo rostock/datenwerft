@@ -100,6 +100,11 @@ class Provider(Base):
   icon = 'fa-regular fa-building'
   dashboard_mode = 'container_button'
   dashboard_container = 'basisdaten'
+  list_fields = {
+    'name': 'Bezeichnung',
+    'phone': 'Telefonnummer',
+    'email': 'E-Mail',
+  }
 
   # Database fields
   name = CharField(max_length=255, verbose_name='Bezeichnung')
@@ -372,7 +377,7 @@ class UserProfile(Model):
     verbose_name_plural = 'Benutzerprofile'
 
   def __str__(self):
-    return f'Profil für {self.user.username}'
+    return f'Profil für {self.get_username()}'
 
   @property
   def user(self):
