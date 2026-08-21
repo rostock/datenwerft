@@ -51,13 +51,11 @@ Die Zuordnung, welche OrgUnit welche Angebotstypen prüfen darf, wird über das 
 
 ```mermaid
 graph LR
-    OE1["OrgUnit: Jugendamt"] -->|ChildrenAndYouthService| P1["Prüfberechtigung"]
-    OE1 -->|FamilyService| P2["Prüfberechtigung"]
+    OE1["OrgUnit: Jugendamt"] -->|ChildrenYouthAndFamilyService| P1["Prüfberechtigung"]
     OE2["OrgUnit: Sozialamt"] -->|WoftGService| P3["Prüfberechtigung"]
 
     style OE1 fill:#cce5ff,stroke:#004085
     style OE2 fill:#cce5ff,stroke:#004085
     style P1 fill:#d4edda,stroke:#155724
-    style P2 fill:#d4edda,stroke:#155724
     style P3 fill:#d4edda,stroke:#155724
 ```
