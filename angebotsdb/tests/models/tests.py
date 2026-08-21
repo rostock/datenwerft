@@ -238,6 +238,10 @@ class UserProfileModelTest(ModelTestCase):
     self.test_object.delete()
     self.assertEqual(self.model.objects.count(), 0)
 
+  def test_string_representation_orphaned(self):
+    # user_id=999 existiert nicht in der Default-DB -> kein Crash
+    self.assertIn('999', str(self.test_object))
+
 
 # ---------------------------------------------------------------------------
 # Service-Modelle
