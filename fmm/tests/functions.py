@@ -1,6 +1,3 @@
-from .constants_vars import PASSWORD, USERNAME
-
-
 def get_object(model, object_filter):
   """
   filters out a query through a passed filter and returns first object from query
@@ -22,4 +19,4 @@ def login(test, assign_permissions=False):
   """
   if assign_permissions:
     test.test_group.user_set.add(test.test_user)
-  test.client.login(username=USERNAME, password=PASSWORD)
+  test.client.force_login(test.test_user)

@@ -769,5 +769,4 @@ def send_cleanupeventrequest_email(request, email_key, curr_object, recipient_li
       message=message,
       from_email=settings.DEFAULT_FROM_EMAIL,
       recipient_list=recipient_list,
-      fail_silently=True,
     )

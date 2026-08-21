@@ -18,7 +18,6 @@ from rest_framework import viewsets
 
 from angebotsdb.models.base import UserProfile
 from angebotsdb.utils import is_angebotsdb_admin, is_angebotsdb_user
-
 from d3.api import D3AuthenticationApi
 
 from .emails import send_login_code

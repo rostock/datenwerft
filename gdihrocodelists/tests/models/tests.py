@@ -1,9 +1,12 @@
+from django.contrib.auth.models import User
+
 from gdihrocodelists.models import (
   Codelist,
   CodelistValue,
 )
 
 from ..abstract import DefaultModelTestCase
+from ..constants_vars import USERNAME
 
 
 class CodelistModelTest(DefaultModelTestCase):
@@ -50,6 +53,7 @@ class CodelistValueModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user: User = User.objects.create_user(username=USERNAME)
     test_codelist = Codelist.objects.create(name='test', title='TestCodelist')
     cls.attributes_values_db_initial = {
       'codelist': test_codelist,

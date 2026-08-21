@@ -1440,7 +1440,10 @@ class Denksteine(SimpleModel):
     verbose_name=' erstes Verlegejahr', min_value=2002, max_value=get_current_year()
   )
   website = CharField(
-    verbose_name='Website', max_length=255, validators=[URLValidator(message=url_message)]
+    verbose_name='Website',
+    max_length=255,
+    default='https://max-samuel-haus.de/',
+    validators=[URLValidator(message=url_message)],
   )
   geometrie = point_field
 
@@ -1506,7 +1509,7 @@ class Erdwaermesonden(SimpleModel):
     null=True,
   )
   d3 = CharField(
-    verbose_name=' d3-Vorgangsnummer',
+    verbose_name=' d.3-Vorgangsnummer',
     max_length=16,
     blank=True,
     null=True,
@@ -1521,6 +1524,13 @@ class Erdwaermesonden(SimpleModel):
     editable=False,
   )
   bohrprofil = BooleanField(verbose_name='Bohrprofil?', blank=True, null=True)
+  bohrprofil_link = CharField(
+    verbose_name=' d.3-Dokumentenlink auf Bohrprofil',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[URLValidator(message=url_message)],
+  )
   aktenzeichen = CharField(
     verbose_name='Aktenzeichen',
     max_length=18,
@@ -1591,6 +1601,7 @@ class Erdwaermesonden(SimpleModel):
       'aktiv': 'aktiv?',
       'd3': 'd.3-Vorgang',
       'bohrprofil': 'Bohrprofil?',
+      'bohrprofil_link': 'd.3-Dokumentenlink auf Bohrprofil',
       'aktenzeichen': 'Aktenzeichen',
       'adresse': 'Adresse',
       'art': 'Art',

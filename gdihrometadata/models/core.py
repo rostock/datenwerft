@@ -166,6 +166,7 @@ class Assetset(Base, BaseMetadata, CreationalMetadata):
   title = models.CharField(
     blank=True, null=True, validators=standard_validators, verbose_name=_('Titel')
   )
+  public = models.BooleanField(verbose_name=_('Öffentliche Verfügbarkeit'))
   update_frequency = models.ForeignKey(
     Frequency,
     on_delete=models.PROTECT,
@@ -208,6 +209,7 @@ class Dataset(Base, BaseMetadata, CreationalMetadata, SpatioTemporalMetadata):
     verbose_name=_('Name'),
   )
   title = models.CharField(validators=standard_validators, verbose_name=_('Titel'))
+  public = models.BooleanField(verbose_name=_('Öffentliche Verfügbarkeit'))
   link = models.URLField(verbose_name=_('Link (URL)'))
   tags = models.ManyToManyField(
     Tag, blank=True, related_name='datasets', verbose_name=_('Schlagwort/Schlagwörter')
@@ -348,6 +350,7 @@ class Service(Base, BaseMetadata, SpatioTemporalMetadata):
     verbose_name=_('Name'),
   )
   title = models.CharField(validators=standard_validators, verbose_name=_('Titel'))
+  public = models.BooleanField(verbose_name=_('Öffentliche Verfügbarkeit'))
   link = models.URLField(verbose_name=_('Link (URL)'))
   tags = models.ManyToManyField(
     Tag, blank=True, related_name='services', verbose_name=_('Schlagwort/Schlagwörter')
@@ -508,6 +511,7 @@ class App(Base, BaseMetadata):
     verbose_name=_('Name'),
   )
   title = models.CharField(validators=standard_validators, verbose_name=_('Titel'))
+  public = models.BooleanField(verbose_name=_('Öffentliche Verfügbarkeit'))
   link = models.URLField(verbose_name=_('Link (URL)'))
   tags = models.ManyToManyField(
     Tag, blank=True, related_name='apps', verbose_name=_('Schlagwort/Schlagwörter')

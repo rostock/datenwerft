@@ -1,5 +1,7 @@
 from datetime import date
 
+from django.contrib.auth.models import User
+
 from gdihrometadata.models.auxiliary import (
   Contact,
   DataType,
@@ -18,6 +20,7 @@ from gdihrometadata.models.enums import (
 )
 
 from .abstract import DefaultApiTestCase
+from .constants_vars import USERNAME
 
 
 class SourceApiTest(DefaultApiTestCase):
@@ -31,6 +34,7 @@ class SourceApiTest(DefaultApiTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_frequency = Frequency.objects.create(
       code='https://example.org/frequency/test', title='TestFrequency'
     )
@@ -110,6 +114,7 @@ class RepositoryApiTest(DefaultApiTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_frequency = Frequency.objects.create(
       code='https://example.org/frequency/test', title='TestFrequency'
     )
@@ -189,6 +194,7 @@ class GetByUuidTest(DefaultApiTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.test_user = User.objects.create_user(username=USERNAME)
     test_frequency = Frequency.objects.create(
       code='https://example.org/frequency/test', title='TestFrequency'
     )

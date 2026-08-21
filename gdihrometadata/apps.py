@@ -6,3 +6,8 @@ class GdiHroMetadataConfig(AppConfig):
   verbose_name = 'GDI.HRO Metadata'
   admin_app = True
   description = 'System zur Administration von Metadaten im Rahmen der GDI.HRO'
+
+  def ready(self):
+    from django.db.models import fields
+
+    fields.BLANK_CHOICE_LABEL = '----------'

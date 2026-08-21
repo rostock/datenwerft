@@ -389,7 +389,9 @@ class ReviewServiceView(View):
         return HttpResponseBadRequest('Zurückweisung erfordert mindestens einen Kommentar.')
       review_task.comments = comments
       review_task.save(update_fields=['comments'])
-      self._reject(review_task, service, request.user.id, f'{request.scheme}://{request.get_host()}')
+      self._reject(
+        review_task, service, request.user.id, f'{request.scheme}://{request.get_host()}'
+      )
 
     else:
       # Nur Kommentare speichern (Zwischenspeichern ohne Aktion)

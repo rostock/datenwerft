@@ -20,3 +20,15 @@
 #mapping-table .alert {
   margin-bottom: 0;
 }
+
+/* no spinners on numeric HTML inputs in Chrome, Safari, Edge, and Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* no spinners on numeric HTML inputs in Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}

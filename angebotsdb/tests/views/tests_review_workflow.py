@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User
+
 from angebotsdb.models.base import (
   InboxMessage,
   Law,
@@ -11,6 +13,9 @@ from angebotsdb.models.services import ChildrenAndYouthService
 
 from ..abstract import FormViewTestCase
 from ..constant_vars import (
+  USERNAME,
+  USERNAME_PROVIDER,
+  USERNAME_REVIEWER,
   VALID_DATE_A,
   VALID_POINT_DB,
   VALID_STRING_A,
@@ -66,6 +71,9 @@ class SubmitForReviewViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_org_unit = OrgUnit.objects.create(name=VALID_STRING_A)
     topic = Topic.objects.create(name=VALID_STRING_A)
@@ -140,6 +148,9 @@ class ReviewServiceViewTest(FormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    cls.admin_user = User.objects.create_user(username=USERNAME)
+    cls.provider_user = User.objects.create_user(username=USERNAME_PROVIDER)
+    cls.reviewer_user = User.objects.create_user(username=USERNAME_REVIEWER)
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_org_unit = OrgUnit.objects.create(name=VALID_STRING_A)
     topic = Topic.objects.create(name=VALID_STRING_A)

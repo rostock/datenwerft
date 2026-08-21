@@ -172,6 +172,7 @@ class Contact {
 class App {
   +name : TEXT {unique}
   +title : TEXT
+  +public : BOOLEAN
   +link : URL
   #publisher [1..*]
   #maintainer [1..*]
@@ -197,6 +198,7 @@ class Theme {
 class Service {
   +name : TEXT
   +title : TEXT
+  +public : BOOLEAN
   +link : URL
   #publisher [1..*]
   #maintainer [1..*]
@@ -219,6 +221,7 @@ end note
 class Dataset {
   +name : TEXT {unique}
   +title : TEXT
+  +public : BOOLEAN
   +link : URL
   #publisher [1..*]
   #maintainer [1..*]
@@ -242,6 +245,7 @@ class Dataset {
 class Assetset {
   +name : TEXT {unique}
   +title : TEXT [0..1]
+  +public : BOOLEAN
   #publisher [1..*]
   #maintainer [1..*]
   ~legal <<FK>>
