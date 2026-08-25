@@ -106,6 +106,8 @@ AUTHENTICATION_BACKENDS = (
   'django.contrib.auth.backends.ModelBackend',
 )
 
+PASSWORD_RESET_TIMEOUT = 3600
+
 
 # Datenwerft.HRO:
 # security
