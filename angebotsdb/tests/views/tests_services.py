@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-from angebotsdb.models.base import Law, Provider, Topic
+from angebotsdb.models.base import Law, Provider, Tag, Topic
 from angebotsdb.models.services import ChildrenYouthAndFamilyService, WoftGService
 
 from ..abstract import FormViewTestCase, MockResponse, ViewTestCase
@@ -24,16 +24,17 @@ HTML = 'text/html; charset=utf-8'
 PYGEOAPI_PATCH = 'angebotsdb.fields.httpx.get'
 
 
-def _base_service_form_data(topic_pk, law_pk):
+def _base_service_form_data(topic_pk, law_pk, tag_pk=None):
   """
   Gibt valide POST-Daten für ein Service-Formular zurück.
   host, status, published_version und geometry werden vom Formular ausgeschlossen.
 
   :param topic_pk: PK des Themas
   :param law_pk: PK der gesetzlichen Grundlage
+  :param tag_pk: optionaler PK eines Schlagworts
   :return: dict mit Formulardaten
   """
-  return {
+  data = {
     'name': VALID_STRING_A,
     'description': 'Testbeschreibung für das Angebot.',
     'street': 'Teststraße 1',
@@ -49,6 +50,9 @@ def _base_service_form_data(topic_pk, law_pk):
     # catchment_area_urls: blank=True, required=False → weglassen
     'geometry': VALID_GEOJSON_4326,
   }
+  if tag_pk is not None:
+    data['tags'] = [str(tag_pk)]
+  return data
 
 
 # ---------------------------------------------------------------------------
@@ -83,12 +87,13 @@ class ChildrenYouthAndFamilyServiceCreateViewTest(ViewTestCase):
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
+    cls.test_tag = Tag.objects.create(name=VALID_STRING_A)
 
   def setUp(self):
     self.init()
 
   def _valid_form_data(self):
-    return _base_service_form_data(self.test_topic.pk, self.test_law.pk)
+    return _base_service_form_data(self.test_topic.pk, self.test_law.pk, self.test_tag.pk)
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_as_provider_200(self, mock_get):
@@ -152,6 +157,7 @@ class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
+    cls.test_tag = Tag.objects.create(name=VALID_STRING_A)
     service = ChildrenYouthAndFamilyService.objects.create(
       name=VALID_STRING_A,
       description='Testbeschreibung',
@@ -169,13 +175,14 @@ class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
     )
     service.topic.set([cls.test_topic])
     service.legal_basis.set([cls.test_law])
+    service.tags.set([cls.test_tag])
     cls.test_object = service
 
   def setUp(self):
     self.init()
 
   def _valid_form_data(self):
-    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk)
+    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk, self.test_tag.pk)
     data['name'] = VALID_STRING_B
     return data
 
@@ -532,12 +539,13 @@ class WoftGServiceCreateViewTest(ViewTestCase):
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
+    cls.test_tag = Tag.objects.create(name=VALID_STRING_A)
 
   def setUp(self):
     self.init()
 
   def _valid_form_data(self):
-    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk)
+    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk, self.test_tag.pk)
     data['setting'] = 'Einzelberatung'
     # handicap_accessible: weglassen = False
     return data
@@ -573,6 +581,7 @@ class WoftGServiceUpdateViewTest(FormViewTestCase):
     cls.test_provider = Provider.objects.create(name=VALID_STRING_A)
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
+    cls.test_tag = Tag.objects.create(name=VALID_STRING_A)
     service = WoftGService.objects.create(
       name=VALID_STRING_A,
       description='Testbeschreibung',
@@ -592,13 +601,14 @@ class WoftGServiceUpdateViewTest(FormViewTestCase):
     )
     service.topic.set([cls.test_topic])
     service.legal_basis.set([cls.test_law])
+    service.tags.set([cls.test_tag])
     cls.test_object = service
 
   def setUp(self):
     self.init()
 
   def _valid_form_data(self):
-    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk)
+    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk, self.test_tag.pk)
     data['name'] = VALID_STRING_B
     data['setting'] = 'Einzelberatung'
     return data
