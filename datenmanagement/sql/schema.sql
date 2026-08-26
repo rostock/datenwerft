@@ -3689,7 +3689,6 @@ CREATE TABLE fachdaten_adressbezug.denksteine_hro (
     ehemalige_adresse character varying(255),
     material uuid NOT NULL,
     erstes_verlegejahr smallint NOT NULL,
-    website character varying(255) NOT NULL,
     geometrie public.geometry(Point,25833) NOT NULL
 );
 
@@ -9650,4 +9649,3 @@ ALTER TABLE ONLY fachdaten_strassenbezug.wegesperren_hro
 --
 -- PostgreSQL database dump complete
 --
-
