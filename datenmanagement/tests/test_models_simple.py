@@ -2860,7 +2860,6 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       'text_auf_dem_stein': 'Text auf dem Stein1',
       'material': material,
       'erstes_verlegejahr': 2010,
-      'website': 'https://worschdsupp.1.de',
       'geometrie': VALID_POINT_DB,
     }
     cls.attributes_values_db_updated = {'nachname': 'Nachname2'}
@@ -2874,7 +2873,6 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       'text_auf_dem_stein': 'Text auf dem Stein3',
       'material': str(material.pk),
       'erstes_verlegejahr': 2020,
-      'website': 'https://worschdsupp.3.de',
       'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_updated = {
@@ -2887,7 +2885,6 @@ class DenksteineTest(DefaultSimpleModelTestCase):
       'text_auf_dem_stein': 'Text auf dem Stein4',
       'material': str(material.pk),
       'erstes_verlegejahr': 2006,
-      'website': 'https://worschdsupp.4.de',
       'geometrie': VALID_POINT_VIEW,
     }
     cls.attributes_values_view_invalid = {'nachname': INVALID_STRING}
