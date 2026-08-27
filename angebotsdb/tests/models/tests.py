@@ -9,6 +9,7 @@ from angebotsdb.models.base import (
   OrgUnitServicePermission,
   Provider,
   ReviewTask,
+  Tag,
   TargetGroup,
   Topic,
   UserProfile,
@@ -40,6 +41,31 @@ class TopicModelTest(ModelTestCase):
   """
 
   model = Topic
+  attributes_values_db_initial = {'name': VALID_STRING_A}
+  attributes_values_db_updated = {'name': VALID_STRING_B}
+
+  def setUp(self):
+    self.init()
+
+  def test_create(self):
+    self.generic_create_test()
+
+  def test_update(self):
+    self.generic_update_test()
+
+  def test_delete(self):
+    self.generic_delete_test()
+
+  def test_string_representation(self):
+    self.generic_string_representation_test(VALID_STRING_A)
+
+
+class TagModelTest(ModelTestCase):
+  """
+  Testklasse für das Modell Tag.
+  """
+
+  model = Tag
   attributes_values_db_initial = {'name': VALID_STRING_A}
   attributes_values_db_updated = {'name': VALID_STRING_B}
 
@@ -260,6 +286,7 @@ class ChildrenYouthAndFamilyServiceModelTest(ModelTestCase):
     provider = Provider.objects.create(name=VALID_STRING_A)
     topic = Topic.objects.create(name=VALID_STRING_A)
     law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
+    tag = Tag.objects.create(name=VALID_STRING_A)
     cls.test_object = ChildrenYouthAndFamilyService.objects.create(
       name=VALID_STRING_A,
       description='Testbeschreibung',
@@ -276,6 +303,7 @@ class ChildrenYouthAndFamilyServiceModelTest(ModelTestCase):
     )
     cls.test_object.topic.set([topic])
     cls.test_object.legal_basis.set([law])
+    cls.test_object.tags.set([tag])
     cls.attributes_values_db_updated = {'name': VALID_STRING_B}
 
   def setUp(self):
@@ -295,6 +323,11 @@ class ChildrenYouthAndFamilyServiceModelTest(ModelTestCase):
   def test_string_representation(self):
     self.generic_string_representation_test(VALID_STRING_A)
 
+  def test_tags_m2m(self):
+    self.assertEqual(self.test_object.tags.count(), 1)
+    self.assertEqual(self.test_object.tags.first().name, VALID_STRING_A)
+    self.assertEqual(Tag.objects.first().childrenyouthandfamilyservice.count(), 1)
+
 
 class WoftGServiceModelTest(ModelTestCase):
   """
@@ -309,6 +342,7 @@ class WoftGServiceModelTest(ModelTestCase):
     provider = Provider.objects.create(name=VALID_STRING_A)
     topic = Topic.objects.create(name=VALID_STRING_A)
     law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
+    tag = Tag.objects.create(name=VALID_STRING_A)
     cls.test_object = WoftGService.objects.create(
       name=VALID_STRING_A,
       description='Testbeschreibung',
@@ -327,6 +361,7 @@ class WoftGServiceModelTest(ModelTestCase):
     )
     cls.test_object.topic.set([topic])
     cls.test_object.legal_basis.set([law])
+    cls.test_object.tags.set([tag])
     cls.attributes_values_db_updated = {'name': VALID_STRING_B}
 
   def setUp(self):
@@ -345,6 +380,11 @@ class WoftGServiceModelTest(ModelTestCase):
 
   def test_string_representation(self):
     self.generic_string_representation_test(VALID_STRING_A)
+
+  def test_tags_m2m(self):
+    self.assertEqual(self.test_object.tags.count(), 1)
+    self.assertEqual(self.test_object.tags.first().name, VALID_STRING_A)
+    self.assertEqual(Tag.objects.first().woftgservice.count(), 1)
 
 
 # ---------------------------------------------------------------------------
