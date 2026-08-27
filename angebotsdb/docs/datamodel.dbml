@@ -13,19 +13,22 @@ Table topic {
   Note: 'Kategorien zur Klassifizierung von Angeboten'
 }
 
-Table host {
+Table provider {
   id integer [pk, increment]
   name varchar(255) [not null, note: 'Bezeichnung']
   description text
   logo image
-  address varchar(255)
+  street varchar(150)
+  zip integer [note: 'PLZ']
+  city varchar(100) [note: 'Gemeinde']
+  geometry point [note: 'SRID 25833']
   contact_person varchar(255)
   email varchar(255)
   phone varchar(255)
   created_at datetime [not null]
   updated_at datetime [not null]
 
-  Note: 'Träger / anbietende Einrichtung'
+  Note: 'Träger / anbietende Einrichtung (db_table: provider, FK-Feldname in Services: host)'
 }
 
 Table law {
@@ -45,6 +48,15 @@ Table target_group {
   updated_at datetime [not null]
 
   Note: 'Zielgruppen (z. B. Jugendliche, Eltern)'
+}
+
+Table tag {
+  id integer [pk, increment]
+  name varchar(100) [not null, unique, note: 'Bezeichnung']
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Note: 'Freie Schlagworte'
 }
 
 // ----- Benutzerverwaltung --------------------------------------------
@@ -76,8 +88,9 @@ Table angebotsdb_org_unit_service_permission {
 Table user_profile {
   id integer [pk, increment]
   user_id integer [not null, unique, note: 'FK → auth_user (Cross-DB)']
-  provider_id integer [null, ref: > host.id]
+  provider_id integer [null, ref: > provider.id]
   organisational_unit_id integer [null, ref: > angebotsdb_organisational_unit.id]
+  receive_email_notifications boolean [not null, default: false, note: 'E-Mail-Benachrichtigungen bei neuen Inbox-Nachrichten']
   created_at datetime [not null]
   updated_at datetime [not null]
 
@@ -99,7 +112,7 @@ Table angebotsdb_childrenyouthandfamilyservice {
   expiry_date date [not null]
   info_url varchar(500)
   status varchar(20) [not null, default: 'draft', note: 'draft | in_review | revision_needed | published']
-  host_id integer [not null, ref: > host.id]
+  host_id integer [not null, ref: > provider.id]
   published_version_id integer [null, ref: > angebotsdb_childrenyouthandfamilyservice.id]
   setting text
   application_needed boolean [not null]
@@ -125,7 +138,7 @@ Table angebotsdb_woftgservice {
   expiry_date date [not null]
   info_url varchar(500)
   status varchar(20) [not null, default: 'draft', note: 'draft | in_review | revision_needed | published']
-  host_id integer [not null, ref: > host.id]
+  host_id integer [not null, ref: > provider.id]
   published_version_id integer [null, ref: > angebotsdb_woftgservice.id]
   setting text [not null]
   application_needed boolean [not null]
@@ -167,6 +180,15 @@ Table angebotsdb_childrenyouthandfamilyservice_legal_basis {
   }
 }
 
+Table angebotsdb_childrenyouthandfamilyservice_tags {
+  childrenyouthandfamilyservice_id integer [ref: > angebotsdb_childrenyouthandfamilyservice.id]
+  tag_id integer [ref: > tag.id]
+
+  indexes {
+    (childrenyouthandfamilyservice_id, tag_id) [pk]
+  }
+}
+
 Table angebotsdb_woftgservice_topic {
   woftgservice_id integer [ref: > angebotsdb_woftgservice.id]
   topic_id integer [ref: > topic.id]
@@ -191,6 +213,15 @@ Table angebotsdb_woftgservice_legal_basis {
 
   indexes {
     (woftgservice_id, law_id) [pk]
+  }
+}
+
+Table angebotsdb_woftgservice_tags {
+  woftgservice_id integer [ref: > angebotsdb_woftgservice.id]
+  tag_id integer [ref: > tag.id]
+
+  indexes {
+    (woftgservice_id, tag_id) [pk]
   }
 }
 
@@ -232,7 +263,7 @@ Table inbox_message {
   message_type varchar(30) [not null, note: 'review_request | revision_request']
   review_task_id integer [not null, ref: > review_task.id]
   target_org_unit_id integer [ref: > angebotsdb_organisational_unit.id]
-  target_provider_id integer [ref: > host.id]
+  target_provider_id integer [ref: > provider.id]
   is_read boolean [not null, default: false]
   is_resolved boolean [not null, default: false]
   created_at datetime [not null]

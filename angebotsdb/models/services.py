@@ -16,7 +16,7 @@ from django.db.models import (
   URLField,
 )
 
-from .base import Base, Law, Provider, TargetGroup, Topic
+from .base import Base, Law, Provider, Tag, TargetGroup, Topic
 
 SERVICE_STATUS_CHOICES = [
   ('draft', 'Entwurf'),
@@ -36,6 +36,7 @@ class Service(Base):
     'name': 'Name',
     'status': 'Status',
     'host': 'Träger',
+    'tags': 'Schlagworte',
     'updated_at': 'Zuletzt aktualisiert',
   }
 
@@ -50,6 +51,12 @@ class Service(Base):
   target_group = ManyToManyField(
     to=TargetGroup,
     verbose_name='Zielgruppe(n)',
+    blank=True,
+    related_name='%(class)s',
+  )
+  tags = ManyToManyField(
+    to=Tag,
+    verbose_name='Schlagworte',
     blank=True,
     related_name='%(class)s',
   )
