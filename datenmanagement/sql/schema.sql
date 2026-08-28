@@ -113,7 +113,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -4500,13 +4500,11 @@ CREATE TABLE fachdaten_strassenbezug.geh_und_radwegereinigung_hro (
     reinigungsklasse uuid,
     wegeart uuid NOT NULL,
     wegetyp uuid,
-    reinigungsflaeche numeric(7,2),
     breite uuid,
     id character(14) NOT NULL,
     winterdienst boolean,
     raeumbreite uuid,
     reinigungsrhythmus uuid,
-    winterdienstflaeche numeric(7,2),
     gemeindeteil uuid NOT NULL
 );
 
