@@ -1727,23 +1727,6 @@ class Geh_Radwegereinigung(ComplexModel):
     blank=True,
     null=True,
   )
-  reinigungsflaeche = DecimalField(
-    verbose_name='Reinigungsfläche (in m²)',
-    max_digits=7,
-    decimal_places=2,
-    validators=[
-      MinValueValidator(
-        Decimal('0.01'),
-        'Die <strong><em>Reinigungsfläche</em></strong> muss mindestens 0,01 m² betragen.',
-      ),
-      MaxValueValidator(
-        Decimal('99999.99'),
-        'Die <strong><em>Reinigungsfläche</em></strong> darf höchstens 99.999,99 m² betragen.',
-      ),
-    ],
-    blank=True,
-    null=True,
-  )
   winterdienst = BooleanField(verbose_name='Winterdienst?', blank=True, null=True)
   raeumbreite = ForeignKey(
     to=Raeumbreiten_Strassenreinigungssatzung_HRO,
@@ -1752,23 +1735,6 @@ class Geh_Radwegereinigung(ComplexModel):
     db_column='raeumbreite',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_raeumbreiten',
-    blank=True,
-    null=True,
-  )
-  winterdienstflaeche = DecimalField(
-    verbose_name='Winterdienstfläche (in m²)',
-    max_digits=7,
-    decimal_places=2,
-    validators=[
-      MinValueValidator(
-        Decimal('0.01'),
-        'Die <strong><em>Winterdienstfläche</em></strong> muss mindestens 0,01 m² betragen.',
-      ),
-      MaxValueValidator(
-        Decimal('99999.99'),
-        'Die <strong><em>Winterdienstfläche</em></strong> darf höchstens 99.999,99 m² betragen.',
-      ),
-    ],
     blank=True,
     null=True,
   )
