@@ -69,9 +69,7 @@ urlpatterns = [
   ),
   path(
     route='password-reset/complete/',
-    view=PasswordResetCompleteView.as_view(
-      template_name='accounts/password_reset_complete.html'
-    ),
+    view=PasswordResetCompleteView.as_view(template_name='accounts/password_reset_complete.html'),
     name='password_reset_complete',
   ),
   path(
