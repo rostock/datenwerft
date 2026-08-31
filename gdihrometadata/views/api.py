@@ -7,33 +7,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.serializers import (
   HyperlinkedModelSerializer,
   HyperlinkedRelatedField,
-  ManyRelatedField,
 )
 from rest_framework.viewsets import ModelViewSet
 
 from toolbox.utils import is_valid_uuid
-
-
-class NullableManyRelatedField(ManyRelatedField):
-  """
-  returns None instead of [] when the relationship is empty
-  """
-
-  def to_representation(self, iterable):
-    if not iterable.exists():
-      return None
-
-    return super().to_representation(iterable)
-
-
-class NullableHyperlinkedRelatedField(HyperlinkedRelatedField):
-  """
-  HyperlinkedRelatedField which uses NullableManyRelatedField when many=True
-  """
-
-  many_init = classmethod(
-    lambda cls, *args, **kwargs: NullableManyRelatedField(child_relation=cls(*args, **kwargs))
-  )
 
 
 def create_serializer_class(model_class):
@@ -51,6 +28,8 @@ def create_serializer_class(model_class):
 
     def get_fields(self):
       fields = super().get_fields()
+
+      # add reverse relations which aren't included by ModelSerializer automatically
       for relation in model_class._meta.related_objects:
         field_name = relation.get_accessor_name()
         # don't add it if DRF already knows about it
@@ -60,14 +39,14 @@ def create_serializer_class(model_class):
         view_name = f'{related_model._meta.model_name}-detail'
         # reverse M2M or reverse FK
         if relation.many_to_many or relation.one_to_many:
-          fields[field_name] = NullableHyperlinkedRelatedField(
+          fields[field_name] = HyperlinkedRelatedField(
             many=True,
             read_only=True,
             view_name=view_name,
           )
         # reverse OneToOne
         elif relation.one_to_one:
-          fields[field_name] = NullableHyperlinkedRelatedField(
+          fields[field_name] = HyperlinkedRelatedField(
             read_only=True,
             view_name=view_name,
           )
@@ -75,6 +54,12 @@ def create_serializer_class(model_class):
 
     def to_representation(self, instance):
       representation = super().to_representation(instance)
+
+      # convert empty arrays to null
+      for field_name, value in representation.items():
+        if isinstance(value, list) and not value:
+          representation[field_name] = None
+
       request = self.context.get('request')
 
       # hide field connection_info of Source and Repository models for anonymous users
