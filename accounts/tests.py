@@ -105,9 +105,7 @@ class TestPasswordReset(AccountTestCase):
   def confirm_url(self):
     uidb64 = urlsafe_base64_encode(force_bytes(self.test_user.pk))
     token = default_token_generator.make_token(self.test_user)
-    return reverse(
-      'accounts:password_reset_confirm', kwargs={'uidb64': uidb64, 'token': token}
-    )
+    return reverse('accounts:password_reset_confirm', kwargs={'uidb64': uidb64, 'token': token})
 
   def form_url(self):
     """
@@ -131,9 +129,7 @@ class TestPasswordReset(AccountTestCase):
     """
     Ein aktiver lokaler Nutzer erhält genau eine Mail mit Confirm-URL.
     """
-    response = self.client.post(
-      reverse('accounts:password_reset'), data={'email': self.USERNAME}
-    )
+    response = self.client.post(reverse('accounts:password_reset'), data={'email': self.USERNAME})
     self.assertRedirects(response, reverse('accounts:password_reset_done'))
     self.assertEqual(len(mail.outbox), 1)
     self.assertEqual(mail.outbox[0].subject, 'Passwort zurücksetzen für Datenwerft.HRO')
@@ -146,9 +142,7 @@ class TestPasswordReset(AccountTestCase):
     """
     self.test_user.set_unusable_password()
     self.test_user.save()
-    response = self.client.post(
-      reverse('accounts:password_reset'), data={'email': self.USERNAME}
-    )
+    response = self.client.post(reverse('accounts:password_reset'), data={'email': self.USERNAME})
     self.assertRedirects(response, reverse('accounts:password_reset_done'))
     self.assertEqual(len(mail.outbox), 0)
 
@@ -158,9 +152,7 @@ class TestPasswordReset(AccountTestCase):
     """
     self.test_user.is_active = False
     self.test_user.save(update_fields=['is_active'])
-    response = self.client.post(
-      reverse('accounts:password_reset'), data={'email': self.USERNAME}
-    )
+    response = self.client.post(reverse('accounts:password_reset'), data={'email': self.USERNAME})
     self.assertRedirects(response, reverse('accounts:password_reset_done'))
     self.assertEqual(len(mail.outbox), 0)
 
