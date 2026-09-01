@@ -516,6 +516,7 @@ class RepositoryAdmin(admin.ModelAdmin):
   list_display = (
     'id',
     'modified',
+    'description',
     'connection_info',
     'creation',
     'last_update',

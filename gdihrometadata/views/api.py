@@ -4,7 +4,10 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
-from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.serializers import (
+  HyperlinkedModelSerializer,
+  HyperlinkedRelatedField,
+)
 from rest_framework.viewsets import ModelViewSet
 
 from toolbox.utils import is_valid_uuid
@@ -23,14 +26,44 @@ def create_serializer_class(model_class):
       model = model_class
       fields = '__all__'
 
+    def get_fields(self):
+      fields = super().get_fields()
+
+      # add reverse relations which aren't included by ModelSerializer automatically
+      for relation in model_class._meta.related_objects:
+        field_name = relation.get_accessor_name()
+        # don't add it if DRF already knows about it
+        if field_name in fields:
+          continue
+        related_model = relation.related_model
+        view_name = f'{related_model._meta.model_name}-detail'
+        # reverse M2M or reverse FK
+        if relation.many_to_many or relation.one_to_many:
+          fields[field_name] = HyperlinkedRelatedField(
+            many=True,
+            read_only=True,
+            view_name=view_name,
+          )
+        # reverse OneToOne
+        elif relation.one_to_one:
+          fields[field_name] = HyperlinkedRelatedField(
+            read_only=True,
+            view_name=view_name,
+          )
+      return fields
+
     def to_representation(self, instance):
       representation = super().to_representation(instance)
+
+      # convert empty arrays to null
+      for field_name, value in representation.items():
+        if isinstance(value, list) and not value:
+          representation[field_name] = None
+
       request = self.context.get('request')
 
       # hide field connection_info of Source and Repository models for anonymous users
-      if (model_class.__name__ == 'Source' or model_class.__name__ == 'Repository') and isinstance(
-        representation, dict
-      ):
+      if model_class.__name__ in ('Repository', 'Source') and isinstance(representation, dict):
         if not request or not request.user or not request.user.is_authenticated:
           representation['connection_info'] = '*** hidden on read-only access ***'
 
