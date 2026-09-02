@@ -260,19 +260,17 @@
                 // Build popup content
                 let popupContent = '<div class="map-popup">';
 
-                // Heading: name of the offer; below, smaller: the offer type
+                // Heading: name of the offer
                 if (feature.properties._tooltip) {
                   popupContent += '<h6 class="mb-0">' + feature.properties._tooltip + '</h6>';
                 }
 
-                if (feature.properties._title) {
-                  popupContent += '<small class="map-popup-type d-block mb-1">' + feature.properties._title + '</small>';
-                }
-
-                // Add additional properties (skip the name, already shown as heading)
+                // Add additional properties (skip the name, already shown as heading;
+                // 'Status' is coupled to the label in Service.list_fields — if the
+                // label changes there, update it here too)
                 const skipProps = ['_model', '_pk', '_tooltip', '_title', '_link_detail', '_link_delete'];
                 for (const [key, value] of Object.entries(feature.properties)) {
-                  if (!skipProps.includes(key) && value && value !== feature.properties._tooltip) {
+                  if (!skipProps.includes(key) && key !== 'Status' && value && value !== feature.properties._tooltip) {
                     popupContent += '<small><strong>' + key + ':</strong> ' + value + '</small><br>';
                   }
                 }
@@ -288,7 +286,7 @@
                 popupContent += '</div>';
 
                 layer.bindPopup(popupContent, {
-                  maxWidth: 300,
+                  maxWidth: 400,
                   className: 'custom-popup'
                 });
 
