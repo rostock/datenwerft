@@ -7,6 +7,18 @@
     color: var(--bs-body-color);
   }
 
+  /* Disabled-Zustand (z. B. Ansichtsmodus): Das Bootstrap-5-Theme setzt hier
+     hartcodiert helle Farben (#e9ecef/#ced4da) mit gleicher Specificität wie
+     die Regeln oben — da das Theme im DOM später geladen wird, gewinnt es die
+     Kaskade. Der zusätzliche Klassen-Selektor hebt die Specificität hier auf
+     0-4-0 und stellt den Dark Mode unabhängig von der Ladereihenfolge sicher. */
+  .select2-container--bootstrap-5.select2-container--disabled .select2-selection,
+  .select2-container--bootstrap-5.select2-container--disabled.select2-container--focus .select2-selection {
+    background-color: var(--bs-secondary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-secondary-color);
+  }
+
   .select2-container--bootstrap-5 .select2-dropdown {
     background-color: var(--bs-body-bg);
     border-color: var(--bs-border-color);
