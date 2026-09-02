@@ -25,6 +25,11 @@ SERVICE_STATUS_CHOICES = [
   ('published', 'Veröffentlicht'),
 ]
 
+CONTACT_HOURS_PLACEHOLDER = (
+  'Wie und wann kann man Sie erreichen? z. Bsp. nach Vereinbarung, '
+  'ganztägig über den Anrufbeantworter…'
+)
+
 
 class Service(Base):
   """
@@ -76,7 +81,7 @@ class Service(Base):
     verbose_name='Kontaktzeiträume',
     null=True,
     blank=True,
-    help_text='z.B. Mo Di Mi 7:30 - 15:00 Uhr, Do 8:00 - 13:00 Uhr',
+    help_text=CONTACT_HOURS_PLACEHOLDER,
   )
   email = EmailField(max_length=255, verbose_name='E-Mail')
   host = ForeignKey(to=Provider, verbose_name='Träger', on_delete=CASCADE)
@@ -165,7 +170,7 @@ class ChildrenYouthAndFamilyService(Service):
 
   # Database Fields
   setting = TextField(
-    verbose_name='Beratungssetting',
+    verbose_name='Angebotsdurchführung',
     null=True,
     blank=True,
   )
@@ -199,7 +204,7 @@ class WoftGService(Service):
   dashboard_admin_only = False
 
   # Database Fields
-  setting = TextField(verbose_name='Beratungssetting')
+  setting = TextField(verbose_name='Angebotsdurchführung')
   application_needed = BooleanField(verbose_name='Antrag erforderlich?')
   phone = CharField(max_length=255, verbose_name='Telefonnummer')
   costs = FloatField(verbose_name='Kosten in Euro')
