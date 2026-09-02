@@ -172,6 +172,7 @@ class ChildrenYouthAndFamilyService(Service):
   application_needed = BooleanField(verbose_name='Antrag erforderlich?')
   phone = CharField(max_length=255, verbose_name='Telefonnummer')
   costs = FloatField(verbose_name='Kosten in Euro')
+  handicap_accessible = BooleanField(verbose_name='Barrierefreier Zugang?')
   catchment_area_urls = JSONField(
     verbose_name='Einzugsgebiet',
     default=list,

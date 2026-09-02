@@ -46,6 +46,7 @@ def _create_service_with_deps(provider, topic, law, status='draft'):
     host=provider,
     expiry_date=VALID_DATE_A,
     application_needed=False,
+    handicap_accessible=False,
     phone='0381 123456',
     costs=0.0,
     geometry=VALID_POINT_DB,

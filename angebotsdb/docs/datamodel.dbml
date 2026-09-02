@@ -118,6 +118,7 @@ Table angebotsdb_childrenyouthandfamilyservice {
   application_needed boolean [not null]
   phone varchar(255) [not null]
   costs float [not null]
+  handicap_accessible boolean [not null]
   catchment_area_urls json [note: 'PyGeoAPI-URIs']
   created_at datetime [not null]
   updated_at datetime [not null]
