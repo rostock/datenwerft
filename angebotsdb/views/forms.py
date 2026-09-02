@@ -374,6 +374,11 @@ class GenericCreateView(CreateView):
           if 'city' in self.fields:
             self.fields['city'].widget.attrs['placeholder'] = 'Gemeinde'
 
+        # Pflichtfeld: weiterführender Link für Angebote
+        if is_service_model and 'info_url' in self.fields:
+          self.fields['info_url'].required = True
+          self.fields['info_url'].widget.attrs['required'] = 'required'
+
     return StyledForm
 
   def form_valid(self, form):
@@ -630,6 +635,11 @@ class GenericUpdateView(UpdateView):
             self.fields['zip'].widget.attrs['placeholder'] = 'PLZ'
           if 'city' in self.fields:
             self.fields['city'].widget.attrs['placeholder'] = 'Gemeinde'
+
+        # Pflichtfeld: weiterführender Link für Angebote
+        if is_service_model and 'info_url' in self.fields:
+          self.fields['info_url'].required = True
+          self.fields['info_url'].widget.attrs['required'] = 'required'
 
         # Bei gesperrtem Service alle Felder deaktivieren
         if form_locked:

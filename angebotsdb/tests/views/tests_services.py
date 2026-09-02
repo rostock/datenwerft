@@ -43,6 +43,7 @@ def _base_service_form_data(topic_pk, law_pk, tag_pk=None):
     'city': 'Rostock',
     'email': 'angebot@test.de',
     'expiry_date': VALID_DATE_A.isoformat(),
+    'info_url': 'https://example.org',
     'phone': '0381 123456',
     'costs': '0',
     # application_needed ist BooleanField: weglassen entspricht False (nicht angehakt)
@@ -101,6 +102,19 @@ class ChildrenYouthAndFamilyServiceCreateViewTest(ViewTestCase):
     self.generic_get_test(
       login_as_provider, 'childrenyouthandfamilyservice_create', None, 200, HTML, 'Angebot'
     )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_provider_form_requirements(self, mock_get):
+    """Träger sieht keine Zielgruppen-Freitext-Erstellung, info_url ist Pflicht,
+    handicap_accessible ist im Formular enthalten."""
+    login_as_provider(self)
+    response = self.client.get(reverse('angebotsdb:childrenyouthandfamilyservice_create'))
+    form = response.context['form']
+    target_group_field = form.fields['target_group']
+    self.assertNotIsInstance(target_group_field, CreatableMultipleChoiceField)
+    self.assertNotIn('data-tags', target_group_field.widget.attrs)
+    self.assertTrue(form.fields['info_url'].required)
+    self.assertIn('handicap_accessible', form.fields)
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_as_admin_target_group_creatable(self, mock_get):
