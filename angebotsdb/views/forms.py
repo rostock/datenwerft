@@ -16,7 +16,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from ..constants_vars import ADMIN_GROUP, USERS_GROUP
 from ..fields import PyGeoAPIMultipleChoiceField, get_pygeoapi_config
 from ..models.base import Law, Provider, ReviewTask, TargetGroup, Topic, UserProfile
-from ..models.services import Service, ServiceImage
+from ..models.services import CONTACT_HOURS_PLACEHOLDER, Service, ServiceImage
 from ..utils import (
   authorized_to_edit,
   authorized_to_manage_base_data,
@@ -362,7 +362,9 @@ class GenericCreateView(CreateView):
           if 'zip' in self.fields:
             self.fields['zip'].widget.attrs['placeholder'] = 'PLZ'
           if 'city' in self.fields:
-            self.fields['city'].widget.attrs['placeholder'] = 'Gemeinde'
+            self.fields['city'].widget.attrs['placeholder'] = 'Stadt/Gemeinde'
+          if 'contact_hours' in self.fields:
+            self.fields['contact_hours'].widget.attrs['placeholder'] = CONTACT_HOURS_PLACEHOLDER
 
     return StyledForm
 
@@ -609,7 +611,9 @@ class GenericUpdateView(UpdateView):
           if 'zip' in self.fields:
             self.fields['zip'].widget.attrs['placeholder'] = 'PLZ'
           if 'city' in self.fields:
-            self.fields['city'].widget.attrs['placeholder'] = 'Gemeinde'
+            self.fields['city'].widget.attrs['placeholder'] = 'Stadt/Gemeinde'
+          if 'contact_hours' in self.fields:
+            self.fields['contact_hours'].widget.attrs['placeholder'] = CONTACT_HOURS_PLACEHOLDER
 
         # Bei gesperrtem Service alle Felder deaktivieren
         if form_locked:
