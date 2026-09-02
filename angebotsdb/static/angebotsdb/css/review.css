@@ -35,7 +35,7 @@
 /* ── Diff-Block (alter Wert unterhalb des neuen) ──────────────────────────── */
 
 .diff-block {
-  border-top: 1px dashed #dee2e6;
+  border-top: 1px dashed var(--bs-border-color, #dee2e6);
   padding-top: 0.4rem;
   color: #6c757d;
 }
@@ -74,7 +74,7 @@
 
 .comment-field {
   border-color: #ffc107;
-  background-color: #fffdf0;
+  background-color: var(--bs-warning-bg-subtle, #fffdf0);
   resize: vertical;
   font-size: 0.875rem;
 }
@@ -149,7 +149,7 @@
 /* Erste Spalte (Feldname) leicht hervorgehoben */
 #review-table td:first-child {
   font-weight: 600;
-  color: #212529;
+  color: var(--bs-body-color, #212529);
   font-size: 0.9rem;
 }
 
@@ -169,7 +169,7 @@
   #review-table tbody td:last-child {
     display: block;
     width: 100%;
-    border-top: 1px dashed #dee2e6;
+    border-top: 1px dashed var(--bs-border-color, #dee2e6);
     padding-top: 0.5rem;
   }
 
