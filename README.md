@@ -175,7 +175,7 @@ uv run manage.py collectstatic -c
 
 ### Einführung des Rechtesystems in bestehenden Instanzen
 
-Betrifft Instanzen, die bereits _pygeoapi_-Kollektionen und -Datenbankverbindungen pflegen und auf einen Stand mit dem attributbezogenen Rechtesystem gehoben werden.
+Die nachfolgenden Informationen betreffen Instanzen, die bereits _pygeoapi_-Kollektionen und -Datenbankverbindungen pflegen und auf einen Stand mit dem attributbezogenen Rechtesystem gehoben werden.
 
 1. `manage.py migrate` legt die drei neuen Tabellen an (Rollenkatalog, Attributinventar, Leserechte). Die zugehörigen Migrationen legen ausschließlich diese neuen Tabellen an und ergänzen eine Spalte an einer von ihnen; keine bestehende Tabelle wird verändert und es findet keine Datenübernahme statt. **Bestehende Kollektionen und Datenbankverbindungen bleiben unberührt.** Die drei neuen Tabellen sind danach leer.
 
@@ -185,7 +185,8 @@ Betrifft Instanzen, die bereits _pygeoapi_-Kollektionen und -Datenbankverbindung
 
 #### Rückweg
 
-⚠️ **Achtung – Datenverlust ohne Rückfrage.**
+> [!WARNING]
+> Achtung, hier droht unter Umständen ein Datenverlust!
 
 ```bash
 # ohne uv
@@ -213,7 +214,8 @@ uv run manage.py loaddata pygeoapi_dev-instance
 
 Sie legt eine Datenbankverbindung mit **erfundenen** Zugangsdaten und zwei Kollektionen an (eine davon deaktiviert). Die Fixture ist ausschließlich für Entwicklungssysteme gedacht und wird von keinem Deploy- und keinem Testschritt geladen. In der Kollektions-Übersicht des Administrationsbereichs erscheint für ihre Service-Metadatensätze `Unknown (<id>)`, weil die dort angegebenen Kennungen auf keinen Metadatensatz zeigen – das ist erwartet und kein Fehler.
 
-⚠️ `loaddata` schreibt **primärschlüsselgenau:** Belegt auf dem Zielsystem bereits eine Datenbankverbindung die Kennung `9001` oder belegt eine Kollektion die Kennung `9001` beziehungsweise `9002`, werden diese Zeilen **ohne Rückfrage überschrieben** – ein erneutes Laden setzt zwischenzeitliche Änderungen an genau diesen Zeilen zurück. Ist eine der Service-Kennungen `9000001` oder `9000002` bereits vergeben, bricht das Laden mit einem Fehler ab, weil `service_id` eindeutig ist. Auf einem Entwicklungssystem mit einer Kopie der Produktionsdaten daher vorher prüfen, ob diese Kennungen frei sind.
+> [!WARNING]
+> `loaddata` schreibt **primärschlüsselgenau:** Belegt auf dem Zielsystem bereits eine Datenbankverbindung die Kennung `9001` oder belegt eine Kollektion die Kennung `9001` beziehungsweise `9002`, werden diese Zeilen **ohne Rückfrage überschrieben** – ein erneutes Laden setzt zwischenzeitliche Änderungen an genau diesen Zeilen zurück. Ist eine der Service-Kennungen `9000001` oder `9000002` bereits vergeben, bricht das Laden mit einem Fehler ab, weil `service_id` eindeutig ist. Auf einem Entwicklungssystem mit einer Kopie der Produktionsdaten daher vorher prüfen, ob diese Kennungen frei sind.
 
 ## Start
 
@@ -335,12 +337,12 @@ Für den Export von PDF-Dateien mit eigenen Templates aus der App _Datenmanageme
 
 ### Technische Dokumentation
 
-Unter [`docs/`](docs) liegt Dokumentation, die sich an Entwickler:innen richtet – also Datenmodelle, Entwurfsentscheidungen und deren Begründungen:
+Unter [`docs/`](docs) befindet sich die technische Dokumentation, die sich vornehmlich an Entwickler:innen richtet – also Datenmodelle, Entwurfsentscheidungen und deren Begründungen:
 
 - [Rechtesystem der App _pygeoapi_](docs/pygeoapi/rechtesystem.md)
 - [Vererbungsstruktur der Templates](docs/templates/README.md)
 
-Abzugrenzen von [`hilfe/`](hilfe): Dort steht die Dokumentation für Anwender:innen und die Administration, also das zugesagte **Verhalten** der Anwendung. Kurz: `hilfe/` beschreibt, was die Anwendung verspricht, `docs/` warum sie so gebaut ist.
+Die technische Dokumentation ist abzugrenzen von [`hilfe/`](hilfe): Dort befindet sich die Dokumentation für Anwender:innen und für die Administration, also das zugesagte **Verhalten** der Anwendung. Kurz gesagt: `hilfe/` beschreibt, was die Anwendung verspricht, `docs/` warum sie so gebaut ist.
 
 ### Grundsätzliches
 
@@ -571,24 +573,6 @@ uv run manage.py test toolbox
   # mit uv
   uv run manage.py test gdihrometadata
   ```
-
-- Tests der App _Stadtbereichskatalog_ durchführen:
-  - Einzeltest (Beispiel):
-  ```bash
-  # ohne uv
-  python manage.py test stadtbereichskatalog.tests.IndexViewTest.test_get_with_permissions
-
-  # mit uv
-  uv run manage.py test stadtbereichskatalog.tests.IndexViewTest.test_get_with_permissions
-  ```
-
-  - alle Tests:
-  ```bash
-  # ohne uv
-  python manage.py test stadtbereichskatalog
-
-  # mit uv
-  uv run manage.py test stadtbereichskatalog
   ```
 
 - Tests der App _pygeoapi_ durchführen:
@@ -610,7 +594,25 @@ uv run manage.py test toolbox
   uv run manage.py test pygeoapi
   ```
 
-### Tests des browserseitigen JavaScripts
+- Tests der App _Stadtbereichskatalog_ durchführen:
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test stadtbereichskatalog.tests.IndexViewTest.test_get_with_permissions
+
+  # mit uv
+  uv run manage.py test stadtbereichskatalog.tests.IndexViewTest.test_get_with_permissions
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test stadtbereichskatalog
+
+  # mit uv
+  uv run manage.py test stadtbereichskatalog
+
+### Tests des Browser-seitigen JavaScripts
 
 Verhalten, das vollständig im Browser stattfindet, wird mit [_Vitest_](https://vitest.dev/) gegen [_jsdom_](https://github.com/jsdom/jsdom) geprüft. Beide sind _devDependencies_ und stehen nach `npm ci` bereit; eine eigene Konfigurationsdatei gibt es nicht, die Testumgebung steht als `@vitest-environment`-Angabe im jeweiligen Testfile.
 
