@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from angebotsdb.models.base import Law, Provider, Tag, Topic
 from angebotsdb.models.services import ChildrenYouthAndFamilyService, WoftGService
-from angebotsdb.views.forms import CreatableMultipleChoiceField
+from angebotsdb.views.forms import CreatableMultipleChoiceField, SERVICE_FIELD_ORDER
 
 from ..abstract import FormViewTestCase, MockResponse, ViewTestCase
 from ..constant_vars import (
@@ -23,6 +23,11 @@ from ..functions import login_as_admin, login_as_provider, login_no_role
 
 HTML = 'text/html; charset=utf-8'
 PYGEOAPI_PATCH = 'angebotsdb.fields.httpx.get'
+
+# Erwartete Feldreihenfolge je Angebotstyp: alle Formularfelder sind in
+# SERVICE_FIELD_ORDER gelistet; KijuFa hat zusätzlich catchment_area_urls.
+KIJUFA_FIELD_ORDER = SERVICE_FIELD_ORDER
+WOFTG_FIELD_ORDER = [f for f in SERVICE_FIELD_ORDER if f != 'catchment_area_urls']
 
 
 def _base_service_form_data(topic_pk, law_pk, tag_pk=None):
@@ -124,6 +129,14 @@ class ChildrenYouthAndFamilyServiceCreateViewTest(ViewTestCase):
     form = response.context['form']
     self.assertIsInstance(form.fields['target_group'], CreatableMultipleChoiceField)
     self.assertIn('data-tags', form.fields['target_group'].widget.attrs)
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_provider_field_order(self, mock_get):
+    """Create-Formular KijuFa: Felder in der Reihenfolge laut OP-Liste."""
+    login_as_provider(self)
+    response = self.client.get(reverse('angebotsdb:childrenyouthandfamilyservice_create'))
+    form = response.context['form']
+    self.assertEqual(list(form.fields), KIJUFA_FIELD_ORDER)
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
@@ -233,6 +246,18 @@ class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
       HTML,
       '',
     )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_provider_field_order(self, mock_get):
+    """Update-Formular KijuFa: Felder in der Reihenfolge laut OP-Liste."""
+    login_as_provider(self)
+    response = self.client.get(
+      reverse(
+        'angebotsdb:childrenyouthandfamilyservice_update', kwargs={'pk': self.test_object.pk}
+      )
+    )
+    form = response.context['form']
+    self.assertEqual(list(form.fields), KIJUFA_FIELD_ORDER)
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_service_in_review_shows_locked_form(self, mock_get):
@@ -583,6 +608,14 @@ class WoftGServiceCreateViewTest(ViewTestCase):
     self.generic_get_test(login_as_provider, 'woftgservice_create', None, 200, HTML, 'Angebot')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_provider_field_order(self, mock_get):
+    """Create-Formular WoftG: Felder in der Reihenfolge laut OP-Liste."""
+    login_as_provider(self)
+    response = self.client.get(reverse('angebotsdb:woftgservice_create'))
+    form = response.context['form']
+    self.assertEqual(list(form.fields), WOFTG_FIELD_ORDER)
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
     self.generic_get_test(login_no_role, 'woftgservice_create', None, 403, HTML, '')
 
@@ -651,6 +684,16 @@ class WoftGServiceUpdateViewTest(FormViewTestCase):
       HTML,
       VALID_STRING_A,
     )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_provider_field_order(self, mock_get):
+    """Update-Formular WoftG: Felder in der Reihenfolge laut OP-Liste."""
+    login_as_provider(self)
+    response = self.client.get(
+      reverse('angebotsdb:woftgservice_update', kwargs={'pk': self.test_object.pk})
+    )
+    form = response.context['form']
+    self.assertEqual(list(form.fields), WOFTG_FIELD_ORDER)
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_success_as_provider(self, mock_get):

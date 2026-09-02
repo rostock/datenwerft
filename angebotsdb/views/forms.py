@@ -33,6 +33,31 @@ from .functions import add_permission_context_elements
 
 logger = logging.getLogger(__name__)
 
+# Gewünschte Reihenfolge der Formularfelder für Service-Modelle (OP-Liste).
+# Felder, die im jeweiligen Formular nicht existieren (z. B. catchment_area_urls
+# nur bei KijuFa), werden gefiltert; nicht gelistete Felder wandern ans Ende.
+SERVICE_FIELD_ORDER = [
+  'name',
+  'description',
+  'tags',
+  'topic',
+  'legal_basis',
+  'target_group',
+  'street',
+  'zip',
+  'city',
+  'catchment_area_urls',
+  'email',
+  'phone',
+  'info_url',
+  'contact_hours',
+  'setting',
+  'application_needed',
+  'handicap_accessible',
+  'costs',
+  'expiry_date',
+]
+
 
 def _set_geometry_from_request(request, instance):
   """
@@ -379,6 +404,12 @@ class GenericCreateView(CreateView):
           self.fields['info_url'].required = True
           self.fields['info_url'].widget.attrs['required'] = 'required'
 
+        # Feldreihenfolge laut OP-Liste
+        if is_service_model:
+          ordered = [f for f in SERVICE_FIELD_ORDER if f in self.fields]
+          remaining = [f for f in self.fields if f not in ordered]
+          self.order_fields(ordered + remaining)
+
     return StyledForm
 
   def form_valid(self, form):
@@ -645,6 +676,12 @@ class GenericUpdateView(UpdateView):
         if form_locked:
           for field in self.fields.values():
             field.widget.attrs['disabled'] = 'disabled'
+
+        # Feldreihenfolge laut OP-Liste
+        if is_service_model:
+          ordered = [f for f in SERVICE_FIELD_ORDER if f in self.fields]
+          remaining = [f for f in self.fields if f not in ordered]
+          self.order_fields(ordered + remaining)
 
     return StyledForm
 
