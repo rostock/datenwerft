@@ -17,9 +17,8 @@ from django.forms import (
 )
 from django.utils.functional import cached_property
 from django.utils.html import format_html_join
-from django.utils.translation import gettext
+from django.utils.translation import gettext, ngettext
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext
 
 from gdihrometadata.models import Service, ServiceType
 from pygeoapi.constants_vars import max_columns
@@ -32,7 +31,6 @@ from pygeoapi.models import (
 )
 from pygeoapi.services import reconcile_collection_inventory
 from pygeoapi.utils import reload_pygeoapi
-
 
 # a longer message no longer fits into the message cookie of 2048 bytes and falls
 # back to the session, which costs one query more

@@ -1,6 +1,5 @@
 from pygeoapi.utils import create_database_connection
 
-
 # what format_type() returns for a type OID it cannot resolve, instead of NULL
 UNRESOLVABLE_TYPE = '???'
 
