@@ -26,8 +26,9 @@ class PygeoapiApi:
     zu veranlassen.
     """
 
-    # Der Request and die pygeoapi muss asynchron gesendet werden, da Datenbankänderungen erst
-    # mit Abschluss des Requests in gespeichert werden.
+    # Der Request an die pygeoapi wird asynchron gesendet, damit der auslösende Request nicht auf
+    # die Antwort der Gegenstelle wartet. Dass die Gegenstelle einen bereits geschriebenen Stand
+    # sieht, stellen die Aufrufstellen sicher, indem sie über transaction.on_commit() auslösen.
     threading.Thread(target=self.send_reload_request, args=()).start()
 
   def send_reload_request(self) -> None:

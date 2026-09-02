@@ -28,7 +28,7 @@ jobs:
       - name: Check Python rules via ruff
         run: ruff check
       - name: Check Django rules via djLint
-        run: djlint datenwerft/templates/*.html accounts/templates/accounts/log*.html accounts/templates/accounts/test.html angebotsdb/templates/angebotsdb/*.html antragsmanagement/templates/antragsmanagement/*.html bemas/templates/bemas/*.html datenmanagement/templates/datenmanagement/*.html fmm/templates/fmm/*.html stadtbereichskatalog/templates/stadtbereichskatalog/*.html
+        run: djlint datenwerft/templates/*.html accounts/templates/accounts/log*.html accounts/templates/accounts/test.html angebotsdb/templates/angebotsdb/*.html antragsmanagement/templates/antragsmanagement/*.html bemas/templates/bemas/*.html datenmanagement/templates/datenmanagement/*.html fmm/templates/fmm/*.html pygeoapi/templates/admin/pygeoapi/*.html pygeoapi/templates/admin/pygeoapi/edit_inline/*.html stadtbereichskatalog/templates/stadtbereichskatalog/*.html
   linting_js_css:
     name: Linting JavaScript and CSS
     runs-on: ubuntu-latest
@@ -42,6 +42,6 @@ jobs:
       - name: Install Node.js dependencies
         run: npm install
       - name: Check CSS rules via Stylelint
-        run: npx stylelint "angebotsdb/**/*.css" "datenwerft/**/*.css" "datenmanagement/**/*.css" "stadtbereichskatalog/**/*.css"
+        run: npx stylelint "angebotsdb/**/*.css" "datenwerft/**/*.css" "datenmanagement/**/*.css" "pygeoapi/**/*.css" "stadtbereichskatalog/**/*.css"
       - name: Check JavaScript rules via ESLint
-        run: npx eslint "datenwerft/static" "angebotsdb/static" "antragsmanagement/static" "bemas/static" "datenmanagement/static" "stadtbereichskatalog/static"
+        run: npx eslint "datenwerft/static" "angebotsdb/static" "antragsmanagement/static" "bemas/static" "datenmanagement/static" "pygeoapi/static" "stadtbereichskatalog/static"

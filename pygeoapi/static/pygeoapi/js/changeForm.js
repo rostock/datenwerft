@@ -8,6 +8,25 @@ $(document).ready(function() {
 
   $('.select2').select2({});
 
+  $('.select2').on('select2:unselecting', function(event) {
+    const role = event.params.args.data.text;
+    const attribute = $(this).attr('data-attribute');
+    if (!attribute) {
+      return;
+    }
+    // "Sichern" statt "Speichern": so heißt der Knopf, auf den der Satz verweist
+    if (confirm(`Soll die Rolle „${role}“ das Attribut „${attribute}“ nicht mehr lesen dürfen?\n\nDer Entzug wirkt erst mit dem Sichern der Kollektion.`)) {
+      return;
+    }
+    // keeps the assignment; the dialog confirms the intention, the write happens
+    // only on saving
+    event.preventDefault();
+    // select2 opens the dropdown after an aborted unselect; closing it directly
+    // would be undone by that, hence the deferred call
+    const select = $(this);
+    setTimeout(() => select.select2('close'), 0);
+  });
+
   $('#id_database_connection').on('change', async function() {
     const db = $(this).val();
     resetSchemaSelect();
@@ -52,7 +71,8 @@ $(document).ready(function() {
     if (!data || !data.columns) {
       return;
     }
-    populateFieldSelects(data.columns);
+    // die Spaltenauskunft liefert je Spalte Name und Datentyp
+    populateFieldSelects(data.columns.map((column) => column.name));
   });
 
   $('#id_id_field_select').on('change', function() {

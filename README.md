@@ -10,6 +10,7 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
    - [Datenbanken](#datenbanken)
 1. [Konfiguration](#konfiguration)
 1. [Initialisierung](#initialisierung)
+   - [Einführung des Rechtesystems in bestehenden Instanzen](#einführung-des-rechtesystems-in-bestehenden-instanzen)
 1. [Start](#start)
 1. [Deployment](#deployment)
 1. [UML-Klassendiagramme](#uml-klassendiagramme)
@@ -17,6 +18,7 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
 1. [Cronjobs](#cronjobs)
 1. [PDF-Export mit eigenen Templates](#pdf-export-mit-eigenen-templates)
 1. [Entwicklung](#entwicklung)
+   - [Technische Dokumentation](#technische-dokumentation)
    - [Grundsätzliches](#grundsätzliches)
    - [Python](#python)
    - [JavaScript](#javascript)
@@ -171,6 +173,48 @@ python manage.py collectstatic -c
 uv run manage.py collectstatic -c
 ```
 
+### Einführung des Rechtesystems in bestehenden Instanzen
+
+Betrifft Instanzen, die bereits _pygeoapi_-Kollektionen und -Datenbankverbindungen pflegen und auf einen Stand mit dem attributbezogenen Rechtesystem gehoben werden.
+
+1. `manage.py migrate` legt die drei neuen Tabellen an (Rollenkatalog, Attributinventar, Leserechte). Die zugehörigen Migrationen legen ausschließlich diese neuen Tabellen an und ergänzen eine Spalte an einer von ihnen; keine bestehende Tabelle wird verändert und es findet keine Datenübernahme statt. **Bestehende Kollektionen und Datenbankverbindungen bleiben unberührt.** Die drei neuen Tabellen sind danach leer.
+
+2. `manage.py pygeoapi_roles_permissions` weist der Gruppe `PYGEOAPI_GROUP_NAME` die Berechtigungen an den neuen Datenobjekten zu. Der Befehl ist idempotent – ein zweiter Aufruf vergibt nichts erneut und meldet `0 permission(s) assigned`. In der _Docker_-Umgebung ist er bereits Teil des Entrypoints; ein manueller Aufruf ist dort nicht nötig.
+
+3. Danach ist die Anwendung ohne weitere Handgriffe lauffähig. Attributinventar und Leserechte werden auf der Änderungsseite einer Kollektion gepflegt: Der Knopf **Attribute abgleichen** füllt das Inventar aus der Quelltabelle, darunter werden je Attribut die Leserechte vergeben (siehe [`hilfe/pygeoapi/attribute-verwalten.md`](hilfe/pygeoapi/attribute-verwalten.md)). Für den **Rollenkatalog** gibt es noch keine Maske; solange er leer ist, lässt sich keine Rolle zuweisen.
+
+#### Rückweg
+
+⚠️ **Achtung – Datenverlust ohne Rückfrage.**
+
+```bash
+# ohne uv
+python manage.py migrate pygeoapi 0001
+
+# mit uv
+uv run manage.py migrate pygeoapi 0001
+```
+
+Damit werden die drei neuen Tabellen wieder entfernt. Kollektionen und Datenbankverbindungen bleiben dabei unberührt, **aber Rollenkatalog, Attributinventar und sämtliche Leserechte sind unwiederbringlich verloren.** _Django_ fragt bei einer Rückwärtsmigration nicht nach, es gibt kein Backup und keine Änderungshistorie. Vor dem Rückweg daher **immer** einen Dump der Datenbank ziehen.
+
+Solange die drei Tabellen noch leer sind, ist der Rückweg gefahrlos.
+
+#### Entwicklungsdaten
+
+Für eine reproduzierbare „bestehende Instanz" auf einem Entwicklungssystem – etwa um den Migrationsweg zu proben – steht eine Fixture bereit:
+
+```bash
+# ohne uv
+python manage.py loaddata pygeoapi_dev-instance
+
+# mit uv
+uv run manage.py loaddata pygeoapi_dev-instance
+```
+
+Sie legt eine Datenbankverbindung mit **erfundenen** Zugangsdaten und zwei Kollektionen an (eine davon deaktiviert). Die Fixture ist ausschließlich für Entwicklungssysteme gedacht und wird von keinem Deploy- und keinem Testschritt geladen. In der Kollektions-Übersicht des Administrationsbereichs erscheint für ihre Service-Metadatensätze `Unknown (<id>)`, weil die dort angegebenen Kennungen auf keinen Metadatensatz zeigen – das ist erwartet und kein Fehler.
+
+⚠️ `loaddata` schreibt **primärschlüsselgenau:** Belegt auf dem Zielsystem bereits eine Datenbankverbindung die Kennung `9001` oder belegt eine Kollektion die Kennung `9001` beziehungsweise `9002`, werden diese Zeilen **ohne Rückfrage überschrieben** – ein erneutes Laden setzt zwischenzeitliche Änderungen an genau diesen Zeilen zurück. Ist eine der Service-Kennungen `9000001` oder `9000002` bereits vergeben, bricht das Laden mit einem Fehler ab, weil `service_id` eindeutig ist. Auf einem Entwicklungssystem mit einer Kopie der Produktionsdaten daher vorher prüfen, ob diese Kennungen frei sind.
+
 ## Start
 
 Start der Anwendung (zum Testen oder während der Entwicklung):
@@ -288,6 +332,15 @@ Zum Hintergrund dieses Befehls siehe [hier](hilfe/bemas/admin.md#datenschutz).
 Für den Export von PDF-Dateien mit eigenen Templates aus der App _Datenmanagement_ mittels der App _Toolbox_ siehe [hier](toolbox/README.md).
 
 ## Entwicklung
+
+### Technische Dokumentation
+
+Unter [`docs/`](docs) liegt Dokumentation, die sich an Entwickler:innen richtet – also Datenmodelle, Entwurfsentscheidungen und deren Begründungen:
+
+- [Rechtesystem der App _pygeoapi_](docs/pygeoapi/rechtesystem.md)
+- [Vererbungsstruktur der Templates](docs/templates/README.md)
+
+Abzugrenzen von [`hilfe/`](hilfe): Dort steht die Dokumentation für Anwender:innen und die Administration, also das zugesagte **Verhalten** der Anwendung. Kurz: `hilfe/` beschreibt, was die Anwendung verspricht, `docs/` warum sie so gebaut ist.
 
 ### Grundsätzliches
 
@@ -422,6 +475,7 @@ uv run manage.py test toolbox
 
   # mit uv
   uv run manage.py test angebotsdb
+  ```
 
 - Tests der App _Antragsmanagement_ durchführen:
   - Einzeltest (Beispiel):
@@ -440,6 +494,7 @@ uv run manage.py test toolbox
 
   # mit uv
   uv run manage.py test antragsmanagement
+  ```
 
 - Tests der App _BEMAS_ durchführen:
   - Einzeltest (Beispiel):
@@ -458,6 +513,7 @@ uv run manage.py test toolbox
 
   # mit uv
   uv run manage.py test bemas
+  ```
 
 - Tests der App _FMM_ durchführen:
   - Einzeltest (Beispiel):
@@ -476,6 +532,7 @@ uv run manage.py test toolbox
 
   # mit uv
   uv run manage.py test fmm
+  ```
 
 - Tests der App _GDI.HRO Codelists_ durchführen:
   - Einzeltest (Beispiel):
@@ -494,6 +551,7 @@ uv run manage.py test toolbox
 
   # mit uv
   uv run manage.py test gdihrocodelists
+  ```
 
 - Tests der App _GDI.HRO Metadata_ durchführen:
   - Einzeltest (Beispiel):
@@ -512,6 +570,7 @@ uv run manage.py test toolbox
 
   # mit uv
   uv run manage.py test gdihrometadata
+  ```
 
 - Tests der App _Stadtbereichskatalog_ durchführen:
   - Einzeltest (Beispiel):
@@ -530,6 +589,36 @@ uv run manage.py test toolbox
 
   # mit uv
   uv run manage.py test stadtbereichskatalog
+  ```
+
+- Tests der App _pygeoapi_ durchführen:
+  - Einzeltest (Beispiel):
+  ```bash
+  # ohne uv
+  python manage.py test pygeoapi.tests.test_role.RoleModelTest.test_identifier_is_unique
+
+  # mit uv
+  uv run manage.py test pygeoapi.tests.test_role.RoleModelTest.test_identifier_is_unique
+  ```
+
+  - alle Tests:
+  ```bash
+  # ohne uv
+  python manage.py test pygeoapi
+
+  # mit uv
+  uv run manage.py test pygeoapi
+  ```
+
+### Tests des browserseitigen JavaScripts
+
+Verhalten, das vollständig im Browser stattfindet, wird mit [_Vitest_](https://vitest.dev/) gegen [_jsdom_](https://github.com/jsdom/jsdom) geprüft. Beide sind _devDependencies_ und stehen nach `npm ci` bereit; eine eigene Konfigurationsdatei gibt es nicht, die Testumgebung steht als `@vitest-environment`-Angabe im jeweiligen Testfile.
+
+```bash
+npm run test:js
+```
+
+Die Testfiles liegen neben den Django-Tests der jeweiligen App, zum Beispiel `pygeoapi/tests/js/`. Es handelt sich um **Unit-Tests der Modullogik,** nicht um End-to-End-Tests im echten Browser – ein Browser-Treiber wie _Selenium_ oder _Playwright_ ist im Projekt nicht vorhanden.
 
 ## CI/CD
 
