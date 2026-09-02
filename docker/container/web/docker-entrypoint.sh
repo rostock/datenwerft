@@ -11,21 +11,26 @@ source .venv/bin/activate
 
 if [ ! -f datenwerft/secrets.py ]; then
   cp docker/container/web/secrets.py datenwerft/secrets.py
-  python <<'EOF'
-from pathlib import Path
-from django.core.management.utils import get_random_secret_key
-
-path = Path("datenwerft/secrets.py")
-
-content = path.read_text(encoding="utf-8")
-content = content.replace(
-    "SECRET_KEY = None",
-    f"SECRET_KEY = {get_random_secret_key()!r}"
-)
-
-path.write_text(content, encoding="utf-8")
-EOF
   chown $USER_ID:$GROUP_ID datenwerft/secrets.py
+fi
+
+# Solange die Konfiguration noch den Platzhalter der Vorlage enthaelt, einen SECRET_KEY erzeugen.
+# Bewusst ohne Djangos get_random_secret_key(), da die Python-Module erst weiter unten installiert
+# werden; Zeichensatz und Laenge entsprechen der Django-Implementierung.
+if grep -q '^SECRET_KEY = None$' datenwerft/secrets.py; then
+  python3 <<'EOF'
+import secrets
+from pathlib import Path
+
+chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+key = ''.join(secrets.choice(chars) for _ in range(50))
+
+path = Path('datenwerft/secrets.py')
+path.write_text(
+  path.read_text(encoding='utf-8').replace('SECRET_KEY = None', f'SECRET_KEY = {key!r}', 1),
+  encoding='utf-8',
+)
+EOF
 fi
 
 pip install -r requirements.txt

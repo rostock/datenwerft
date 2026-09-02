@@ -1,0 +1,79 @@
+/**
+ * Korrekturen für die Attributübersicht auf der Änderungsseite einer Kollektion.
+ *
+ * Der Django-Admin bringt eigene Regeln für Listen innerhalb eines Fieldsets
+ * mit, die mit der Chip-Darstellung von select2 kollidieren. Beides greift erst,
+ * seit die Rollen-Spalte ein Formularfeld ist.
+ *
+ * Die select2-Klassennamen folgen BEM und nicht der kebab-case-Regel des
+ * Projekts. Sie stammen aus der Fremdbibliothek und sind nicht wählbar, deshalb
+ * die eng begrenzten Ausnahmen unten statt einer gelockerten Regel.
+ */
+
+/*
+ * base.css setzt `.module ul, .module ol { margin-left: 1.5em }`. select2
+ * rendert die Chip-Liste als `display: inline`; bei einem Inline-Element wirkt
+ * margin-left ausschließlich auf den Anfang der ersten Zeilenbox und schiebt
+ * damit genau den ersten Chip aus dem Feld heraus.
+ */
+/* stylelint-disable-next-line selector-class-pattern */
+.inline-group .select2-selection__rendered {
+  margin: 0;
+}
+
+/*
+ * base.css setzt `ul > li { padding: 1px 0 }`, wodurch die Chips gegenüber dem
+ * Suchfeld vertikal verspringen.
+ */
+/* stylelint-disable-next-line selector-class-pattern */
+.inline-group .select2-selection__rendered > li {
+  padding: 0;
+}
+
+/*
+ * Die erste Spalte des Inlines zeigt `str(obj)`, also
+ * "<Kollektion> → <Attributname>". Der Attributname steht in der Spalte daneben
+ * bereits, und die Kollektions-ID ist auf der Änderungsseite eben dieser
+ * Kollektion ohne Aussage. Ausgeblendet wird nur der Absatz; die versteckten
+ * Felder der Formset-Verwaltung liegen daneben und bleiben unberührt.
+ *
+ * Der Selektor ist an die Gruppe des Attribut-Inlines gebunden – die ID bildet
+ * Django aus dem `related_name` der Beziehung. Die Begründung oben gilt nur für
+ * dieses Inline; ein künftiges zweites Inline der App soll seine
+ * Objektbezeichnung behalten.
+ */
+#attributes-group td.original p {
+  display: none;
+}
+
+/*
+ * Die Suche blendet Zeilen ausschließlich über diese Klasse aus. Eine eigene
+ * statt Djangos `.hidden`, damit erkennbar bleibt, wer die Zeile ausblendet.
+ */
+.attribute-filter-hidden {
+  display: none;
+}
+
+.attribute-filter {
+  margin: 1em 0 0.5em;
+}
+
+.attribute-filter label {
+  margin-right: 0.5em;
+}
+
+.attribute-filter-status {
+  margin: 0.5em 0 0;
+}
+
+/*
+ * Der Abgleich steht über der Suche und damit über dem Inline; ohne eigenen
+ * Abstand klebt der Knopf am darüberliegenden Fieldset.
+ */
+.attribute-reconcile {
+  margin: 1.5em 0 0;
+}
+
+.attribute-reconcile-status {
+  margin: 0.5em 0 0;
+}

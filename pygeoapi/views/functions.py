@@ -1,5 +1,8 @@
 from pygeoapi.utils import create_database_connection
 
+# what format_type() returns for a type OID it cannot resolve, instead of NULL
+UNRESOLVABLE_TYPE = '???'
+
 
 def get_database_schemas(database_connection):
   """
@@ -59,18 +62,23 @@ def get_database_tables(database_connection, schema_name):
 def get_database_columns(database_connection, schema_name, table_name):
   """
   gets all columns of passed table within passed schema of passed database and returns their names
+  and data types
+
+  the data type is delivered in the notation of the source database
+  (``format_type()``, the same text ``\\d`` shows)
 
   :param database_connection: database connection
   :param schema_name: name of schema
   :param table_name: name of table
-  :return: names of all columns of passed table within passed schema of passed database
+  :return: names and data types of all columns of passed table within passed schema of passed
+    database
   """
   connection = create_database_connection(database_connection)
   if connection:
     with connection.cursor() as cursor:
       cursor.execute(
         """
-        SELECT a.attname
+        SELECT a.attname, format_type(a.atttypid, a.atttypmod)
          FROM pg_attribute a
          JOIN pg_class t on a.attrelid = t.oid
          JOIN pg_namespace s on t.relnamespace = s.oid
@@ -82,7 +90,11 @@ def get_database_columns(database_connection, schema_name, table_name):
       """,
         [schema_name, table_name],
       )
-      result = [row[0] for row in cursor.fetchall()]
+      # empty instead of a substitute value that pretends a type
+      result = [
+        {'name': row[0], 'type': '' if row[1] == UNRESOLVABLE_TYPE else row[1] or ''}
+        for row in cursor.fetchall()
+      ]
       connection.close()
       return result
   else:
