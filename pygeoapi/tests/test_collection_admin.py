@@ -186,6 +186,9 @@ class CollectionAdminTestCase(TestCase):
     return Service.objects.create(
       name=name,
       title=f'Dienst {name}',
+      # not null and without a database default since gdihrometadata/0002; the
+      # collection form does not touch the field, the record only has to exist
+      public=True,
       link='https://example.org/service',
       type=ServiceType.API_FEATURES,
       legal=Legal.objects.create(
