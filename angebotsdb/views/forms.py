@@ -289,6 +289,8 @@ class GenericCreateView(CreateView):
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
 
+    can_create_target_groups = authorized_to_manage_base_data(self.request.user)
+
     class StyledForm(DynamicStyledModelForm):
       Meta = _FormMeta
 
@@ -331,15 +333,23 @@ class GenericCreateView(CreateView):
 
         if 'target_group' in self.fields:
           current_field = self.fields['target_group']
-          self.fields['target_group'] = CreatableMultipleChoiceField(
-            model=TargetGroup,
-            queryset=TargetGroup.objects.all(),
-            label=current_field.label,
-            required=current_field.required,
-            widget=widgets.SelectMultiple(
-              attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
-            ),
-          )
+          if can_create_target_groups:
+            self.fields['target_group'] = CreatableMultipleChoiceField(
+              model=TargetGroup,
+              queryset=TargetGroup.objects.all(),
+              label=current_field.label,
+              required=current_field.required,
+              widget=widgets.SelectMultiple(
+                attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
+              ),
+            )
+          else:
+            self.fields['target_group'] = ModelMultipleChoiceField(
+              queryset=TargetGroup.objects.all(),
+              label=current_field.label,
+              required=current_field.required,
+              widget=widgets.SelectMultiple(attrs={'class': 'form-select select2-multiple'}),
+            )
 
         for field_name, config_or_key in getattr(used_model, 'PYGEOAPI_FIELDS', {}).items():
           if field_name in self.fields:
@@ -563,6 +573,8 @@ class GenericUpdateView(UpdateView):
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
 
+    can_create_target_groups = authorized_to_manage_base_data(self.request.user)
+
     class StyledForm(DynamicStyledModelForm):
       Meta = _FormMeta
 
@@ -571,15 +583,23 @@ class GenericUpdateView(UpdateView):
 
         if 'target_group' in self.fields:
           current_field = self.fields['target_group']
-          self.fields['target_group'] = CreatableMultipleChoiceField(
-            model=TargetGroup,
-            queryset=TargetGroup.objects.all(),
-            label=current_field.label,
-            required=current_field.required,
-            widget=widgets.SelectMultiple(
-              attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
-            ),
-          )
+          if can_create_target_groups:
+            self.fields['target_group'] = CreatableMultipleChoiceField(
+              model=TargetGroup,
+              queryset=TargetGroup.objects.all(),
+              label=current_field.label,
+              required=current_field.required,
+              widget=widgets.SelectMultiple(
+                attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
+              ),
+            )
+          else:
+            self.fields['target_group'] = ModelMultipleChoiceField(
+              queryset=TargetGroup.objects.all(),
+              label=current_field.label,
+              required=current_field.required,
+              widget=widgets.SelectMultiple(attrs={'class': 'form-select select2-multiple'}),
+            )
 
         for field_name, config_or_key in getattr(used_model, 'PYGEOAPI_FIELDS', {}).items():
           if field_name in self.fields:

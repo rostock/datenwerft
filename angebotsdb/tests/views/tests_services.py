@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from angebotsdb.models.base import Law, Provider, Tag, Topic
 from angebotsdb.models.services import ChildrenYouthAndFamilyService, WoftGService
+from angebotsdb.views.forms import CreatableMultipleChoiceField
 
 from ..abstract import FormViewTestCase, MockResponse, ViewTestCase
 from ..constant_vars import (
@@ -100,6 +101,15 @@ class ChildrenYouthAndFamilyServiceCreateViewTest(ViewTestCase):
     self.generic_get_test(
       login_as_provider, 'childrenyouthandfamilyservice_create', None, 200, HTML, 'Angebot'
     )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_admin_target_group_creatable(self, mock_get):
+    """Admin darf Zielgruppen im Formular neu erstellen."""
+    login_as_admin(self)
+    response = self.client.get(reverse('angebotsdb:childrenyouthandfamilyservice_create'))
+    form = response.context['form']
+    self.assertIsInstance(form.fields['target_group'], CreatableMultipleChoiceField)
+    self.assertIn('data-tags', form.fields['target_group'].widget.attrs)
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
