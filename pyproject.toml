@@ -47,7 +47,7 @@ dev = ["djangorestframework-stubs", "djlint", "ruff"]
 profile = "django"
 use_gitignore = true
 exclude = ".github,docs,linting,logs,node_modules,static,uploads,vendor"
-ignore = "H006,T003"
+ignore = "H006,H021,H024,H043,T003"
 ignore_case = true
 
 
