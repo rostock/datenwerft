@@ -69,7 +69,7 @@ class Base(Model):
 
 class Topic(Base):
   """
-  Categoriers for services.
+  Lebenslagen for services.
   """
 
   # Logical Attributes
@@ -83,8 +83,8 @@ class Topic(Base):
 
   class Meta:
     db_table = 'topic'
-    verbose_name = 'Kategorie'
-    verbose_name_plural = 'Kategorien'
+    verbose_name = 'Lebenslage'
+    verbose_name_plural = 'Lebenslagen'
     ordering = ['name']
 
   def __str__(self):

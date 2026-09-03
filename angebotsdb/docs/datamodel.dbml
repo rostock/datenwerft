@@ -10,7 +10,7 @@ Table topic {
   created_at datetime [not null]
   updated_at datetime [not null]
 
-  Note: 'Kategorien zur Klassifizierung von Angeboten'
+  Note: 'Lebenslagen zur Klassifizierung von Angeboten'
 }
 
 Table provider {

@@ -45,7 +45,7 @@ class Service(Base):
   description = TextField(verbose_name='Beschreibung')
   topic = ManyToManyField(
     to=Topic,
-    verbose_name='Kategorie(n)',
+    verbose_name='Lebenslage(n)',
     related_name='%(class)s',
   )
   target_group = ManyToManyField(
