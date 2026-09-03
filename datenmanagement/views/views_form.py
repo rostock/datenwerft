@@ -480,7 +480,9 @@ class DataChangeView(D3ContextMixin, UpdateView):
     # set corresponding d.3 link URL to d.3 link
     if hasattr(self.request, 'session') and lade_d3_session_id(self.request) is not None:
       if hasattr(self.model, 'd3') and hasattr(self.model, 'd3_link'):
-        if form.instance.d3 and form.instance.d3 != original_object.d3:
+        if form.instance.d3 and (
+          form.instance.d3 != original_object.d3 or original_object.d3_link is None
+        ):
           form.instance.d3_link = generiere_link_zu_kennzeichen(self.request, form.instance.d3)
         elif not form.instance.d3:
           form.instance.d3_link = None

@@ -33,7 +33,7 @@
     <button type="button" class="attribute-filter-reset">Zurücksetzen</button>
     <p class="attribute-filter-status" role="status"></p>
   </div>
-  {% include 'admin/edit_inline/tabular.html' %}
+  {% include "admin/edit_inline/tabular.html" %}
 {% else %}
   <div class="js-inline-admin-formset inline-group" id="{{ inline_admin_formset.formset.prefix }}-group"
        data-inline-type="tabular"

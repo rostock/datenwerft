@@ -335,16 +335,20 @@ class GenericObjectclassUpdateView(UpdateView):
         str(form.instance),
       ),
     )
-    if form.has_changed():
+    if form.has_changed() or form.instance.dms_link_url is None:
       # set corresponding DMS link URL to DMS link
       if lade_d3_session_id(self.request) is not None:
         if hasattr(self.model, 'dms_link') and hasattr(self.model, 'dms_link_url'):
-          if form.instance.dms_link and form.instance.dms_link != original_object.dms_link:
+          if form.instance.dms_link and (
+            form.instance.dms_link != original_object.dms_link
+            or original_object.dms_link_url is None
+          ):
             form.instance.dms_link_url = generiere_link_zu_kennzeichen(
               self.request, form.instance.dms_link
             )
           elif not form.instance.dms_link:
             form.instance.dms_link_url = None
+    if form.has_changed():
       # create new log entry for the following object classes:
       # Complaint, Originator
       if issubclass(self.model, Complaint) or issubclass(self.model, Originator):
