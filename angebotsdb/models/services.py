@@ -25,6 +25,16 @@ SERVICE_STATUS_CHOICES = [
   ('published', 'Veröffentlicht'),
 ]
 
+CONTACT_HOURS_PLACEHOLDER = (
+  'Wie und wann kann man Sie erreichen? z. Bsp. nach Vereinbarung, '
+  'ganztägig über den Anrufbeantworter…'
+)
+
+SETTING_PLACEHOLDER = (
+  'Wie und wo findet Ihr Angebot statt? z. Bsp. in Präsenz, '
+  'online per Videokonferenz, in einer Gruppe, einzeln, '
+  'in unseren Räumen, an Ihrem Wunschort…'
+)
 
 class Service(Base):
   """

@@ -16,7 +16,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from ..constants_vars import ADMIN_GROUP, USERS_GROUP
 from ..fields import PyGeoAPIMultipleChoiceField, get_pygeoapi_config
 from ..models.base import Law, Provider, ReviewTask, TargetGroup, Topic, UserProfile
-from ..models.services import Service, ServiceImage
+from ..models.services import CONTACT_HOURS_PLACEHOLDER, SETTING_PLACEHOLDER, Service, ServiceImage
 from ..utils import (
   authorized_to_edit,
   authorized_to_manage_base_data,
@@ -398,6 +398,10 @@ class GenericCreateView(CreateView):
             self.fields['zip'].widget.attrs['placeholder'] = 'PLZ'
           if 'city' in self.fields:
             self.fields['city'].widget.attrs['placeholder'] = 'Gemeinde'
+          if 'contact_hours' in self.fields:
+            self.fields['contact_hours'].widget.attrs['placeholder'] = CONTACT_HOURS_PLACEHOLDER
+          if 'setting' in self.fields:
+            self.fields['setting'].widget.attrs['placeholder'] = SETTING_PLACEHOLDER
 
         # Pflichtfeld: weiterführender Link für Angebote
         if is_service_model and 'info_url' in self.fields:
@@ -666,6 +670,10 @@ class GenericUpdateView(UpdateView):
             self.fields['zip'].widget.attrs['placeholder'] = 'PLZ'
           if 'city' in self.fields:
             self.fields['city'].widget.attrs['placeholder'] = 'Gemeinde'
+          if 'contact_hours' in self.fields:
+            self.fields['contact_hours'].widget.attrs['placeholder'] = CONTACT_HOURS_PLACEHOLDER
+          if 'setting' in self.fields:
+            self.fields['setting'].widget.attrs['placeholder'] = SETTING_PLACEHOLDER
 
         # Pflichtfeld: weiterführender Link für Angebote
         if is_service_model and 'info_url' in self.fields:
