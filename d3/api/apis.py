@@ -393,6 +393,7 @@ T000008201"
         + ' Message: '
         + response.text
       )
+      return None
 
     try:
       response_json = response.json()
