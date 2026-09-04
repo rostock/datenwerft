@@ -1,0 +1,43 @@
+[
+  {
+    "model": "pygeoapi.DatabaseConnection",
+    "pk": 9001,
+    "fields": {
+      "host": "db.entwicklungsdaten.invalid",
+      "port": 5432,
+      "dbname": "beispiel_entwicklungsdaten",
+      "user": "beispiel_lesend",
+      "password": "PLATZHALTER-KEIN-ECHTES-PASSWORT"
+    }
+  },
+  {
+    "model": "pygeoapi.Collection",
+    "pk": 9001,
+    "fields": {
+      "deactivated": false,
+      "service_id": 9000001,
+      "database_connection": 9001,
+      "schema": "beispiel",
+      "table": "beispiel_baeume",
+      "id_field": "uuid",
+      "title_field": "bezeichnung",
+      "geom_field": "geometrie",
+      "storage_crs": "https://www.opengis.net/def/crs/EPSG/0/25833"
+    }
+  },
+  {
+    "model": "pygeoapi.Collection",
+    "pk": 9002,
+    "fields": {
+      "deactivated": true,
+      "service_id": 9000002,
+      "database_connection": 9001,
+      "schema": "beispiel",
+      "table": "beispiel_spielplaetze",
+      "id_field": "uuid",
+      "title_field": "bezeichnung",
+      "geom_field": "geometrie",
+      "storage_crs": "https://www.opengis.net/def/crs/OGC/0/CRS84"
+    }
+  }
+]

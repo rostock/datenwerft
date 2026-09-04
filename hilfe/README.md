@@ -177,3 +177,11 @@ Hier finden Sie Hilfestellungen zum System zur Konfiguration von *pygeoapi* im R
 ### [Administration](pygeoapi/admin.md)
 
 ### [Berechtigungen](pygeoapi/permissions.md)
+
+### [Rollenkatalog](pygeoapi/rollenkatalog.md)
+
+### [Attributinventar](pygeoapi/attributinventar.md)
+
+### [Leserechte](pygeoapi/leserechte.md)
+
+### [Attribute verwalten](pygeoapi/attribute-verwalten.md)
