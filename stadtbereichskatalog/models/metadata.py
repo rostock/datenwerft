@@ -1,9 +1,9 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.fields import (
+  AutoField,
   BooleanField,
   CharField,
-  IntegerField,
   PositiveSmallIntegerField,
   TextField,
 )
@@ -103,7 +103,7 @@ class Source(models.Model):
   Quellenangabe
   """
 
-  id = IntegerField(primary_key=True, editable=False)
+  id = AutoField(primary_key=True, editable=False)
   name = CharField(verbose_name=_('Anzeigename'), max_length=500, validators=standard_validators)
   short_name = CharField(
     verbose_name=_('Kurzname'),
