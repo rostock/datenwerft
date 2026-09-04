@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("angebotsdb", "0010_tag_childrenyouthandfamilyservice_tags_and_more"),
+        ("angebotsdb", "0011_alter_childrenyouthandfamilyservice_contact_hours_and_more"),
     ]
 
     operations = [
