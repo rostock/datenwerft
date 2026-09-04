@@ -4,7 +4,7 @@ from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.utils.html import escape
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
 from stadtbereichskatalog.utils import get_icon_from_settings, is_stadtbereichskatalog_user
@@ -27,10 +27,12 @@ class MetadataTableDataView(BaseDatatableView):
 
   :param model: model
   :param edit_view_name: name of view for form page for editing
+  :param delete_view_name: name of view for form page for deleting
   """
 
   model = None
   edit_view_name = ''
+  delete_view_name = ''
 
   def render_to_response(self, context):
     """
@@ -73,7 +75,12 @@ class MetadataTableDataView(BaseDatatableView):
         # append links
         links = '<a class="btn btn-sm btn-warning" role="button" href="'
         links += reverse(self.edit_view_name, kwargs={'pk': item_pk})
-        links += '"><i class="fa-solid fa-' + get_icon_from_settings('edit') + '"</i></a>'
+        links += '"><i class="fa-solid fa-' + get_icon_from_settings('edit') + '"></i></a>'
+        if self.delete_view_name:
+          links += '<a class="ms-2 btn btn-sm btn-danger" role="button" href="'
+          links += reverse(self.delete_view_name, kwargs={'pk': item_pk})
+          links += '"><i class="fa-solid fa-' + get_icon_from_settings('delete') + '"></i></a>'
+          print(links)
         item_data.append(links)
         json_data.append(item_data)
     return json_data
@@ -130,12 +137,14 @@ class MetadataTableView(TemplateView):
   :param model: model
   :param template_name: template name
   :param table_data_view_name: name of view for composing table data
+  :param create_view_name: name of view for form page for creating
   :param icon_name: icon name
   """
 
   model = None
   template_name = 'stadtbereichskatalog/table.html'
   table_data_view_name = None
+  create_view_name = None
   icon_name = None
 
   def get_context_data(self, **kwargs):
@@ -153,6 +162,8 @@ class MetadataTableView(TemplateView):
     # add permissions related context elements
     context = add_permissions_context_elements(context, self.request.user)
     # add table related context elements
+    if self.create_view_name:
+      context['creation_url'] = reverse(self.create_view_name)
     context['objects_count'] = get_model_objects(self.model, True)
     context['column_titles'] = list(self.model.ExtendedMeta.table_fields.values())
     context['tabledata_url'] = reverse(self.table_data_view_name)
@@ -161,15 +172,16 @@ class MetadataTableView(TemplateView):
     return context
 
 
-class MetadataMixin:
+class MetadataFormMixin:
   """
-  generic mixin for form page for editing an instance of a metadata model class
+  generic mixin for form page for creating or editing an instance of a metadata model class
 
   :param model: model
   :param template_name: template name
   :param form: form
   :param success_message: custom success message
   :param cancel_url: custom cancel URL
+  :param deletion_url: custom deletion URL
   """
 
   model = None
@@ -177,6 +189,7 @@ class MetadataMixin:
   form = MetadataForm
   success_message = ''
   cancel_url = None
+  deletion_url = None
 
   def get_form_class(self):
     # ensure the model is set before creating the form class
@@ -219,10 +232,22 @@ class MetadataMixin:
       context['cancel_url'] = reverse(self.cancel_url)
     else:
       context['cancel_url'] = reverse(f'{appConfig.name}:index')
+    if self.object and self.deletion_url:
+      context['deletion_url'] = reverse(self.deletion_url, kwargs={'pk': self.object.pk})
     return context
 
 
-class MetadataEditView(MetadataMixin, UpdateView):
+class MetadataFormCreateView(MetadataFormMixin, CreateView):
+  """
+  generic view for form page for creating an instance of a metadata model class
+
+  :param success_message: custom success message
+  """
+
+  success_message = '{} <strong><em>{}</em></strong> erfolgreich angelegt!'
+
+
+class MetadataFormEditView(MetadataFormMixin, UpdateView):
   """
   generic view for form page for editing an instance of a metadata model class
 
@@ -230,3 +255,52 @@ class MetadataEditView(MetadataMixin, UpdateView):
   """
 
   success_message = '{} <strong><em>{}</em></strong> erfolgreich aktualisiert!'
+
+
+class MetadataFormDeleteView(DeleteView):
+  """
+  generic view for form page for deleting an instance of a metadata model class
+
+  :param model: model
+  :param template_name: template name
+  :param success_message: custom success message
+  :param cancel_url: custom cancel URL
+  """
+
+  model = None
+  template_name = 'stadtbereichskatalog/delete.html'
+  success_message = '{} <strong><em>{}</em></strong> erfolgreich gelöscht!'
+  cancel_url = None
+
+  def form_valid(self, form):
+    """
+    sends HTTP response if passed form is valid
+
+    :param form: form
+    :return: HTTP response if passed form is valid
+    """
+    success(
+      self.request, self.success_message.format(self.model._meta.verbose_name, str(self.object))
+    )
+    return super().form_valid(form)
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add global app related context elements
+    context = add_app_context_elements(context)
+    # add model related context elements
+    context = add_model_context_elements(context, self.model)
+    # add permissions related context elements
+    context = add_permissions_context_elements(context, self.request.user)
+    # add to context: URLs
+    if self.cancel_url:
+      context['cancel_url'] = reverse(self.cancel_url)
+    else:
+      context['cancel_url'] = reverse(f'{appConfig.name}:index')
+    return context

@@ -70,8 +70,13 @@ def assign_widget(field):
   if hasattr(form_field.widget, 'input_type'):
     if form_field.widget.input_type == 'checkbox':
       form_field.widget.attrs['class'] = 'form-check-input'
+    # handle selects
     elif form_field.widget.input_type == 'select':
+      # handle ordinary (single) selects
       form_field.widget.attrs['class'] = 'form-select'
+      # handle multiple selects
+      if form_field.widget.__class__.__name__ == 'SelectMultiple':
+        form_field.widget.attrs['size'] = 5
     else:
       form_field.widget.attrs['class'] = 'form-control'
     if form_field.widget.input_type == 'number':

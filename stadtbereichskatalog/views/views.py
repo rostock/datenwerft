@@ -9,7 +9,9 @@ from stadtbereichskatalog.utils import is_stadtbereichskatalog_user
 
 from ..apps import StadtbereichskatalogConfig as appConfig
 from .base import (
-  MetadataEditView,
+  MetadataFormCreateView,
+  MetadataFormDeleteView,
+  MetadataFormEditView,
   MetadataTableDataView,
   MetadataTableView,
 )
@@ -90,7 +92,7 @@ class TopicTableView(MetadataTableView):
   icon_name = 'topic'
 
 
-class TopicEditView(MetadataEditView):
+class TopicEditView(MetadataFormEditView):
   """
   view for form page for editing an instance of metadata model class:
   Themenbereich
@@ -131,7 +133,7 @@ class CategoryTableView(MetadataTableView):
   icon_name = 'category'
 
 
-class CategoryEditView(MetadataEditView):
+class CategoryEditView(MetadataFormEditView):
   """
   view for form page for editing an instance of metadata model class:
   Kategorie
@@ -151,10 +153,12 @@ class SourceTableDataView(MetadataTableDataView):
 
   :param model: model
   :param edit_view_name: name of view for form page for editing
+  :param delete_view_name: name of view for form page for deleting
   """
 
   model = Source
   edit_view_name = f'{appConfig.name}:source_edit'
+  delete_view_name = f'{appConfig.name}:source_delete'
 
 
 class SourceTableView(MetadataTableView):
@@ -164,21 +168,49 @@ class SourceTableView(MetadataTableView):
 
   :param model: model
   :param table_data_view_name: name of view for composing table data out of instances
+  :param create_view_name: name of view for form page for creating
   :param icon_name: icon name
   """
 
   model = Source
   table_data_view_name = f'{appConfig.name}:source_tabledata'
+  create_view_name = f'{appConfig.name}:source_create'
   icon_name = 'source'
 
 
-class SourceEditView(MetadataEditView):
+class SourceCreateView(MetadataFormCreateView):
+  """
+  view for form page for creating an instance of metadata model class:
+  Quellenangabe
+
+  :param model: model
+  """
+
+  model = Source
+  cancel_url = f'{appConfig.name}:source_table'
+
+
+class SourceEditView(MetadataFormEditView):
   """
   view for form page for editing an instance of metadata model class:
   Quellenangabe
 
   :param model: model
   :param cancel_url: custom cancel URL
+  :param deletion_url: custom deletion URL
+  """
+
+  model = Source
+  cancel_url = f'{appConfig.name}:source_table'
+  deletion_url = f'{appConfig.name}:source_delete'
+
+
+class SourceDeleteView(MetadataFormDeleteView):
+  """
+  view for form page for deleting an instance of metadata model class:
+  Quellenangabe
+
+  :param model: model
   """
 
   model = Source
@@ -213,7 +245,7 @@ class IndicatorTableView(MetadataTableView):
   icon_name = 'indicator'
 
 
-class IndicatorEditView(MetadataEditView):
+class IndicatorEditView(MetadataFormEditView):
   """
   view for form page for editing an instance of metadata model class:
   Indikator

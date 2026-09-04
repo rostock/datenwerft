@@ -363,6 +363,7 @@ STADTBEREICHSKATALOG_ICONS = {
   'category': 'folder-tree',
   'cancel': 'hand',
   'csv': 'file-csv',
+  'create': 'circle-plus',
   'data': 'chart-simple',
   'data_loading': 'database',
   'delete': 'trash-can',

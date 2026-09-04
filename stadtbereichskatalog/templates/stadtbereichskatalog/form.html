@@ -5,8 +5,20 @@
 
 {% block title %}{{ model_verbose_name_plural }} – Formular | {% endblock %}
 
-{% block scripts %}
+{% block style %}
+  <!-- inherits from form.html -->
   {{ block.super }}
+  <!-- add styles for stadtbereichskatalog -->
+  <link rel="stylesheet" type="text/css" href="{% static 'select2/select2.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'select2-bootstrap-5-theme/select2-bootstrap-5-theme.min.css' %}">
+{% endblock %}
+
+{% block scripts %}
+  <!-- inherit from form.html -->
+  {{ block.super }}
+  <!-- add scripts for stadtbereichskatalog -->
+  <script src="{% static "js/form.js" %}"></script>
+  <script src="{% static 'select2/select2.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -17,7 +29,7 @@
       {% endif %}
     {% endblock %}
     <h2>
-      <i class="fa-solid fa-{{ 'edit'|get_icon }}"></i> {{ model_verbose_name }}: <em>{{ object }}</em>
+      <i class="fa-solid fa-{{ 'edit'|get_icon }}"></i> {{ model_verbose_name }}{% if object %}: <em>{{ object }}</em>{% endif %}
     </h2>
     <form class="form mt-4 flex-container-column" method="post" action="" id="form">
       {% csrf_token %}
@@ -38,7 +50,10 @@
         </table>
       </div>
       <div class="d-grid mt-3 mb-3 gap-2">
-        <button class="btn btn-success" type="submit"><i class="fa-solid fa-{{ 'save'|get_icon }}"></i> speichern</button>
+        <button class="btn btn-success" type="submit"><i class="fa-solid fa-{{ 'save'|get_icon }}"></i> {% if object %}Änderungen {% endif %}speichern</button>
+        {% if object and deletion_url %}
+          <a class="btn btn-danger" role="button" href="{{ deletion_url }}"><i class="fa-solid fa-{{ 'delete'|get_icon }}"></i> löschen</a>
+        {% endif %}
         <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fa-solid fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
       </div>
     </form>
@@ -50,6 +65,11 @@
        */
       $(document).ready(function () {
         keepDjangoRequiredMessages();
+
+        // handle certain select fields: convert them to autocomplete fields
+        const $sourcesSelect = $('select#id_sources');
+        if ($sourcesSelect.length)
+          $sourcesSelect.select2({ theme: 'bootstrap-5' });
       });
     </script>
   {% else %}

@@ -11,6 +11,8 @@ from .views import (
   IndicatorEditView,
   IndicatorTableDataView,
   IndicatorTableView,
+  SourceCreateView,
+  SourceDeleteView,
   SourceEditView,
   SourceTableDataView,
   SourceTableView,
@@ -109,6 +111,15 @@ urlpatterns = [
     view=login_required(SourceTableView.as_view()),
     name='source_table',
   ),
+  # form page for creating an instance of metadata model class:
+  # Quellenangabe
+  path(
+    route='metadata/source/create',
+    view=login_required(
+      SourceCreateView.as_view(success_url=reverse_lazy(f'{app_name}:source_table'))
+    ),
+    name='source_create',
+  ),
   # form page for editing an instance of metadata model class:
   # Quellenangabe
   path(
@@ -117,6 +128,15 @@ urlpatterns = [
       SourceEditView.as_view(success_url=reverse_lazy(f'{app_name}:source_table'))
     ),
     name='source_edit',
+  ),
+  # form page for deleting an instance of metadata model class:
+  # Quellenangabe
+  path(
+    route='metadata/source/delete/<pk>',
+    view=login_required(
+      SourceDeleteView.as_view(success_url=reverse_lazy(f'{app_name}:source_table'))
+    ),
+    name='source_delete',
   ),
   # composing table data out of instances of metadata model class:
   # Indikator
