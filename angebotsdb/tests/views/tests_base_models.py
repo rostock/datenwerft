@@ -41,7 +41,7 @@ class TopicListViewTest(ViewTestCase):
     self.init()
 
   def test_get_as_admin(self):
-    self.generic_get_test(login_as_admin, 'topic_list', None, 200, HTML, 'Kategorie')
+    self.generic_get_test(login_as_admin, 'topic_list', None, 200, HTML, 'Lebenslage')
 
   def test_get_no_role(self):
     # Eingeloggt ohne Gruppe → kein is_angebotsdb_user → PermissionDenied in get_form_class
@@ -60,7 +60,7 @@ class TopicCreateViewTest(ViewTestCase):
     self.init()
 
   def test_get_as_admin(self):
-    self.generic_get_test(login_as_admin, 'topic_create', None, 200, HTML, 'Kategorie')
+    self.generic_get_test(login_as_admin, 'topic_create', None, 200, HTML, 'Lebenslage')
 
   def test_get_no_role_403(self):
     # GenericCreateView.get_form_class wirft PermissionDenied → 403

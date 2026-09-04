@@ -30,6 +30,12 @@ CONTACT_HOURS_PLACEHOLDER = (
   'ganztägig über den Anrufbeantworter…'
 )
 
+SETTING_PLACEHOLDER = (
+  'Wie und wo findet Ihr Angebot statt? z. Bsp. in Präsenz, '
+  'online per Videokonferenz, in einer Gruppe, einzeln, '
+  'in unseren Räumen, an Ihrem Wunschort…'
+)
+
 
 class Service(Base):
   """
@@ -50,7 +56,7 @@ class Service(Base):
   description = TextField(verbose_name='Beschreibung')
   topic = ManyToManyField(
     to=Topic,
-    verbose_name='Kategorie(n)',
+    verbose_name='Lebenslage(n)',
     related_name='%(class)s',
   )
   target_group = ManyToManyField(
@@ -177,6 +183,7 @@ class ChildrenYouthAndFamilyService(Service):
   application_needed = BooleanField(verbose_name='Antrag erforderlich?')
   phone = CharField(max_length=255, verbose_name='Telefonnummer')
   costs = FloatField(verbose_name='Kosten in Euro')
+  handicap_accessible = BooleanField(verbose_name='Barrierefreier Zugang?')
   catchment_area_urls = JSONField(
     verbose_name='Einzugsgebiet',
     default=list,

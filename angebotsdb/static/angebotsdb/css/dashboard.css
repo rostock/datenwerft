@@ -20,6 +20,25 @@
   min-height: 100% !important;
 }
 
+/* Wrap long words inside dashboard buttons instead of overflowing into the neighboring button */
+.grid-item .btn {
+  overflow-wrap: anywhere;
+}
+
+/* Align the icon beside the label and center it vertically when the label wraps */
+.grid-item .row-cols-md-2 .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Align the icon beside the card title and center it vertically when the title wraps */
+.grid-item .card-body > h3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @media (width >= 700px) {
   .grid-item.use2columns {
     grid-column: span 2;
@@ -99,11 +118,6 @@
 .leaflet-popup-content .map-popup h6 {
   margin-bottom: 0.5rem;
   color: #333;
-}
-
-/* fixed color so the type subtitle stays readable on the white popup in dark mode */
-.leaflet-popup-content .map-popup .map-popup-type {
-  color: #6c757d;
 }
 
 .leaflet-popup-content .map-popup {

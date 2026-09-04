@@ -297,6 +297,7 @@ class ChildrenYouthAndFamilyServiceModelTest(ModelTestCase):
       host=provider,
       expiry_date=VALID_DATE_A,
       application_needed=False,
+      handicap_accessible=False,
       phone='0381 123456',
       costs=0.0,
       geometry=VALID_POINT_DB,
@@ -327,6 +328,15 @@ class ChildrenYouthAndFamilyServiceModelTest(ModelTestCase):
     self.assertEqual(self.test_object.tags.count(), 1)
     self.assertEqual(self.test_object.tags.first().name, VALID_STRING_A)
     self.assertEqual(Tag.objects.first().childrenyouthandfamilyservice.count(), 1)
+
+  def test_handicap_accessible_field(self):
+    """4185: handicap_accessible existiert auf KijuFa (gespiegelt vom WoftG-Modell)."""
+    field = ChildrenYouthAndFamilyService._meta.get_field('handicap_accessible')
+    self.assertEqual(str(field.verbose_name), 'Barrierefreier Zugang?')
+    self.assertFalse(field.blank)
+    woftg_field = WoftGService._meta.get_field('handicap_accessible')
+    self.assertEqual(str(woftg_field.verbose_name), 'Barrierefreier Zugang?')
+    self.assertFalse(woftg_field.blank)
 
 
 class WoftGServiceModelTest(ModelTestCase):

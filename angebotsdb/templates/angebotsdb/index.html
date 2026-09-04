@@ -64,7 +64,7 @@
       <!-- Inbox -->
       <div id="grid-item-5" class="grid-item">
         <div class="card {% if inbox_count and inbox_count > 0 %}bg-warning-subtle border-warning{% else %}bg-primary-subtle border-primary{% endif %} text-center h-100">
-          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
+          <div class="card-body d-flex flex-column justify-content-center h-100">
             <h3><i class="fa-fw fa-solid fa-inbox me-2"></i>Inbox</h3>
             <p class="mt-3 mb-0">
               <span class="badge fs-6 {% if inbox_count and inbox_count > 0 %}bg-warning text-dark{% else %}bg-success{% endif %}">
@@ -93,7 +93,7 @@
           {% if tile.type == 'tile' %}
           <div id="grid-item-{{ tile.model_name }}" class="grid-item">
             <div class="card bg-{{ tile.color }}-subtle border-{{ tile.color }} text-center h-100">
-              <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
+              <div class="card-body d-flex flex-column justify-content-center h-100">
                 <h3><i class="fa-fw {{ tile.icon }} me-2"></i>{{ tile.verbose_name }}</h3>
                 <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
                   <div class="col d-grid">
@@ -117,7 +117,7 @@
           {% elif tile.type == 'container' %}
           <div id="grid-item-{{ tile.key }}" class="grid-item">
             <div class="card bg-{{ tile.color }}-subtle border-{{ tile.color }} text-center h-100">
-              <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
+              <div class="card-body d-flex flex-column justify-content-center h-100">
                 <h3><i class="fa-fw {{ tile.icon }} me-2"></i>{{ tile.title }}</h3>
                 <div class="row row-cols-1 row-cols-md-2 g-2 mt-4">
                   {% for button in tile.buttons %}
@@ -140,7 +140,7 @@
       <!-- Freiplatzfinder -->
       <div id="grid-item-4" class="grid-item">
         <div class="card bg-secondary-subtle border-secondary text-center h-100">
-          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
+          <div class="card-body d-flex flex-column justify-content-center h-100">
             <h3><i class="fa-fw fa-solid fa-people-roof me-2"></i>Freiplatzfinder</h3>
             <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
               <div class="col d-grid">
@@ -157,7 +157,7 @@
       <!-- Feedback -->
       <div id="grid-item-feedback" class="grid-item">
         <div class="card bg-info-subtle border-info text-center h-100">
-          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
+          <div class="card-body d-flex flex-column justify-content-center h-100">
             <h3><i class="fa-fw fa-solid fa-comments me-2"></i>Feedback</h3>
             <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
               <div class="col d-grid">
@@ -176,7 +176,7 @@
       <!-- Fehlermeldungsprotokoll -->
       <div id="grid-item-fehlermeldung" class="grid-item">
         <div class="card bg-danger-subtle border-danger text-center h-100">
-          <div class="card-body position-absolute top-50 start-50 translate-middle w-100">
+          <div class="card-body d-flex flex-column justify-content-center h-100">
             <h3><i class="fa-fw fa-solid fa-triangle-exclamation me-2"></i>Fehlermeldung</h3>
             <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
               <div class="col d-grid">
@@ -260,19 +260,17 @@
                 // Build popup content
                 let popupContent = '<div class="map-popup">';
 
-                // Heading: name of the offer; below, smaller: the offer type
+                // Heading: name of the offer
                 if (feature.properties._tooltip) {
                   popupContent += '<h6 class="mb-0">' + feature.properties._tooltip + '</h6>';
                 }
 
-                if (feature.properties._title) {
-                  popupContent += '<small class="map-popup-type d-block mb-1">' + feature.properties._title + '</small>';
-                }
-
-                // Add additional properties (skip the name, already shown as heading)
+                // Add additional properties (skip the name, already shown as heading;
+                // 'Status' is coupled to the label in Service.list_fields — if the
+                // label changes there, update it here too)
                 const skipProps = ['_model', '_pk', '_tooltip', '_title', '_link_detail', '_link_delete'];
                 for (const [key, value] of Object.entries(feature.properties)) {
-                  if (!skipProps.includes(key) && value && value !== feature.properties._tooltip) {
+                  if (!skipProps.includes(key) && key !== 'Status' && value && value !== feature.properties._tooltip) {
                     popupContent += '<small><strong>' + key + ':</strong> ' + value + '</small><br>';
                   }
                 }
@@ -288,7 +286,7 @@
                 popupContent += '</div>';
 
                 layer.bindPopup(popupContent, {
-                  maxWidth: 300,
+                  maxWidth: 400,
                   className: 'custom-popup'
                 });
 

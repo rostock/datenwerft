@@ -19,7 +19,7 @@ städtische Portale und Kartenanwendungen eingebunden werden.
 ## Angebotstypen
 
 Alle Angebotstypen erben von der abstrakten Basisklasse `Service` und teilen sich gemeinsame
-Felder wie Name, Beschreibung, Adresse, Geometrie (Punkt), Kategorien, Zielgruppen und Status.
+Felder wie Name, Beschreibung, Adresse, Geometrie (Punkt), Lebenslagen, Zielgruppen und Status.
 
 | Modell                          | Beschreibung                                  | Besondere Felder                               |
 | ------------------------------- | --------------------------------------------- | ---------------------------------------------- |

@@ -11,7 +11,7 @@
 | Modell        | Zweck                                   |
 | ------------- | --------------------------------------- |
 | `Provider`    | Träger / anbietende Einrichtung         |
-| `Topic`       | Kategorien zur Klassifizierung          |
+| `Topic`       | Lebenslagen zur Klassifizierung         |
 | `TargetGroup` | Zielgruppen (z. B. Jugendliche, Eltern) |
 | `Tag`         | Freie Schlagworte                       |
 | `Law`         | Gesetzliche Grundlagen (§ + Gesetzbuch) |

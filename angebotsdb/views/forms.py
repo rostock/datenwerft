@@ -16,7 +16,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from ..constants_vars import ADMIN_GROUP, USERS_GROUP
 from ..fields import PyGeoAPIMultipleChoiceField, get_pygeoapi_config
 from ..models.base import Law, Provider, ReviewTask, TargetGroup, Topic, UserProfile
-from ..models.services import CONTACT_HOURS_PLACEHOLDER, Service, ServiceImage
+from ..models.services import CONTACT_HOURS_PLACEHOLDER, SETTING_PLACEHOLDER, Service, ServiceImage
 from ..utils import (
   authorized_to_edit,
   authorized_to_manage_base_data,
@@ -32,6 +32,31 @@ from ..utils import (
 from .functions import add_permission_context_elements
 
 logger = logging.getLogger(__name__)
+
+# Gewünschte Reihenfolge der Formularfelder für Service-Modelle (OP-Liste).
+# Felder, die im jeweiligen Formular nicht existieren (z. B. catchment_area_urls
+# nur bei KijuFa), werden gefiltert; nicht gelistete Felder wandern ans Ende.
+SERVICE_FIELD_ORDER = [
+  'name',
+  'description',
+  'tags',
+  'topic',
+  'legal_basis',
+  'target_group',
+  'street',
+  'zip',
+  'city',
+  'catchment_area_urls',
+  'email',
+  'phone',
+  'info_url',
+  'contact_hours',
+  'setting',
+  'application_needed',
+  'handicap_accessible',
+  'costs',
+  'expiry_date',
+]
 
 
 def _set_geometry_from_request(request, instance):
@@ -289,6 +314,8 @@ class GenericCreateView(CreateView):
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
 
+    can_create_target_groups = authorized_to_manage_base_data(self.request.user)
+
     class StyledForm(DynamicStyledModelForm):
       Meta = _FormMeta
 
@@ -331,15 +358,23 @@ class GenericCreateView(CreateView):
 
         if 'target_group' in self.fields:
           current_field = self.fields['target_group']
-          self.fields['target_group'] = CreatableMultipleChoiceField(
-            model=TargetGroup,
-            queryset=TargetGroup.objects.all(),
-            label=current_field.label,
-            required=current_field.required,
-            widget=widgets.SelectMultiple(
-              attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
-            ),
-          )
+          if can_create_target_groups:
+            self.fields['target_group'] = CreatableMultipleChoiceField(
+              model=TargetGroup,
+              queryset=TargetGroup.objects.all(),
+              label=current_field.label,
+              required=current_field.required,
+              widget=widgets.SelectMultiple(
+                attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
+              ),
+            )
+          else:
+            self.fields['target_group'] = ModelMultipleChoiceField(
+              queryset=TargetGroup.objects.all(),
+              label=current_field.label,
+              required=current_field.required,
+              widget=widgets.SelectMultiple(attrs={'class': 'form-select select2-multiple'}),
+            )
 
         for field_name, config_or_key in getattr(used_model, 'PYGEOAPI_FIELDS', {}).items():
           if field_name in self.fields:
@@ -362,9 +397,22 @@ class GenericCreateView(CreateView):
           if 'zip' in self.fields:
             self.fields['zip'].widget.attrs['placeholder'] = 'PLZ'
           if 'city' in self.fields:
-            self.fields['city'].widget.attrs['placeholder'] = 'Stadt/Gemeinde'
+            self.fields['city'].widget.attrs['placeholder'] = 'Gemeinde'
           if 'contact_hours' in self.fields:
             self.fields['contact_hours'].widget.attrs['placeholder'] = CONTACT_HOURS_PLACEHOLDER
+          if 'setting' in self.fields:
+            self.fields['setting'].widget.attrs['placeholder'] = SETTING_PLACEHOLDER
+
+        # Pflichtfeld: weiterführender Link für Angebote
+        if is_service_model and 'info_url' in self.fields:
+          self.fields['info_url'].required = True
+          self.fields['info_url'].widget.attrs['required'] = 'required'
+
+        # Feldreihenfolge laut OP-Liste
+        if is_service_model:
+          ordered = [f for f in SERVICE_FIELD_ORDER if f in self.fields]
+          remaining = [f for f in self.fields if f not in ordered]
+          self.order_fields(ordered + remaining)
 
     return StyledForm
 
@@ -565,6 +613,8 @@ class GenericUpdateView(UpdateView):
       _meta_attrs = {'model': used_model, 'fields': '__all__'}
     _FormMeta = type('Meta', (), _meta_attrs)
 
+    can_create_target_groups = authorized_to_manage_base_data(self.request.user)
+
     class StyledForm(DynamicStyledModelForm):
       Meta = _FormMeta
 
@@ -573,15 +623,23 @@ class GenericUpdateView(UpdateView):
 
         if 'target_group' in self.fields:
           current_field = self.fields['target_group']
-          self.fields['target_group'] = CreatableMultipleChoiceField(
-            model=TargetGroup,
-            queryset=TargetGroup.objects.all(),
-            label=current_field.label,
-            required=current_field.required,
-            widget=widgets.SelectMultiple(
-              attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
-            ),
-          )
+          if can_create_target_groups:
+            self.fields['target_group'] = CreatableMultipleChoiceField(
+              model=TargetGroup,
+              queryset=TargetGroup.objects.all(),
+              label=current_field.label,
+              required=current_field.required,
+              widget=widgets.SelectMultiple(
+                attrs={'class': 'form-select select2-multiple', 'data-tags': 'true'}
+              ),
+            )
+          else:
+            self.fields['target_group'] = ModelMultipleChoiceField(
+              queryset=TargetGroup.objects.all(),
+              label=current_field.label,
+              required=current_field.required,
+              widget=widgets.SelectMultiple(attrs={'class': 'form-select select2-multiple'}),
+            )
 
         for field_name, config_or_key in getattr(used_model, 'PYGEOAPI_FIELDS', {}).items():
           if field_name in self.fields:
@@ -611,14 +669,27 @@ class GenericUpdateView(UpdateView):
           if 'zip' in self.fields:
             self.fields['zip'].widget.attrs['placeholder'] = 'PLZ'
           if 'city' in self.fields:
-            self.fields['city'].widget.attrs['placeholder'] = 'Stadt/Gemeinde'
+            self.fields['city'].widget.attrs['placeholder'] = 'Gemeinde'
           if 'contact_hours' in self.fields:
             self.fields['contact_hours'].widget.attrs['placeholder'] = CONTACT_HOURS_PLACEHOLDER
+          if 'setting' in self.fields:
+            self.fields['setting'].widget.attrs['placeholder'] = SETTING_PLACEHOLDER
+
+        # Pflichtfeld: weiterführender Link für Angebote
+        if is_service_model and 'info_url' in self.fields:
+          self.fields['info_url'].required = True
+          self.fields['info_url'].widget.attrs['required'] = 'required'
 
         # Bei gesperrtem Service alle Felder deaktivieren
         if form_locked:
           for field in self.fields.values():
             field.widget.attrs['disabled'] = 'disabled'
+
+        # Feldreihenfolge laut OP-Liste
+        if is_service_model:
+          ordered = [f for f in SERVICE_FIELD_ORDER if f in self.fields]
+          remaining = [f for f in self.fields if f not in ordered]
+          self.order_fields(ordered + remaining)
 
     return StyledForm
 

@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from angebotsdb.models.base import Law, Provider, Tag, Topic
 from angebotsdb.models.services import ChildrenYouthAndFamilyService, WoftGService
+from angebotsdb.views.forms import CreatableMultipleChoiceField, SERVICE_FIELD_ORDER
 
 from ..abstract import FormViewTestCase, MockResponse, ViewTestCase
 from ..constant_vars import (
@@ -22,6 +23,11 @@ from ..functions import login_as_admin, login_as_provider, login_no_role
 
 HTML = 'text/html; charset=utf-8'
 PYGEOAPI_PATCH = 'angebotsdb.fields.httpx.get'
+
+# Erwartete Feldreihenfolge je Angebotstyp: alle Formularfelder sind in
+# SERVICE_FIELD_ORDER gelistet; KijuFa hat zusätzlich catchment_area_urls.
+KIJUFA_FIELD_ORDER = SERVICE_FIELD_ORDER
+WOFTG_FIELD_ORDER = [f for f in SERVICE_FIELD_ORDER if f != 'catchment_area_urls']
 
 
 def _base_service_form_data(topic_pk, law_pk, tag_pk=None):
@@ -42,6 +48,7 @@ def _base_service_form_data(topic_pk, law_pk, tag_pk=None):
     'city': 'Rostock',
     'email': 'angebot@test.de',
     'expiry_date': VALID_DATE_A.isoformat(),
+    'info_url': 'https://example.org',
     'phone': '0381 123456',
     'costs': '0',
     # application_needed ist BooleanField: weglassen entspricht False (nicht angehakt)
@@ -100,6 +107,36 @@ class ChildrenYouthAndFamilyServiceCreateViewTest(ViewTestCase):
     self.generic_get_test(
       login_as_provider, 'childrenyouthandfamilyservice_create', None, 200, HTML, 'Angebot'
     )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_provider_form_requirements(self, mock_get):
+    """Träger sieht keine Zielgruppen-Freitext-Erstellung, info_url ist Pflicht,
+    handicap_accessible ist im Formular enthalten."""
+    login_as_provider(self)
+    response = self.client.get(reverse('angebotsdb:childrenyouthandfamilyservice_create'))
+    form = response.context['form']
+    target_group_field = form.fields['target_group']
+    self.assertNotIsInstance(target_group_field, CreatableMultipleChoiceField)
+    self.assertNotIn('data-tags', target_group_field.widget.attrs)
+    self.assertTrue(form.fields['info_url'].required)
+    self.assertIn('handicap_accessible', form.fields)
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_admin_target_group_creatable(self, mock_get):
+    """Admin darf Zielgruppen im Formular neu erstellen."""
+    login_as_admin(self)
+    response = self.client.get(reverse('angebotsdb:childrenyouthandfamilyservice_create'))
+    form = response.context['form']
+    self.assertIsInstance(form.fields['target_group'], CreatableMultipleChoiceField)
+    self.assertIn('data-tags', form.fields['target_group'].widget.attrs)
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_provider_field_order(self, mock_get):
+    """Create-Formular KijuFa: Felder in der Reihenfolge laut OP-Liste."""
+    login_as_provider(self)
+    response = self.client.get(reverse('angebotsdb:childrenyouthandfamilyservice_create'))
+    form = response.context['form']
+    self.assertEqual(list(form.fields), KIJUFA_FIELD_ORDER)
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
@@ -168,6 +205,7 @@ class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
       host=cls.test_provider,
       expiry_date=VALID_DATE_A,
       application_needed=False,
+      handicap_accessible=False,
       phone='0381 123456',
       costs=0.0,
       geometry=VALID_POINT_DB,
@@ -208,6 +246,18 @@ class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
       HTML,
       '',
     )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_provider_field_order(self, mock_get):
+    """Update-Formular KijuFa: Felder in der Reihenfolge laut OP-Liste."""
+    login_as_provider(self)
+    response = self.client.get(
+      reverse(
+        'angebotsdb:childrenyouthandfamilyservice_update', kwargs={'pk': self.test_object.pk}
+      )
+    )
+    form = response.context['form']
+    self.assertEqual(list(form.fields), KIJUFA_FIELD_ORDER)
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_service_in_review_shows_locked_form(self, mock_get):
@@ -347,6 +397,7 @@ class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
       host=self.test_provider,
       expiry_date=VALID_DATE_A,
       application_needed=False,
+      handicap_accessible=False,
       phone='0381 123456',
       costs=0.0,
       geometry=VALID_POINT_DB,
@@ -412,6 +463,7 @@ class ChildrenYouthAndFamilyServiceDetailViewTest(FormViewTestCase):
       host=cls.test_provider,
       expiry_date=VALID_DATE_A,
       application_needed=False,
+      handicap_accessible=False,
       phone='0381 123456',
       costs=0.0,
       geometry=VALID_POINT_DB,
@@ -472,6 +524,7 @@ class ChildrenYouthAndFamilyServiceDeleteViewTest(FormViewTestCase):
       host=cls.test_provider,
       expiry_date=VALID_DATE_A,
       application_needed=False,
+      handicap_accessible=False,
       phone='0381 123456',
       costs=0.0,
       geometry=VALID_POINT_DB,
@@ -555,6 +608,14 @@ class WoftGServiceCreateViewTest(ViewTestCase):
     self.generic_get_test(login_as_provider, 'woftgservice_create', None, 200, HTML, 'Angebot')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_provider_field_order(self, mock_get):
+    """Create-Formular WoftG: Felder in der Reihenfolge laut OP-Liste."""
+    login_as_provider(self)
+    response = self.client.get(reverse('angebotsdb:woftgservice_create'))
+    form = response.context['form']
+    self.assertEqual(list(form.fields), WOFTG_FIELD_ORDER)
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
     self.generic_get_test(login_no_role, 'woftgservice_create', None, 403, HTML, '')
 
@@ -592,10 +653,10 @@ class WoftGServiceUpdateViewTest(FormViewTestCase):
       host=cls.test_provider,
       expiry_date=VALID_DATE_A,
       application_needed=False,
+      handicap_accessible=False,
       phone='0381 123456',
       costs=0.0,
       setting='Einzelberatung',
-      handicap_accessible=False,
       geometry=VALID_POINT_DB,
       status='draft',
     )
@@ -623,6 +684,16 @@ class WoftGServiceUpdateViewTest(FormViewTestCase):
       HTML,
       VALID_STRING_A,
     )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_as_provider_field_order(self, mock_get):
+    """Update-Formular WoftG: Felder in der Reihenfolge laut OP-Liste."""
+    login_as_provider(self)
+    response = self.client.get(
+      reverse('angebotsdb:woftgservice_update', kwargs={'pk': self.test_object.pk})
+    )
+    form = response.context['form']
+    self.assertEqual(list(form.fields), WOFTG_FIELD_ORDER)
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_success_as_provider(self, mock_get):
@@ -679,10 +750,10 @@ class WoftGServiceDetailViewTest(FormViewTestCase):
       host=cls.test_provider,
       expiry_date=VALID_DATE_A,
       application_needed=False,
+      handicap_accessible=False,
       phone='0381 123456',
       costs=0.0,
       setting='Einzelberatung',
-      handicap_accessible=False,
       geometry=VALID_POINT_DB,
     )
     service.topic.set([cls.test_topic])
@@ -730,10 +801,10 @@ class WoftGServiceDeleteViewTest(FormViewTestCase):
       host=cls.test_provider,
       expiry_date=VALID_DATE_A,
       application_needed=False,
+      handicap_accessible=False,
       phone='0381 123456',
       costs=0.0,
       setting='Einzelberatung',
-      handicap_accessible=False,
       geometry=VALID_POINT_DB,
       status='draft',
     )
