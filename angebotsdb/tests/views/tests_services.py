@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from angebotsdb.models.base import Law, Provider, Tag, Topic
 from angebotsdb.models.services import ChildrenYouthAndFamilyService, WoftGService
-from angebotsdb.views.forms import CreatableMultipleChoiceField, SERVICE_FIELD_ORDER
+from angebotsdb.views.forms import SERVICE_FIELD_ORDER, CreatableMultipleChoiceField
 
 from ..abstract import FormViewTestCase, MockResponse, ViewTestCase
 from ..constant_vars import (

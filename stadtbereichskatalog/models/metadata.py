@@ -1,6 +1,12 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models.fields import BooleanField, CharField, PositiveSmallIntegerField, TextField
+from django.db.models.fields import (
+  BooleanField,
+  CharField,
+  IntegerField,
+  PositiveSmallIntegerField,
+  TextField,
+)
 from django.utils.translation import gettext_lazy as _
 
 from toolbox.constants_vars import standard_validators
@@ -97,7 +103,7 @@ class Source(models.Model):
   Quellenangabe
   """
 
-  id = CharField(max_length=50, primary_key=True, editable=False)
+  id = IntegerField(primary_key=True, editable=False)
   name = CharField(verbose_name=_('Anzeigename'), max_length=500, validators=standard_validators)
   short_name = CharField(
     verbose_name=_('Kurzname'),
@@ -170,14 +176,12 @@ class Indicator(models.Model):
     null=True,
     validators=standard_validators,
   )
-  source = models.ForeignKey(
-    to=Source,
-    on_delete=models.RESTRICT,
-    db_column='quelle_id',
+  sources = models.ManyToManyField(
+    Source,
+    through='IndicatorSource',
+    related_name='indicators',
+    verbose_name=_('Quellenangabe(n)'),
     blank=True,
-    null=True,
-    related_name='indicator_sourcess',
-    verbose_name=_('Quellenangabe'),
   )
   deadline = CharField(
     verbose_name=_('Stichtag'),
@@ -213,3 +217,29 @@ class Indicator(models.Model):
 
   def __str__(self):
     return f'{self.category} → {self.name}'
+
+
+class IndicatorSource(models.Model):
+  """
+  Verknüpfung zwischen Indikatoren und Quellenangaben
+  """
+
+  pk = models.CompositePrimaryKey('indicator', 'source')
+  indicator = models.ForeignKey(
+    to=Indicator,
+    on_delete=models.CASCADE,
+    db_column='indikator_id',
+  )
+  source = models.ForeignKey(
+    to=Source,
+    on_delete=models.CASCADE,
+    db_column='quelle_id',
+  )
+
+  class Meta:
+    managed = False
+    db_table = 'metadaten"."indikatoren_quellen'
+    ordering = ['indicator', 'source']
+
+  def __str__(self):
+    return f'{self.indicator.category} → {self.indicator.name} ⟷ {self.source.name}'
