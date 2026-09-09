@@ -1,4 +1,4 @@
-# Datenmanagement → Arbeiten → Datensatz anlegen
+# Datenmanagement → Arbeiten → neuen Datensatz anlegen
 
 Auf die *Anlegeseite* eines neuen Datensatzes gelangen Sie immer dann,
 wenn Sie entweder auf der

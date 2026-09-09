@@ -1,6 +1,6 @@
-# *Stadtbereichskatalog* → Bereich *Daten* → Bearbeitung
+# *Stadtbereichskatalog* → Bereich *Faktendaten* → Bearbeitung
 
-Auf dieser Seite haben Sie die Möglichkeit Daten zu **bearbeiten.**
+Auf dieser Seite haben Sie die Möglichkeit Faktendaten zu **bearbeiten.**
 
 ## Ablauf
 
@@ -11,7 +11,7 @@ Auf dieser Seite haben Sie die Möglichkeit Daten zu **bearbeiten.**
    Welche konkrete Quelle umfasst die zu bearbeitenden Inhalte (Faktendaten)?
    Entsprechend muss die passende Datenbanktabelle
    innerhalb des zuvor selektierten Datenbankschemas gewählt werden.
-3. auf Button ***Daten laden* klicken,** um alle Daten der gewählten Datenbanktabelle
+3. auf Button ***laden* klicken,** um alle Daten der gewählten Datenbanktabelle
    zu laden und in einer Tabelle darzustellen
 4. Pro Zeile der zuvor geladenen Tabelle mit den Daten
    können Sie nun diese beiden Schritte durchführen:

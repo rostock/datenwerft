@@ -1,6 +1,6 @@
-# *Stadtbereichskatalog* → Bereich *Daten* → Export
+# *Stadtbereichskatalog* → Bereich *Faktendaten* → Export
 
-Auf dieser Seite haben Sie die Möglichkeit Daten zu **exportieren.**
+Auf dieser Seite haben Sie die Möglichkeit Faktendaten zu **exportieren.**
 
 ## Ablauf
 

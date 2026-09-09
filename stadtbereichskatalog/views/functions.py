@@ -3,7 +3,7 @@ from codecs import BOM_UTF8, iterdecode
 from decimal import Decimal
 
 from django.db import connections, transaction
-from django.forms import Textarea
+from django.forms import Textarea, TextInput
 from django.http import HttpResponse
 from openpyxl import Workbook, load_workbook
 from psycopg2.extras import execute_values
@@ -77,6 +77,11 @@ def assign_widget(field):
       # handle multiple selects
       if form_field.widget.__class__.__name__ == 'SelectMultiple':
         form_field.widget.attrs['size'] = 5
+    # handle color input fields/widgets
+    elif issubclass(form_field.widget.__class__, TextInput) and field.name == 'farbe':
+      form_field = field.formfield(
+        widget=TextInput(attrs={'type': 'color', 'class': 'form-control-color'})
+      )
     else:
       form_field.widget.attrs['class'] = 'form-control'
     if form_field.widget.input_type == 'number':

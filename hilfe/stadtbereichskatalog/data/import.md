@@ -1,6 +1,6 @@
-# *Stadtbereichskatalog* → Bereich *Daten* → Import
+# *Stadtbereichskatalog* → Bereich *Faktendaten* → Import
 
-Auf dieser Seite haben Sie die Möglichkeit Daten zu **importieren.**
+Auf dieser Seite haben Sie die Möglichkeit Faktendaten zu **importieren.**
 
 ## Ablauf
 

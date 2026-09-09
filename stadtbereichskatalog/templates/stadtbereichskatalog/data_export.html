@@ -2,7 +2,7 @@
 {% load stadtbereichskatalog_tags %}
 {% load static %}
 
-{% block title %}Daten – Export | {% endblock %}
+{% block title %}Faktendaten – Export | {% endblock %}
 
 {% block style %}
   {{ block.super }}
@@ -20,7 +20,7 @@
 {% block content %}
   {% if is_stadtbereichskatalog_user %}
     <h2>
-      <i class="fa-solid fa-{{ 'export'|get_icon }}"></i> Datenexport
+      <i class="fa-solid fa-{{ 'export'|get_icon }}"></i> Faktendatenexport
     </h2>
     <div class="d-grid mt-5 gap-2 d-md-block">
       <a class="btn btn-primary" role="button" href="{% url app.name|add:':index' %}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> Startseite</a>
