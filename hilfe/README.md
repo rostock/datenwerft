@@ -48,7 +48,7 @@ Wie können neue Datensätze angelegt werden?
 
 ### Arbeiten
 
-#### [Datensatz anlegen](datenmanagement/usage/work_dataset-create.md)
+#### [neuen Datensatz anlegen](datenmanagement/usage/work_dataset-create.md)
 
 #### [Datensatz bearbeiten](datenmanagement/usage/work_dataset-edit.md)
 
@@ -76,7 +76,7 @@ Hier finden Sie Hilfestellungen zum Beschwerdemanagementsystem *BEMAS.*
 
 #### [Tabellenansichten](bemas/usage/table.md)
 
-#### [Datensatz anlegen](bemas/usage/dataset-create.md)
+#### [neuen Datensatz anlegen](bemas/usage/dataset-create.md)
 
 #### [Datensatz bearbeiten](bemas/usage/dataset-edit.md)
 
@@ -142,9 +142,19 @@ Hier finden Sie Hilfestellungen zum System zur Bearbeitung der Inhalte des *Stad
 
 #### [Tabellenansichten](stadtbereichskatalog/metadata/table.md)
 
+#### [neuen Datensatz anlegen](stadtbereichskatalog/metadata/create.md)
+
 #### [Datensatz bearbeiten](stadtbereichskatalog/metadata/edit.md)
 
-### Bereich *Daten*
+#### [Datensatz löschen](stadtbereichskatalog/metadata/delete.md)
+
+### Bereich *Referenzdaten*
+
+#### [Tabellenansichten](stadtbereichskatalog/reference_data/table.md)
+
+#### [Datensatz bearbeiten](stadtbereichskatalog/reference_data/edit.md)
+
+### Bereich *Faktendaten*
 
 #### [Export](stadtbereichskatalog/data/export.md)
 

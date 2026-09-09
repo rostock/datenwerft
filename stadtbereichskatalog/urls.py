@@ -4,6 +4,9 @@ from rest_framework import routers
 
 from .apps import StadtbereichskatalogConfig as appConfig
 from .views import (
+  CandidateEditView,
+  CandidateTableDataView,
+  CandidateTableView,
   CategoryEditView,
   CategoryTableDataView,
   CategoryTableView,
@@ -11,6 +14,9 @@ from .views import (
   IndicatorEditView,
   IndicatorTableDataView,
   IndicatorTableView,
+  PoliticalPartyEditView,
+  PoliticalPartyTableDataView,
+  PoliticalPartyTableView,
   SourceCreateView,
   SourceDeleteView,
   SourceEditView,
@@ -160,6 +166,52 @@ urlpatterns = [
       IndicatorEditView.as_view(success_url=reverse_lazy(f'{app_name}:indicator_table'))
     ),
     name='indicator_edit',
+  ),
+  # composing table data out of instances of reference data model class:
+  # Kandidat:in
+  path(
+    route='reference_data/candidate/tabledata',
+    view=login_required(CandidateTableDataView.as_view()),
+    name='candidate_tabledata',
+  ),
+  # table page for instances of reference data model class:
+  # Kandidat:in
+  path(
+    route='reference_data/candidate/table',
+    view=login_required(CandidateTableView.as_view()),
+    name='candidate_table',
+  ),
+  # form page for editing an instance of reference data model class:
+  # Kandidat:in
+  path(
+    route='reference_data/candidate/edit/<pk>',
+    view=login_required(
+      CandidateEditView.as_view(success_url=reverse_lazy(f'{app_name}:candidate_table'))
+    ),
+    name='candidate_edit',
+  ),
+  # composing table data out of instances of reference data model class:
+  # Partei
+  path(
+    route='reference_data/political_party/tabledata',
+    view=login_required(PoliticalPartyTableDataView.as_view()),
+    name='political_party_tabledata',
+  ),
+  # table page for instances of reference data model class:
+  # Partei
+  path(
+    route='reference_data/political_party/table',
+    view=login_required(PoliticalPartyTableView.as_view()),
+    name='political_party_table',
+  ),
+  # form page for editing an instance of reference data model class:
+  # Partei
+  path(
+    route='reference_data/political_party/edit/<pk>',
+    view=login_required(
+      PoliticalPartyEditView.as_view(success_url=reverse_lazy(f'{app_name}:political_party_table'))
+    ),
+    name='political_party_edit',
   ),
   # page for exporting data
   path(

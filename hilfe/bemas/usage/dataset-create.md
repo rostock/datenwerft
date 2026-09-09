@@ -1,4 +1,4 @@
-# *BEMAS* → Bereiche und Aktionen → Datensatz anlegen
+# *BEMAS* → Bereiche und Aktionen → neuen Datensatz anlegen
 
 Die Anlegeseite einer Objektklasse (zum Beispiel *Personen* oder *Beschwerden)*
 ist nichts anderes als eine Eingabemaske für einen **neuen** Datensatz.

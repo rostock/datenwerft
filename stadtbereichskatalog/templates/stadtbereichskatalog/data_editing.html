@@ -2,7 +2,7 @@
 {% load stadtbereichskatalog_tags %}
 {% load static %}
 
-{% block title %}Daten – Bearbeitung | {% endblock %}
+{% block title %}Faktendaten – Bearbeitung | {% endblock %}
 
 {% block style %}
   {{ block.super }}
@@ -20,7 +20,7 @@
 {% block content %}
   {% if is_stadtbereichskatalog_user %}
     <h2>
-      <i class="fa-solid fa-{{ 'edit'|get_icon }}"></i> Datenbearbeitung
+      <i class="fa-solid fa-{{ 'edit'|get_icon }}"></i> Faktendatenbearbeitung
     </h2>
     <div class="d-grid mt-5 gap-2 d-md-block">
       <a class="btn btn-primary" role="button" href="{% url app.name|add:':index' %}"><i class="fa-solid fa-{{ 'back'|get_icon }}"></i> Startseite</a>
@@ -54,7 +54,7 @@
         </tbody>
       </table>
     </div>
-    <button type="button" class="btn btn-warning mt-3" id="load-data" disabled><i class="fa-solid fa-{{ 'data_loading'|get_icon }}"></i> Daten laden</button>
+    <button type="button" class="btn btn-warning mt-3" id="load-data" disabled><i class="fa-solid fa-{{ 'data_loading'|get_icon }}"></i> laden</button>
     <div class="mt-4 mb-3 flex-container-column">
       <table class="table table-sm table-striped" id="editing-table">
       </table>

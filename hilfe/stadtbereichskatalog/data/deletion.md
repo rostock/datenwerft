@@ -1,6 +1,6 @@
-# *Stadtbereichskatalog* → Bereich *Daten* → Löschung
+# *Stadtbereichskatalog* → Bereich *Faktendaten* → Löschung
 
-Auf dieser Seite haben Sie die Möglichkeit Daten zu **löschen.**
+Auf dieser Seite haben Sie die Möglichkeit Faktendaten zu **löschen.**
 
 ## Ablauf
 

@@ -1,20 +1,13 @@
-# *Stadtbereichskatalog* → Bereich *Metadaten* → Tabellenansichten
+# *Stadtbereichskatalog* → Bereich *Referenzdaten* → Tabellenansichten
 
-In der Tabellenansicht einer Objektklasse aus dem Bereich Metadaten
-(zum Beispiel *Quellenangaben* oder *Indikatoren)* sind **alle** Datensätze der Objektklasse
+In der Tabellenansicht einer Objektklasse aus dem Bereich Referenzdaten
+(zum Beispiel *Kandidat:innen* oder *Parteien)* sind **alle** Datensätze der Objektklasse
 als Zeilen aufgelistet. Die Attribute der Objektklasse
-(zum Beispiel *Anzeigename* oder *Beschreibung)* bilden dabei die Tabellenspalten.
+(zum Beispiel *Anzeigename)* bilden dabei die Tabellenspalten.
 Die Inhalte der Tabelle können gefiltert, durchsucht und exportiert werden.
-
-Bei einigen wenigen Objektklassen aus dem Bereich Metadaten
-(zum Beispiel *Quellenangaben)* finden Sie oberhalb der Tabelle einen grünen Button,
-über den Sie zur **[Anlegeseite](create.md)** für einen neuen Datensatz gelangen.
 
 Die Spalte *Redaktion* ganz rechts in der Tabelle weist einen Button mit einem Bleistift
 als Symbol auf, über den Sie zur **[Bearbeitungsseite](edit.md)** des entsprechenden
-Datensatzes gelangen. Bei einigen wenigen Objektklassen aus dem Bereich Metadaten
-(zum Beispiel *Quellenangaben)* finden Sie dort **zusätzlich** einen Button mit einem Papierkorb
-als Symbol, über den Sie zur **[Löschseite](delete.md)** des entsprechenden
 Datensatzes gelangen.
 
 ## Wie kann ich die Tabelle sortieren?

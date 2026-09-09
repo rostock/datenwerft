@@ -4,7 +4,14 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
 
-from stadtbereichskatalog.models import Category, Indicator, Source, Topic
+from stadtbereichskatalog.models import (
+  Candidate,
+  Category,
+  Indicator,
+  PoliticalParty,
+  Source,
+  Topic,
+)
 from stadtbereichskatalog.utils import is_stadtbereichskatalog_user
 
 from ..apps import StadtbereichskatalogConfig as appConfig
@@ -256,6 +263,94 @@ class IndicatorEditView(MetadataFormEditView):
 
   model = Indicator
   cancel_url = f'{appConfig.name}:indicator_table'
+
+
+class CandidateTableDataView(MetadataTableDataView):
+  """
+  view for composing table data out of instances of reference data model class:
+  Kandidat:in
+
+  :param model: model
+  :param edit_view_name: name of view for form page for editing
+  :param delete_view_name: name of view for form page for deleting
+  """
+
+  model = Candidate
+  edit_view_name = f'{appConfig.name}:candidate_edit'
+
+
+class CandidateTableView(MetadataTableView):
+  """
+  view for table page for instances of reference data model class:
+  Kandidat:in
+
+  :param model: model
+  :param table_data_view_name: name of view for composing table data out of instances
+  :param create_view_name: name of view for form page for creating
+  :param icon_name: icon name
+  """
+
+  model = Candidate
+  table_data_view_name = f'{appConfig.name}:candidate_tabledata'
+  icon_name = 'candidate'
+
+
+class CandidateEditView(MetadataFormEditView):
+  """
+  view for form page for editing an instance of reference data model class:
+  Kandidat:in
+
+  :param model: model
+  :param cancel_url: custom cancel URL
+  :param deletion_url: custom deletion URL
+  """
+
+  model = Candidate
+  cancel_url = f'{appConfig.name}:candidate_table'
+
+
+class PoliticalPartyTableDataView(MetadataTableDataView):
+  """
+  view for composing table data out of instances of reference data model class:
+  Partei
+
+  :param model: model
+  :param edit_view_name: name of view for form page for editing
+  :param delete_view_name: name of view for form page for deleting
+  """
+
+  model = PoliticalParty
+  edit_view_name = f'{appConfig.name}:political_party_edit'
+
+
+class PoliticalPartyTableView(MetadataTableView):
+  """
+  view for table page for instances of reference data model class:
+  Partei
+
+  :param model: model
+  :param table_data_view_name: name of view for composing table data out of instances
+  :param create_view_name: name of view for form page for creating
+  :param icon_name: icon name
+  """
+
+  model = PoliticalParty
+  table_data_view_name = f'{appConfig.name}:political_party_tabledata'
+  icon_name = 'political_party'
+
+
+class PoliticalPartyEditView(MetadataFormEditView):
+  """
+  view for form page for editing an instance of reference data model class:
+  Partei
+
+  :param model: model
+  :param cancel_url: custom cancel URL
+  :param deletion_url: custom deletion URL
+  """
+
+  model = PoliticalParty
+  cancel_url = f'{appConfig.name}:political_party_table'
 
 
 #
