@@ -113,7 +113,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -882,30 +882,6 @@ CREATE TABLE codelisten.beleuchtungsarten (
 
 
 --
--- Name: besonderheiten_freizeitsport; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.besonderheiten_freizeitsport (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    besonderheit character varying(255) NOT NULL
-);
-
-
---
--- Name: besonderheiten_spielplaetze; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.besonderheiten_spielplaetze (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    besonderheit character varying(255) NOT NULL
-);
-
-
---
 -- Name: betriebsarten; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -964,30 +940,6 @@ CREATE TABLE codelisten.bewirtschafter_betreiber_traeger_eigentuemer (
     erstellt date DEFAULT (now())::date NOT NULL,
     bezeichnung character varying(255) NOT NULL,
     art character varying(255) NOT NULL
-);
-
-
---
--- Name: bodenarten_freizeitsport; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.bodenarten_freizeitsport (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    bodenart character varying(255) NOT NULL
-);
-
-
---
--- Name: bodenarten_spielplaetze; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.bodenarten_spielplaetze (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    bodenart character varying(255) NOT NULL
 );
 
 
@@ -1085,18 +1037,6 @@ CREATE TABLE codelisten.fotomotive_haltestellenkataster (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     fotomotiv character varying(255) NOT NULL
-);
-
-
---
--- Name: freizeitsportarten; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.freizeitsportarten (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -1546,18 +1486,6 @@ CREATE TABLE codelisten.sparten_baustellen (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     sparte character varying(255) NOT NULL
-);
-
-
---
--- Name: spielgeraete; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.spielgeraete (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -2391,51 +2319,6 @@ CREATE TABLE fachdaten.fliessgewaesser_hro (
 
 
 --
--- Name: freizeitsport_fotos_hro; Type: TABLE; Schema: fachdaten; Owner: -
---
-
-CREATE TABLE fachdaten.freizeitsport_fotos_hro (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    id_fachsystem character varying(255),
-    aktiv boolean DEFAULT true NOT NULL,
-    id_zielsystem character varying(255),
-    deaktiviert date,
-    freizeitsport uuid NOT NULL,
-    dateiname_original character varying(255) NOT NULL,
-    foto character varying(255) NOT NULL,
-    oeffentlich_sichtbar boolean NOT NULL,
-    aufnahmedatum date,
-    bemerkungen character varying(255)
-);
-
-
---
--- Name: freizeitsport_hro; Type: TABLE; Schema: fachdaten; Owner: -
---
-
-CREATE TABLE fachdaten.freizeitsport_hro (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    id_fachsystem character varying(255),
-    aktiv boolean DEFAULT true NOT NULL,
-    id_zielsystem character varying(255),
-    deaktiviert date,
-    gruenpflegeobjekt uuid,
-    staedtisch boolean NOT NULL,
-    bezeichnung character varying(255),
-    beschreibung character varying(255),
-    sportarten character varying(255)[] NOT NULL,
-    geometrie public.geometry(Point,25833) NOT NULL,
-    freizeitsport character varying(255),
-    bodenarten character varying(255)[],
-    besonderheiten character varying(255)[]
-);
-
-
---
 -- Name: geh_und_radwegereinigung_flaechen_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -2487,22 +2370,6 @@ CREATE TABLE fachdaten.geraetespielanlagen_hro (
     beschreibung character varying(255),
     foto character varying(255),
     geometrie public.geometry(Point,25833) NOT NULL
-);
-
-
---
--- Name: gruenpflegeobjekte_datenwerft; Type: TABLE; Schema: fachdaten; Owner: -
---
-
-CREATE TABLE fachdaten.gruenpflegeobjekte_datenwerft (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    id character(17) NOT NULL,
-    art character varying(255) NOT NULL,
-    gruenpflegebezirk character varying(255) NOT NULL,
-    nummer character varying(7) NOT NULL,
-    bezeichnung character varying(255) NOT NULL,
-    geometrie public.geometry(MultiPolygon,25833) NOT NULL,
-    gruenpflegeobjekt character varying(255) NOT NULL
 );
 
 
@@ -3180,51 +3047,6 @@ CREATE TABLE fachdaten.schutzzaeune_tierseuchen_hro (
 --
 
 COMMENT ON COLUMN fachdaten.schutzzaeune_tierseuchen_hro.laenge IS 'Einheit: m';
-
-
---
--- Name: spielplaetze_fotos_hro; Type: TABLE; Schema: fachdaten; Owner: -
---
-
-CREATE TABLE fachdaten.spielplaetze_fotos_hro (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    id_fachsystem character varying(255),
-    aktiv boolean DEFAULT true NOT NULL,
-    id_zielsystem character varying(255),
-    deaktiviert date,
-    spielplatz uuid NOT NULL,
-    dateiname_original character varying(255) NOT NULL,
-    foto character varying(255) NOT NULL,
-    oeffentlich_sichtbar boolean NOT NULL,
-    aufnahmedatum date,
-    bemerkungen character varying(255)
-);
-
-
---
--- Name: spielplaetze_hro; Type: TABLE; Schema: fachdaten; Owner: -
---
-
-CREATE TABLE fachdaten.spielplaetze_hro (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    id_fachsystem character varying(255),
-    aktiv boolean DEFAULT true NOT NULL,
-    id_zielsystem character varying(255),
-    deaktiviert date,
-    gruenpflegeobjekt uuid,
-    staedtisch boolean NOT NULL,
-    bezeichnung character varying(255),
-    beschreibung character varying(255),
-    geometrie public.geometry(Point,25833) NOT NULL,
-    spielplatz character varying(255),
-    spielgeraete character varying(255)[],
-    bodenarten character varying(255)[],
-    besonderheiten character varying(255)[]
-);
 
 
 --
@@ -5332,38 +5154,6 @@ ALTER TABLE ONLY codelisten.beleuchtungsarten
 
 
 --
--- Name: besonderheiten_freizeitsport besonderheiten_freizeitsport_besonderheit_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.besonderheiten_freizeitsport
-    ADD CONSTRAINT besonderheiten_freizeitsport_besonderheit_unique UNIQUE (besonderheit);
-
-
---
--- Name: besonderheiten_freizeitsport besonderheiten_freizeitsport_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.besonderheiten_freizeitsport
-    ADD CONSTRAINT besonderheiten_freizeitsport_pk PRIMARY KEY (uuid);
-
-
---
--- Name: besonderheiten_spielplaetze besonderheiten_spielplaetze_besonderheit_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.besonderheiten_spielplaetze
-    ADD CONSTRAINT besonderheiten_spielplaetze_besonderheit_unique UNIQUE (besonderheit);
-
-
---
--- Name: besonderheiten_spielplaetze besonderheiten_spielplaetze_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.besonderheiten_spielplaetze
-    ADD CONSTRAINT besonderheiten_spielplaetze_pk PRIMARY KEY (uuid);
-
-
---
 -- Name: betriebsarten betriebsarten_betriebsart_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -5425,38 +5215,6 @@ ALTER TABLE ONLY codelisten.bewirtschafter_betreiber_traeger_eigentuemer
 
 ALTER TABLE ONLY codelisten.bewirtschafter_betreiber_traeger_eigentuemer
     ADD CONSTRAINT bewirtschafter_betreiber_traeger_eigentuemer_pk PRIMARY KEY (uuid);
-
-
---
--- Name: bodenarten_freizeitsport bodenarten_freizeitsport_bodenart_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.bodenarten_freizeitsport
-    ADD CONSTRAINT bodenarten_freizeitsport_bodenart_unique UNIQUE (bodenart);
-
-
---
--- Name: bodenarten_freizeitsport bodenarten_freizeitsport_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.bodenarten_freizeitsport
-    ADD CONSTRAINT bodenarten_freizeitsport_pk PRIMARY KEY (uuid);
-
-
---
--- Name: bodenarten_spielplaetze bodenarten_spielplaetze_bodenart_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.bodenarten_spielplaetze
-    ADD CONSTRAINT bodenarten_spielplaetze_bodenart_unique UNIQUE (bodenart);
-
-
---
--- Name: bodenarten_spielplaetze bodenarten_spielplaetze_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.bodenarten_spielplaetze
-    ADD CONSTRAINT bodenarten_spielplaetze_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5585,22 +5343,6 @@ ALTER TABLE ONLY codelisten.fotomotive_haltestellenkataster
 
 ALTER TABLE ONLY codelisten.fotomotive_haltestellenkataster
     ADD CONSTRAINT fotomotive_haltestellenkataster_pk PRIMARY KEY (uuid);
-
-
---
--- Name: freizeitsportarten freizeitsportarten_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.freizeitsportarten
-    ADD CONSTRAINT freizeitsportarten_pk PRIMARY KEY (uuid);
-
-
---
--- Name: freizeitsportarten freizeitsportarten_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.freizeitsportarten
-    ADD CONSTRAINT freizeitsportarten_unique UNIQUE (bezeichnung);
 
 
 --
@@ -6169,22 +5911,6 @@ ALTER TABLE ONLY codelisten.sparten_baustellen
 
 ALTER TABLE ONLY codelisten.sparten_baustellen
     ADD CONSTRAINT sparten_baustellen_sparte_unique UNIQUE (sparte);
-
-
---
--- Name: spielgeraete spielgeraete_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.spielgeraete
-    ADD CONSTRAINT spielgeraete_pk PRIMARY KEY (uuid);
-
-
---
--- Name: spielgeraete spielgeraete_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.spielgeraete
-    ADD CONSTRAINT spielgeraete_unique UNIQUE (bezeichnung);
 
 
 --
@@ -6868,22 +6594,6 @@ ALTER TABLE ONLY fachdaten.fliessgewaesser_hro
 
 
 --
--- Name: freizeitsport_fotos_hro freizeitsport_fotos_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.freizeitsport_fotos_hro
-    ADD CONSTRAINT freizeitsport_fotos_hro_pk PRIMARY KEY (uuid);
-
-
---
--- Name: freizeitsport_hro freizeitsport_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.freizeitsport_hro
-    ADD CONSTRAINT freizeitsport_hro_pk PRIMARY KEY (uuid);
-
-
---
 -- Name: geh_und_radwegereinigung_flaechen_hro geh_und_radwegereinigung_flaechen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6905,14 +6615,6 @@ ALTER TABLE ONLY fachdaten.gemeinbedarfsflaechen_hro
 
 ALTER TABLE ONLY fachdaten.geraetespielanlagen_hro
     ADD CONSTRAINT geraetespielanlagen_hro_pk PRIMARY KEY (uuid);
-
-
---
--- Name: gruenpflegeobjekte_datenwerft gruenpflegeobjekte_datenwerft_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.gruenpflegeobjekte_datenwerft
-    ADD CONSTRAINT gruenpflegeobjekte_datenwerft_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7209,22 +6911,6 @@ ALTER TABLE ONLY fachdaten.schiffsliegeplaetze_hro
 
 ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
     ADD CONSTRAINT schutzzaeune_tierseuchen_hro_pk PRIMARY KEY (uuid);
-
-
---
--- Name: spielplaetze_fotos_hro spielplaetze_fotos_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.spielplaetze_fotos_hro
-    ADD CONSTRAINT spielplaetze_fotos_hro_pk PRIMARY KEY (uuid);
-
-
---
--- Name: spielplaetze_hro spielplaetze_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.spielplaetze_hro
-    ADD CONSTRAINT spielplaetze_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -8477,22 +8163,6 @@ ALTER TABLE ONLY fachdaten.fliessgewaesser_hro
 
 
 --
--- Name: freizeitsport_fotos_hro freizeitsport_fotos_hro_freizeitsport_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.freizeitsport_fotos_hro
-    ADD CONSTRAINT freizeitsport_fotos_hro_freizeitsport_fk FOREIGN KEY (freizeitsport) REFERENCES fachdaten.freizeitsport_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: freizeitsport_hro freizeitsport_hro_gruenpflegeobjekte_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.freizeitsport_hro
-    ADD CONSTRAINT freizeitsport_hro_gruenpflegeobjekte_fk FOREIGN KEY (gruenpflegeobjekt) REFERENCES fachdaten.gruenpflegeobjekte_datenwerft(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
 -- Name: geraetespielanlagen_hro geraetespielanlagen_hro_traeger_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -8962,22 +8632,6 @@ ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
 
 ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
     ADD CONSTRAINT schutzzaeune_tierseuchen_hro_zustaende_fk FOREIGN KEY (zustand) REFERENCES codelisten.zustaende_schutzzaeune_tierseuchen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: spielplaetze_fotos_hro spielplaetze_fotos_hro_spielplaetze_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.spielplaetze_fotos_hro
-    ADD CONSTRAINT spielplaetze_fotos_hro_spielplaetze_fk FOREIGN KEY (spielplatz) REFERENCES fachdaten.spielplaetze_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: spielplaetze_hro spielplaetze_hro_gruenpflegeobjekte_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.spielplaetze_hro
-    ADD CONSTRAINT spielplaetze_hro_gruenpflegeobjekte_fk FOREIGN KEY (gruenpflegeobjekt) REFERENCES fachdaten.gruenpflegeobjekte_datenwerft(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

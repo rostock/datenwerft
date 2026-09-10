@@ -189,41 +189,6 @@ class Gemeindeteile(Metamodel):
     return self.gemeindeteil
 
 
-class Gruenpflegeobjekte(Metamodel):
-  """
-  Grünpflegeobjekte
-  """
-
-  id = CharField(verbose_name='pit-KOMMUNAL-ID', max_length=17, editable=False)
-  art = CharField(verbose_name='Art', max_length=255, editable=False)
-  gruenpflegebezirk = CharField(verbose_name='Grünpflegebezirk', max_length=255, editable=False)
-  nummer = CharField(verbose_name='Nummer', max_length=7, editable=False)
-  bezeichnung = CharField(verbose_name='Bezeichnung', max_length=255, editable=False)
-  gruenpflegeobjekt = CharField(verbose_name='Bezeichnung', max_length=255, editable=False)
-  geometrie = multipolygon_field
-
-  class Meta(Metamodel.Meta):
-    db_table = 'fachdaten"."gruenpflegeobjekte_datenwerft'
-    ordering = ['gruenpflegeobjekt']
-    verbose_name = 'Grünpflegeobjekt'
-    verbose_name_plural = 'Grünpflegeobjekte'
-
-  class BasemodelMeta(Metamodel.BasemodelMeta):
-    description = 'Grünpflegeobjekte in der Hanse- und Universitätsstadt Rostock'
-    as_overlay = True
-    geometry_type = 'MultiPolygon'
-    list_fields = {
-      'id': 'pit-KOMMUNAL-ID',
-      'art': 'Art',
-      'gruenpflegebezirk': 'Grünpflegebezirk',
-      'nummer': 'Nummer',
-      'bezeichnung': 'Bezeichnung',
-    }
-
-  def __str__(self):
-    return self.gruenpflegeobjekt
-
-
 #
 # codelists
 # (not visible for ordinary users unless given explicit rights)
@@ -937,58 +902,6 @@ class Beleuchtungsarten(Codelist):
     return self.bezeichnung
 
 
-class Besonderheiten_Freizeitsport(Codelist):
-  """
-  Besonderheiten in Bezug auf Freizeitsport
-  """
-
-  besonderheit = CharField(
-    verbose_name='Besonderheit',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten"."besonderheiten_freizeitsport'
-    ordering = ['besonderheit']
-    verbose_name = 'Besonderheit in Bezug auf Freizeitsport'
-    verbose_name_plural = 'Besonderheiten in Bezug auf Freizeitsport'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Besonderheiten in Bezug auf Freizeitsport'
-    list_fields = {'besonderheit': 'Besonderheit'}
-
-  def __str__(self):
-    return self.besonderheit
-
-
-class Besonderheiten_Spielplaetze(Codelist):
-  """
-  Besonderheiten in Bezug auf Spielplätze
-  """
-
-  besonderheit = CharField(
-    verbose_name='Besonderheit',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten"."besonderheiten_spielplaetze'
-    ordering = ['besonderheit']
-    verbose_name = 'Besonderheit in Bezug auf einen Spielplatz'
-    verbose_name_plural = 'Besonderheiten in Bezug auf Spielplätze'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Besonderheiten in Bezug auf Spielplätze'
-    list_fields = {'besonderheit': 'Besonderheit'}
-
-  def __str__(self):
-    return self.besonderheit
-
-
 class Betriebsarten(Codelist):
   """
   Betriebsarten
@@ -1171,58 +1084,6 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(Codelist):
 
   def __str__(self):
     return self.bezeichnung
-
-
-class Bodenarten_Freizeitsport(Codelist):
-  """
-  Bodenarten in Bezug auf Freizeitsport
-  """
-
-  bodenart = CharField(
-    verbose_name='Bodenart',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten"."bodenarten_freizeitsport'
-    ordering = ['bodenart']
-    verbose_name = 'Bodenart in Bezug auf Freizeitsport'
-    verbose_name_plural = 'Bodenarten in Bezug auf Freizeitsport'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Bodenarten in Bezug auf Freizeitsport'
-    list_fields = {'bodenart': 'Bodenart'}
-
-  def __str__(self):
-    return self.bodenart
-
-
-class Bodenarten_Spielplaetze(Codelist):
-  """
-  Bodenarten in Bezug auf Spielplätze
-  """
-
-  bodenart = CharField(
-    verbose_name='Bodenart',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten"."bodenarten_spielplaetze'
-    ordering = ['bodenart']
-    verbose_name = 'Bodenart in Bezug auf einen Spielplatz'
-    verbose_name_plural = 'Bodenarten in Bezug auf Spielplätze'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Bodenarten in Bezug auf Spielplätze'
-    list_fields = {'bodenart': 'Bodenart'}
-
-  def __str__(self):
-    return self.bodenart
 
 
 class Dateiformate(Codelist):
@@ -1461,32 +1322,6 @@ class Fotomotive_Haltestellenkataster(Codelist):
 
   def __str__(self):
     return self.fotomotiv
-
-
-class Freizeitsportarten(Codelist):
-  """
-  Freizeitsportarten
-  """
-
-  bezeichnung = CharField(
-    verbose_name='Bezeichnung',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten"."freizeitsportarten'
-    ordering = ['bezeichnung']
-    verbose_name = 'Freizeitsportart'
-    verbose_name_plural = 'Freizeitsportarten'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Freizeitsportarten'
-    list_fields = {'bezeichnung': 'Bezeichnung'}
-
-  def __str__(self):
-    return self.bezeichnung
 
 
 class Fundamenttypen_RSAG(Codelist):
@@ -2442,32 +2277,6 @@ class Sparten_Baustellen(Codelist):
 
   def __str__(self):
     return self.sparte
-
-
-class Spielgeraete(Codelist):
-  """
-  Spielgeräte
-  """
-
-  bezeichnung = CharField(
-    verbose_name='Bezeichnung',
-    max_length=255,
-    unique=True,
-    validators=standard_validators,
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten"."spielgeraete'
-    ordering = ['bezeichnung']
-    verbose_name = 'Spielgerät'
-    verbose_name_plural = 'Spielgeräte'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Spielgeräte'
-    list_fields = {'bezeichnung': 'Bezeichnung'}
-
-  def __str__(self):
-    return self.bezeichnung
 
 
 class Sportarten(Codelist):
