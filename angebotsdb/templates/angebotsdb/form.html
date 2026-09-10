@@ -125,7 +125,9 @@
                       </span>
                     </span>
                   </div>
-                  <div class="acg-contact-label acg-label order-4">Einzugsgebiet:</div>
+                  {% if 'catchment_area_urls' in form.fields %}
+                    <div class="acg-contact-label acg-label order-4">Einzugsgebiet:</div>
+                  {% endif %}
                   {# ── Adressfelder ── #}
                   <div class="acg-address-fields order-2">
                     <div class="position-relative mb-2">
@@ -154,20 +156,22 @@
                     {% endfor %}
                   </div>
                   {# ── Einzugsgebiet ── #}
-                  <div class="acg-contact-hours order-5">
-                    {% for inner_field in form %}
-                      {% if inner_field.name == 'catchment_area_urls' %}
-                        {{ inner_field }}
-                        <button type="button" id="btn-select-all-catchment"
-                                class="btn btn-sm btn-outline-secondary mt-2">
-                          Gesamtes Stadtgebiet
-                        </button>
-                        {% if inner_field.errors %}
-                          <div class="text-danger mt-1">{{ inner_field.errors }}</div>
+                  {% if 'catchment_area_urls' in form.fields %}
+                    <div class="acg-contact-hours order-5">
+                      {% for inner_field in form %}
+                        {% if inner_field.name == 'catchment_area_urls' %}
+                          {{ inner_field }}
+                          <button type="button" id="btn-select-all-catchment"
+                                  class="btn btn-sm btn-outline-secondary mt-2">
+                            Gesamtes Stadtgebiet
+                          </button>
+                          {% if inner_field.errors %}
+                            <div class="text-danger mt-1">{{ inner_field.errors }}</div>
+                          {% endif %}
                         {% endif %}
-                      {% endif %}
-                    {% endfor %}
-                  </div>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                   {# ── Kartenvorschau ── #}
                   <div class="acg-map order-3">
                     {% if geometry %}

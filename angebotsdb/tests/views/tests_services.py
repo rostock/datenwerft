@@ -137,6 +137,7 @@ class ChildrenYouthAndFamilyServiceCreateViewTest(ViewTestCase):
     response = self.client.get(reverse('angebotsdb:childrenyouthandfamilyservice_create'))
     form = response.context['form']
     self.assertEqual(list(form.fields), KIJUFA_FIELD_ORDER)
+    self.assertContains(response, 'Einzugsgebiet:')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
@@ -258,6 +259,7 @@ class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
     )
     form = response.context['form']
     self.assertEqual(list(form.fields), KIJUFA_FIELD_ORDER)
+    self.assertContains(response, 'Einzugsgebiet:')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_service_in_review_shows_locked_form(self, mock_get):
@@ -614,6 +616,7 @@ class WoftGServiceCreateViewTest(ViewTestCase):
     response = self.client.get(reverse('angebotsdb:woftgservice_create'))
     form = response.context['form']
     self.assertEqual(list(form.fields), WOFTG_FIELD_ORDER)
+    self.assertNotContains(response, 'Einzugsgebiet:')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
@@ -694,6 +697,7 @@ class WoftGServiceUpdateViewTest(FormViewTestCase):
     )
     form = response.context['form']
     self.assertEqual(list(form.fields), WOFTG_FIELD_ORDER)
+    self.assertNotContains(response, 'Einzugsgebiet:')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_success_as_provider(self, mock_get):
@@ -773,6 +777,15 @@ class WoftGServiceDetailViewTest(FormViewTestCase):
       HTML,
       VALID_STRING_A,
     )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_detail_without_catchment_label(self, mock_get):
+    """Detailansicht WoftG: kein Einzugsgebiet-Label, da das Feld fehlt."""
+    login_as_admin(self)
+    response = self.client.get(
+      reverse('angebotsdb:woftgservice_detail', kwargs={'pk': self.test_object.pk})
+    )
+    self.assertNotContains(response, 'Einzugsgebiet:')
 
 
 class WoftGServiceDeleteViewTest(FormViewTestCase):
