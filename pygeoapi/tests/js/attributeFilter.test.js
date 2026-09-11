@@ -36,8 +36,8 @@ function rowMarkup(index, name) {
       <td class="field-hint"><p></p></td>
       <td class="field-roles">
         <select name="attributes-${index}-roles" class="select2" data-attribute="${name}" multiple>
-          <option value="1"${index % 2 ? ' selected' : ''}>Grünamt (gruen)</option>
-          <option value="2">Tiefbauamt (tief)</option>
+          <option value="1"${index % 2 ? ' selected' : ''}>gruen (Grünamt)</option>
+          <option value="2">tief (Tiefbauamt)</option>
         </select>
       </td>
     </tr>`;

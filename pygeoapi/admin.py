@@ -259,6 +259,13 @@ class DatabaseConnectionAdmin(admin.ModelAdmin):
   empty_value_display = ''
 
 
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+  ordering = ['identifier']
+  list_display = ('id', 'identifier', 'label', 'parent')
+  empty_value_display = ''
+
+
 class RoleField(ModelMultipleChoiceField):
   """
   role picker of a single attribute row, resolved against a catalog that

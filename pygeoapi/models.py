@@ -114,7 +114,7 @@ class Role(Model):
     ]
 
   def __str__(self):
-    return f'{self.label} ({self.identifier})'
+    return f'{self.identifier} ({self.label})'
 
   def clean(self):
     """

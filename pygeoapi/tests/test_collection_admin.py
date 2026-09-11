@@ -308,7 +308,7 @@ class CollectionAdminAttributeOverviewTest(CollectionAdminTestCase):
     self.assertEqual(rows[1]['data_type'], 'character varying(255)')
     # 'Bezeichnung (Bezeichner)': only the identifier is unique, two roles may
     # share a label
-    self.assertEqual(rows[1]['roles'], 'Grünamt (gruen), Tiefbauamt (tief)')
+    self.assertEqual(rows[1]['roles'], 'gruen (Grünamt), tief (Tiefbauamt)')
 
   def test_attribute_without_assignment_shows_no_placeholder(self):
     CollectionAttribute.objects.create(collection=self.collection, name='strasse')
@@ -327,7 +327,7 @@ class CollectionAdminAttributeOverviewTest(CollectionAdminTestCase):
     row = self.rows(self.get_change_page())[0]
     self.assertEqual(row['name'], 'strasse')
     self.assertIn('nicht mehr vorhanden', row['hint'])
-    self.assertEqual(row['roles'], 'Grünamt (gruen)')
+    self.assertEqual(row['roles'], 'gruen (Grünamt)')
 
   def test_structural_attributes_are_marked(self):
     for name in ('id', 'name', 'geom'):
@@ -505,9 +505,9 @@ class CollectionAdminRoleAssignmentTest(CollectionAdminTestCase):
     response = self.get_change_page()
     rows = {row['name']: row for row in self.rows(response)}
     # a free text entry cannot create a role: the options are the catalog
-    self.assertEqual(rows['baumart']['role_options'], ['Grünamt (gruen)', 'Tiefbauamt (tief)'])
+    self.assertEqual(rows['baumart']['role_options'], ['gruen (Grünamt)', 'tief (Tiefbauamt)'])
     self.assertEqual(rows['baumart']['roles'], '')
-    self.assertEqual(rows['strasse']['roles'], 'Grünamt (gruen)')
+    self.assertEqual(rows['strasse']['roles'], 'gruen (Grünamt)')
     self.assertEqual(self.role_fields(response)['strasse'], 'attributes-1-roles')
     # select2 turns the field into a search list with one chip per assigned role
     attrs = self.role_select_attrs(response)['strasse']
@@ -679,8 +679,8 @@ class CollectionAdminRoleAssignmentTest(CollectionAdminTestCase):
     message = entry.get_change_message()
     self.assertIn('strasse', message)
     self.assertIn('baumart', message)
-    self.assertIn('Grünamt (gruen)', message)
-    self.assertIn('Tiefbauamt (tief)', message)
+    self.assertIn('gruen (Grünamt)', message)
+    self.assertIn('tief (Tiefbauamt)', message)
     self.assertIn('zugewiesen', message)
     self.assertIn('entzogen', message)
     self.assertEqual(entry.user, self.user)
