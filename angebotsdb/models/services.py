@@ -62,7 +62,6 @@ class Service(Base):
   target_group = ManyToManyField(
     to=TargetGroup,
     verbose_name='Zielgruppe(n)',
-    blank=True,
     related_name='%(class)s',
   )
   tags = ManyToManyField(

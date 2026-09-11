@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-from angebotsdb.models.base import Law, Provider, Tag, Topic
+from angebotsdb.models.base import Law, Provider, Tag, TargetGroup, Topic
 from angebotsdb.models.services import ChildrenYouthAndFamilyService, WoftGService
 from angebotsdb.views.forms import SERVICE_FIELD_ORDER, CreatableMultipleChoiceField
 
@@ -30,7 +30,7 @@ KIJUFA_FIELD_ORDER = SERVICE_FIELD_ORDER
 WOFTG_FIELD_ORDER = [f for f in SERVICE_FIELD_ORDER if f != 'catchment_area_urls']
 
 
-def _base_service_form_data(topic_pk, law_pk, tag_pk=None):
+def _base_service_form_data(topic_pk, law_pk, tag_pk=None, target_group_pk=None):
   """
   Gibt valide POST-Daten für ein Service-Formular zurück.
   host, status, published_version und geometry werden vom Formular ausgeschlossen.
@@ -38,6 +38,8 @@ def _base_service_form_data(topic_pk, law_pk, tag_pk=None):
   :param topic_pk: PK des Themas
   :param law_pk: PK der gesetzlichen Grundlage
   :param tag_pk: optionaler PK eines Schlagworts
+  :param target_group_pk: PK einer Zielgruppe (Pflichtfeld, aber optional übergeben,
+      um fehlende Zielgruppen in Fehlertests testen zu können)
   :return: dict mit Formulardaten
   """
   data = {
@@ -59,6 +61,8 @@ def _base_service_form_data(topic_pk, law_pk, tag_pk=None):
   }
   if tag_pk is not None:
     data['tags'] = [str(tag_pk)]
+  if target_group_pk is not None:
+    data['target_group'] = [str(target_group_pk)]
   return data
 
 
@@ -95,12 +99,18 @@ class ChildrenYouthAndFamilyServiceCreateViewTest(ViewTestCase):
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
     cls.test_tag = Tag.objects.create(name=VALID_STRING_A)
+    cls.test_target_group = TargetGroup.objects.create(name=VALID_STRING_A)
 
   def setUp(self):
     self.init()
 
   def _valid_form_data(self):
-    return _base_service_form_data(self.test_topic.pk, self.test_law.pk, self.test_tag.pk)
+    return _base_service_form_data(
+      self.test_topic.pk,
+      self.test_law.pk,
+      self.test_tag.pk,
+      target_group_pk=self.test_target_group.pk,
+    )
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_as_provider_200(self, mock_get):
@@ -137,6 +147,7 @@ class ChildrenYouthAndFamilyServiceCreateViewTest(ViewTestCase):
     response = self.client.get(reverse('angebotsdb:childrenyouthandfamilyservice_create'))
     form = response.context['form']
     self.assertEqual(list(form.fields), KIJUFA_FIELD_ORDER)
+    self.assertContains(response, 'Einzugsgebiet:')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
@@ -177,6 +188,18 @@ class ChildrenYouthAndFamilyServiceCreateViewTest(ViewTestCase):
       login_as_provider, 'childrenyouthandfamilyservice_create', None, {}, 200
     )
 
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_post_error_missing_target_group(self, mock_get):
+    """Zielgruppe(n) ist Pflichtfeld: POST ohne Zielgruppe führt zu Formularfehler."""
+    self.generic_post_test(
+      login_as_provider,
+      'childrenyouthandfamilyservice_create',
+      None,
+      _base_service_form_data(self.test_topic.pk, self.test_law.pk, self.test_tag.pk),
+      200,
+    )
+    self.assertFalse(ChildrenYouthAndFamilyService.objects.exists())
+
 
 class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
   """
@@ -195,6 +218,7 @@ class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
     cls.test_tag = Tag.objects.create(name=VALID_STRING_A)
+    cls.test_target_group = TargetGroup.objects.create(name=VALID_STRING_A)
     service = ChildrenYouthAndFamilyService.objects.create(
       name=VALID_STRING_A,
       description='Testbeschreibung',
@@ -214,13 +238,19 @@ class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
     service.topic.set([cls.test_topic])
     service.legal_basis.set([cls.test_law])
     service.tags.set([cls.test_tag])
+    service.target_group.set([cls.test_target_group])
     cls.test_object = service
 
   def setUp(self):
     self.init()
 
   def _valid_form_data(self):
-    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk, self.test_tag.pk)
+    data = _base_service_form_data(
+      self.test_topic.pk,
+      self.test_law.pk,
+      self.test_tag.pk,
+      target_group_pk=self.test_target_group.pk,
+    )
     data['name'] = VALID_STRING_B
     return data
 
@@ -258,6 +288,7 @@ class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
     )
     form = response.context['form']
     self.assertEqual(list(form.fields), KIJUFA_FIELD_ORDER)
+    self.assertContains(response, 'Einzugsgebiet:')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_service_in_review_shows_locked_form(self, mock_get):
@@ -593,12 +624,18 @@ class WoftGServiceCreateViewTest(ViewTestCase):
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
     cls.test_tag = Tag.objects.create(name=VALID_STRING_A)
+    cls.test_target_group = TargetGroup.objects.create(name=VALID_STRING_A)
 
   def setUp(self):
     self.init()
 
   def _valid_form_data(self):
-    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk, self.test_tag.pk)
+    data = _base_service_form_data(
+      self.test_topic.pk,
+      self.test_law.pk,
+      self.test_tag.pk,
+      target_group_pk=self.test_target_group.pk,
+    )
     data['setting'] = 'Einzelberatung'
     # handicap_accessible: weglassen = False
     return data
@@ -614,6 +651,7 @@ class WoftGServiceCreateViewTest(ViewTestCase):
     response = self.client.get(reverse('angebotsdb:woftgservice_create'))
     form = response.context['form']
     self.assertEqual(list(form.fields), WOFTG_FIELD_ORDER)
+    self.assertNotContains(response, 'Einzugsgebiet:')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_get_no_role_403(self, mock_get):
@@ -624,6 +662,18 @@ class WoftGServiceCreateViewTest(ViewTestCase):
     self.generic_post_test(
       login_as_provider, 'woftgservice_create', None, self._valid_form_data(), 302
     )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_post_error_missing_target_group(self, mock_get):
+    """Zielgruppe(n) ist Pflichtfeld: POST ohne Zielgruppe führt zu Formularfehler."""
+    self.generic_post_test(
+      login_as_provider,
+      'woftgservice_create',
+      None,
+      _base_service_form_data(self.test_topic.pk, self.test_law.pk, self.test_tag.pk),
+      200,
+    )
+    self.assertFalse(WoftGService.objects.exists())
 
 
 class WoftGServiceUpdateViewTest(FormViewTestCase):
@@ -643,6 +693,7 @@ class WoftGServiceUpdateViewTest(FormViewTestCase):
     cls.test_topic = Topic.objects.create(name=VALID_STRING_A)
     cls.test_law = Law.objects.create(law_book='SGB VIII', paragraph='8a')
     cls.test_tag = Tag.objects.create(name=VALID_STRING_A)
+    cls.test_target_group = TargetGroup.objects.create(name=VALID_STRING_A)
     service = WoftGService.objects.create(
       name=VALID_STRING_A,
       description='Testbeschreibung',
@@ -663,13 +714,19 @@ class WoftGServiceUpdateViewTest(FormViewTestCase):
     service.topic.set([cls.test_topic])
     service.legal_basis.set([cls.test_law])
     service.tags.set([cls.test_tag])
+    service.target_group.set([cls.test_target_group])
     cls.test_object = service
 
   def setUp(self):
     self.init()
 
   def _valid_form_data(self):
-    data = _base_service_form_data(self.test_topic.pk, self.test_law.pk, self.test_tag.pk)
+    data = _base_service_form_data(
+      self.test_topic.pk,
+      self.test_law.pk,
+      self.test_tag.pk,
+      target_group_pk=self.test_target_group.pk,
+    )
     data['name'] = VALID_STRING_B
     data['setting'] = 'Einzelberatung'
     return data
@@ -694,6 +751,7 @@ class WoftGServiceUpdateViewTest(FormViewTestCase):
     )
     form = response.context['form']
     self.assertEqual(list(form.fields), WOFTG_FIELD_ORDER)
+    self.assertNotContains(response, 'Einzugsgebiet:')
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_success_as_provider(self, mock_get):
@@ -773,6 +831,15 @@ class WoftGServiceDetailViewTest(FormViewTestCase):
       HTML,
       VALID_STRING_A,
     )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_get_detail_without_catchment_label(self, mock_get):
+    """Detailansicht WoftG: kein Einzugsgebiet-Label, da das Feld fehlt."""
+    login_as_admin(self)
+    response = self.client.get(
+      reverse('angebotsdb:woftgservice_detail', kwargs={'pk': self.test_object.pk})
+    )
+    self.assertNotContains(response, 'Einzugsgebiet:')
 
 
 class WoftGServiceDeleteViewTest(FormViewTestCase):

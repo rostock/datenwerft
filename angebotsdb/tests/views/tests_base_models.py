@@ -247,6 +247,12 @@ class ProviderCreateViewTest(ViewTestCase):
   def test_get_as_admin(self):
     self.generic_get_test(login_as_admin, 'provider_create', None, 200, HTML, 'Träger')
 
+  def test_get_as_admin_without_catchment_label(self):
+    """Provider-Formular: kein Einzugsgebiet-Label, da das Feld fehlt."""
+    login_as_admin(self)
+    response = self.client.get(reverse('angebotsdb:provider_create'))
+    self.assertNotContains(response, 'Einzugsgebiet:')
+
   def test_get_no_role_403(self):
     self.generic_get_test(login_no_role, 'provider_create', None, 403, HTML, '')
 
@@ -301,6 +307,14 @@ class ProviderUpdateViewTest(FormViewTestCase):
     self.generic_get_test(
       login_as_admin, 'provider_update', {'pk': self.test_object.pk}, 200, HTML, VALID_STRING_A
     )
+
+  def test_get_as_admin_without_catchment_label(self):
+    """Provider-Formular: kein Einzugsgebiet-Label, da das Feld fehlt."""
+    login_as_admin(self)
+    response = self.client.get(
+      reverse('angebotsdb:provider_update', kwargs={'pk': self.test_object.pk})
+    )
+    self.assertNotContains(response, 'Einzugsgebiet:')
 
   def test_get_no_role_403(self):
     self.generic_get_test(
