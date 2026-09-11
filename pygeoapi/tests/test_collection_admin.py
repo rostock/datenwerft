@@ -50,14 +50,16 @@ DATA_ATTRIBUTE = re.compile(r'data-attribute="([^"]*)"')
 
 # the controls of the search above the overview; matched by their class and not
 # by a literal tag, whose attribute order is not a promised property
-SEARCH_INPUT = re.compile(r'<input[^>]*class="attribute-filter-input"[^>]*>')
-SEARCH_RESET = re.compile(r'<button[^>]*class="attribute-filter-reset"[^>]*>')
+SEARCH_INPUT = re.compile(r'<input[^>]*class="vTextField attribute-filter-input"[^>]*>')
+SEARCH_RESET = re.compile(r'<button[^>]*class="button attribute-filter-reset"[^>]*>')
 SEARCH_STATUS = re.compile(r'<p[^>]*class="attribute-filter-status"[^>]*>')
 FILTER_GROUP = re.compile(r'<div class="attribute-filter" data-group="([^"]+)">')
 NAME_ATTRIBUTE = re.compile(r'\bname\s*=')
 
 # the controls of the reconcile above the overview, matched the same way
-RECONCILE_BUTTON = re.compile(r'<button[^>]*class="attribute-reconcile-button"[^>]*>', re.DOTALL)
+RECONCILE_BUTTON = re.compile(
+  r'<button[^>]*class="button attribute-reconcile-button"[^>]*>', re.DOTALL
+)
 RECONCILE_STATUS = re.compile(r'<p[^>]*class="attribute-reconcile-status"[^>]*>')
 COLUMNS_URL = re.compile(r'data-columns-url="([^"]*)"')
 HIDDEN_FIELD = r'<input[^>]*id="id_{}"[^>]*>'
@@ -381,7 +383,7 @@ class CollectionAdminAttributeOverviewTest(CollectionAdminTestCase):
     response = self.client.get(reverse('admin:pygeoapi_collection_add'))
     self.assertEqual(self.rows(response), [])
     self.assertNotContains(response, 'attributes-group')
-    self.assertContains(response, 'Attribute erst nach dem Speichern.')
+    self.assertContains(response, 'Die Attribute werden erst nach dem Speichern aufgelistet.')
 
   def test_row_order_is_repeatable(self):
     for name in ('strasse', 'baumart', 'id', 'hoehe'):

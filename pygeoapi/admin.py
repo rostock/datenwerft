@@ -559,9 +559,9 @@ class CollectionAdmin(admin.ModelAdmin):
       fieldsets = [
         *fieldsets,
         (
-          'Attribute einer Kollektion',
+          'Attribute der Kollektion',
           {
-            'description': 'Attribute erst nach dem Speichern.',
+            'description': 'Die Attribute werden erst nach dem Speichern aufgelistet.',
             'fields': [],
           },
         ),

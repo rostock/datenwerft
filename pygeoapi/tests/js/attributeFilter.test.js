@@ -53,9 +53,9 @@ function fixture(names) {
   document.body.innerHTML = `
     <form id="collection_form" method="post">
       <div class="attribute-filter" data-group="attributes-group">
-        <label for="attribute-filter-input">Attribut suchen:</label>
-        <input type="search" id="attribute-filter-input" class="attribute-filter-input">
-        <button type="button" class="attribute-filter-reset">Zurücksetzen</button>
+        <label for="attribute-filter-input">Attribute filtern:</label>
+        <input type="search" id="attribute-filter-input" class="vTextField attribute-filter-input">
+        <button type="button" class="button attribute-filter-reset">zurücksetzen</button>
         <p class="attribute-filter-status" role="status"></p>
       </div>
       <div class="js-inline-admin-formset inline-group" id="attributes-group">
