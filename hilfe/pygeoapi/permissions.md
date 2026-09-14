@@ -13,8 +13,8 @@ Dafür gibt es genau **eine** Gruppe: `PYGEOAPI_GROUP_NAME` (siehe
 [Administration](admin.md)). Wer in dieser Gruppe ist, darf die **gesamte**
 *pygeoapi*-Konfiguration pflegen:
 
-- Kollektionen,
 - Datenbankverbindungen,
+- Kollektionen,
 - den [Rollenkatalog](rollenkatalog.md),
 - das [Attributinventar](attributinventar.md) und
 - die [Leserechte](leserechte.md).
@@ -59,14 +59,3 @@ entzogenes Leserecht verändert nicht, was ein Dienst herausgibt.
 
 Wer heute Daten schützen muss, darf sich also **nicht** auf die Leserechte
 verlassen.
-
-## Noch keine Pflegemasken
-
-Die Rechtelage ist bereits **einsehbar:** Auf der Änderungsseite einer
-Kollektion zeigt eine Tabelle je Attribut, welche Rollen es lesen dürfen – siehe
-**[Attribute verwalten](attribute-verwalten.md)**.
-
-**Bearbeiten** lässt sich dort noch nichts. Für Rollenkatalog, Attributinventar
-und Leserechte gibt es weiterhin **keine** Bearbeitungsmasken in der Oberfläche.
-Die Berechtigungen daran sind bereits vergeben, laufen aber noch ins Leere. Die
-Masken entstehen mit den Ausbaustufen, die auch die Wirksamkeit bringen.

@@ -113,11 +113,11 @@ Sichern ohne Ergebnis brächte nichts.
 
 Der Knopf wird vollständig im Browser bedient. Ist JavaScript abgeschaltet,
 **passiert beim Klick nichts.** Verloren geht dabei nichts, es fehlt nur der
-Einstieg – wie bei der Suche unten.
+Einstieg – wie bei der Filterung unten.
 
-## Ein Attribut suchen
+## Attribute filtern
 
-Über der Tabelle steht das Feld **Attribut suchen.** Eine Eingabe dort grenzt die
+Über der Tabelle steht das Feld **Attribute filtern.** Eine Eingabe dort grenzt die
 Tabelle auf die Attribute ein, deren **Name** die Eingabe enthält. Das ist
 gedacht für Kollektionen mit vielen Attributen, wo Scrollen zu langsam ist und
 leicht die falsche Zeile trifft.
@@ -126,27 +126,27 @@ leicht die falsche Zeile trifft.
   `strassenname`.
 - **Groß- und Kleinschreibung** spielt keine Rolle.
 - Neben dem Feld steht, wie viele Attribute gerade angezeigt werden.
-- **Zurücksetzen** leert das Feld und zeigt wieder alle Attribute.
+- Button **zurücksetzen** leert das Feld und zeigt wieder alle Attribute.
 - **Enter** im Suchfeld sichert die Kollektion **nicht** – es passiert nichts.
 
 Passt zur Eingabe kein Attribut, erscheint statt einer kommentarlos leeren
 Tabelle der Hinweis, dass kein Attribut die Eingabe enthält.
 
-> **Ausgeblendete Zeilen werden mitgespeichert.** Die Suche blendet Zeilen nur
-> aus – sie entfernt sie nicht. Wer bei aktiver Suche eine Rolle ändert und dann
+> **Ausgeblendete Zeilen werden mitgespeichert.** Die Filterung blendet Zeilen nur
+> aus – sie entfernt sie nicht. Wer bei aktiver Filterung eine Rolle ändert und dann
 > sichert, ändert **genau diese** Zeile; alle ausgeblendeten Attribute behalten
 > ihre Rollen unverändert.
 
-Die Suche allein ändert also nichts: Filtern, zurücksetzen und sichern, ohne
+Die Filterung allein ändert also nichts: Filtern, zurücksetzen und sichern, ohne
 sonst etwas anzufassen, lässt die Rechtelage genau so, wie sie war.
 
-Gesucht wird **ausschließlich** über den Attributnamen. Eine Suche nach einer
+Gesucht wird **ausschließlich** über den Attributnamen. Eine Filterung nach einer
 zugewiesenen Rolle – etwa *„zeige alle Attribute, die Rolle X lesen darf"* – gibt
 es hier nicht.
 
 ### Wenn JavaScript abgeschaltet ist
 
-Die Suche läuft vollständig im Browser. Ist JavaScript abgeschaltet, **filtert
+Die Filterung läuft vollständig im Browser. Ist JavaScript abgeschaltet, **filtert
 das Feld nicht** – die Tabelle zeigt dann durchgehend alle Attribute. Verloren
 geht dabei nichts; es fehlt nur die Eingrenzung.
 

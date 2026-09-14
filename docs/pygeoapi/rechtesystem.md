@@ -180,7 +180,7 @@ sind `readonly`; **editierbar ist ausschließlich die Rollenzuweisung.**
   Inline zusätzlich `admin/js/inlines.js`; es arbeitet auf `django.jQuery` und
   wird vor dem projekteigenen jQuery/select2 geladen. Das Template selbst hat
   seither zwei Ergänzungen erhalten: `changeForm.css` (Rollen-Spalte) und das
-  Modul-Skript der Suche.
+  Modul-Skript der Filterung.
 - Der Leer-Zustand steckt in
   [`pygeoapi/templates/admin/pygeoapi/edit_inline/collection_attributes.html`](../../pygeoapi/templates/admin/pygeoapi/edit_inline/collection_attributes.html).
   Unterschieden wird über `formset.initial_forms` und nicht über
@@ -254,7 +254,7 @@ Zwei getrennte Punkte:
    sonst liefe der Reload, bevor die Rechte geschrieben sind. `save_related()`
    ist zugleich die richtige Stelle für „genau einmal": Es wird je gültigem POST
    einmal erreicht, für Anlegen wie Ändern und unabhängig davon, welcher
-   Sichern-Knopf benutzt wurde.
+   Sichern-Button benutzt wurde.
 2. **Commit-Rennen.** `reload_pygeoapi()` startet einen Thread, der bisher
    **innerhalb** der noch offenen Transaktion loslief. Die Gegenstelle liest die
    Datenwerft-Datenbank über eine **eigene** Verbindung und sieht nicht
@@ -418,7 +418,7 @@ Der Aufruf sitzt in `CollectionAdmin.save_related()` nach `super()`, über
 `for formset in formsets or []` mit `isinstance`-Prüfung – dasselbe Muster, das
 `construct_change_message()` schon nutzt, und damit auf der Anlageseite
 (`formsets == []`) absturz- und meldungsfrei. `save_related()` wird je gültigem
-POST genau einmal erreicht, für Anlegen wie Ändern, unabhängig vom Sichern-Knopf,
+POST genau einmal erreicht, für Anlegen wie Ändern, unabhängig vom Sichern-Button,
 und läuft **nach** `save_permissions()` – kann also keinen Zustand behaupten, der
 nicht geschrieben wurde. Verworfen: `save_formset()` (Meldungsausgabe ist kein
 Speichern) und `response_change()` (hat die Formsets nicht und deckt
@@ -468,18 +468,18 @@ ist erwartetes Verhalten dieser Ausbaustufe und kein Defekt. Bewusst **keine**
 Notabschaltung bei leerem Katalog: Die Aussage ist dann ja zutreffend, und eine
 Sonderregel nähme genau die Sichtbarkeit, um die es geht.
 
-## Suche über den Attributnamen
+## Filterung über den Attributnamen
 
-Die Suche über der Attributtabelle wirkt **ausschließlich im Browser**:
+Die Filterung über der Attributtabelle wirkt **ausschließlich im Browser**:
 `pygeoapi/static/pygeoapi/js/attributeFilter.js` blendet Zeilen aus, deren
-Attributname die Eingabe nicht enthält. Der Suchblock steht in
+Attributname die Eingabe nicht enthält. Der Filterblock steht in
 `collection_attributes.html` **vor** dem Include von
 `admin/edit_inline/tabular.html`.
 
 ### Browserseitig statt serverseitig
 
 Eine serverseitige Filterung müsste den **ungespeicherten Formularzustand** über
-den Seitenwechsel tragen: Wer eine Rolle wählt und dann sucht, würde die Auswahl
+den Seitenwechsel tragen: Wer eine Rolle wählt und dann filtert, würde die Auswahl
 sonst verlieren. Sie bräche damit dieselbe Zusage, an der schon die Zwischenseite
 für die Rückfrage gescheitert ist – „wirkt erst mit dem Sichern". Hinzu käme eine
 Blätterung, die die Formset-Verwaltung (`TOTAL_FORMS`, `INITIAL_FORMS`) je Seite
@@ -507,13 +507,13 @@ Eine **eigene** Klasse statt Djangos `.hidden`, damit im Inspektor erkennbar
 bleibt, wer die Zeile ausblendet, und damit eine Änderung an `.hidden` im Admin
 die Filterung nicht mitnimmt.
 
-### Markup-Vertrag des Suchblocks
+### Markup-Vertrag des Filterblocks
 
-- Weder Suchfeld noch Zurücksetzen-Knopf tragen ein **`name`-Attribut**. Mit
+- Weder Filterfeld noch Zurücksetzen-Button tragen ein **`name`-Attribut**. Mit
   `name` landeten beide als fremde Schlüssel im POST der Änderungsseite.
-- Der Knopf ist `type="button"`. Der Standardwert `submit` würde die Kollektion
+- Der Button ist `type="button"`. Der Standardwert `submit` würde die Kollektion
   sichern.
-- `Enter` im Suchfeld wird per `preventDefault()` abgefangen: Ein Textfeld im
+- `Enter` im Filterung wird per `preventDefault()` abgefangen: Ein Textfeld im
   Änderungsformular löst sonst die **implizite Absendung** aus und würde die
   Kollektion samt aller Nebenwirkungen sichern, darunter der
   Konfigurations-Reload.
@@ -541,7 +541,7 @@ kann.
 
 Bewusst **vanilla DOM** statt jQuery, obwohl der Nachbarcode jQuery nutzt: So
 läuft der Unit-Test in Node ohne jQuery-Aufbau. Die Funktion ist nebenwirkungsfrei
-aufrufbar und gibt zurück, ob ein Suchblock gefunden wurde – auf der Anlageseite
+aufrufbar und gibt zurück, ob ein Filterblock gefunden wurde – auf der Anlageseite
 und bei leerem Inventar gibt es keinen.
 
 ### Zwei Testebenen, die sich gegenseitig halten
@@ -574,7 +574,7 @@ serverseitige Entsprechung ist
 
 Gegengeprüft durch Mutation: `remove()` statt `classList.toggle()` lässt sieben
 JS-Tests scheitern, ein fehlendes `preventDefault()` einen, ein `name`-Attribut am
-Suchfeld den zugehörigen Django-Test.
+Filterfeld den zugehörigen Django-Test.
 
 #### Abdeckungsgrenze
 
@@ -589,7 +589,7 @@ Handprobe unten; sie ist für DH-76 vollständig und ohne Befund durchlaufen.
 
 ### Handprobe
 
-Bei jeder Änderung an `attributeFilter.js` oder am Suchblock zu wiederholen, an
+Bei jeder Änderung an `attributeFilter.js` oder am Filterblock zu wiederholen, an
 einer Kollektion mit mindestens 100 Attributen:
 
 1. Eingrenzen und Zurücksetzen – ohne merkliche Verzögerung.
@@ -599,7 +599,7 @@ einer Kollektion mit mindestens 100 Attributen:
    ausgeblendeten Zeilen haben ihre Rollen unverändert.**
 4. Filtern, zurücksetzen, sichern: keine Änderung an der Rechtelage und kein
    Eintrag über eine Rolle in der Objekt-Historie.
-5. `Enter` im Suchfeld sendet das Formular nicht ab.
+5. `Enter` im Filterfeld sendet das Formular nicht ab.
 6. Dabei mitmessen, ob die select2-Initialisierung die Maske spürbar verzögert.
 
 ## Abgleich des Attributinventars
@@ -608,7 +608,7 @@ einer Kollektion mit mindestens 100 Attributen:
 [`pygeoapi/services.py`](../../pygeoapi/services.py) gleicht das Inventar einer
 Kollektion gegen eine Spaltenliste ab und meldet vier Kategorien zurück
 (`ReconcileResult`): `added`, `vanished`, `reappeared`, `retyped`. Angestoßen wird
-er über den Knopf *Attribute abgleichen* über der Attributübersicht.
+er über den Button *Attribute abgleichen* über der Attributübersicht.
 
 | Fall | Wirkung |
 | ---- | ------- |
@@ -652,7 +652,7 @@ zu löschen – ein Abgleich mit der echten Liste stellt den Zustand wieder her.
 Die Prämisse des Tickets, das Formular habe die Spaltenliste „ohnehin schon
 geladen", trifft übrigens **nicht** zu: `changeForm.js` lädt beim Aufbau der Seite
 nur die Schemata nach, `fetchColumns()` läuft erst, wenn jemand Schema und Tabelle
-von Hand neu wählt. Deshalb holt der Knopf die Liste beim Klick selbst; am
+von Hand neu wählt. Deshalb holt der Button die Liste beim Klick selbst; am
 Ladeverhalten des Formulars ist nichts geändert.
 
 ### Geänderte Antwortform der Spaltenauskunft
@@ -750,7 +750,7 @@ Fehler dieser Art und ausdrücklich kein Vorbild. `construct_change_message()`
 läuft nach `save_related()` und liest das Ergebnis von dort.
 
 Die Rückmeldung nennt nur die vier Zahlen – die Namen stehen in der Tabelle, auf
-die das vom Knopf angehängte `_continue` zurückführt. Der Eintrag in der
+die das vom Button angehängte `_continue` zurückführt. Der Eintrag in der
 Objekt-Historie nennt sie dagegen vollständig und ist **strukturiert**, aus dem
 schon bei der Rechtevergabe dokumentierten Grund: Ein String ohne führendes `[`
 verdrängt die Einträge des Elternformulars. Ein No-op erzeugt keinen Eintrag.
@@ -761,15 +761,15 @@ Trägerfelder bei jedem Abgleich als geänderte Felder der Kollektion.
 
 ### Markup-Vertrag des Abgleichs
 
-- Der Knopf trägt **kein `name`-Attribut** und `type="button"`: Mit `name` landete
+- Der Button trägt **kein `name`-Attribut** und `type="button"`: Mit `name` landete
   er im POST, mit `submit` sicherte er die Kollektion, statt erst die Spaltenliste
   zu holen.
-- Die URL der Spaltenauskunft steht als **`data-columns-url`** am Knopf. Die
+- Die URL der Spaltenauskunft steht als **`data-columns-url`** am Button. Die
   globale Konstante `GET_DATABASE_COLUMNS_URL` steht in einem klassischen
   Inline-Skript und wäre aus einem Modul nur über den globalen Scope erreichbar.
 - Gelesen werden **`#id_database_connection`, `#id_schema`, `#id_table`** – die
   echten Modellfelder. Die `*_select`-Hilfslisten sind beim Seitenaufbau leer.
-- Knopf und Statusabsatz stehen **vor** der Verzweigung in
+- Button und Statusabsatz stehen **vor** der Verzweigung in
   `collection_attributes.html`, damit sie auch im Leer-Zweig erscheinen.
 - Die beiden versteckten Felder stehen in `{% block after_related_objects %}` und
   damit innerhalb des `<form>`, aber **außerhalb** der Fieldsets: In einem
@@ -835,7 +835,7 @@ Bei jeder Änderung an `attributeReconcile.js`, an `services.py` oder an der
 Spaltenauskunft zu wiederholen, an einer Kollektion auf einer echten
 PostGIS-Tabelle; Probedaten anschließend zurückbauen:
 
-1. Änderungsseite einer Kollektion mit leerem Inventar – Leer-Hinweis **und** Knopf
+1. Änderungsseite einer Kollektion mit leerem Inventar – Leer-Hinweis **und** Button
    sind sichtbar.
 2. Abgleichen: Die Seite bleibt auf der Änderungsseite, die Meldung nennt vier
    Zahlen, die Tabelle zeigt alle Spalten samt Datentyp.
@@ -905,13 +905,13 @@ ermittelt" und das Inventar blieb unverändert.
 - Die Meldung beim Sichern nennt höchstens **zehn** Namen. Die vollständige Liste
   steht nur in der Spalte *Hinweis* der Tabelle – nach einem Abgleich mit vielen
   neuen Attributen ist das eine bewusste Kappung, keine Vollständigkeitszusage.
-- Die Suche greift **nur über den Attributnamen** und nur über die Zeilen, die die
+- Die Filterung greift **nur über den Attributnamen** und nur über die Zeilen, die die
   Seite ohnehin geladen hat. Eine Filterung nach zugewiesener Rolle und ein Filter
   „nur Attribute ohne Rolle" sind ausdrücklich Nicht-Ziel dieser Ausbaustufe; für
   beides müssten die Rollen je Zeile maschinenlesbar im Markup stehen (siehe
   *Roadmap*).
-- **Ohne JavaScript gibt es keine Suche und keinen Abgleich.** Die Tabelle zeigt
-  dann durchgehend alle Attribute, und der Knopf tut beim Klick nichts; verloren
+- **Ohne JavaScript gibt es keine Filterung und keinen Abgleich.** Die Tabelle zeigt
+  dann durchgehend alle Attribute, und der Button tut beim Klick nichts; verloren
   geht nichts, es fehlt nur die Eingrenzung beziehungsweise der Einstieg.
 - Der Abgleich läuft **je Kollektion und von Hand.** Es gibt keinen Zeitplan, keine
   Sammelaktion über alle Kollektionen und keine Auslösung bei einer Änderung von
@@ -919,7 +919,7 @@ ermittelt" und das Inventar blieb unverändert.
   Abgleich selbst anstoßen; bis dahin beschreibt das Inventar die vorige Quelle.
 - Ein neu aufgenommenes Attribut erscheint erst **nach dem Neuaufbau der Seite** in
   der Tabelle: Der Abgleich läuft in `save_related()`, die gerenderten Zeilen sind
-  der Stand davor. Das `_continue` des Knopfes deckt das ab. Akzeptierte
+  der Stand davor. Das `_continue` des Buttones deckt das ab. Akzeptierte
   kosmetische Nebenfolge: Ein rechtefreies Attribut, das derselbe Abgleich gerade
   als „nicht mehr vorhanden" kennzeichnet, kann in der Warnung **dieses**
   Speichervorgangs noch auftauchen; beim nächsten Aufruf der Maske ist es korrekt.
