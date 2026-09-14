@@ -36,7 +36,7 @@ function fixture({db = '7', schema = 'public', table = 'baeume'} = {}) {
       <input type="text" id="id_table" name="table" value="${table}">
       <div class="attribute-reconcile">
         <button type="button"
-                class="attribute-reconcile-button"
+                class="button attribute-reconcile-button"
                 data-columns-url="${COLUMNS_URL}">Attribute abgleichen</button>
         <p class="attribute-reconcile-status" role="status"></p>
       </div>
@@ -113,7 +113,7 @@ describe('initAttributeReconcile', () => {
   it('does nothing without the hidden fields', () => {
     document.body.innerHTML = `
       <form>
-        <button type="button" class="attribute-reconcile-button" data-columns-url="/x/"></button>
+        <button type="button" class="button attribute-reconcile-button" data-columns-url="/x/"></button>
         <p class="attribute-reconcile-status"></p>
       </form>`;
     expect(initAttributeReconcile(document)).toBe(false);
@@ -242,7 +242,7 @@ describe('initAttributeReconcile', () => {
     document.body.innerHTML = `
       <form id="collection_form">
         <div class="attribute-reconcile">
-          <button type="button" class="attribute-reconcile-button" data-columns-url="/x/"></button>
+          <button type="button" class="button attribute-reconcile-button" data-columns-url="/x/"></button>
           <p class="attribute-reconcile-status"></p>
         </div>
         <input type="hidden" name="reconcile" id="id_reconcile" value="1">

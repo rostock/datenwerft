@@ -62,6 +62,10 @@
   margin-right: 0.5em;
 }
 
+.attribute-filter-reset {
+  padding: 6px 10px !important;
+}
+
 .attribute-filter-status {
   margin: 0.5em 0 0;
 }
@@ -76,4 +80,8 @@
 
 .attribute-reconcile-status {
   margin: 0.5em 0 0;
+}
+
+.attribute-reconcile-button {
+  padding: 10px 15px !important;
 }

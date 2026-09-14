@@ -10,7 +10,7 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
    - [Datenbanken](#datenbanken)
 1. [Konfiguration](#konfiguration)
 1. [Initialisierung](#initialisierung)
-   - [Einführung des Rechtesystems in bestehenden Instanzen](#einführung-des-rechtesystems-in-bestehenden-instanzen)
+   - [Einführung Rechtesystem App _pygeoapi_ in bestehenden Instanzen](#einführung-rechtesystem-app-pygeoapi-in-bestehenden-instanzen)
 1. [Start](#start)
 1. [Deployment](#deployment)
 1. [UML-Klassendiagramme](#uml-klassendiagramme)
@@ -22,7 +22,7 @@ Web-Anwendung zur einfachen Erfassung von (Geo-)Daten, die auf [_Django_](https:
    - [Grundsätzliches](#grundsätzliches)
    - [Python](#python)
    - [JavaScript](#javascript)
-   - [Anpassungen Datenbankschema App _Datenmanagement_](#anpassungen-datenbankschema-app-_datenmanagement_)
+   - [Anpassungen Datenbankschema App _Datenmanagement_](#anpassungen-datenbankschema-app-datenmanagement)
 1. [Linting](#linting)
 1. [Tests](#tests)
 1. [CI/CD](#cicd)
@@ -173,15 +173,15 @@ python manage.py collectstatic -c
 uv run manage.py collectstatic -c
 ```
 
-### Einführung des Rechtesystems in bestehenden Instanzen
+### Einführung Rechtesystem App _pygeoapi_ in bestehenden Instanzen
 
-Die nachfolgenden Informationen betreffen Instanzen, die bereits _pygeoapi_-Kollektionen und -Datenbankverbindungen pflegen und auf einen Stand mit dem attributbezogenen Rechtesystem gehoben werden.
+Die nachfolgenden Informationen betreffen Instanzen, die mittels App _pygeoapi_ bereits Datenbankverbindungen und Kollektionen pflegen und auf einen Stand mit dem attributbezogenen Rechtesystem gehoben werden sollen.
 
-1. `manage.py migrate` legt die drei neuen Tabellen an (Rollenkatalog, Attributinventar, Leserechte). Die zugehörigen Migrationen legen ausschließlich diese neuen Tabellen an und ergänzen eine Spalte an einer von ihnen; keine bestehende Tabelle wird verändert und es findet keine Datenübernahme statt. **Bestehende Kollektionen und Datenbankverbindungen bleiben unberührt.** Die drei neuen Tabellen sind danach leer.
+1. `manage.py migrate` legt die drei neuen Tabellen an (Rollenkatalog, Attributinventar, Leserechte). Die zugehörigen Migrationen legen ausschließlich diese neuen Tabellen an und ergänzen eine Spalte an einer von ihnen; keine bestehende Tabelle wird verändert und es findet keine Datenübernahme statt. **Bestehende Datenbankverbindungen und Kollektionen bleiben unberührt.** Die drei neuen Tabellen sind danach leer.
 
 2. `manage.py pygeoapi_roles_permissions` weist der Gruppe `PYGEOAPI_GROUP_NAME` die Berechtigungen an den neuen Datenobjekten zu. Der Befehl ist idempotent – ein zweiter Aufruf vergibt nichts erneut und meldet `0 permission(s) assigned`. In der _Docker_-Umgebung ist er bereits Teil des Entrypoints; ein manueller Aufruf ist dort nicht nötig.
 
-3. Danach ist die Anwendung ohne weitere Handgriffe lauffähig. Attributinventar und Leserechte werden auf der Änderungsseite einer Kollektion gepflegt: Der Knopf **Attribute abgleichen** füllt das Inventar aus der Quelltabelle, darunter werden je Attribut die Leserechte vergeben (siehe [`hilfe/pygeoapi/attribute-verwalten.md`](hilfe/pygeoapi/attribute-verwalten.md)). Für den **Rollenkatalog** gibt es noch keine Maske; solange er leer ist, lässt sich keine Rolle zuweisen.
+3. Danach ist die Anwendung ohne weitere Handgriffe lauffähig. Attributinventar und Leserechte werden auf der Änderungsseite einer Kollektion gepflegt: Der Button **Attribute abgleichen** füllt das Inventar aus der gewählten Quelltabelle, darunter werden **je Attribut die Leserechte vergeben** (siehe [`hilfe/pygeoapi/attribute-verwalten.md`](hilfe/pygeoapi/attribute-verwalten.md)). Für den **Rollenkatalog** gibt es ebenfalls eine Maske.
 
 #### Rückweg
 
@@ -196,9 +196,9 @@ python manage.py migrate pygeoapi 0001
 uv run manage.py migrate pygeoapi 0001
 ```
 
-Damit werden die drei neuen Tabellen wieder entfernt. Kollektionen und Datenbankverbindungen bleiben dabei unberührt, **aber Rollenkatalog, Attributinventar und sämtliche Leserechte sind unwiederbringlich verloren.** _Django_ fragt bei einer Rückwärtsmigration nicht nach, es gibt kein Backup und keine Änderungshistorie. Vor dem Rückweg daher **immer** einen Dump der Datenbank ziehen.
+Damit werden die drei neuen Tabellen wieder entfernt. Datenbankverbindungen und Kollektionen bleiben dabei unberührt, aber **Rollenkatalog, Attributinventar und sämtliche Leserechte sind unwiederbringlich verloren.** _Django_ fragt bei einer Rückwärtsmigration nicht nach, es gibt kein Backup und keine Änderungshistorie. Vor dem Rückweg daher **immer** einen Dump der Datenbank ziehen!
 
-Solange die drei Tabellen noch leer sind, ist der Rückweg gefahrlos.
+Solange die drei Tabellen noch leer sind, ist der Rückweg hingegen gefahrlos.
 
 #### Entwicklungsdaten
 
@@ -212,10 +212,10 @@ python manage.py loaddata pygeoapi_dev-instance
 uv run manage.py loaddata pygeoapi_dev-instance
 ```
 
-Sie legt eine Datenbankverbindung mit **erfundenen** Zugangsdaten und zwei Kollektionen an (eine davon deaktiviert). Die Fixture ist ausschließlich für Entwicklungssysteme gedacht und wird von keinem Deploy- und keinem Testschritt geladen. In der Kollektions-Übersicht des Administrationsbereichs erscheint für ihre Service-Metadatensätze `Unknown (<id>)`, weil die dort angegebenen Kennungen auf keinen Metadatensatz zeigen – das ist erwartet und kein Fehler.
+Sie legt eine Datenbankverbindung mit **erfundenen** Zugangsdaten und zwei Kollektionen an (eine davon deaktiviert). Die Fixture ist ausschließlich für Entwicklungssysteme gedacht und wird von keinem Deploy- und keinem Testschritt geladen. In der Kollektionsübersicht des Administrationsbereichs erscheint für ihre Service-Metadatensätze `Unknown (<id>)`, weil die dort angegebenen Kennungen auf keinen Metadatensatz zeigen – das ist erwartet und kein Fehler.
 
 > [!WARNING]
-> `loaddata` schreibt **primärschlüsselgenau:** Belegt auf dem Zielsystem bereits eine Datenbankverbindung die Kennung `9001` oder belegt eine Kollektion die Kennung `9001` beziehungsweise `9002`, werden diese Zeilen **ohne Rückfrage überschrieben** – ein erneutes Laden setzt zwischenzeitliche Änderungen an genau diesen Zeilen zurück. Ist eine der Service-Kennungen `9000001` oder `9000002` bereits vergeben, bricht das Laden mit einem Fehler ab, weil `service_id` eindeutig ist. Auf einem Entwicklungssystem mit einer Kopie der Produktionsdaten daher vorher prüfen, ob diese Kennungen frei sind.
+> Die Funktion `loaddata` schreibt **primärschlüsselgenau:** Belegt auf dem Zielsystem bereits eine Datenbankverbindung die Kennung `9001` oder belegt eine Kollektion die Kennung `9001` beziehungsweise `9002`, werden diese Zeilen **ohne Rückfrage überschrieben** – ein erneutes Laden setzt zwischenzeitliche Änderungen an genau diesen Zeilen zurück. Ist eine der Service-Kennungen `9000001` oder `9000002` bereits vergeben, bricht das Laden mit einem Fehler ab, weil `service_id` eindeutig ist. Auf einem Entwicklungssystem mit einer Kopie der Produktionsdaten daher vorher prüfen, ob diese Kennungen frei sind.
 
 ## Start
 
@@ -573,7 +573,6 @@ uv run manage.py test toolbox
   # mit uv
   uv run manage.py test gdihrometadata
   ```
-  ```
 
 - Tests der App _pygeoapi_ durchführen:
   - Einzeltest (Beispiel):
@@ -611,6 +610,7 @@ uv run manage.py test toolbox
 
   # mit uv
   uv run manage.py test stadtbereichskatalog
+  ```
 
 ### Tests des Browser-seitigen JavaScripts
 

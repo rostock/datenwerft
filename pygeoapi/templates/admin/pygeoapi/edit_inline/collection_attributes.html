@@ -6,7 +6,7 @@
 {% endcomment %}
 <div class="attribute-reconcile">
   <button type="button"
-          class="attribute-reconcile-button"
+          class="button attribute-reconcile-button"
           title="Der Abgleich sichert die Kollektion mit allen offenen Änderungen."
           data-columns-url="{% url 'pygeoapi:get_database_columns' %}">Attribute abgleichen</button>
   <p class="attribute-reconcile-status" role="status"></p>
@@ -24,13 +24,13 @@
     braucht type="button", weil submit die Kollektion sichern würde.
   {% endcomment %}
   <div class="attribute-filter" data-group="{{ inline_admin_formset.formset.prefix }}-group">
-    <label for="attribute-filter-input">Attribut suchen:</label>
+    <label for="attribute-filter-input">Attribute filtern:</label>
     <input type="search"
            id="attribute-filter-input"
-           class="attribute-filter-input"
+           class="vTextField attribute-filter-input"
            placeholder="Teil des Attributnamens"
            autocomplete="off">
-    <button type="button" class="attribute-filter-reset">Zurücksetzen</button>
+    <button type="button" class="button attribute-filter-reset">zurücksetzen</button>
     <p class="attribute-filter-status" role="status"></p>
   </div>
   {% include "admin/edit_inline/tabular.html" %}
