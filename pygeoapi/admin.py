@@ -3,7 +3,7 @@ import json
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.forms import (
   BaseInlineFormSet,
   BooleanField,
@@ -60,7 +60,7 @@ def attributes_without_role_message(names):
       remaining,
     ) % {'count': remaining}
   # fixed prose in first place: admin/base.html renders '{{ message|capfirst }}'
-  # and would capitalise an attribute name into one that does not exist
+  # and would capitalize an attribute name into one that does not exist
   headline = ngettext(
     'Ein Attribut dieser Kollektion kann von keiner Rolle gelesen werden: %(names)s.',
     '%(count)d Attribute dieser Kollektion können von keiner Rolle gelesen werden: %(names)s.',
@@ -256,13 +256,17 @@ class CollectionForm(ModelForm):
 class DatabaseConnectionAdmin(admin.ModelAdmin):
   ordering = ('host', 'dbname', 'user')
   list_display = ('id', 'host', 'dbname', 'user')
+  search_fields = ('host', 'dbname', 'user')
+  list_filter = ('host',)
   empty_value_display = ''
 
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
-  ordering = ['identifier']
+  ordering = ('identifier',)
   list_display = ('id', 'identifier', 'label', 'parent')
+  search_fields = ('identifier', 'label', 'parent__identifier', 'parent__label')
+  list_filter = ('parent',)
   empty_value_display = ''
 
 
@@ -470,7 +474,7 @@ class CollectionAttributeInline(admin.TabularInline):
 
   def get_queryset(self, request):
     # keeps the number of queries independent of the number of attributes and
-    # of assigned roles; the ordering is a promised behaviour and therefore set
+    # of assigned roles; the ordering is a promised behavior and therefore set
     # here explicitly instead of relying on Meta.ordering. It is unambiguous
     # because (collection, name) is unique.
     return (
@@ -524,6 +528,14 @@ class CollectionAdmin(admin.ModelAdmin):
   form = CollectionForm
   inlines = [CollectionAttributeInline]
   list_display = ('id', 'service_display', 'database_connection', 'schema', 'table', 'deactivated')
+  search_fields = (
+    'database_connection__host',
+    'database_connection__dbname',
+    'database_connection__user',
+    'schema',
+    'table',
+  )
+  list_filter = ('database_connection', 'deactivated')
   empty_value_display = ''
   fieldsets = [
     (
@@ -585,6 +597,23 @@ class CollectionAdmin(admin.ModelAdmin):
     self._service_cache = {s.id: s for s in Service.objects.filter(id__in=service_ids)}
 
     return qs
+
+  def get_search_results(self, request, queryset, search_term):
+    queryset, use_distinct = super().get_search_results(
+      request, queryset, search_term
+    )
+
+    if search_term:
+      service_ids = Service.objects.filter(
+        Q(name__icontains=search_term) |
+        Q(title__icontains=search_term)
+      ).values_list('id', flat=True)
+
+      queryset |= self.model.objects.filter(
+        service_id__in=list(service_ids)
+      )
+
+    return queryset, use_distinct
 
   def service_display(self, obj):
     service = getattr(self, '_service_cache', {}).get(obj.service_id)
@@ -707,3 +736,30 @@ class CollectionAdmin(admin.ModelAdmin):
         }
       )
     return message
+
+
+@admin.register(AttributeReadPermission)
+class AttributeReadPermissionAdmin(admin.ModelAdmin):
+  ordering = ('role', 'attribute__collection__service_id', 'attribute__name')
+  list_display = ('role', 'collection_display', 'attribute_display')
+  search_fields = ('role__identifier', 'role__label', 'attribute__name')
+  list_filter = ('role',)
+  list_display_links = None
+  actions = None
+  empty_value_display = ''
+
+  def has_add_permission(self, request):
+    return False
+
+  def collection_display(self, obj):
+    service = Service.objects.get(id=obj.attribute.collection.service_id)
+    return f'({service.name}) {service.title}'
+
+  def attribute_display(self, obj):
+    return obj.attribute.name
+
+  collection_display.short_description = 'Kollektion'
+  collection_display.admin_order_field = 'attribute__collection__service_id'
+
+  attribute_display.short_description = 'Attribut'
+  attribute_display.admin_order_field = 'attribute__name'

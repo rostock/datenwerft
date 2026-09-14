@@ -84,7 +84,7 @@ class Role(Model):
 
   # reference data, not an identity/membership table: no reference to users.
   # `identifier` mirrors the identity provider verbatim (no case folding).
-  # see hilfe/pygeoapi/rollenkatalog.md for identifier coupling and delete behaviour
+  # see hilfe/pygeoapi/rollenkatalog.md for identifier coupling and delete behavior
   id = AutoField(verbose_name=_('ID'), primary_key=True, editable=False)
   identifier = CharField(
     verbose_name=_('Bezeichner (wie im Identity Provider)'),
@@ -163,7 +163,7 @@ class CollectionAttribute(Model):
   # permissions later hanging off it) with it instead of blocking the delete.
   # populating the inventory: DH-77, assigning per-attribute read rights: DH-74.
   # model rationale: docs/pygeoapi/rechtesystem.md
-  # behaviour promised to users: hilfe/pygeoapi/attributinventar.md
+  # behavior promised to users: hilfe/pygeoapi/attributinventar.md
   id = AutoField(verbose_name=_('ID'), primary_key=True, editable=False)
   collection = ForeignKey(
     Collection,
@@ -225,7 +225,7 @@ class AttributeReadPermission(Model):
   # assignment: in the GeoJSON response they sit at root level ('id',
   # 'geometry'), not below 'properties', and are always delivered.
   # model rationale: docs/pygeoapi/rechtesystem.md
-  # behaviour promised to users: hilfe/pygeoapi/leserechte.md
+  # behavior promised to users: hilfe/pygeoapi/leserechte.md
   id = AutoField(verbose_name=_('ID'), primary_key=True, editable=False)
   role = ForeignKey(
     Role,
