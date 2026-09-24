@@ -154,19 +154,34 @@
         </div>
       </div>
 
-      <!-- Feedback -->
-      <div id="grid-item-feedback" class="grid-item">
+      <!-- Erklärvideo -->
+      <div id="grid-item-erklaervideo" class="grid-item">
         <div class="card bg-info-subtle border-info text-center h-100">
           <div class="card-body d-flex flex-column justify-content-center h-100">
-            <h3><i class="fa-fw fa-solid fa-comments me-2"></i>Feedback</h3>
+            <h3><i class="fa-fw fa-brands fa-youtube me-2"></i>Erklärvideo</h3>
             <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
               <div class="col d-grid">
-                <a href="https://nextcloud.sv.rostock.de/apps/forms/s/kL42wRmXTmNbRZfZTQgLmFpR"
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   class="btn btn-info">
-                  <i class="fa-fw fa-solid fa-arrow-up-right-from-square me-2"></i>Zum Formular
+                <!-- Video-Link wird später ergänzt (Platzhalter #) -->
+                <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-info">
+                  <i class="fa-fw fa-solid fa-circle-play me-2"></i>Video ansehen
                 </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOiNS -->
+      <div id="grid-item-moins" class="grid-item">
+        <div class="card bg-secondary-subtle border-secondary text-center h-100">
+          <div class="card-body d-flex flex-column justify-content-center h-100">
+            <h3><i class="fa-fw fa-solid fa-hand-holding-heart me-2"></i>MOiNS</h3>
+            <div class="row row-cols-1 row-cols-md-1 g-2 mt-4">
+              <div class="col d-grid">
+                <button class="btn btn-secondary" disabled><i class="fa-fw fa-solid fa-table me-2"></i>Auflisten</button>
+              </div>
+              <div class="col d-grid">
+                <button class="btn btn-secondary" disabled><i class="fa-fw fa-solid fa-circle-plus me-2"></i>Hinzufügen</button>
               </div>
             </div>
           </div>
@@ -198,7 +213,7 @@
   <!-- End of XXL Container -->
     {% else %}
     <div class="alert alert-warning mt-4">
-      Sie haben keine Berechtigung, auf die Angebotsdatenbank zuzugreifen.
+      Sie haben keine Berechtigung, auf den Angebotsfinder Jugend &amp; Soziales zuzugreifen.
     </div>
     {% endif %}
   </div>

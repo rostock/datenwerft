@@ -149,7 +149,7 @@ Table angebotsdb_woftgservice {
   created_at datetime [not null]
   updated_at datetime [not null]
 
-  Note: 'Angebote im Rahmen des WoftG'
+  Note: 'Angebote im Rahmen des WoftG M-V'
 }
 
 // ----- M2M-Zwischentabellen (Service ↔ Stammdaten) -------------------
