@@ -77,13 +77,13 @@ def send_inbox_message_notification(message) -> None:
       subject = f'Neuer Prüfauftrag: {service_name}'
       info = (
         f'für das Angebot „{service_name}“ liegt ein neuer Prüfauftrag '
-        'in Ihrem Posteingang der Angebotsdatenbank vor.'
+        'in Ihrem Posteingang des Angebotsfinders Jugend & Soziales vor.'
       )
     else:
       subject = f'Überarbeitung erforderlich: {service_name}'
       info = (
         f'für das Angebot „{service_name}“ liegt ein Überarbeitungsauftrag '
-        'in Ihrem Posteingang der Angebotsdatenbank vor.'
+        'in Ihrem Posteingang des Angebotsfinders Jugend & Soziales vor.'
       )
     body_lines = ['Guten Tag,', '', info, '']
     # Basis-URL wird an den View-Erstellungsstellen aus dem Request abgeleitet und als

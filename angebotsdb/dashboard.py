@@ -1,5 +1,5 @@
 """
-Zentrale Dashboard-Konfiguration für die Angebotsdatenbank.
+Zentrale Dashboard-Konfiguration für den Angebotsfinder Jugend & Soziales.
 
 Definiert die Container-Gruppen, in denen Dashboard-Buttons gruppiert werden.
 """
