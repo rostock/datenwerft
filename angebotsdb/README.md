@@ -24,7 +24,7 @@ Felder wie Name, Beschreibung, Adresse, Geometrie (Punkt), Lebenslagen, Zielgrup
 | Modell                          | Beschreibung                                  | Besondere Felder                               |
 | ------------------------------- | --------------------------------------------- | ---------------------------------------------- |
 | `ChildrenYouthAndFamilyService` | Angebote für Kinder, Jugendliche und Familien | Einzugsgebiet (PyGeoAPI), Kosten, Setting      |
-| `WoftGService`                  | Angebote im Rahmen des WoftG                  | Kosten, Setting, barrierefreier Zugang (Bool.) |
+| `WoftGService`                  | Angebote im Rahmen des WoftG M-V              | Kosten, Setting, barrierefreier Zugang (Bool.) |
 
 Neue Angebotstypen können durch Ableitung von `Service` ergänzt werden – die generischen
 CRUD-Views, die URL-Registrierung und der Redaktionsprozess greifen automatisch.

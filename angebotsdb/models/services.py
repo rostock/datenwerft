@@ -217,5 +217,5 @@ class WoftGService(Service):
   handicap_accessible = BooleanField(verbose_name='Barrierefreier Zugang?')
 
   class Meta:
-    verbose_name = 'Angebot im Rahmen des WoftG'
-    verbose_name_plural = 'Angebote im Rahmen des WoftG'
+    verbose_name = 'Angebot im Rahmen des WoftG M-V'
+    verbose_name_plural = 'Angebote im Rahmen des WoftG M-V'

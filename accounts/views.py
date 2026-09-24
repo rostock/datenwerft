@@ -58,7 +58,7 @@ class UserSettingsView(LoginRequiredMixin, View):
   Nutzereinstellungen.
   - Allgemein: Passwort-Änderung für lokale Django-Nutzer (LDAP-Nutzer haben kein
     nutzbares Django-Passwort und sehen das Formular nicht)
-  - Angebotsdatenbank: E-Mail-Benachrichtigungen, nur für AngebotsDB-Nutzer/-Admins
+  - Angebotsfinder Jugend & Soziales: E-Mail-Benachrichtigungen, nur für AngebotsDB-Nutzer/-Admins
     sichtbar und änderbar (Opt-in, Standard: aus)
   """
 

@@ -4,8 +4,8 @@ from django.apps import AppConfig
 class AngebotsDBConfig(AppConfig):
   default_auto_field = 'django.db.models.BigAutoField'
   name = 'angebotsdb'
-  verbose_name = 'Angebotsdatenbank'
-  description = 'Angebotsdatenbank'
+  verbose_name = 'Angebotsfinder Jugend & Soziales'
+  description = 'Angebotsfinder Jugend & Soziales'
   datenwerft_app = True
 
   def ready(self):
