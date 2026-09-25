@@ -54,6 +54,12 @@
     "Noto Color Emoji";
 }
 
+.leaflet-container img.leaflet-tile {
+  mix-blend-mode: normal;
+  width: 258px !important;
+  height: 258px !important;
+}
+
 .leaflet-container-default {
   min-height: 300px;
   height: 800px;
