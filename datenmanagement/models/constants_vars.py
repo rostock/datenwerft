@@ -140,13 +140,6 @@ parkscheinautomaten_bewohnerparkgebiet_message = (
   'Großbuchstaben sowie genau einer Ziffer '
   'bestehen.'
 )
-parkscheinautomaten_geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
-parkscheinautomaten_geraetenummer_message = (
-  'Die <strong><em>Gerätenummer</em></strong> '
-  'muss aus genau zwei Ziffern, gefolgt von genau '
-  'einem Unterstrich, und abermals genau fünf '
-  'Ziffern bestehen.'
-)
 parkscheinautomaten_zone_regex = r'^[A-Z]$'
 parkscheinautomaten_zone_message = (
   'Die <strong><em>Zone</em></strong> muss aus genau einem Großbuchstaben bestehen.'

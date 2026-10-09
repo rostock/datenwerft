@@ -1,7 +1,3 @@
---
--- PostgreSQL database dump
---
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -2747,15 +2743,14 @@ CREATE TABLE fachdaten.parkscheinautomaten_parkscheinautomaten_hro (
     zone uuid NOT NULL,
     handyparkzone integer NOT NULL,
     bewohnerparkgebiet character(2),
-    geraetenummer character(8) NOT NULL,
     inbetriebnahme date,
     e_anschluss uuid NOT NULL,
     stellplaetze_pkw smallint,
     stellplaetze_bus smallint,
-    haendlerkartennummer bigint,
-    laufzeit_geldkarte date,
     geometrie public.geometry(Point,25833) NOT NULL,
-    foto character varying(255)
+    foto character varying(255),
+    terminal_id bigint,
+    geraetenummer bigint NOT NULL
 );
 
 
