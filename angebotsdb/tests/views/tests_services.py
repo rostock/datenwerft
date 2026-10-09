@@ -128,6 +128,10 @@ class ChildrenYouthAndFamilyServiceCreateViewTest(ViewTestCase):
     target_group_field = form.fields['target_group']
     self.assertNotIsInstance(target_group_field, CreatableMultipleChoiceField)
     self.assertNotIn('data-tags', target_group_field.widget.attrs)
+    # Schlagworte dürfen dagegen alle Nutzer frei anlegen
+    tags_field = form.fields['tags']
+    self.assertIsInstance(tags_field, CreatableMultipleChoiceField)
+    self.assertIn('data-tags', tags_field.widget.attrs)
     self.assertTrue(form.fields['info_url'].required)
     self.assertIn('handicap_accessible', form.fields)
 
@@ -160,6 +164,19 @@ class ChildrenYouthAndFamilyServiceCreateViewTest(ViewTestCase):
     self.generic_post_test(
       login_as_provider, 'childrenyouthandfamilyservice_create', None, self._valid_form_data(), 302
     )
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_post_creates_new_tag_as_provider(self, mock_get):
+    """Schlagworte dürfen alle Nutzer frei anlegen: POST mit neuem Schlagwort-Namen
+    legt das Tag an und verknüpft es mit dem Angebot."""
+    form_data = self._valid_form_data()
+    form_data['tags'] = [VALID_STRING_B]
+    self.generic_post_test(
+      login_as_provider, 'childrenyouthandfamilyservice_create', None, form_data, 302
+    )
+    self.assertTrue(Tag.objects.filter(name=VALID_STRING_B).exists())
+    service = ChildrenYouthAndFamilyService.objects.get(name=VALID_STRING_A)
+    self.assertTrue(service.tags.filter(name=VALID_STRING_B).exists())
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_success_as_admin(self, mock_get):
@@ -320,6 +337,22 @@ class ChildrenYouthAndFamilyServiceUpdateViewTest(FormViewTestCase):
     self.test_object.refresh_from_db()
     self.assertEqual(self.test_object.name, VALID_STRING_B)
     self.assertEqual(self.test_object.status, 'draft')
+
+  @patch(PYGEOAPI_PATCH, return_value=MockResponse())
+  def test_post_creates_new_tag_as_provider(self, mock_get):
+    """Update: POST mit neuem Schlagwort-Namen legt das Tag an und verknüpft es."""
+    form_data = self._valid_form_data()
+    form_data['tags'] = [VALID_STRING_B]
+    self.generic_post_test(
+      login_as_provider,
+      'childrenyouthandfamilyservice_update',
+      {'pk': self.test_object.pk},
+      form_data,
+      302,
+    )
+    self.assertTrue(Tag.objects.filter(name=VALID_STRING_B).exists())
+    self.test_object.refresh_from_db()
+    self.assertTrue(self.test_object.tags.filter(name=VALID_STRING_B).exists())
 
   @patch(PYGEOAPI_PATCH, return_value=MockResponse())
   def test_post_error_missing_required_fields(self, mock_get):
