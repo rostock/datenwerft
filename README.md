@@ -109,7 +109,7 @@ cp rq-worker.service /etc/systemd/system/rq-worker.service
 1. JavaScript-Module via _npm_ installieren:
 
 ```bash
-npm ci
+npm ci --omit=dev
 ```
 
 2. Anwendung initialisieren:
@@ -360,9 +360,11 @@ Nützliche Tools für eine Entwicklungsumgebung, wie etwa _ruff,_ können zusät
 # ohne uv
 source .venv/bin/activate
 pip install -r requirements-dev.txt
+npm ci
 
 # mit uv
 uv sync --dev
+npm ci
 ```
 
 #### _PEP8_-Durchsetzung
