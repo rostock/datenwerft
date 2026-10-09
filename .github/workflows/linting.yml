@@ -40,7 +40,7 @@ jobs:
         with:
           node-version: '26'
       - name: Install Node.js dependencies
-        run: npm install
+        run: npm ci
       - name: Check CSS rules via Stylelint
         run: npx stylelint "datenwerft/**/*.css" "angebotsdb/**/*.css" "datenmanagement/**/*.css" "pygeoapi/**/*.css" "stadtbereichskatalog/**/*.css"
       - name: Check JavaScript rules via ESLint

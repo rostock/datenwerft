@@ -5,7 +5,7 @@ set -e
 
 python3 -m venv .venv
 
-npm install
+npm ci --omit=dev
 
 source .venv/bin/activate
 

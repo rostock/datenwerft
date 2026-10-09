@@ -2788,15 +2788,9 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
       )
     ],
   )
-  geraetenummer = CharField(
+  geraetenummer = PositiveIntegerMinField(
     verbose_name='Gerätenummer',
-    max_length=8,
-    validators=[
-      RegexValidator(
-        regex=parkscheinautomaten_geraetenummer_regex,
-        message=parkscheinautomaten_geraetenummer_message,
-      )
-    ],
+    min_value=1,
   )
   inbetriebnahme = DateField(verbose_name='Inbetriebnahme', blank=True, null=True)
   e_anschluss = ForeignKey(
@@ -2813,14 +2807,12 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
   stellplaetze_bus = PositiveSmallIntegerMinField(
     verbose_name='Bus-Stellplätze', min_value=1, blank=True, null=True
   )
-  haendlerkartennummer = PositiveIntegerRangeField(
-    verbose_name='Händlerkartennummer',
-    min_value=1000000000,
-    max_value=9999999999,
+  terminal_id = PositiveIntegerMinField(
+    verbose_name='Terminal-ID',
+    min_value=1,
     blank=True,
     null=True,
   )
-  laufzeit_geldkarte = DateField(verbose_name='Laufzeit der Geldkarte', blank=True, null=True)
   foto = ImageField(
     verbose_name='Foto',
     storage=OverwriteStorage(),

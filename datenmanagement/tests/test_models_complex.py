@@ -5037,7 +5037,7 @@ class ParkscheinautomatenParkscheinautomatenTest(DefaultComplexModelTestCase):
       'bezeichnung': 'Bezeichnung1',
       'zone': zone,
       'handyparkzone': 456789,
-      'geraetenummer': '34_56789',
+      'geraetenummer': 3456789,
       'e_anschluss': e_anschluss,
       'geometrie': VALID_POINT_DB,
     }
@@ -5049,7 +5049,7 @@ class ParkscheinautomatenParkscheinautomatenTest(DefaultComplexModelTestCase):
       'bezeichnung': 'Bezeichnung3',
       'zone': str(zone.pk),
       'handyparkzone': 456789,
-      'geraetenummer': '34_56789',
+      'geraetenummer': 3456789,
       'e_anschluss': str(e_anschluss.pk),
       'geometrie': VALID_POINT_VIEW,
     }
@@ -5060,7 +5060,7 @@ class ParkscheinautomatenParkscheinautomatenTest(DefaultComplexModelTestCase):
       'bezeichnung': 'Bezeichnung4',
       'zone': str(zone.pk),
       'handyparkzone': 456789,
-      'geraetenummer': '34_56789',
+      'geraetenummer': 3456789,
       'e_anschluss': str(e_anschluss.pk),
       'geometrie': VALID_POINT_VIEW,
     }
