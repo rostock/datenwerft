@@ -579,6 +579,42 @@ class TargetGroupUpdateViewTest(FormViewTestCase):
 # ---------------------------------------------------------------------------
 
 
+class UserProfileListViewTest(ViewTestCase):
+  """
+  Testklasse für die Listen-Ansicht von UserProfile.
+  """
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    # Vollnamen setzen, um zu prüfen, dass die Liste sie anzeigt
+    cls.admin_user.first_name = 'Erika'
+    cls.admin_user.last_name = 'Musterfrau'
+    cls.admin_user.save(update_fields=['first_name', 'last_name'])
+    cls.test_object = UserProfile.objects.create(user_id=cls.admin_user.id)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_as_admin(self):
+    self.generic_get_test(
+      login_as_admin,
+      'userprofile_list',
+      None,
+      200,
+      HTML,
+      f'{USERNAME} (Erika Musterfrau)',
+    )
+
+  def test_get_without_full_name_shows_username(self):
+    # Nutzer ohne Vor-/Nachname → nur der Benutzername
+    self.provider_user.first_name = ''
+    self.provider_user.last_name = ''
+    self.provider_user.save(update_fields=['first_name', 'last_name'])
+    UserProfile.objects.create(user_id=self.provider_user.id)
+    self.generic_get_test(login_as_admin, 'userprofile_list', None, 200, HTML, USERNAME_PROVIDER)
+
+
 class UserProfileFormViewTest(FormViewTestCase):
   """
   Testklasse für die Erstell- und Bearbeitungs-Ansicht von UserProfile.

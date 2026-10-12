@@ -347,7 +347,7 @@ class UserProfile(Model):
   dashboard_mode = 'container_button'
   dashboard_container = 'benutzerverwaltung'
   list_fields = {
-    'user': 'Benutzer',
+    'user_display': 'Benutzer',
     'provider': 'Träger',
     'organisational_unit': 'Organisationseinheit',
     'updated_at': 'Zuletzt aktualisiert',
@@ -418,6 +418,18 @@ class UserProfile(Model):
     """
     user = self.user
     return user.username if user else self.user_id
+
+  @property
+  def user_display(self):
+    """
+    Liefert den anzuzeigenden Benutzernamen inkl. vollem Namen (sofern hinterlegt) —
+    gleiche Darstellung wie im Auswahl-Dropdown des UserProfile-Formulars.
+    """
+    user = self.user
+    if not user:
+      return self.user_id
+    full_name = user.get_full_name()
+    return f'{user.username} ({full_name})' if full_name else user.username
 
 
 class ReviewTask(Base):
