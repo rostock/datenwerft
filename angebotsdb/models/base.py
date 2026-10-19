@@ -17,6 +17,8 @@ from django.db.models import (
   TextField,
 )
 
+from datenmanagement.utils import path_and_rename
+
 
 def get_service_type_choices():
   """
@@ -108,13 +110,20 @@ class Provider(Base):
 
   # Database fields
   name = CharField(max_length=255, verbose_name='Bezeichnung')
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname',
+    max_length=255,
+    null=True,
+    blank=True,
+    editable=False,
+  )
   description = TextField(
     verbose_name='Beschreibung',
     null=True,
     blank=True,
   )
   logo = ImageField(
-    upload_to='angebotsdb/hosts/',
+    upload_to=path_and_rename('angebotsdb/hosts/'),
     verbose_name='Logo',
     null=True,
     blank=True,

@@ -221,7 +221,7 @@
                             <img src="{{ form.instance.logo.url }}" alt="Logo"
                                  width="60" height="60" class="rounded object-fit-cover">
                           </a>
-                          <span class="me-auto">{{ form.instance.logo.name|cut:"angebotsdb/hosts/" }}</span>
+                          <span class="me-auto">{{ form.instance.logo.dateiname_original|default:form.instance.logo.name|cut:"angebotsdb/hosts/" }}</span>
                           {% if user_can_save and not readonly %}
                             <button type="button" class="btn btn-sm btn-outline-danger ms-2"
                                     id="logo-delete-btn">
@@ -266,10 +266,11 @@
                     <div class="d-flex align-items-center mb-2 existing-image-row"
                          data-image-id="{{ img.pk }}">
                       <a href="{{ img.image.url }}" target="_blank" class="me-2 flex-shrink-0">
-                        <img src="{{ img.image.url }}" alt="{{ img.image.name }}"
+                        <img src="{{ img.image.url }}"
+                             alt="{{ img.dateiname_original|default:img.image.name }}"
                              width="60" height="60" class="rounded object-fit-cover">
                       </a>
-                      <span class="me-auto">{{ img.image.name|cut:"angebotsdb/services/" }}</span>
+                      <span class="me-auto">{{ img.dateiname_original|default:img.image.name|cut:"angebotsdb/services/" }}</span>
                       {% if user_can_save and not readonly %}
                         <button type="button" class="btn btn-sm btn-outline-danger delete-image-btn"
                                 data-image-id="{{ img.pk }}">

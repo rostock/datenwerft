@@ -1,5 +1,6 @@
 import logging
 from datetime import date, datetime
+from functools import partial
 from locale import LC_ALL, format_string, setlocale
 from pathlib import Path
 from uuid import uuid4
@@ -116,35 +117,44 @@ def localize_number(value):
 
 def path_and_rename(path, foreign_key_subdir_attr: str = ''):
   """
-  cleans passed path and returns it
+  cleans passed path and returns it as callable for upload_to that generates a
+  uuid-based file name (uuid4 fallback if the object has no uuid attribute)
+
+  The returned functools.partial is deliberately not a closure: Django's
+  migration serializer and autodetector can only handle deconstructible or
+  module-level callables in field arguments.
 
   :param path: path
   :param foreign_key_subdir_attr: use instance attribute as subdirectory
   :return: cleaned version of passed path
   """
+  return partial(path_and_rename_upload, path, foreign_key_subdir_attr=foreign_key_subdir_attr)
 
-  def wrapper(instance, filename):
-    """
-    sets path based on passed object and passed file name and returns it
 
-    :param instance: object
-    :param filename: file name
-    :return: path set based on passed object and passed file name
-    """
-    if hasattr(instance, 'dateiname_original'):
-      instance.dateiname_original = filename
-    ext = filename.split('.')[-1]
-    if hasattr(instance, 'uuid'):
-      filename = '{0}.{1}'.format(str(instance.uuid), ext.lower())
-    else:
-      filename = '{0}.{1}'.format(str(uuid4()), ext.lower())
-    if foreign_key_subdir_attr:
-      subdir = str(getattr(instance, foreign_key_subdir_attr))
-      return Path(path) / subdir / filename
-    else:
-      return Path(path) / filename
+# Achtung: dieser Funktionsname ist in Migrationsdateien serialisiert (z. B.
+# angebotsdb/migrations/0016_*) und darf nachträglich nicht mehr umbenannt werden.
+def path_and_rename_upload(path, instance, filename, foreign_key_subdir_attr: str = ''):
+  """
+  sets path based on passed object and passed file name and returns it
 
-  return wrapper
+  :param path: path
+  :param instance: object
+  :param filename: file name
+  :param foreign_key_subdir_attr: use instance attribute as subdirectory
+  :return: path set based on passed object and passed file name
+  """
+  if hasattr(instance, 'dateiname_original'):
+    instance.dateiname_original = filename
+  ext = filename.split('.')[-1]
+  if hasattr(instance, 'uuid'):
+    filename = '{0}.{1}'.format(str(instance.uuid), ext.lower())
+  else:
+    filename = '{0}.{1}'.format(str(uuid4()), ext.lower())
+  if foreign_key_subdir_attr:
+    subdir = str(getattr(instance, foreign_key_subdir_attr))
+    return Path(path) / subdir / filename
+  else:
+    return Path(path) / filename
 
 
 def user_has_model_permissions_any(user, model):

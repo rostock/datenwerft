@@ -361,12 +361,15 @@ def create_draft_copy(service, user):
     getattr(new, field.name).set(getattr(service, field.name).all())
 
   # ServiceImage-Einträge kopieren (Dateipfad wird geteilt, nicht dupliziert)
+  # dateiname_original wird explizit mitkopiert, da bei bereits gespeicherten
+  # Dateien kein upload_to-Aufruf erfolgt, der das Feld setzen würde.
   service_type = service.__class__.__name__.lower()
   for img in ServiceImage.objects.filter(service_type=service_type, service_id=service.pk):
     ServiceImage.objects.create(
       service_type=service_type,
       service_id=new.pk,
       image=img.image,
+      dateiname_original=img.dateiname_original,
       position=img.position,
     )
 
