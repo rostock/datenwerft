@@ -148,6 +148,7 @@ class ServiceImage(Base):
   # Database Attributes
   service_type = CharField(max_length=100, verbose_name='Angebotstyp')
   service_id = IntegerField(verbose_name='Service-ID')
+  image = ImageField(upload_to=path_and_rename('angebotsdb/services/'), verbose_name='Bild')
   dateiname_original = CharField(
     verbose_name='Original-Dateiname',
     max_length=255,
@@ -155,7 +156,6 @@ class ServiceImage(Base):
     blank=True,
     editable=False,
   )
-  image = ImageField(upload_to=path_and_rename('angebotsdb/services/'), verbose_name='Bild')
   position = IntegerField(default=0, verbose_name='Reihenfolge')
 
   class Meta:

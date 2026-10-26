@@ -221,7 +221,7 @@
                             <img src="{{ form.instance.logo.url }}" alt="Logo"
                                  width="60" height="60" class="rounded object-fit-cover">
                           </a>
-                          <span class="me-auto">{{ form.instance.logo.dateiname_original|default:form.instance.logo.name|cut:"angebotsdb/hosts/" }}</span>
+                          <span class="me-auto">{{ form.instance.dateiname_original|default:form.instance.logo.name|cut:"angebotsdb/hosts/" }}</span>
                           {% if user_can_save and not readonly %}
                             <button type="button" class="btn btn-sm btn-outline-danger ms-2"
                                     id="logo-delete-btn">
@@ -286,6 +286,11 @@
                     <div class="mt-2">
                       <input type="file" name="images" multiple accept="image/*"
                              class="form-control" id="image-upload-input">
+                      <div class="form-text">
+                        Bilder können in mehreren Durchläufen ausgewählt werden (auch aus
+                        verschiedenen Ordnern) und lassen sich vor dem Speichern einzeln
+                        entfernen. Bereits gespeicherte Bilder bleiben erhalten.
+                      </div>
                       <div id="selected-files-list" class="d-flex flex-wrap gap-2 mt-2"></div>
                     </div>
                   {% endif %}
@@ -722,13 +727,32 @@
       {# ── JavaScript für Bilder-Upload und -Löschung ── #}
       <script>
         document.addEventListener('DOMContentLoaded', function() {
-          // Vorschau der ausgewählten Dateien anzeigen
+          // Gestaffelter Bild-Upload: Dateien mehrerer Dialog-Öffnungen (auch aus
+          // verschiedenen Ordnern) werden gesammelt, bis das Formular gespeichert wird.
           const imageInput = document.getElementById('image-upload-input');
           if (imageInput) {
-            imageInput.addEventListener('change', function() {
+            const selectedFiles = [];
+
+            const findSelectedFile = function(file) {
+              return selectedFiles.findIndex(function(candidate) {
+                return candidate.name === file.name
+                  && candidate.size === file.size
+                  && candidate.lastModified === file.lastModified;
+              });
+            };
+
+            const renderSelectedFiles = function() {
+              // Gesammelte File-Objekte via DataTransfer zurückschreiben, damit der
+              // Browser sie beim Absenden des Formulars überträgt
+              const transfer = new DataTransfer();
+              selectedFiles.forEach(function(file) {
+                transfer.items.add(file);
+              });
+              imageInput.files = transfer.files;
+
               const list = document.getElementById('selected-files-list');
               list.innerHTML = '';
-              for (const file of this.files) {
+              selectedFiles.forEach(function(file, index) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                   const wrapper = document.createElement('div');
@@ -743,14 +767,34 @@
                   img.className = 'rounded object-fit-cover';
                   const label = document.createElement('div');
                   label.className = 'text-muted mt-1 small text-truncate';
+                  label.style.maxWidth = '80px';
                   label.textContent = file.name;
+                  const removeBtn = document.createElement('button');
+                  removeBtn.type = 'button';
+                  removeBtn.className = 'btn btn-sm btn-outline-danger mt-1';
+                  removeBtn.setAttribute('aria-label', 'Datei ' + file.name + ' entfernen');
+                  removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                  removeBtn.addEventListener('click', function() {
+                    selectedFiles.splice(index, 1);
+                    renderSelectedFiles();
+                  });
                   a.appendChild(img);
                   wrapper.appendChild(a);
                   wrapper.appendChild(label);
+                  wrapper.appendChild(removeBtn);
                   list.appendChild(wrapper);
                 };
                 reader.readAsDataURL(file);
+              });
+            };
+
+            imageInput.addEventListener('change', function() {
+              for (const file of this.files) {
+                if (findSelectedFile(file) === -1) {
+                  selectedFiles.push(file);
+                }
               }
+              renderSelectedFiles();
             });
           }
 

@@ -110,13 +110,6 @@ class Provider(Base):
 
   # Database fields
   name = CharField(max_length=255, verbose_name='Bezeichnung')
-  dateiname_original = CharField(
-    verbose_name='Original-Dateiname',
-    max_length=255,
-    null=True,
-    blank=True,
-    editable=False,
-  )
   description = TextField(
     verbose_name='Beschreibung',
     null=True,
@@ -127,6 +120,13 @@ class Provider(Base):
     verbose_name='Logo',
     null=True,
     blank=True,
+  )
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname',
+    max_length=255,
+    null=True,
+    blank=True,
+    editable=False,
   )
   street = CharField(max_length=150, verbose_name='Straße und Hausnummer', null=True, blank=True)
   zip = IntegerField(verbose_name='PLZ', null=True, blank=True)
