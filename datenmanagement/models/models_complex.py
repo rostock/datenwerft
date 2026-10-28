@@ -294,6 +294,7 @@ class Baugrunduntersuchungen_Baugrundbohrungen(ComplexModel):
     short_name = 'Baugrundbohrung'
     fields_with_foreign_key_to_linkify = ['baugrunduntersuchung']
     geometry_type = 'Point'
+    geometry_coordinates_input = True
     list_fields = {
       'aktiv': 'aktiv?',
       'baugrunduntersuchung': 'Baugrunduntersuchung',
