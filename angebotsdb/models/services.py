@@ -16,6 +16,8 @@ from django.db.models import (
   URLField,
 )
 
+from datenmanagement.utils import path_and_rename
+
 from .base import Base, Law, Provider, Tag, TargetGroup, Topic
 
 SERVICE_STATUS_CHOICES = [
@@ -146,7 +148,14 @@ class ServiceImage(Base):
   # Database Attributes
   service_type = CharField(max_length=100, verbose_name='Angebotstyp')
   service_id = IntegerField(verbose_name='Service-ID')
-  image = ImageField(upload_to='angebotsdb/services/', verbose_name='Bild')
+  image = ImageField(upload_to=path_and_rename('angebotsdb/services/'), verbose_name='Bild')
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname',
+    max_length=255,
+    null=True,
+    blank=True,
+    editable=False,
+  )
   position = IntegerField(default=0, verbose_name='Reihenfolge')
 
   class Meta:

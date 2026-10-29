@@ -17,6 +17,8 @@ from django.db.models import (
   TextField,
 )
 
+from datenmanagement.utils import path_and_rename
+
 
 def get_service_type_choices():
   """
@@ -114,10 +116,17 @@ class Provider(Base):
     blank=True,
   )
   logo = ImageField(
-    upload_to='angebotsdb/hosts/',
+    upload_to=path_and_rename('angebotsdb/hosts/'),
     verbose_name='Logo',
     null=True,
     blank=True,
+  )
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname',
+    max_length=255,
+    null=True,
+    blank=True,
+    editable=False,
   )
   street = CharField(max_length=150, verbose_name='Straße und Hausnummer', null=True, blank=True)
   zip = IntegerField(verbose_name='PLZ', null=True, blank=True)
@@ -347,7 +356,7 @@ class UserProfile(Model):
   dashboard_mode = 'container_button'
   dashboard_container = 'benutzerverwaltung'
   list_fields = {
-    'user': 'Benutzer',
+    'user_display': 'Benutzer',
     'provider': 'Träger',
     'organisational_unit': 'Organisationseinheit',
     'updated_at': 'Zuletzt aktualisiert',
@@ -418,6 +427,18 @@ class UserProfile(Model):
     """
     user = self.user
     return user.username if user else self.user_id
+
+  @property
+  def user_display(self):
+    """
+    Liefert den anzuzeigenden Benutzernamen inkl. vollem Namen (sofern hinterlegt) —
+    gleiche Darstellung wie im Auswahl-Dropdown des UserProfile-Formulars.
+    """
+    user = self.user
+    if not user:
+      return self.user_id
+    full_name = user.get_full_name()
+    return f'{user.username} ({full_name})' if full_name else user.username
 
 
 class ReviewTask(Base):
