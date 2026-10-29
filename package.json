@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.3.1",
-    "@geoman-io/leaflet-geoman-free": "^2.20.2",
+    "@geoman-io/leaflet-geoman-free": "^2.20.4",
     "bootstrap": "^5.3.8",
     "jquery": "^3.7.1",
     "leaflet.locatecontrol": "^0.85.1",
@@ -25,14 +25,14 @@
     "@eslint/create-config": "^1.11.0",
     "@eslint/eslintrc": "^3.3.7",
     "@eslint/js": "^9.39.5",
-    "eslint": "^10.12.0",
+    "eslint": "^10.13.0",
     "eslint-plugin-html": "^8.2.1",
-    "eslint-plugin-oxlint": "^1.87.0",
+    "eslint-plugin-oxlint": "^1.90.0",
     "globals": "^16.5.0",
     "jsdom": "^29.1.1",
-    "oxlint": "^1.87.0",
+    "oxlint": "^1.90.0",
     "stylelint": "^17.16.0",
     "stylelint-config-standard": "^40.0.0",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   }
 }

@@ -826,13 +826,15 @@ class BaugrunduntersuchungenBaugrundbohrungenTest(DefaultComplexModelTestCase):
       'aktiv': True,
       'baugrunduntersuchung': str(baugrunduntersuchung.pk),
       'nummer': 'Nummer3',
-      'geometrie': VALID_POINT_VIEW,
+      'x_25833_input': VALID_X,
+      'y_25833_input': VALID_Y,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'baugrunduntersuchung': str(baugrunduntersuchung.pk),
       'nummer': 'Nummer4',
-      'geometrie': VALID_POINT_VIEW,
+      'x_25833_input': VALID_X,
+      'y_25833_input': VALID_Y,
     }
     cls.attributes_values_view_invalid = {'nummer': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
