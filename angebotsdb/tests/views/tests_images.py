@@ -9,7 +9,6 @@ from django.urls import reverse
 
 from angebotsdb.models.base import Law, Provider, Tag, TargetGroup, Topic, UserProfile
 from angebotsdb.models.services import ChildrenYouthAndFamilyService, ServiceImage
-
 from datenmanagement.tests.constants_vars import VALID_IMAGE_FILE
 
 from ..abstract import FormViewTestCase, MockResponse

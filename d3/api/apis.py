@@ -54,12 +54,12 @@ class D3AuthenticationApi:
     self.logger.debug(
       'Sending request to '
       + D3_HOST
-      + '/identityprovider/login/ with Headers: '
+      + '/identityprovider/login?basic=true with Headers: '
       + request_headers.__str__()
     )
 
     response = requests.get(
-      D3_HOST + '/identityprovider/login/', headers=request_headers, timeout=5
+      D3_HOST + '/identityprovider/login?basic=true', headers=request_headers, timeout=5
     )
 
     if response.status_code >= 400:
