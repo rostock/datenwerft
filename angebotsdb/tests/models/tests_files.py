@@ -1,8 +1,8 @@
 from pathlib import Path
 
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
-from django.conf import settings
 
 from angebotsdb.models.base import Provider
 from angebotsdb.models.services import ServiceImage
